@@ -35,7 +35,10 @@
       "Bash(npx tsc:*)",
       "Bash(npx vercel:*)",
       "Bash(.gitignore:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(xargs ls:*)",
+      "Bash(brew install:*)",
+      "Bash(pdftotext:*)"
     ]
   }
 }

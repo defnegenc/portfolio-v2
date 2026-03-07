@@ -264,6 +264,7 @@ export default function Home() {
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'center' }}>
             {([
               { label: 'Work',     action: () => setNavOpen(false) },
+              { label: 'About',    href:   '/about' },
               { label: 'Research', href:   'https://arxiv.org/abs/2510.05449' },
               { label: 'Résumé',   href:   '/resume' },
               { label: 'Contact',  action: () => { setNavOpen(false); setContact(true) } },

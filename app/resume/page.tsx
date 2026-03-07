@@ -141,12 +141,14 @@ export default function Resume() {
         @page { size: letter; margin: 0.55in 0.65in; }
         @media print {
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          body { background: #fff !important; color: #000 !important; overflow: auto !important; }
-          [data-theme="light"] { --bg: #fff; --ink: #111; --ink-dim: #555; --hairline: rgba(0,0,0,0.12); }
-          main { height: auto !important; overflow: visible !important; }
+          html, body { background: #fff !important; color: #000 !important; overflow: visible !important; height: auto !important; }
+          [data-theme="light"] { --bg: #fff !important; --ink: #111 !important; --ink-dim: #555 !important; --hairline: rgba(0,0,0,0.12) !important; }
+          main { height: auto !important; overflow: visible !important; background: #fff !important; min-height: 0 !important; }
+          div, section, nav, header, footer { background-color: transparent !important; }
           button { display: none !important; }
           .section-collapse.closed { opacity: 1 !important; height: auto !important; pointer-events: auto !important; }
           nav[data-tabbar] { display: none !important; }
+          canvas { display: none !important; }
         }
       `}</style>
 
