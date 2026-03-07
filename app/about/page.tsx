@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import AsciiCanvas from '@/components/AsciiCanvas'
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
@@ -16,6 +16,7 @@ export default function About() {
       style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-main)' }}
     >
       <style>{`
+        html, body { overflow: auto !important; }
         [data-theme="light"] {
           --bg: #F4F2EC;
           --ink: #1A1918;
@@ -33,18 +34,18 @@ export default function About() {
         .about-link:hover::after { transform: scaleX(1); transform-origin: left; }
         .about-link:hover { color: var(--ink) !important; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 700px) {
-          .hero-grid { grid-template-columns: 1fr !important; }
-          .hero-photo { min-height: 60vw !important; }
-          .content-grid { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
-          .fact-grid { grid-template-columns: 1fr !important; }
-        }
         .fade-up { animation: fadeUp 0.6s cubic-bezier(.16,1,.3,1) both; }
         .fade-up-1 { animation-delay: 0.05s; }
         .fade-up-2 { animation-delay: 0.12s; }
         .fade-up-3 { animation-delay: 0.2s; }
         .fade-up-4 { animation-delay: 0.28s; }
         .fade-up-5 { animation-delay: 0.36s; }
+        @media (max-width: 700px) {
+          .hero-inner { flex-direction: column !important; }
+          .hero-photo-wrap { width: 100% !important; height: 56vw !important; min-height: 220px !important; }
+          .content-grid { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
+          .fact-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* Nav */}
@@ -65,41 +66,36 @@ export default function About() {
         </div>
       </nav>
 
-      {/* Hero — full-bleed split */}
-      <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '80vh' }}>
-
-        {/* Left: photo */}
-        <div className="fade-up fade-up-1 hero-photo" style={{ position: 'relative', overflow: 'hidden', minHeight: 420, background: isLight ? '#E8E4DC' : '#111' }}>
-          <Image
-            src="/headshot.jpg"
-            alt="Defne Genç"
-            fill
-            style={{ objectFit: 'cover', objectPosition: 'center top' }}
-            priority
-          />
-          {/* subtle gradient overlay at bottom */}
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%', background: `linear-gradient(to top, ${isLight ? 'rgba(244,242,236,0.5)' : 'rgba(10,10,10,0.5)'}, transparent)` }} />
-        </div>
-
-        {/* Right: intro text */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '3rem 3.5rem 3rem' }}>
-          <div className="fade-up fade-up-2" style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.5rem' }}>
-            Istanbul · Stanford · New York
-          </div>
-          <h1 className="fade-up fade-up-3" style={{ fontSize: 'clamp(3rem, 5.5vw, 6rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.88, marginBottom: '2rem' }}>
-            Defne<br />Genç
-          </h1>
-          <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.4vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 440 }}>
-            Designer, researcher, engineer — in that order of how I think, and rarely in that order of how I work.
-            I'm interested in interfaces that adapt to people rather than demanding people adapt to them.
-          </p>
-        </div>
-      </div>
-
-      {/* Content */}
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 2rem 8rem' }}>
 
-        {/* About section */}
+        {/* Hero — compact inline */}
+        <div className="fade-up fade-up-1 hero-inner" style={{ display: 'flex', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'flex-start' }}>
+
+          {/* Vertical animation strips */}
+          <div className="hero-photo-wrap" style={{ flexShrink: 0, display: 'flex', gap: 6, height: 300, alignItems: 'stretch' }}>
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} style={{ width: 52, height: '100%', overflow: 'hidden', opacity: 0.7 + i * 0.075 }}>
+                <AsciiCanvas breathe lightMode={isLight} />
+              </div>
+            ))}
+          </div>
+
+          {/* Text */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingTop: '1rem' }}>
+            <div className="fade-up fade-up-2" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
+              Istanbul · Stanford · New York
+            </div>
+            <h1 className="fade-up fade-up-3" style={{ fontSize: 'clamp(2.8rem, 5vw, 5.5rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.88, marginBottom: '1.75rem' }}>
+              Defne<br />Genç
+            </h1>
+            <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(0.95rem, 1.3vw, 1.1rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
+              Designer, researcher, engineer — in that order of how I think, and rarely in that order of how I work.
+              I'm interested in interfaces that adapt to people rather than demanding people adapt to them.
+            </p>
+          </div>
+        </div>
+
+        {/* Background */}
         <div className="fade-up fade-up-5 content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
           <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
             Background
@@ -121,7 +117,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* What I'm interested in */}
+        {/* What I'm thinking about */}
         <div className="content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
           <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
             What I'm<br />thinking about
@@ -153,7 +149,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Facts / misc */}
+        {/* Otherwise */}
         <div className="content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
           <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
             Otherwise
@@ -179,7 +175,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Contact row */}
+        {/* Contact */}
         <div style={{ display: 'flex', gap: '2.5rem', padding: '3.5rem 0', flexWrap: 'wrap' }}>
           {[
             { label: 'Email', href: 'mailto:defneg@stanford.edu', text: 'defneg@stanford.edu' },
