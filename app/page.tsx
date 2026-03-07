@@ -59,7 +59,7 @@ function ScrambleName({ text }: { text: string }) {
 const PROJECTS = [
   { no: '01', name: 'Bloom',      tags: ['HCI Research', 'Safety', 'Design'],     year: '2025', href: '/project/bloom',                       external: false },
   { no: '02', name: 'Dishcovery', tags: ['UI Design', 'Frontend', 'UX Research'], year: '2024', href: '/project/dishcovery',                  external: false },
-  { no: '03', name: 'Menuto',     tags: ['Full-Stack', 'AI', 'Mobile'],           year: '2024', href: 'https://github.com/defnegenc/menuto',   external: true },
+  { no: '03', name: 'Menuto',     tags: ['Full-Stack', 'AI', 'Mobile'],           year: '2024', href: '/project/menuto',                      external: false },
   { no: '04', name: 'Hercules',   tags: ['UX', 'AI Agent', 'Hackathon'],          year: '2024', href: '/project/hercules',                    external: false },
 ]
 

@@ -110,6 +110,93 @@ const PROJECTS: Record<string, Project> = {
     ],
   },
 
+  menuto: {
+    slug: 'menuto',
+    no: '03',
+    name: 'Menuto',
+    tagline: 'A full-stack AI dish recommendation system — solo-built end to end, from product vision through mobile app, backend API, and recommendation engine.',
+    year: '2024',
+    role: 'Solo — Product · Design · Full-Stack',
+    duration: 'Personal Project · End-to-End Ownership',
+    tools: 'React Native · Expo · FastAPI · GPT-4o-mini · Supabase · PostgreSQL · Google Places API · Tesseract OCR',
+    accentColor: '#C8893A',
+    tags: ['Full-Stack', 'AI', 'Mobile'],
+    externalLink: { href: 'https://github.com/defnegenc/menuto', label: 'View on GitHub ↗' },
+    sections: [
+      {
+        type: 'text',
+        label: 'The Idea',
+        body: 'Menuto came from a real, repeated frustration: sitting at an unfamiliar restaurant with an overwhelming menu and zero signal on what to order. Reviews help with restaurants — not dishes. I wanted something that could scan any menu and tell me, specifically, what I should order given my actual taste preferences. So I built it.',
+      },
+      {
+        type: 'pullquote',
+        text: 'Product, design, backend, mobile frontend, database schema, LLM integration, cost optimization, deployment — all of it, solo. Menuto is proof that I can take a product from idea to working system without a team.',
+      },
+      {
+        type: 'stats',
+        items: [
+          { value: '2', label: 'Codebases: FastAPI backend + React Native app' },
+          { value: '4', label: 'Menu input modes: photo, URL, text, search' },
+          { value: '4', label: 'Scoring dimensions: taste, consensus, social, context' },
+          { value: '60–80%', label: 'LLM cost reduction through model + prompt optimization' },
+        ],
+      },
+      {
+        type: 'subheader',
+        text: 'Product Scope',
+      },
+      {
+        type: 'text',
+        label: 'Full-Stack from Scratch',
+        body: 'This is not a frontend wrapper around an API. I designed the data model, wrote the FastAPI backend, implemented the Supabase/PostgreSQL schema, integrated Tesseract OCR and GPT-4o-mini for menu parsing, wired the Google Places API for restaurant search, and built the React Native app — all while making product decisions about what to prioritize and what to cut. The repo has two distinct codebases with a shared type contract between them.',
+      },
+      {
+        type: 'text',
+        label: 'User Flow',
+        body: 'Sign in → onboarding (cuisines, spice tolerance, price range, dietary restrictions, capped at 2–3 min) → search for a restaurant via Google Places or photograph/paste a menu directly → AI-ranked dish list with plain-language explanations → rate dishes 1–5 stars. Ratings update your preference model in Supabase, making future recommendations sharper with every use.',
+      },
+      {
+        type: 'subheader',
+        text: 'The AI Pipeline',
+      },
+      {
+        type: 'text',
+        label: 'Menu Parsing',
+        body: 'The backend accepts a menu image, URL, or raw text through the same endpoint — content-type detection routes to the right handler. Images go through Tesseract OCR to extract text, which is structured by GPT-4o-mini into a typed JSON array: dish name, description, price, category, ingredients, dietary tags, and parse confidence. Low-confidence parses surface a correction UI in the app rather than silently failing.',
+      },
+      {
+        type: 'text',
+        label: 'Recommendation Scoring',
+        body: 'Each dish is scored 0–100 across four dimensions: personal match (taste, spice, dietary restrictions), review consensus (aggregated ratings from prior users), social affinity (ratings from users with similar taste profiles), and context fit (budget, occasion, time of day). The weighted blend drives the ranking, but the app always shows the reasoning — a "Why this?" breakdown per dish — because a number without explanation doesn\'t build trust.',
+      },
+      {
+        type: 'list',
+        label: 'Engineering Decisions',
+        items: [
+          'LLM cost optimization — switched GPT-4 → GPT-4o-mini, added max_tokens caps (300–1,500 per call), reduced recommendation count from 8 to 5. Net: 60–80% cost reduction with no perceptible quality loss.',
+          'Zustand state management — typed slices for user preferences, scan session, and recommendation state; zero prop-drilling across 5 screens in a mixed navigation model.',
+          'Mixed navigation architecture — state-machine for top-level screen transitions (sign-in → onboarding → app), React Navigation tabs only for the inner My Restaurants / Add Restaurant views.',
+          'Location-aware search — debounced Google Places autocomplete (300ms delay) with GPS integration; graceful fallback to city-level search if permission is denied.',
+          'Supabase schema — dish ratings, user preference vectors, and restaurant menu cache in PostgreSQL; ratings trigger async preference re-weighting without blocking the UI.',
+        ],
+      },
+      {
+        type: 'subheader',
+        text: 'Design Thinking',
+      },
+      {
+        type: 'text',
+        label: 'Onboarding as Signal Collection',
+        body: 'The onboarding sequence is designed to feel like a conversation about food, not a form about restrictions. Cuisine chips are multi-select with playful labels; the spice slider uses emoji anchors; price preference is four discrete levels rather than a slider. Dietary restrictions are surfaced last, optional, and framed as refinements — not gatekeeping. The whole thing takes under 3 minutes and produces a usable preference vector immediately.',
+      },
+      {
+        type: 'text',
+        label: 'Dish Cards',
+        body: 'The recommendation card hierarchy: score badge (the anchor) → dish name + price → one-line explanation → swipe actions. "Why this?" expands the four component scores inline. The Tinder-style swipe interaction (Want This / Pass) lets users build a favorites list without losing their place in the ranked list — a deliberate UX decision to reduce friction at the exact moment of decision.',
+      },
+    ],
+  },
+
   dishcovery: {
     slug: 'dishcovery',
     no: '02',
@@ -538,7 +625,7 @@ export function generateStaticParams() {
 
 // ─── Nav helper ───────────────────────────────────────────────────────────────
 
-const ALL_SLUGS = ['bloom', 'dishcovery', 'flock', 'tailor', 'hercules']
+const ALL_SLUGS = ['bloom', 'dishcovery', 'menuto', 'flock', 'tailor', 'hercules']
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
