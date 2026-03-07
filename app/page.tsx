@@ -1,55 +1,100 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
 
-// ─── Text Scramble ────────────────────────────────────────────────────────────
+// ─── Magnetic Name ────────────────────────────────────────────────────────────
 
-const GLYPHS = '!<>-_\\/[]{}—=+*^?#@%&0123456789ABCDEFGHIJabcdef'
+const GLYPHS = '!<>-_\\/[]{}—=+*^?#@%&ABCDEFGHIJKLMabcdefghij0123456789'
 
-function ScrambleName({ text }: { text: string }) {
-  const [displayed, setDisplayed] = useState(text)
-  const animRef = useRef<number>()
-  const frameRef = useRef(0)
-  const queueRef = useRef<Array<{ to: string; start: number; end: number; char?: string }>>([])
+function MagneticName({ text }: { text: string }) {
+  const chars = text.split('')
+  const containerRef = useRef<HTMLSpanElement>(null)
+  const refsArr = useRef<(HTMLSpanElement | null)[]>([])
+  const rafRef = useRef<number>()
+  const scrambleTimers = useRef<(ReturnType<typeof setTimeout> | null)[]>(chars.map(() => null))
 
-  const startScramble = useCallback(() => {
-    queueRef.current = text.split('').map((ch, i) => ({
-      to: ch,
-      start: Math.floor(Math.random() * 10),
-      end: 10 + Math.floor(Math.random() * 10) + Math.floor(i * 0.7),
-    }))
-    frameRef.current = 0
-    if (animRef.current) cancelAnimationFrame(animRef.current)
-    const tick = () => {
-      let out = '', done = 0
-      for (const item of queueRef.current) {
-        const { to, start: s, end: e } = item
-        if (to === ' ' || to === 'Ç') { out += to; done++; continue }
-        if (frameRef.current >= e) { out += to; done++ }
-        else if (frameRef.current >= s) {
-          if (!item.char || Math.random() < 0.28) item.char = GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
-          out += item.char
-        } else { out += to }
-      }
-      setDisplayed(out)
-      frameRef.current++
-      if (done < queueRef.current.length) animRef.current = requestAnimationFrame(tick)
-      else setDisplayed(text)
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const onMove = (e: MouseEvent) => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      const mx = e.clientX, my = e.clientY
+      rafRef.current = requestAnimationFrame(() => {
+        refsArr.current.forEach((el, i) => {
+          if (!el) return
+          const rect = el.getBoundingClientRect()
+          const cx = rect.left + rect.width / 2
+          const cy = rect.top + rect.height / 2
+          const dx = mx - cx
+          const dy = my - cy
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const maxDist = 90
+
+          if (dist < maxDist) {
+            const t = 1 - dist / maxDist
+            const strength = t * t * 32
+            const nx = dx / (dist || 1)
+            const ny = dy / (dist || 1)
+            const rotate = nx * 12 * t
+            el.style.transform = `translate(${-nx * strength}px, ${-ny * strength}px) rotate(${rotate}deg)`
+            el.style.transition = 'transform 0.06s ease-out'
+
+            // Scramble when very close
+            if (dist < 38 && chars[i] !== ' ' && !scrambleTimers.current[i]) {
+              el.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
+              scrambleTimers.current[i] = setTimeout(() => {
+                if (el) el.textContent = chars[i]
+                scrambleTimers.current[i] = null
+              }, 90)
+            }
+          } else {
+            el.style.transform = 'translate(0,0) rotate(0deg)'
+            el.style.transition = 'transform 0.9s cubic-bezier(.16,1,.3,1)'
+          }
+        })
+      })
     }
-    animRef.current = requestAnimationFrame(tick)
-  }, [text])
 
-  const stopScramble = useCallback(() => {
-    if (animRef.current) cancelAnimationFrame(animRef.current)
-    setDisplayed(text)
-  }, [text])
+    const onLeave = () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      refsArr.current.forEach((el, i) => {
+        if (!el) return
+        el.style.transform = 'translate(0,0) rotate(0deg)'
+        el.style.transition = 'transform 1s cubic-bezier(.16,1,.3,1)'
+        if (scrambleTimers.current[i]) {
+          clearTimeout(scrambleTimers.current[i]!)
+          scrambleTimers.current[i] = null
+          el.textContent = chars[i]
+        }
+      })
+    }
 
-  useEffect(() => () => { if (animRef.current) cancelAnimationFrame(animRef.current) }, [])
+    container.addEventListener('mousemove', onMove)
+    container.addEventListener('mouseleave', onLeave)
+    return () => {
+      container.removeEventListener('mousemove', onMove)
+      container.removeEventListener('mouseleave', onLeave)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [chars])
 
   return (
-    <span onMouseEnter={startScramble} onMouseLeave={stopScramble} style={{ cursor: 'crosshair' }}>
-      {displayed}
+    <span ref={containerRef} style={{ display: 'inline-block', cursor: 'crosshair' }}>
+      {chars.map((ch, i) =>
+        ch === ' ' ? (
+          <span key={i} style={{ display: 'inline-block', width: '0.3em' }} />
+        ) : (
+          <span
+            key={i}
+            ref={el => { refsArr.current[i] = el }}
+            style={{ display: 'inline-block', willChange: 'transform', transition: 'transform 0.9s cubic-bezier(.16,1,.3,1)' }}
+          >
+            {ch}
+          </span>
+        )
+      )}
     </span>
   )
 }
@@ -295,7 +340,7 @@ export default function Home() {
       <div className="name-strip" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
           <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-            <ScrambleName text="DEFNE GENÇ" />
+            <MagneticName text="DEFNE GENÇ" />
           </h1>
           <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
             Stanford CS HCI · APM @ Coinbase · NYC
