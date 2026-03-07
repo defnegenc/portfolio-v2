@@ -40,8 +40,8 @@ export default function About() {
         .fade-up-4 { animation-delay: 0.28s; }
         .fade-up-5 { animation-delay: 0.36s; }
         @media (max-width: 700px) {
-          .hero-inner { flex-direction: column !important; }
-          .hero-strips { display: none !important; }
+          .hero-inner { flex-direction: column !important; gap: 1.5rem !important; }
+          .hero-strips { height: 140px !important; }
           .content-grid { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
           .fact-grid { grid-template-columns: 1fr !important; }
         }
@@ -71,9 +71,9 @@ export default function About() {
         <div className="fade-up fade-up-1 hero-inner" style={{ display: 'flex', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'flex-start' }}>
 
           {/* ASCII strips */}
-          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280, flexShrink: 0 }}>
+          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280, flexShrink: 0, alignSelf: 'stretch' }}>
             {[0.4, 0.55, 0.7, 0.85, 1].map((opacity, i) => (
-              <div key={i} style={{ width: 46, height: '100%', overflow: 'hidden', opacity }}>
+              <div key={i} style={{ flex: 1, minWidth: 40, maxWidth: 52, height: '100%', overflow: 'hidden', opacity }}>
                 <AsciiCanvas breathe lightMode={isLight} />
               </div>
             ))}
