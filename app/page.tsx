@@ -7,71 +7,40 @@ import AsciiCanvas from '@/components/AsciiCanvas'
 
 function BinaryName({ text }: { text: string }) {
   const chars = text.split('')
-  const containerRef = useRef<HTMLSpanElement>(null)
   const refsArr = useRef<(HTMLSpanElement | null)[]>([])
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
-  const busy = useRef(false)
+  const intervals = useRef<(ReturnType<typeof setInterval> | null)[]>(chars.map(() => null))
 
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+  useEffect(() => () => {
+    intervals.current.forEach(id => { if (id) clearInterval(id) })
+  }, [])
 
-    const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = [] }
+  const onEnter = (i: number) => {
+    const el = refsArr.current[i]
+    if (!el) return
+    const bin = chars[i].charCodeAt(0).toString(2).padStart(8, '0')
+    let bit = 0
+    intervals.current[i] = setInterval(() => {
+      if (el) el.textContent = bin[bit]
+      bit = (bit + 1) % bin.length
+    }, 75)
+  }
 
-    const restore = () => {
-      clearTimers()
-      refsArr.current.forEach((el, i) => { if (el) el.textContent = chars[i] })
-      busy.current = false
-    }
-
-    const scan = () => {
-      if (busy.current) return
-      busy.current = true
-      clearTimers()
-      const nonSpaces = chars.map((ch, i) => ch !== ' ' ? i : -1).filter(i => i >= 0)
-      let done = 0
-      nonSpaces.forEach((ci, pos) => {
-        const el = refsArr.current[ci]
-        if (!el) return
-        // binary string for this character's char code
-        const binStr = chars[ci].charCodeAt(0).toString(2).padStart(8, '0')
-        const t0 = setTimeout(() => {
-          // show each bit in sequence
-          binStr.split('').forEach((bit, k) => {
-            const tf = setTimeout(() => {
-              if (el) el.textContent = bit
-            }, k * 40)
-            timers.current.push(tf)
-          })
-          // resolve back to character
-          const tr = setTimeout(() => {
-            if (el) el.textContent = chars[ci]
-            done++
-            if (done === nonSpaces.length) busy.current = false
-          }, binStr.length * 40 + 60)
-          timers.current.push(tr)
-        }, pos * 55)
-        timers.current.push(t0)
-      })
-    }
-
-    container.addEventListener('mouseenter', scan)
-    container.addEventListener('mouseleave', restore)
-    return () => {
-      clearTimers()
-      container.removeEventListener('mouseenter', scan)
-      container.removeEventListener('mouseleave', restore)
-    }
-  }, [chars])
+  const onLeave = (i: number) => {
+    if (intervals.current[i]) { clearInterval(intervals.current[i]!); intervals.current[i] = null }
+    const el = refsArr.current[i]
+    if (el) el.textContent = chars[i]
+  }
 
   return (
-    <span ref={containerRef} style={{ display: 'inline-block', cursor: 'crosshair' }}>
+    <span style={{ display: 'inline-block', cursor: 'crosshair' }}>
       {chars.map((ch, i) =>
         ch === ' ' ? (
           <span key={i} style={{ display: 'inline-block', width: '0.28em' }} />
         ) : (
           <span key={i} ref={el => { refsArr.current[i] = el }}
-            style={{ display: 'inline-block' }}>
+            style={{ display: 'inline-block' }}
+            onMouseEnter={() => onEnter(i)}
+            onMouseLeave={() => onLeave(i)}>
             {ch}
           </span>
         )
@@ -174,7 +143,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('All')
   const [theme, setTheme]         = useState<'dark' | 'light'>('dark')
   const [glyphMode, setGlyphMode] = useState<'default' | 'chunky' | 'custom'>('chunky')
-  const [customChars, setCustomChars] = useState('·|·')
+  const [customChars, setCustomChars] = useState('s-h')
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString('en-US', {
