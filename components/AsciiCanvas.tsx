@@ -51,7 +51,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       canvas!.width = width * window.devicePixelRatio
       canvas!.height = height * window.devicePixelRatio
       ctx!.scale(window.devicePixelRatio, window.devicePixelRatio)
-      const targetCW = (trailMode || breathe) ? 9 : 7
+      const targetCW = trailMode ? 9 : 7
       cols = Math.round(width / targetCW)
       cellW = width / cols
       cellH = cellW * ((trailMode || breathe) ? 1.5 : 1.4)
@@ -63,7 +63,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       ctx!.fillStyle = `rgba(${bgR}, ${bgG}, ${bgB}, ${alpha})`
       ctx!.fillRect(0, 0, width, height)
 
-      time += breathe ? 0.004 : (trailMode ? 0.02 : 0.01)
+      time += breathe ? 0.009 : (trailMode ? 0.02 : 0.01)
 
       ctx!.textAlign = 'center'
       ctx!.textBaseline = 'middle'
@@ -135,9 +135,25 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     }
     const onMouseLeave = () => { mouse.x = -1000; mouse.y = -1000 }
 
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault()
+      const rect = canvas!.getBoundingClientRect()
+      mouse.x = e.touches[0].clientX - rect.left
+      mouse.y = e.touches[0].clientY - rect.top
+    }
+    const onTouchStart = (e: TouchEvent) => {
+      const rect = canvas!.getBoundingClientRect()
+      mouse.x = e.touches[0].clientX - rect.left
+      mouse.y = e.touches[0].clientY - rect.top
+    }
+    const onTouchEnd = () => { mouse.x = -1000; mouse.y = -1000 }
+
     window.addEventListener('resize', resize)
     container.addEventListener('mousemove', onMouseMove)
     container.addEventListener('mouseleave', onMouseLeave)
+    container.addEventListener('touchstart', onTouchStart, { passive: true })
+    container.addEventListener('touchmove', onTouchMove, { passive: false })
+    container.addEventListener('touchend', onTouchEnd)
     resize()
     draw()
 
@@ -146,6 +162,9 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       window.removeEventListener('resize', resize)
       container.removeEventListener('mousemove', onMouseMove)
       container.removeEventListener('mouseleave', onMouseLeave)
+      container.removeEventListener('touchstart', onTouchStart)
+      container.removeEventListener('touchmove', onTouchMove)
+      container.removeEventListener('touchend', onTouchEnd)
     }
   }, [charsStr, trailMode, breathe, lightMode])
 
