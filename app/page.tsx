@@ -3,80 +3,67 @@
 import { useState, useEffect, useRef } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
 
-// ─── Magnetic Name ────────────────────────────────────────────────────────────
+// ─── Binary Name ──────────────────────────────────────────────────────────────
 
-const GLYPHS = '!<>-_\\/[]{}—=+*^?#@%&ABCDEFGHIJKLMabcdefghij0123456789'
-
-function MagneticName({ text }: { text: string }) {
+function BinaryName({ text }: { text: string }) {
   const chars = text.split('')
   const containerRef = useRef<HTMLSpanElement>(null)
   const refsArr = useRef<(HTMLSpanElement | null)[]>([])
-  const rafRef = useRef<number>()
-  const scrambleTimers = useRef<(ReturnType<typeof setTimeout> | null)[]>(chars.map(() => null))
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const busy = useRef(false)
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    const onMove = (e: MouseEvent) => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      const mx = e.clientX, my = e.clientY
-      rafRef.current = requestAnimationFrame(() => {
-        refsArr.current.forEach((el, i) => {
-          if (!el) return
-          const rect = el.getBoundingClientRect()
-          const cx = rect.left + rect.width / 2
-          const cy = rect.top + rect.height / 2
-          const dx = mx - cx
-          const dy = my - cy
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          const maxDist = 90
+    const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = [] }
 
-          if (dist < maxDist) {
-            const t = 1 - dist / maxDist
-            const strength = t * t * 32
-            const nx = dx / (dist || 1)
-            const ny = dy / (dist || 1)
-            const rotate = nx * 12 * t
-            el.style.transform = `translate(${-nx * strength}px, ${-ny * strength}px) rotate(${rotate}deg)`
-            el.style.transition = 'transform 0.06s ease-out'
-
-            // Scramble when very close
-            if (dist < 38 && chars[i] !== ' ' && !scrambleTimers.current[i]) {
-              el.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
-              scrambleTimers.current[i] = setTimeout(() => {
-                if (el) el.textContent = chars[i]
-                scrambleTimers.current[i] = null
-              }, 90)
-            }
-          } else {
-            el.style.transform = 'translate(0,0) rotate(0deg)'
-            el.style.transition = 'transform 0.9s cubic-bezier(.16,1,.3,1)'
-          }
-        })
-      })
+    const restore = () => {
+      clearTimers()
+      refsArr.current.forEach((el, i) => { if (el) el.textContent = chars[i] })
+      busy.current = false
     }
 
-    const onLeave = () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      refsArr.current.forEach((el, i) => {
+    const scan = () => {
+      if (busy.current) return
+      busy.current = true
+      clearTimers()
+      const nonSpaces = chars.map((ch, i) => ch !== ' ' ? i : -1).filter(i => i >= 0)
+      let done = 0
+      nonSpaces.forEach((ci, pos) => {
+        const el = refsArr.current[ci]
         if (!el) return
-        el.style.transform = 'translate(0,0) rotate(0deg)'
-        el.style.transition = 'transform 1s cubic-bezier(.16,1,.3,1)'
-        if (scrambleTimers.current[i]) {
-          clearTimeout(scrambleTimers.current[i]!)
-          scrambleTimers.current[i] = null
-          el.textContent = chars[i]
-        }
+        // staggered start
+        const t0 = setTimeout(() => {
+          // flicker 4 times
+          ;[0, 1, 2, 3].forEach(k => {
+            const tf = setTimeout(() => {
+              if (el) el.textContent = k % 2 === 0 ? '0' : '1'
+            }, k * 48)
+            timers.current.push(tf)
+          })
+          // resolve
+          const tr = setTimeout(() => {
+            if (el) el.textContent = chars[ci]
+            done++
+            if (done === nonSpaces.length) busy.current = false
+          }, 4 * 48)
+          timers.current.push(tr)
+        }, pos * 38)
+        timers.current.push(t0)
       })
     }
 
-    container.addEventListener('mousemove', onMove)
-    container.addEventListener('mouseleave', onLeave)
+    // Run on mount
+    const init = setTimeout(scan, 200)
+    timers.current.push(init)
+
+    container.addEventListener('mouseenter', scan)
+    container.addEventListener('mouseleave', restore)
     return () => {
-      container.removeEventListener('mousemove', onMove)
-      container.removeEventListener('mouseleave', onLeave)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      clearTimers()
+      container.removeEventListener('mouseenter', scan)
+      container.removeEventListener('mouseleave', restore)
     }
   }, [chars])
 
@@ -84,13 +71,10 @@ function MagneticName({ text }: { text: string }) {
     <span ref={containerRef} style={{ display: 'inline-block', cursor: 'crosshair' }}>
       {chars.map((ch, i) =>
         ch === ' ' ? (
-          <span key={i} style={{ display: 'inline-block', width: '0.3em' }} />
+          <span key={i} style={{ display: 'inline-block', width: '0.28em' }} />
         ) : (
-          <span
-            key={i}
-            ref={el => { refsArr.current[i] = el }}
-            style={{ display: 'inline-block', willChange: 'transform', transition: 'transform 0.9s cubic-bezier(.16,1,.3,1)' }}
-          >
+          <span key={i} ref={el => { refsArr.current[i] = el }}
+            style={{ display: 'inline-block' }}>
             {ch}
           </span>
         )
@@ -341,7 +325,7 @@ export default function Home() {
       <div className="name-strip" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
           <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-            <MagneticName text="DEFNE GENÇ" />
+            <BinaryName text="DEFNE GENÇ" />
           </h1>
           <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
             Stanford CS HCI · APM @ Coinbase · NYC
