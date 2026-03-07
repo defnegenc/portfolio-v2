@@ -93,8 +93,10 @@ function GlyphPicker({ glyphMode, setGlyphMode, customChars, setCustomChars, tog
   const bg = toggleBg ?? 'var(--bg)'
   const fg = toggleFg ?? 'var(--ink)'
 
+  const labels: Record<typeof glyphMode, string> = { default: 'minimal', chunky: 'chunky', custom: 'custom' }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'flex-start' }}>
+    <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'column-reverse', gap: '0.4rem', alignItems: 'flex-start' }}>
       {/* Preset buttons */}
       <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
         {(['default', 'chunky', 'custom'] as const).map(m => (
@@ -104,7 +106,7 @@ function GlyphPicker({ glyphMode, setGlyphMode, customChars, setCustomChars, tog
             background: glyphMode === m ? fg : 'transparent',
             color: glyphMode === m ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
             transition: 'background 0.15s, color 0.15s',
-          }}>{m}</span>
+          }}>{labels[m]}</span>
         ))}
       </div>
       {/* Custom input — only shown when custom is active */}
@@ -144,8 +146,8 @@ export default function Home() {
   const [contactOpen, setContact] = useState(false)
   const [formSent, setFormSent]   = useState(false)
   const [activeTab, setActiveTab] = useState('All')
-  const [theme, setTheme]         = useState<'dark' | 'light'>('light')
-  const [glyphMode, setGlyphMode] = useState<'default' | 'chunky' | 'custom'>('default')
+  const [theme, setTheme]         = useState<'dark' | 'light'>('dark')
+  const [glyphMode, setGlyphMode] = useState<'default' | 'chunky' | 'custom'>('chunky')
   const [customChars, setCustomChars] = useState('·|·')
 
   useEffect(() => {
