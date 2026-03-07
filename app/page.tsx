@@ -3,44 +3,68 @@
 import { useState, useEffect, useRef } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
 
-// ─── Binary Name ──────────────────────────────────────────────────────────────
+// ─── Glitch Name ──────────────────────────────────────────────────────────────
 
-function BinaryName({ text }: { text: string }) {
+const GLITCH_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789▓▒░█◆■①②③④⑤⑥⑦⑧⑨⑩'
+
+function GlitchName({ text }: { text: string }) {
   const chars = text.split('')
   const refsArr = useRef<(HTMLSpanElement | null)[]>([])
-  const intervals = useRef<(ReturnType<typeof setInterval> | null)[]>(chars.map(() => null))
+  const mainInterval = useRef<ReturnType<typeof setInterval> | null>(null)
+  const isHovered = useRef(false)
 
-  useEffect(() => () => {
-    intervals.current.forEach(id => { if (id) clearInterval(id) })
-  }, [])
+  useEffect(() => () => { if (mainInterval.current) clearInterval(mainInterval.current) }, [])
 
-  const onEnter = (i: number) => {
-    const el = refsArr.current[i]
-    if (!el) return
-    const bin = chars[i].charCodeAt(0).toString(2).padStart(8, '0')
-    let bit = 0
-    intervals.current[i] = setInterval(() => {
-      if (el) el.textContent = bin[bit]
-      bit = (bit + 1) % bin.length
-    }, 75)
+  const startGlitch = () => {
+    if (isHovered.current) return
+    isHovered.current = true
+    // Stagger the start of each letter for a wave feel
+    chars.forEach((ch, i) => {
+      if (ch === ' ') return
+      setTimeout(() => {
+        if (!isHovered.current) return
+        const el = refsArr.current[i]
+        if (!el) return
+        // Fast initial spin
+        let speed = 35
+        let frame = 0
+        const spin = () => {
+          if (!isHovered.current) { el.textContent = ch; return }
+          el.textContent = GLITCH_SET[Math.floor(Math.random() * GLITCH_SET.length)]
+          frame++
+          // Slow down after a bit for organic feel, then keep rolling
+          speed = frame < 6 ? 35 : frame < 14 ? 55 : 70
+          setTimeout(spin, speed)
+        }
+        spin()
+      }, i * 18) // 18ms stagger between letters
+    })
   }
 
-  const onLeave = (i: number) => {
-    if (intervals.current[i]) { clearInterval(intervals.current[i]!); intervals.current[i] = null }
-    const el = refsArr.current[i]
-    if (el) el.textContent = chars[i]
+  const stopGlitch = () => {
+    isHovered.current = false
+    // Resolve back with a slight cascade
+    chars.forEach((ch, i) => {
+      if (ch === ' ') return
+      setTimeout(() => {
+        const el = refsArr.current[i]
+        if (el) el.textContent = ch
+      }, i * 12)
+    })
   }
 
   return (
-    <span style={{ display: 'inline-block', cursor: 'crosshair' }}>
+    <span
+      style={{ display: 'inline-block', cursor: 'crosshair' }}
+      onMouseEnter={startGlitch}
+      onMouseLeave={stopGlitch}
+    >
       {chars.map((ch, i) =>
         ch === ' ' ? (
           <span key={i} style={{ display: 'inline-block', width: '0.28em' }} />
         ) : (
           <span key={i} ref={el => { refsArr.current[i] = el }}
-            style={{ display: 'inline-block' }}
-            onMouseEnter={() => onEnter(i)}
-            onMouseLeave={() => onLeave(i)}>
+            style={{ display: 'inline-block' }}>
             {ch}
           </span>
         )
@@ -88,46 +112,53 @@ function GlyphPicker({ glyphMode, setGlyphMode, customChars, setCustomChars, tog
   const bg = toggleBg ?? 'var(--bg)'
   const fg = toggleFg ?? 'var(--ink)'
 
-  const labels: Record<typeof glyphMode, string> = { default: 'minimal', chunky: 'chunky', custom: 'custom' }
+  const btnBase: React.CSSProperties = {
+    ...mono, fontSize: '0.6rem', textTransform: 'uppercase' as const, letterSpacing: '0.08em',
+    padding: '0.38rem 0.72rem', cursor: 'pointer', userSelect: 'none' as const,
+    transition: 'background 0.15s, color 0.15s',
+  }
 
   return (
-    <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'column-reverse', gap: '0.4rem', alignItems: 'flex-start' }}>
-      {/* Preset buttons */}
-      <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
-        {(['default', 'chunky', 'custom'] as const).map(m => (
-          <span key={m} onClick={() => setGlyphMode(m)} style={{
-            ...mono, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.08em',
-            padding: '0.38rem 0.72rem', cursor: 'pointer', userSelect: 'none' as const,
-            background: glyphMode === m ? fg : 'transparent',
-            color: glyphMode === m ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
-            transition: 'background 0.15s, color 0.15s',
-          }}>{labels[m]}</span>
-        ))}
-      </div>
-      {/* Custom input — only shown when custom is active */}
-      {glyphMode === 'custom' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <span style={{ ...mono, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: mobile ? 'var(--ink-dim)' : fg, opacity: mobile ? 1 : 0.7 }}>
-            Enter up to 3 symbols
-          </span>
-          <input
-            type="text"
-            maxLength={3}
-            value={customChars}
-            onChange={e => setCustomChars(e.target.value)}
-            style={{
-              ...mono, fontSize: '0.9rem',
-              background: mobile ? 'transparent' : bg,
-              color: mobile ? 'var(--ink)' : fg,
-              border: mobile ? '1px solid var(--hairline)' : `1px solid ${toggleFg}33`,
-              padding: '0.4rem 0.6rem',
-              width: '5.5rem',
-              borderRadius: 2,
-              cursor: 'text',
-              outline: 'none',
-            }}
-          />
-        </div>
+    <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
+      {/* minimal */}
+      <span onClick={() => setGlyphMode('default')} style={{
+        ...btnBase,
+        background: glyphMode === 'default' ? fg : 'transparent',
+        color: glyphMode === 'default' ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
+      }}>minimal</span>
+
+      {/* chunky */}
+      <span onClick={() => setGlyphMode('chunky')} style={{
+        ...btnBase,
+        background: glyphMode === 'chunky' ? fg : 'transparent',
+        color: glyphMode === 'chunky' ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
+      }}>chunky</span>
+
+      {/* custom — becomes an input when active */}
+      {glyphMode === 'custom' ? (
+        <input
+          autoFocus
+          type="text"
+          maxLength={3}
+          value={customChars}
+          onChange={e => setCustomChars(e.target.value)}
+          style={{
+            ...mono, fontSize: '0.6rem', letterSpacing: '0.08em',
+            background: fg,
+            color: bg,
+            border: 'none',
+            padding: '0.38rem 0.6rem',
+            width: '3.8rem',
+            outline: 'none',
+            cursor: 'text',
+          }}
+        />
+      ) : (
+        <span onClick={() => setGlyphMode('custom')} style={{
+          ...btnBase,
+          background: 'transparent',
+          color: mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
+        }}>custom</span>
       )}
     </div>
   )
@@ -291,7 +322,7 @@ export default function Home() {
       <div className="name-strip" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
           <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-            <BinaryName text="DEFNE GENÇ" />
+            <GlitchName text="DEFNE GENÇ" />
           </h1>
           <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
             Stanford CS HCI · APM @ Coinbase · NYC
