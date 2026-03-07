@@ -31,7 +31,9 @@ interface Project {
   awards?: string
   accentColor: string
   tags: string[]
+  icon?: string
   externalLink?: { href: string; label: string }
+  secondaryLink?: { href: string; label: string }
   jumpTo?: { anchor: string; label: string }
   sections: Section[]
 }
@@ -128,14 +130,16 @@ const PROJECTS: Record<string, Project> = {
     slug: 'menuto',
     no: '03',
     name: 'Menuto',
-    tagline: 'A full-stack AI dish recommendation app — solo-built end to end. Tell it your restaurants and taste preferences, it tells you what to order.',
+    tagline: 'A full-stack AI dish recommendation app — solo-built end to end. Tell it your restaurants and taste preferences, it tells you what to order. Fully functional, deployed to TestFlight.',
     year: '2024',
     role: 'Solo — Product · Design · Full-Stack',
     duration: 'Personal Project · End-to-End Ownership',
     tools: 'React Native · Expo · FastAPI · OpenAI GPT-4o · Supabase · PostgreSQL · Google Places API · Tesseract OCR',
     accentColor: '#D8131F',
     tags: ['Full-Stack', 'AI', 'Mobile'],
+    icon: '/menuto-icon.png',
     externalLink: { href: 'https://github.com/defnegenc/menuto', label: 'View on GitHub ↗' },
+    secondaryLink: { href: 'https://testflight.apple.com', label: 'TestFlight ↗' },
     sections: [
       {
         type: 'text',
@@ -678,6 +682,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div style={{ ...mono, fontSize: '0.72rem', color: project.accentColor, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
             {project.tags.join(' · ')}
           </div>
+          {project.icon && (
+            <Image src={project.icon} alt={project.name + ' icon'} width={56} height={56}
+              style={{ borderRadius: 14, marginBottom: '1.25rem', display: 'block' }} />
+          )}
           <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 7rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.9, marginBottom: '1.5rem' }}>
             {project.name}
           </h1>
@@ -690,6 +698,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               <a href={project.externalLink.href} target="_blank" rel="noreferrer"
                 style={{ ...mono, display: 'inline-block', fontSize: '0.75rem', color: '#fff', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', background: project.accentColor, padding: '0.7rem 1.5rem', fontWeight: 600 }}>
                 {project.externalLink.label}
+              </a>
+            )}
+            {project.secondaryLink && (
+              <a href={project.secondaryLink.href} target="_blank" rel="noreferrer"
+                style={{ ...mono, display: 'inline-block', fontSize: '0.75rem', color: 'var(--ink)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', border: '1px solid var(--hairline)', padding: '0.7rem 1.5rem', fontWeight: 600 }}>
+                {project.secondaryLink.label}
               </a>
             )}
             {project.jumpTo && (

@@ -375,7 +375,15 @@ export default function Home() {
       <div className="canvas-zone" style={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid var(--hairline)', background: isLight ? '#F4F2EC' : '#050505' }}>
         <AsciiCanvas breathe lightMode={isLight} chars={activeChars} />
 
-        {/* Symbol controls — desktop only (absolute over canvas) */}
+        {/* Canvas hint — top right */}
+        <div className="sym-controls" style={{ position: 'absolute', top: '0.9rem', right: '1.75rem', zIndex: 10, pointerEvents: 'none', textAlign: 'right' }}>
+          <div style={{ ...mono, fontSize: '0.52rem', color: isLight ? 'rgba(26,25,24,0.38)' : 'rgba(232,230,224,0.3)', textTransform: 'uppercase', letterSpacing: '0.13em', lineHeight: 1.75 }}>
+            interactive canvas<br />
+            hover · drag · set symbols ↙
+          </div>
+        </div>
+
+        {/* Symbol controls — bottom left */}
         <div className="sym-controls" style={{ position: 'absolute', bottom: '1rem', left: '1.75rem', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start' }}>
           <GlyphPicker glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} toggleBg={toggleBg} toggleFg={toggleFg} mono={mono} />
         </div>

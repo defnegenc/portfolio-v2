@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import AsciiCanvas from '@/components/AsciiCanvas'
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
@@ -26,7 +25,7 @@ export default function About() {
         [data-theme="dark"] {
           --bg: #0A0A0A;
           --ink: #E8E6E0;
-          --ink-dim: #888880;
+          --ink-dim: #AEADA6;
           --hairline: rgba(232,230,224,0.1);
         }
         .about-link { color: var(--ink-dim); text-decoration: none; position: relative; transition: color 0.2s; }
@@ -71,26 +70,13 @@ export default function About() {
         {/* Hero */}
         <div className="fade-up fade-up-1 hero-inner" style={{ display: 'flex', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'flex-start' }}>
 
-          {/* Photo + strips side by side */}
-          <div style={{ flexShrink: 0, display: 'flex', gap: 6, height: 300, alignItems: 'stretch' }}>
-            {/* Headshot */}
-            <div style={{ width: 200, height: '100%', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
-              <Image
-                src="/headshot.jpg"
-                alt="Defne Genç"
-                fill
-                style={{ objectFit: 'cover', objectPosition: 'center top' }}
-                priority
-              />
-            </div>
-            {/* ASCII strips */}
-            <div className="hero-strips" style={{ display: 'flex', gap: 6, height: '100%' }}>
-              {[0.5, 0.65, 0.8].map((opacity, i) => (
-                <div key={i} style={{ width: 44, height: '100%', overflow: 'hidden', opacity }}>
-                  <AsciiCanvas breathe lightMode={isLight} />
-                </div>
-              ))}
-            </div>
+          {/* ASCII strips */}
+          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280, flexShrink: 0 }}>
+            {[0.4, 0.55, 0.7, 0.85, 1].map((opacity, i) => (
+              <div key={i} style={{ width: 46, height: '100%', overflow: 'hidden', opacity }}>
+                <AsciiCanvas breathe lightMode={isLight} />
+              </div>
+            ))}
           </div>
 
           {/* Text */}
@@ -123,9 +109,7 @@ export default function About() {
               Alongside research, I was a teaching assistant for Stanford's core HCI sequence — CS 147, CS 278, and CS 347 — which kept me grounded in how designers actually learn to think. I started in wet lab research at Stanford Medicine (Kuo Lab, ovarian cancer organoids), which sounds like a pivot, but the experimental rigor transferred directly.
             </p>
             <p style={{ fontSize: '1.1rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              Now I'm APM at Coinbase, working on institutional derivatives. I still build things on the side —{' '}
-              <a href="/project/menuto" className="about-link">Menuto</a>
-              {' '}is a full-stack AI dish recommendation app I designed and built solo from scratch.
+              Now I'm APM at Coinbase, working on institutional derivatives.
             </p>
           </div>
         </div>
@@ -146,8 +130,8 @@ export default function About() {
                 body: 'We design for a hypothetical average user in a single context. Someone with ADHD finds a habit tracker designed for neurotypical attention spans becomes an obstacle. A student who processes information differently hits a wall in an interface that assumes one reading mode. AI and ubiquitous computing suggest we don\'t have to keep building this way.',
               },
               {
-                title: 'The design of trust in AI systems',
-                body: 'My safety work on Bloom was about building trust in a high-stakes direction — keeping an LLM from causing harm with vulnerable participants. The flip side is equally interesting: designing AI systems that earn appropriate trust from users, explain themselves legibly, and know when to defer. Menuto\'s "why this dish?" feature was a small version of this problem.',
+                title: 'Giving AI specific taste — not average taste',
+                body: 'AI generates infinite outputs but regresses to a mean. Most image or design requests converge on the same aesthetic because the model optimizes toward what\'s most represented online. The interesting question is how you give an AI genuinely spiky expertise — say, an agent that knows everything about Turkish hammam interiors and has opinions. How do you teach it that? Can it evolve? And critically: a lot of taste is built offline — things you touch, spaces you move through, what people wear on the street. Not words. Vision models and ubicomp make this tractable in ways that weren\'t possible before.',
               },
             ].map(({ title, body }) => (
               <div key={title}>
