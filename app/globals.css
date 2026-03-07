@@ -1,0 +1,69 @@
+@font-face {
+  font-family: 'Apercu Pro';
+  src: url('/fonts/apercu_regular_pro.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  src: url('/fonts/apercu_regular_italic_pro.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  src: url('/fonts/apercu_medium_pro.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  src: url('/fonts/apercu_bold_pro.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0A0A0A;
+  --ink: #E8E6E0;
+  --ink-dim: #AEADA6;
+  --hairline: rgba(232, 230, 224, 0.1);
+  --font-main: 'Apercu Pro', -apple-system, sans-serif;
+  --font-mono: var(--font-mono), monospace;
+}
+
+[data-theme="light"] {
+  --bg: #F4F2EC;
+  --ink: #1A1918;
+  --ink-dim: #5A5955;
+  --hairline: rgba(26, 25, 24, 0.15);
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+* { cursor: crosshair; }
+a { cursor: crosshair; }
+
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Subtle scrollbar for main content */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(232, 230, 224, 0.15); }
+::-webkit-scrollbar-thumb:hover { background: rgba(232, 230, 224, 0.3); }
+
+/* Input resets */
+input, textarea, button { font-family: inherit; }
+input::placeholder, textarea::placeholder { color: var(--ink-dim); }
+input:focus, textarea:focus { outline: none; }

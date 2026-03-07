@@ -1,0 +1,784 @@
+import Link from 'next/link'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+import CopyBlock from './CopyBlock'
+
+// ─── Project Data ─────────────────────────────────────────────────────────────
+
+const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+const HL = 'var(--hairline)'
+
+type Section =
+  | { type: 'text'; label: string; body: string }
+  | { type: 'pullquote'; text: string }
+  | { type: 'image'; src: string; alt: string; caption?: string; aspect?: string }
+  | { type: 'images'; items: { src: string; alt: string; caption?: string }[]; aspect?: string }
+  | { type: 'stats'; items: { value: string; label: string }[] }
+  | { type: 'list'; label: string; items: string[] }
+  | { type: 'subheader'; text: string; id?: string }
+
+interface Project {
+  slug: string
+  no: string
+  name: string
+  tagline: string
+  year: string
+  role: string
+  team?: string
+  citation?: string
+  duration?: string
+  tools?: string
+  awards?: string
+  accentColor: string
+  tags: string[]
+  externalLink?: { href: string; label: string }
+  jumpTo?: { anchor: string; label: string }
+  sections: Section[]
+}
+
+
+const PROJECTS: Record<string, Project> = {
+  bloom: {
+    slug: 'bloom',
+    no: '01',
+    name: 'Bloom',
+    tagline: 'LLM-augmented physical activity coaching app. HCI research at Stanford with Prof. James Landay. CHI 2026, accepted.',
+    year: '2025',
+    role: 'UI/UX Design · Safety Engineering · Frontend · Second Author',
+    citation: 'Jörke, J., Genç, D., Teutschbein, M., Sapkota, S., Chung, J., Schmiedmayer, H.-B., Campero, A., King, A. C., Brunskill, E., & Landay, J. A. (2026). Bloom: Designing for LLM-Augmented Behavior Change Interactions. CHI \'26. ACM. https://arxiv.org/abs/2510.05449',
+    duration: '4-week randomized field study · N=54',
+    tools: 'Figma, React Native, LLM red-teaming, qualitative coding',
+    accentColor: '#8BAF8B',
+    tags: ['HCI Research', 'Safety', 'Design'],
+    externalLink: { href: 'https://stanfordhci.github.io/Bloom/', label: 'View the Bloom website ↗' },
+    sections: [
+      {
+        type: 'text',
+        label: 'What it is',
+        body: 'Bloom is an LLM-based health coaching app that integrates a conversational AI coach ("Beebo") with evidence-based behavior change UI patterns, built on Stanford\'s validated Active Choices Program. The central question: can LLM coaching complement — not replace — established digital health interaction patterns? It\'s my MS thesis work, advised by Prof. James Landay.',
+      },
+      {
+        type: 'stats',
+        items: [
+          { value: '5×', label: 'Longer app engagement in LLM condition' },
+          { value: '+1.2', label: 'Mindset shift vs +0.8 in control' },
+          { value: '600', label: 'Example safety benchmark' },
+          { value: '>96%', label: 'Recall across harm categories' },
+        ],
+      },
+      {
+        type: 'subheader',
+        text: 'My Contributions',
+      },
+      {
+        type: 'text',
+        label: 'UI/UX Design',
+        body: 'Most influence on UI design across the app. Designed the ambient display — a "garden" metaphor that appears on the homescreen and lockscreen to reflect activity progress without fixating on gaps. Key decisions on app architecture and user experience throughout. Also designed the Bloom website.',
+      },
+      {
+        type: 'text',
+        label: 'Safety Engineering',
+        body: 'Led red-teaming for the LLM agent. Created a taxonomy of harms, validated on a 600-example benchmark. Achieved >96% recall across multiple risk categories. This was domain-expert red-teaming, not automated — a genuine safety engineering contribution that ensured the conversational AI stayed within safe bounds across a vulnerable participant population.',
+      },
+      {
+        type: 'text',
+        label: 'Frontend & Research',
+        body: 'Heavy involvement in frontend implementation with most influence on implementation decisions. Led participant recruitment for the study. Completed qualitative coding of all offboarding interviews. Second author on the published paper (CHI 2026, accepted).',
+      },
+      {
+        type: 'subheader',
+        text: 'Study Results',
+      },
+      {
+        type: 'text',
+        label: 'What we found',
+        body: 'Both conditions doubled weekly goal achievement (36% → 72% meeting 150 min/week). The LLM condition showed 5× longer engagement and greater mindset shifts (+1.2 vs +0.8 points in beliefs about activity benefits), with greater improvements in exercise enjoyment and self-compassion.',
+      },
+      {
+        type: 'pullquote',
+        text: 'LLM coaching\'s primary value is psychological, not behavioral — surfacing behaviors people already do so they realize they\'re doing more than they\'ve given themselves credit for.',
+      },
+      {
+        type: 'list',
+        label: 'Key Findings',
+        items: [
+          'Even participants with shallow engagement showed meaningful mindset changes — system flexibility was the mechanism, not any single conversational strategy.',
+          'The garden ambient display reduced goal-fixation anxiety by making progress feel gradual and accumulative rather than binary.',
+          'Safety filtering was critical: the LLM regularly encountered sensitive topics (chronic pain, mental health) requiring nuanced, harm-aware responses.',
+        ],
+      },
+    ],
+  },
+
+  dishcovery: {
+    slug: 'dishcovery',
+    no: '02',
+    name: 'Dishcovery',
+    tagline: 'An image-recognition app that helps you recognise, learn about, and cook with ingredients from cultures around the world.',
+    year: '2024',
+    role: 'UI Designer · Frontend Engineer',
+    team: 'V2: Amrita Palaparthi, Janet Zhong, Kyla Guru · V3: Kayla Kelly, Sharon Wambu, Abena Ofosu',
+    duration: '20 weeks · Two iterations (CS 147 + CS 194H)',
+    tools: 'Figma, React Native, Clarifai AI, Paper prototypes',
+    awards: 'Best Project · Best Design · Best Concept',
+    accentColor: '#FF6B35',
+    tags: ['UI Design', 'Frontend', 'UX Research'],
+    jumpTo: { anchor: 'final-design', label: 'Jump to Final Design ↓' },
+    sections: [
+      {
+        type: 'text',
+        label: 'Overview',
+        body: 'Dishcovery helps you recognise, learn about, and cook with foods from around the world. It is a consumer app using image recognition to scan foreign ingredients and learn about their cultural and culinary contexts. The app allows users to scan an ingredient, explore recipes by cuisine or ingredient, and save recipes for later.',
+      },
+      {
+        type: 'image',
+        src: '/dishcovery-hero.png',
+        alt: 'Dishcovery App Overview',
+        aspect: '16/9',
+      },
+      {
+        type: 'stats',
+        items: [
+          { value: '60', label: 'Ideas generated in brainstorming' },
+          { value: '20wks', label: 'Across two class iterations' },
+          { value: '6', label: 'Personas from Bay Area needfinding' },
+          { value: '3×', label: 'Awards at CS 147 showcase' },
+        ],
+      },
+      {
+        type: 'subheader',
+        text: 'User Research',
+      },
+      {
+        type: 'text',
+        label: 'Problem Space',
+        body: 'Exploring the culinary terrain, we sought to understand the barriers that prevent individuals from engaging with and cooking cultural foods. Our goal was to identify these challenges and transform them into opportunities for deeper cultural connections through food.',
+      },
+      {
+        type: 'text',
+        label: 'Need-finding Interviews',
+        body: 'Our need-finding mission involved face-to-face dialogues with a diverse demographic in the Bay Area — ranging from tech professionals and small business owners to artists and educators. These non-student adults, engaged in various vocations, provided a rich, nuanced understanding of the day-to-day culinary practices and the cultural significance of food in their lives.',
+      },
+      {
+        type: 'list',
+        label: 'Personas',
+        items: [
+          'Martin — In his 30s, lacking strong cultural culinary connections, not primarily motivated by food.',
+          'Grace — Taiwanese immigrant and owner of an Asian grocery store, insights into customers\' quests for authenticity in Asian cooking.',
+          'Jaclyn — Immigrant from Peru and head chef at Comida Peruana, professional perspective on cultural cuisine.',
+          'Sofia — Immigrant from Mexico and chef at Stanford, personal and professional tie to her cultural culinary roots.',
+          'Amy — Server at Stanford\'s Decadence, deep sentimental connection to family recipes but faces emotional barriers to recreating them.',
+          'Jeson — Malaysian immigrant and founder of OpenChefs, startup viewpoint on delivering authentic cultural food experiences.',
+        ],
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-empathy.png",
+        alt: 'Empathy Map for Dishcovery',
+        caption: 'Empathy map capturing user sentiments about cultural food experiences',
+        aspect: '16/9',
+      },
+      {
+        type: 'list',
+        label: 'Key Insights',
+        items: [
+          'Cultural Connection — Participants like Martin expressed a desire to reconnect with their heritage, seeking authentic culinary experiences as a bridge to their cultural roots.',
+          'Learning Preferences — Users such as Sofia showed a clear preference for hands-on, interactive learning methods.',
+          'Authenticity in Ingredients — There\'s a discernible trend towards valuing the authenticity of ingredients, not just in taste but in the cultural stories they tell.',
+          'Accessibility and Convenience — The ease of obtaining the right ingredients and understanding their use was a notable concern.',
+          'Community and Sharing — Many expressed that food is a communal experience, highlighting the potential for shared learnings and cultural exchange within a digital platform.',
+        ],
+      },
+      {
+        type: 'subheader',
+        text: 'Solution Generation',
+      },
+      {
+        type: 'list',
+        label: 'How Might We\'s',
+        items: [
+          '"How might we create a system where ingredients can showcase their uses and cultural significance?"',
+          '"How might we use unfamiliarity itself to make cooking more exciting?"',
+          '"How might we make it so that unfamiliar ingredients speak for themselves?"',
+        ],
+      },
+      {
+        type: 'text',
+        label: 'Experience Prototype: Cultural Context Map',
+        body: 'Objective: gauge whether additional context about a dish\'s cultural and historical background enhances its appeal. Participants viewed images of culturally specific dishes, initially without, then with historical and cultural narratives. Positives: visualization on a map increased appreciation for the ingredient\'s popularity. Negatives: some confusion over variant dishes — led us to move context to the recipe page rather than the ingredient page.',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-context.png",
+        alt: 'Cultural Context Research',
+        caption: 'Testing how cultural context enhances food appreciation',
+        aspect: '16/9',
+      },
+      {
+        type: 'text',
+        label: 'Experience Prototype: Grocery Shopping Assistant',
+        body: 'Objective: test if ingredient background information demystifies unfamiliar items and influences purchase decisions. Participants ranked likelihood of purchasing certain foreign ingredients before and after being provided comprehensive ingredient information. Positives: additional information positively impacted willingness to consider purchasing. Negatives: tendency for convenience to trump novelty in real shopping scenarios.',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-grocery.png",
+        alt: 'Ingredient Information Prototype',
+        caption: 'Prototype testing how ingredient information influences purchasing decisions',
+        aspect: '16/9',
+      },
+      {
+        type: 'text',
+        label: 'Ideation',
+        body: 'After synthesizing insights from our experience prototypes, we moved into ideation. Our team members independently proposed a total of 60 solutions, which we compiled and analyzed for common themes. Final solution: a grocery shopping companion with image recognition — scan an ingredient in-store and receive immediate information on its origins, recipes, and usage tips.',
+      },
+      {
+        type: 'subheader',
+        text: 'Design Evolution',
+      },
+      {
+        type: 'text',
+        label: 'Low-fi & Med-fi Prototypes',
+        body: 'Our initial low-fi and med-fi prototypes were aimed at testing core functionalities without the commitment to high-fidelity assets, allowing us to iterate quickly based on user feedback. The higher-level functionality envisioned: scan a foreign ingredient, learn about its cultural and geographical context, find recipes using that ingredient, and save any recipe for later.',
+      },
+      {
+        type: 'images',
+        aspect: '16/9',
+        items: [
+          { src: "/dishcovery-lofi.png", alt: 'Low-fidelity sketches', caption: 'Low-fi sketches exploring key app features' },
+          { src: "/dishcovery-wireframes.png", alt: 'Wireframe navigation flows', caption: 'Wireframes showing navigation flows' },
+        ],
+      },
+      {
+        type: 'list',
+        label: 'Heuristic Evaluation Findings',
+        items: [
+          'Task 1 (Scan): Improved clarity and confirmation feedback for successful scans and errors; simplified color schemes for accessibility.',
+          'Task 2 (Learn): Increased visibility of navigation elements; standardization of UI components; added "Request recipe" feature for inclusivity.',
+          'Task 3 (Cook): Consistent font usage; confirmation step before un-saving; religious dietary preferences; improved search within liked recipes.',
+        ],
+      },
+      {
+        type: 'subheader',
+        text: 'Final Design',
+        id: 'final-design',
+      },
+      {
+        type: 'text',
+        label: 'V3 Redesign',
+        body: 'The V3 followed usability tests on the working version of V2 on Expo (built in React Native) in order to pinpoint where the user experience could be enhanced. Key changes: swipeable recipe steps replaced scrolling after watching someone try to cook with soiled hands; cultural context relocated to the recipe page; Ramadan Specials and cultural events added to the home screen.',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-onboarding.png",
+        alt: 'User onboarding screens',
+        caption: 'Onboarding — different welcome screens for new and existing users',
+        aspect: '16/9',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-prefs.png",
+        alt: 'User preferences screens',
+        caption: 'Customizable dietary preferences, allergies, and cuisine interests',
+        aspect: '16/9',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-explore.png",
+        alt: 'Explore and search screens',
+        caption: 'Advanced filtering with ingredient inclusion/exclusion and personalized recommendations',
+        aspect: '16/9',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-scan.png",
+        alt: 'Ingredient scanning process',
+        caption: 'Scanning — progress indicators, success/failure states, ingredient information',
+        aspect: '16/9',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-recipe.png",
+        alt: 'Recipe screens',
+        caption: 'Recipe steps and cultural context with expandable sections',
+        aspect: '16/9',
+      },
+      {
+        type: 'image',
+        src: "/dishcovery-saved.png",
+        alt: 'Saved recipes screens',
+        caption: 'Liked recipes with multi-select unsave functionality and filtering',
+        aspect: '16/9',
+      },
+      {
+        type: 'pullquote',
+        text: '"Recipe steps as story" — switching from scroll to swipe after watching someone try to cook with soiled hands.',
+      },
+      {
+        type: 'list',
+        label: 'Key Takeaways',
+        items: [
+          'Embracing Iteration — Each prototype, shaped by user feedback, was a step towards a more refined product. The iterative cycle mirrored my own growth as a designer.',
+          'The Human-Centered Approach — Engaging with users from diverse backgrounds taught me to see design through the lens of empathy — beyond aesthetics to the core human experience.',
+          'Valuing User Voices — Feedback became the cornerstone of Dishcovery\'s design process. Learning to solicit, interpret, and act on user input was a humbling process that reinforced my belief in collaborative development.',
+        ],
+      },
+    ],
+  },
+
+  flock: {
+    slug: 'flock',
+    no: '04',
+    name: 'Flock',
+    tagline: 'A social app designed to make it easier for close friends to hang out in small groups.',
+    year: '2024',
+    role: 'Design · Frontend · Backend',
+    team: 'Elena Recaldini, Malina Calarco, Pedro Civita, Defne Genç',
+    duration: 'CS 278: Social Computing',
+    tools: 'React Native, Supabase, TypeScript',
+    accentColor: '#7C9EE0',
+    tags: ['Full-Stack', 'Social Computing'],
+    sections: [
+      {
+        type: 'pullquote',
+        text: '"Calendars mark when we\'re busy professionally, but we don\'t have a system of translucence for when we\'re free socially."',
+      },
+      {
+        type: 'text',
+        label: 'Overview',
+        body: 'Flock is a social app designed to make it easier for close friends to hang out in small groups. By letting users share when they\'re free and see what their friends are up to, Flock helps create spontaneous plans without the awkwardness of asking around. The app is inspired by social science theories about how transparency and shared awareness can bring people closer, and every feature is designed to make connecting with friends simple and natural.',
+      },
+      {
+        type: 'text',
+        label: 'Technical Implementation',
+        body: 'Flock was built with React Native to create a seamless and fully functional social networking app. We implemented dynamic routing, real-time updates, and optimized backend fetching, with native calendar integration and OAuth authentication.',
+      },
+      {
+        type: 'images',
+        aspect: '9/16',
+        items: [
+          { src: '/flock-1.png', alt: 'Flock app feed', caption: 'Event feed' },
+          { src: '/flock-2.png', alt: 'Flock create event', caption: 'Create event' },
+          { src: '/flock-3.png', alt: 'Flock event detail', caption: 'Event detail' },
+        ],
+      },
+      {
+        type: 'text',
+        label: 'What I Did',
+        body: 'I contributed to both the design and development of Flock, creating a user-friendly interface for key features like the event feed, adding friends, and scheduling plans. I also worked on the backend, ensuring smooth functionality for features like creating events and RSVP-ing to hangouts.',
+      },
+      {
+        type: 'stats',
+        items: [
+          { value: '100%', label: 'Task completion in pilot study' },
+          { value: '5×', label: 'More likely to join with social proof' },
+          { value: '0', label: 'Hardcoded data — fully live' },
+          { value: '4/6', label: 'Went to Profile to add friends in minute one' },
+        ],
+      },
+      {
+        type: 'text',
+        label: 'Theory → Implementation',
+        body: 'Every design decision maps to a CS 278 social computing concept. Feed as first screen enforces social translucence. Participant limits set strong-tie norms. Event details showing who\'s going leverages social proof. Adding friends from Event Details reduces friction in natural context.',
+      },
+      {
+        type: 'list',
+        label: 'Technical Highlights',
+        items: [
+          'Real-time Supabase subscriptions — Insert/Update/Delete events reflect instantly in both users\' UIs without refresh',
+          'Protected routing — login and onboarding detached from Tab Navigator; inner tabs require auth',
+          'Nested navigation — Stack inside Tab for deep navigation (user profile from event detail)',
+          'OAuth + Apple Sign In with SQL triggers for auto-insert and username policy checks',
+          'Feed filtering — events grouped Today/Tomorrow/date, filtered via .gte("event_end", nowUTC)',
+        ],
+      },
+      {
+        type: 'text',
+        label: 'What I Learned',
+        body: 'I deepened my understanding of designing for social systems, particularly the importance of social proof in driving engagement and the challenges of mitigating context collapse. Through iterative testing, I honed my ability to align technical implementations with theoretical goals, ensuring the app effectively strengthened trust and close social bonds.',
+      },
+    ],
+  },
+
+  tailor: {
+    slug: 'tailor',
+    no: '06',
+    name: 'Tailor',
+    tagline: 'A platform concept addressing the needs of Turkey\'s small textile producers through streamlined communication and order management.',
+    year: '2024',
+    role: 'Solo — Needfinding · Research · UI Design',
+    duration: 'SYMSYS 161 · Solo Project',
+    tools: 'Figma, Stakeholder Interviews',
+    accentColor: '#B36A5E',
+    tags: ['UX Research', 'Product', 'Solo'],
+    sections: [
+      {
+        type: 'text',
+        label: 'Overview',
+        body: 'Tailor conceptually addresses the needs of Turkey\'s small textile producers by proposing a digital platform that facilitates streamlined communication and order management, reducing reliance on traditional, costly methods like phone calls. The platform\'s design integrates user insights, featuring real-time messaging, order tracking, and demand aggregation to assist producers in meeting minimum quantity requirements.',
+      },
+      {
+        type: 'image',
+        src: '/tailor-main.png',
+        alt: 'Tailor platform overview',
+        aspect: '16/9',
+      },
+      {
+        type: 'text',
+        label: 'Research',
+        body: 'In the exploration of Tailor\'s potential, I delved into the core challenges facing small Turkish textile producers. By conducting need-finding interviews with industry stakeholders — including small fashion brands, suppliers, and a textile export VP — I gathered crucial user insights into the operational inefficiencies and communication barriers prevalent in the sector. My role also included analyzing the competitive landscape, assessing integration challenges with legacy tech systems, and exploring cybersecurity concerns. Personal roots in Istanbul were a research asset: cultural nuance informed question framing and enabled conversations that no secondary source could replicate.',
+      },
+      {
+        type: 'list',
+        label: 'Key Themes',
+        items: [
+          'Relationship-driven culture — trust built over years, not platforms. WhatsApp as de facto business tool.',
+          'Minimum quantity problem — small brands can\'t meet MOQs alone; demand aggregation is the key lever.',
+          'Non-technical users — interface must be frictionless to replace phone calls for a generation that negotiates by voice note.',
+          'Legacy system friction — any digital layer must integrate with existing WhatsApp workflows, not replace them.',
+        ],
+      },
+      {
+        type: 'text',
+        label: 'What I Did',
+        body: 'I designed a mockup of what the platform could look like (in English for presentation). Once I knew what features I wanted to integrate, the interface was designed to surface real-time messaging, order tracking, and demand aggregation as primary actions — reducing the phone-call surface area without removing the relationship layer that the industry runs on.',
+      },
+      {
+        type: 'images',
+        aspect: '4/3',
+        items: [
+          { src: '/tailor-hom.png', alt: 'Tailor Home Mockup', caption: 'Home' },
+          { src: '/tailor-orders.png', alt: 'Tailor Orders Mockup', caption: 'Orders' },
+        ],
+      },
+      {
+        type: 'list',
+        label: 'What I Learned',
+        items: [
+          'Navigating Cultural Nuances — Leveraged my personal connection to Turkey to navigate a completely new industry, effectively bridging an 11-hour time difference and academic commitments to engage with local professionals.',
+          'Building New Relationships — Cultivated a network from the ground up, initiating conversations with industry insiders and leveraging introductory meetings to expand my understanding of the textile market\'s dynamics.',
+          'Synthesizing Local Knowledge — Developed a keen sense for blending familiar cultural knowledge with newly acquired industry-specific insights, crucial for conducting meaningful interviews and fostering trust with Turkish textile professionals.',
+        ],
+      },
+      {
+        type: 'pullquote',
+        text: 'Personal background as a research asset — Istanbul roots enabled cultural navigation that no secondary source could provide.',
+      },
+    ],
+  },
+
+  hercules: {
+    slug: 'hercules',
+    no: '07',
+    name: 'Hercules',
+    tagline: 'A fully functional AI agent built to guide you through a customized journey to tracking and understanding your mobility.',
+    year: '2024',
+    role: 'Product Scoping · UX · UI Design',
+    team: 'Mohammed Khalil, Aaron Choi, Defne Genç',
+    duration: 'TreeHacks 2024 (Stanford)',
+    tools: 'Figma',
+    accentColor: '#7EB89A',
+    tags: ['UX', 'AI Agent', 'Hackathon'],
+    sections: [
+      {
+        type: 'text',
+        label: 'The Problem',
+        body: 'Life expectancy has increased by three decades since the mid-twentieth century. Parallel "healthspan" expansion, however, has not followed. In the myriad of possible pathologies that could manifest in the "healthspan-lifespan gap", we\'re tackling a universal issue — loss of mobility.',
+      },
+      {
+        type: 'image',
+        src: '/hercules-cover.png',
+        alt: 'Hercules app overview',
+        aspect: '16/9',
+      },
+      {
+        type: 'stats',
+        items: [
+          { value: '30yr', label: 'Growth in life expectancy since mid-20th century' },
+          { value: '2', label: 'Input modalities: voice + image' },
+          { value: '2', label: 'Modes: follow-up or new symptom' },
+          { value: '24h', label: 'Build time at TreeHacks' },
+        ],
+      },
+      {
+        type: 'text',
+        label: 'The Solution',
+        body: 'Hercules is a fully functional AI agent built to guide you through a customized journey to tracking and understanding your mobility. Hercules can successfully understand and log your pain based on speech recognition and images alone. Users can tell Hercules they want to either (1) follow up on a previous pain/discomfort or (2) report a new one by pointing to where they\'re experiencing pain or describing it verbally — Hercules will ask follow-up questions and reflect your symptoms in your log.',
+      },
+      {
+        type: 'text',
+        label: 'What I Did',
+        body: 'I owned (1) product scoping, (2) UX journey, (3) UI design for this project. I created mockups using Figma for the pain logging flow and dashboard, getting them ready for development and testing.',
+      },
+      {
+        type: 'images',
+        aspect: '9/16',
+        items: [
+          { src: '/hercules-1.png', alt: 'Hercules pain logging', caption: 'Pain logging' },
+          { src: '/hercules-2.png', alt: 'Hercules follow-up', caption: 'Follow-up flow' },
+          { src: '/hercules-3.png', alt: 'Hercules dashboard', caption: 'Dashboard' },
+          { src: '/hercules-4.png', alt: 'Hercules history', caption: 'History' },
+        ],
+      },
+      {
+        type: 'text',
+        label: 'What I Learned',
+        body: 'Making UX decisions that not only address immediate health concerns but also promote long-term well-being. I learned to prioritize features and design elements that encourage proactive health monitoring and early intervention. By focusing on intuitive pain logging and symptom tracking, I aimed to empower users to take control of their health journey, making it easier to identify patterns and potential issues before they become severe.',
+      },
+      {
+        type: 'pullquote',
+        text: 'Designing with a forward-thinking mindset — ensuring that the user experience not only resolves current discomforts but also contributes to sustained mobility and overall health longevity.',
+      },
+    ],
+  },
+}
+
+export function generateStaticParams() {
+  return Object.keys(PROJECTS).map(slug => ({ slug }))
+}
+
+// ─── Nav helper ───────────────────────────────────────────────────────────────
+
+const ALL_SLUGS = ['bloom', 'dishcovery', 'flock', 'tailor', 'hercules']
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const project = PROJECTS[slug]
+  if (!project) notFound()
+
+  const currentIdx = ALL_SLUGS.indexOf(slug)
+  const prevSlug = currentIdx > 0 ? ALL_SLUGS[currentIdx - 1] : null
+  const nextSlug = currentIdx < ALL_SLUGS.length - 1 ? ALL_SLUGS[currentIdx + 1] : null
+
+  return (
+    <main data-theme="light" style={{ background: 'var(--bg)', color: 'var(--ink)', height: '100vh', fontFamily: 'var(--font-main)', overflowY: 'auto' }}>
+
+      {/* Nav */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(244,242,236,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${HL}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 2rem' }}>
+        <Link href="/" style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+          ← Work
+        </Link>
+        <span style={{ ...mono, fontSize: '0.72rem', color: 'rgba(136,136,128,0.4)', letterSpacing: '0.1em' }}>
+          {project.no} / {project.name.toUpperCase()}
+        </span>
+        <Link href="/resume" style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+          Résumé →
+        </Link>
+      </nav>
+
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 6rem' }}>
+
+        {/* Hero */}
+        <div style={{ padding: '4rem 0 3rem', borderBottom: `1px solid ${HL}` }}>
+          <div style={{ ...mono, fontSize: '0.72rem', color: project.accentColor, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
+            {project.tags.join(' · ')}
+          </div>
+          <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 7rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.9, marginBottom: '1.5rem' }}>
+            {project.name}
+          </h1>
+          <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.2rem)', fontWeight: 300, lineHeight: 1.6, color: 'var(--ink-dim)', maxWidth: 600, marginBottom: '2.5rem' }}>
+            {project.tagline}
+          </p>
+
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
+            {project.externalLink && (
+              <a href={project.externalLink.href} target="_blank" rel="noreferrer"
+                style={{ ...mono, display: 'inline-block', fontSize: '0.75rem', color: '#fff', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', background: project.accentColor, padding: '0.7rem 1.5rem', fontWeight: 600 }}>
+                {project.externalLink.label}
+              </a>
+            )}
+            {project.jumpTo && (
+              <a href={`#${project.jumpTo.anchor}`}
+                style={{ ...mono, display: 'inline-block', fontSize: '0.75rem', color: 'var(--bg)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', background: 'var(--ink)', padding: '0.7rem 1.5rem', fontWeight: 600 }}>
+                {project.jumpTo.label}
+              </a>
+            )}
+          </div>
+
+          {/* Meta grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1.25rem 2rem' }}>
+            {[
+              { label: 'Year', value: project.year },
+              { label: 'Role', value: project.role },
+              project.team ? { label: 'Team', value: project.team } : null,
+              project.duration ? { label: 'Context', value: project.duration } : null,
+              project.tools ? { label: 'Tools', value: project.tools } : null,
+              project.awards ? { label: 'Awards', value: project.awards } : null,
+            ].filter(Boolean).map(item => item && (
+              <div key={item.label}>
+                <div style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: '0.88rem', lineHeight: 1.5, color: 'var(--ink-dim)' }}>
+                  {item.value}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Citation (full-width, copyable) */}
+          {project.citation && (
+            <div style={{ marginTop: '1.5rem' }}>
+              <div style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.4rem', opacity: 0.6 }}>
+                Citation
+              </div>
+              <CopyBlock text={project.citation} />
+            </div>
+          )}
+        </div>
+
+        {/* Sections */}
+        <div style={{ paddingTop: '3rem', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+          {project.sections.map((section, i) => (
+            <SectionBlock key={i} section={section} accent={project.accentColor} />
+          ))}
+        </div>
+
+        {/* Prev / Next */}
+        <div style={{ borderTop: `1px solid ${HL}`, marginTop: '4rem', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between' }}>
+          {prevSlug ? (
+            <Link href={`/project/${prevSlug}`} style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+              ← {PROJECTS[prevSlug].name}
+            </Link>
+          ) : <div />}
+          {nextSlug ? (
+            <Link href={`/project/${nextSlug}`} style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+              {PROJECTS[nextSlug].name} →
+            </Link>
+          ) : <div />}
+        </div>
+
+      </div>
+    </main>
+  )
+}
+
+// ─── Section components ────────────────────────────────────────────────────────
+
+function ExternalOrLocalImage({ src, alt, aspect = '16/9' }: { src: string; alt: string; aspect?: string }) {
+  return (
+    <div style={{ position: 'relative', width: '100%', aspectRatio: aspect, background: 'rgba(26,25,24,0.04)', overflow: 'hidden' }}>
+      <Image src={src} alt={alt} fill style={{ objectFit: 'contain' }} />
+    </div>
+  )
+}
+
+// Parse "Key — description" format and bold the key
+function ListItem({ text, accent }: { text: string; accent: string }) {
+  const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+  const parts = text.split(/\s*—\s*/)
+  return (
+    <li style={{ display: 'flex', gap: '1rem', fontSize: '0.95rem', lineHeight: 1.7, color: 'var(--ink-dim)', borderBottom: '1px solid var(--hairline)', paddingBottom: '0.65rem' }}>
+      <span style={{ ...mono, fontSize: '0.7rem', color: accent, flexShrink: 0, paddingTop: '0.2rem' }}>—</span>
+      <span>
+        {parts.length > 1
+          ? <><strong style={{ color: 'var(--ink)', fontWeight: 600 }}>{parts[0]}</strong>{' — '}{parts.slice(1).join(' — ')}</>
+          : text
+        }
+      </span>
+    </li>
+  )
+}
+
+function SectionBlock({ section, accent }: { section: Section; accent: string }) {
+  const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+  const HL = 'var(--hairline)'
+
+  switch (section.type) {
+    case 'subheader':
+      return (
+        <div id={section.id} style={{ borderTop: `2px solid ${accent}`, paddingTop: '1.25rem', marginBottom: '-1rem' }}>
+          <h2 style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.04em', color: 'var(--ink)' }}>
+            {section.text}
+          </h2>
+        </div>
+      )
+
+    case 'text':
+      return (
+        <div>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
+            {section.label}
+          </h3>
+          <p style={{ fontSize: '1rem', lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 700 }}>
+            {section.body}
+          </p>
+        </div>
+      )
+
+    case 'pullquote':
+      return (
+        <div style={{ borderLeft: `3px solid ${accent}`, paddingLeft: '1.5rem', margin: '0.5rem 0', background: 'rgba(26,25,24,0.03)', padding: '1.25rem 1.5rem' }}>
+          <p style={{ fontSize: 'clamp(1.05rem, 1.8vw, 1.25rem)', fontWeight: 400, lineHeight: 1.65, color: 'var(--ink)', fontStyle: 'italic', letterSpacing: '-0.01em' }}>
+            {section.text}
+          </p>
+        </div>
+      )
+
+    case 'stats':
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '1.25rem', padding: '1.75rem 0', borderTop: `1px solid ${HL}`, borderBottom: `1px solid ${HL}` }}>
+          {section.items.map(item => (
+            <div key={item.label}>
+              <div style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', fontWeight: 300, letterSpacing: '-0.05em', color: accent, lineHeight: 1, marginBottom: '0.4rem' }}>
+                {item.value}
+              </div>
+              <div style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)', lineHeight: 1.4 }}>
+                {item.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+
+    case 'list':
+      return (
+        <div>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '1rem' }}>
+            {section.label}
+          </h3>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {section.items.map((item, i) => (
+              <ListItem key={i} text={item} accent={accent} />
+            ))}
+          </ul>
+        </div>
+      )
+
+    case 'image':
+      return (
+        <div style={{ margin: '0 -2rem' }}>
+          <ExternalOrLocalImage src={section.src} alt={section.alt} aspect={section.aspect} />
+          {section.caption && (
+            <div style={{ ...mono, fontSize: '0.78rem', color: 'var(--ink-dim)', marginTop: '0.6rem', paddingLeft: '2rem' }}>
+              {section.caption}
+            </div>
+          )}
+        </div>
+      )
+
+    case 'images': {
+      const cols = Math.min(section.items.length, 3)
+      return (
+        <div style={{ margin: '0 -2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '0.5rem' }}>
+            {section.items.map((item, i) => (
+              <div key={i}>
+                <ExternalOrLocalImage src={item.src} alt={item.alt} aspect={section.aspect} />
+                {item.caption && (
+                  <div style={{ ...mono, fontSize: '0.78rem', color: 'var(--ink-dim)', marginTop: '0.4rem', textAlign: 'center' }}>
+                    {item.caption}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    default:
+      return null
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo:*)",
+      "Bash(gh api:*)",
+      "Bash(gh run:*)",
+      "WebFetch(domain:stanfordhci.github.io)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "WebFetch(domain:web.stanford.edu)",
+      "WebFetch(domain:www.cake.me)",
+      "WebFetch(domain:www.defne.io)",
+      "WebFetch(domain:defnegenc.github.io)",
+      "Bash(done)",
+      "Bash(cat:*)",
+      "mcp__paper__get_basic_info",
+      "mcp__paper__get_font_family_info",
+      "mcp__paper__create_artboard",
+      "mcp__paper__write_html",
+      "mcp__paper__get_screenshot",
+      "mcp__paper__update_styles",
+      "mcp__paper__set_text_content",
+      "mcp__paper__finish_working_on_nodes",
+      "Bash(open:*)",
+      "Bash(git:*)",
+      "Bash(dig:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run:*)",
+      "Bash(npx next:*)",
+      "Bash(xcrun simctl:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(lsof:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vercel:*)",
+      "Bash(.gitignore:*)"
+    ]
+  }
+}
