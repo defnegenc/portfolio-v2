@@ -76,6 +76,66 @@ const PUBLICATIONS = [
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
+// ─── Glyph Picker ─────────────────────────────────────────────────────────────
+
+interface GlyphPickerProps {
+  glyphMode: 'default' | 'chunky' | 'custom'
+  setGlyphMode: (m: 'default' | 'chunky' | 'custom') => void
+  customChars: string
+  setCustomChars: (c: string) => void
+  toggleBg?: string
+  toggleFg?: string
+  mono: React.CSSProperties
+  mobile?: boolean
+}
+
+function GlyphPicker({ glyphMode, setGlyphMode, customChars, setCustomChars, toggleBg, toggleFg, mono, mobile }: GlyphPickerProps) {
+  const bg = toggleBg ?? 'var(--bg)'
+  const fg = toggleFg ?? 'var(--ink)'
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'flex-start' }}>
+      {/* Preset buttons */}
+      <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
+        {(['default', 'chunky', 'custom'] as const).map(m => (
+          <span key={m} onClick={() => setGlyphMode(m)} style={{
+            ...mono, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.08em',
+            padding: '0.38rem 0.72rem', cursor: 'pointer', userSelect: 'none' as const,
+            background: glyphMode === m ? fg : 'transparent',
+            color: glyphMode === m ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
+            transition: 'background 0.15s, color 0.15s',
+          }}>{m}</span>
+        ))}
+      </div>
+      {/* Custom input — only shown when custom is active */}
+      {glyphMode === 'custom' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <span style={{ ...mono, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: mobile ? 'var(--ink-dim)' : fg, opacity: mobile ? 1 : 0.7 }}>
+            Enter up to 3 symbols
+          </span>
+          <input
+            type="text"
+            maxLength={3}
+            value={customChars}
+            onChange={e => setCustomChars(e.target.value)}
+            style={{
+              ...mono, fontSize: '0.9rem',
+              background: mobile ? 'transparent' : bg,
+              color: mobile ? 'var(--ink)' : fg,
+              border: mobile ? '1px solid var(--hairline)' : `1px solid ${toggleFg}33`,
+              padding: '0.4rem 0.6rem',
+              width: '5.5rem',
+              borderRadius: 2,
+              cursor: 'text',
+              outline: 'none',
+            }}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -85,7 +145,8 @@ export default function Home() {
   const [formSent, setFormSent]   = useState(false)
   const [activeTab, setActiveTab] = useState('All')
   const [theme, setTheme]         = useState<'dark' | 'light'>('light')
-  const [customChars, setCustomChars] = useState('')
+  const [glyphMode, setGlyphMode] = useState<'default' | 'chunky' | 'custom'>('default')
+  const [customChars, setCustomChars] = useState('·|·')
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString('en-US', {
@@ -119,6 +180,8 @@ export default function Home() {
   const isLight = theme === 'light'
   const toggleBg = isLight ? 'rgba(26,25,24,0.82)' : 'rgba(232,230,224,0.88)'
   const toggleFg = isLight ? '#F4F2EC' : '#0A0A0A'
+
+  const activeChars = glyphMode === 'default' ? undefined : glyphMode === 'chunky' ? '▓▒░' : customChars || undefined
 
   const filteredProjects = PROJECTS.filter(p => TAB_FILTERS[activeTab](p.tags))
 
@@ -174,17 +237,21 @@ export default function Home() {
         @media (max-width: 860px) { .sidebar { display: none !important; } }
 
         @media (max-width: 600px) {
-          .pgrid   { grid-template-columns: 1fr !important; }
-          .pt      { min-height: 160px !important; }
-          .pt::after { display: none !important; }
-          .canvas-zone { flex: 0 0 26vh !important; flex: 0 0 26dvh !important; }
-          .sym-label { display: none !important; }
+          .pgrid       { grid-template-columns: 1fr !important; }
+          .pt          { min-height: 160px !important; }
+          .pt::after   { display: none !important; }
+          .canvas-zone { flex: 0 0 22vh !important; flex: 0 0 22dvh !important; }
+          .filter-nav  { display: none !important; }
+          .sym-controls { display: none !important; }
+          .sym-mobile  { display: flex !important; }
         }
+
+        /* sym-mobile hidden on desktop */
+        .sym-mobile { display: none; }
 
         @media (max-width: 420px) {
           .name-strip  { padding: 0.65rem 1rem !important; gap: 0.5rem !important; }
           .ns-sub      { display: none !important; }
-          .ns-seg span { padding: 0.35rem 0.5rem !important; }
         }
       `}</style>
 
@@ -244,75 +311,31 @@ export default function Home() {
               }}>{t}</span>
             ))}
           </div>
-          {/* Hamburger — larger tap target */}
+          {/* Hamburger */}
           <button
             onClick={() => setNavOpen(true)}
-            style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem' }}
+            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', padding: '0.4rem 0.2rem', width: 32, height: 32 }}
           >
-            <span style={{ display: 'block', width: 20, height: 1.5, background: 'var(--ink-dim)', borderRadius: 1 }} />
-            <span style={{ display: 'block', width: 14, height: 1.5, background: 'var(--ink-dim)', borderRadius: 1 }} />
-            <span style={{ display: 'block', width: 20, height: 1.5, background: 'var(--ink-dim)', borderRadius: 1 }} />
+            <span style={{ display: 'block', width: 18, height: 1, background: 'var(--ink-dim)' }} />
+            <span style={{ display: 'block', width: 12, height: 1, background: 'var(--ink-dim)' }} />
+            <span style={{ display: 'block', width: 18, height: 1, background: 'var(--ink-dim)' }} />
           </button>
         </div>
       </div>
 
       {/* ── CANVAS ZONE ── */}
       <div className="canvas-zone" style={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid var(--hairline)', background: isLight ? '#F4F2EC' : '#050505' }}>
-        <AsciiCanvas breathe lightMode={isLight} chars={customChars || undefined} />
+        <AsciiCanvas breathe lightMode={isLight} chars={activeChars} />
 
-        {/* Symbol controls */}
+        {/* Symbol controls — desktop only (absolute over canvas) */}
         <div className="sym-controls" style={{ position: 'absolute', bottom: '1rem', left: '1.75rem', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start' }}>
-          {/* Preset buttons */}
-          <div style={{ display: 'flex', gap: '0.3rem' }}>
-            {[
-              { label: 'default', val: '' },
-              { label: 'chunky', val: '▓▒░' },
-              { label: 'lines', val: '·|·' },
-            ].map(({ label, val }) => {
-              const active = customChars === val
-              return (
-                <button
-                  key={label}
-                  onClick={() => setCustomChars(val)}
-                  style={{
-                    ...mono, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em',
-                    color: active ? toggleBg : toggleFg,
-                    background: active ? toggleFg : toggleBg,
-                    border: 'none', padding: '0.3rem 0.6rem', borderRadius: 2,
-                    backdropFilter: 'blur(8px)',
-                    cursor: 'pointer', transition: 'background 0.15s, color 0.15s',
-                  }}
-                >
-                  {label}
-                </button>
-              )
-            })}
-          </div>
-          {/* Custom input with label on same pill background */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-            <span className="sym-label" style={{
-              ...mono, fontSize: '0.56rem', letterSpacing: '0.04em',
-              color: toggleFg, background: toggleBg,
-              padding: '0.2rem 0.6rem', borderRadius: 2, backdropFilter: 'blur(8px)',
-            }}>
-              enter up to 3 symbols to change the animation
-            </span>
-            <input
-              type="text"
-              maxLength={3}
-              value={customChars}
-              onChange={e => setCustomChars(e.target.value.slice(0, 3))}
-              placeholder="···"
-              style={{
-                fontFamily: 'var(--font-mono)', fontSize: '0.8rem',
-                width: '100%', background: toggleBg, color: toggleFg,
-                border: 'none', padding: '0.3rem 0.6rem',
-                letterSpacing: '0.2em', outline: 'none',
-                cursor: 'text', borderRadius: 2, backdropFilter: 'blur(8px)',
-              }}
-            />
-          </div>
+          <GlyphPicker glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} toggleBg={toggleBg} toggleFg={toggleFg} mono={mono} />
         </div>
+      </div>
+
+      {/* ── SYMBOL CONTROLS — mobile only, below canvas ── */}
+      <div className="sym-mobile" style={{ flexShrink: 0, flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
+        <GlyphPicker glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} toggleBg={undefined} toggleFg={undefined} mono={mono} mobile />
       </div>
 
       {/* ── BOTTOM: sidebar + main ── */}
@@ -368,7 +391,7 @@ export default function Home() {
         <main style={{ flex: 1, height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
           {/* Filter tabs */}
-          <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg)', backdropFilter: 'blur(10px)', flexShrink: 0 }}>
+          <nav className="filter-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg)', backdropFilter: 'blur(10px)', flexShrink: 0 }}>
             <div style={{ display: 'flex', gap: '1.5rem' }}>
               {['All', 'Research', 'Design', 'Engineering'].map(tab => (
                 <button key={tab} className="nav-tab" onClick={() => setActiveTab(tab)}
