@@ -148,7 +148,7 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'pullquote',
-        text: 'Product, design, backend, mobile, database, AI pipeline — all of it, solo. Menuto is proof that I can own the full stack of a product from idea to working system.',
+        text: 'I\'m always indecisive about what to order at restaurants. So I solved my own problem.',
       },
       {
         type: 'stats',
