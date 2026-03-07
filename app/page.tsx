@@ -55,10 +55,6 @@ function BinaryName({ text }: { text: string }) {
       })
     }
 
-    // Run on mount
-    const init = setTimeout(scan, 200)
-    timers.current.push(init)
-
     container.addEventListener('mouseenter', scan)
     container.addEventListener('mouseleave', restore)
     return () => {
@@ -340,9 +336,9 @@ export default function Home() {
               { label: 'Résumé', href: '/resume' },
             ]).map(({ label, href }) => (
               <a key={label} href={href}
-                style={{ ...mono, fontSize: '0.6rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.4rem 0.75rem', transition: 'color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--ink)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-dim)')}>
+                style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.4rem 0.75rem', transition: 'color 0.15s', opacity: 0.65 }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = '0.65' }}>
                 {label}
               </a>
             ))}
@@ -401,7 +397,7 @@ export default function Home() {
         <aside className="sidebar" style={{ width: 300, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--hairline)', background: 'var(--bg)' }}>
           <div style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', overflowY: 'auto' }} className="scrollbar-none">
             <div style={{ fontSize: '0.88rem', lineHeight: 1.6, color: 'var(--ink-dim)' }}>
-              I'm a designer and PM with a background in HCI research and AI safety — MS CS (HCI) at Stanford, where I worked in Prof. Landay's lab. Currently APM at Coinbase.
+              Designer and PM. MS in CS (HCI) from Stanford, where I worked with Prof. Landay's lab on HCI research and AI safety. Currently APM at Coinbase.
             </div>
             <div>
               <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', opacity: 0.6, marginBottom: '0.25rem' }}>40.7128° N · 74.0060° W</div>

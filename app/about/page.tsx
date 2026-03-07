@@ -13,39 +13,58 @@ export default function About() {
   return (
     <div
       data-theme={theme}
-      style={{ height: '100vh', overflowY: 'auto', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-main)' }}
+      style={{ height: '100vh', overflowY: 'auto', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-main)', position: 'relative' }}
     >
       <style>{`
-        [data-theme="light"] {
-          --bg: #F4F2EC;
-          --ink: #1A1918;
-          --ink-dim: #5A5955;
-          --hairline: rgba(26,25,24,0.15);
-        }
-        [data-theme="dark"] {
-          --bg: #0A0A0A;
-          --ink: #E8E6E0;
-          --ink-dim: #AEADA6;
-          --hairline: rgba(232,230,224,0.1);
-        }
+        [data-theme="light"] { --bg: #F4F2EC; --ink: #1A1918; --ink-dim: #5A5955; --hairline: rgba(26,25,24,0.15); }
+        [data-theme="dark"]  { --bg: #0A0A0A; --ink: #E8E6E0; --ink-dim: #AEADA6; --hairline: rgba(232,230,224,0.1); }
         .about-link { color: var(--ink-dim); text-decoration: none; position: relative; transition: color 0.2s; }
         .about-link::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform 0.3s cubic-bezier(.19,1,.22,1); }
         .about-link:hover::after { transform: scaleX(1); transform-origin: left; }
         .about-link:hover { color: var(--ink) !important; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.6s cubic-bezier(.16,1,.3,1) both; }
-        .fade-up-1 { animation-delay: 0.05s; }
-        .fade-up-2 { animation-delay: 0.12s; }
-        .fade-up-3 { animation-delay: 0.2s; }
-        .fade-up-4 { animation-delay: 0.28s; }
+        .fade-up-1 { animation-delay: 0.05s; } .fade-up-2 { animation-delay: 0.12s; }
+        .fade-up-3 { animation-delay: 0.2s; }  .fade-up-4 { animation-delay: 0.28s; }
         .fade-up-5 { animation-delay: 0.36s; }
         @media (max-width: 700px) {
           .hero-inner { flex-direction: column !important; gap: 1.5rem !important; }
           .hero-strips { height: 140px !important; }
           .content-grid { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
           .fact-grid { grid-template-columns: 1fr !important; }
+          .side-strip { display: none !important; }
         }
       `}</style>
+
+      {/* Scattered animation strips — both sides, different modes */}
+      <div className="side-strip" style={{ position: 'absolute', left: 0, top: 680, zIndex: 0, display: 'flex', gap: 5, height: 240, pointerEvents: 'none' }}>
+        {[0.35, 0.55].map((op, i) => (
+          <div key={i} style={{ width: 40, height: '100%', overflow: 'hidden', opacity: op }}>
+            <AsciiCanvas trailMode lightMode={isLight} />
+          </div>
+        ))}
+      </div>
+      <div className="side-strip" style={{ position: 'absolute', right: 0, top: 1250, zIndex: 0, display: 'flex', gap: 5, height: 200, pointerEvents: 'none' }}>
+        {[0.55, 0.4, 0.25].map((op, i) => (
+          <div key={i} style={{ width: 38, height: '100%', overflow: 'hidden', opacity: op }}>
+            <AsciiCanvas breathe lightMode={isLight} />
+          </div>
+        ))}
+      </div>
+      <div className="side-strip" style={{ position: 'absolute', left: 0, top: 1900, zIndex: 0, display: 'flex', gap: 5, height: 180, pointerEvents: 'none' }}>
+        {[0.3, 0.5, 0.3].map((op, i) => (
+          <div key={i} style={{ width: 36, height: '100%', overflow: 'hidden', opacity: op }}>
+            <AsciiCanvas lightMode={isLight} />
+          </div>
+        ))}
+      </div>
+      <div className="side-strip" style={{ position: 'absolute', right: 0, top: 2500, zIndex: 0, display: 'flex', gap: 5, height: 220, pointerEvents: 'none' }}>
+        {[0.4, 0.6].map((op, i) => (
+          <div key={i} style={{ width: 40, height: '100%', overflow: 'hidden', opacity: op }}>
+            <AsciiCanvas trailMode lightMode={isLight} />
+          </div>
+        ))}
+      </div>
 
       {/* Nav */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 2rem', borderBottom: '1px solid var(--hairline)', background: isLight ? 'rgba(244,242,236,0.92)' : 'rgba(10,10,10,0.92)', backdropFilter: 'blur(12px)' }}>
@@ -65,12 +84,10 @@ export default function About() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 2rem 8rem' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 2rem 8rem', position: 'relative', zIndex: 1 }}>
 
         {/* Hero */}
         <div className="fade-up fade-up-1 hero-inner" style={{ display: 'flex', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'flex-start' }}>
-
-          {/* ASCII strips */}
           <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280, flexShrink: 0, alignSelf: 'stretch' }}>
             {[0.4, 0.55, 0.7, 0.85, 1].map((opacity, i) => (
               <div key={i} style={{ flex: 1, minWidth: 40, maxWidth: 52, height: '100%', overflow: 'hidden', opacity }}>
@@ -78,8 +95,6 @@ export default function About() {
               </div>
             ))}
           </div>
-
-          {/* Text */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingTop: '1rem' }}>
             <div className="fade-up fade-up-2" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
               Istanbul · Stanford · New York
@@ -87,9 +102,8 @@ export default function About() {
             <h1 className="fade-up fade-up-3" style={{ fontSize: 'clamp(2.8rem, 5vw, 5.5rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.88, marginBottom: '1.75rem' }}>
               Defne<br />Genç
             </h1>
-            <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(0.95rem, 1.3vw, 1.1rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
-              Designer, researcher, engineer — in that order of how I think, and rarely in that order of how I work.
-              I'm interested in interfaces that adapt to people rather than demanding people adapt to them.
+            <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
+              I think like a designer, work like a researcher, and build like an engineer. Usually in that order, sometimes all at once.
             </p>
           </div>
         </div>
@@ -101,15 +115,15 @@ export default function About() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I grew up in Istanbul and came to Stanford for undergrad — Symbolic Systems, which is what happens when you can't choose between cognitive science, linguistics, philosophy, and CS. I stayed for an MS in Computer Science (HCI), and the bulk of what I worked on during those two years was{' '}
+              I grew up in Istanbul and came to Stanford for undergrad. I studied Symbolic Systems, which is what you do when you can't choose between cognitive science, linguistics, philosophy, and CS. Stayed for an MS in Computer Science focused on HCI. Most of those two years went into{' '}
               <a href="/project/bloom" className="about-link">Bloom</a>
-              {' '}— an LLM-augmented physical activity coaching app with Prof. James Landay's lab. Second author on the CHI 2026 paper.
+              , an LLM-augmented physical activity coaching app built with Prof. Landay's lab. Second author on the CHI 2026 paper.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              Alongside research, I was a teaching assistant for Stanford's core HCI sequence — CS 147, CS 278, and CS 347 — which kept me grounded in how designers actually learn to think. I started in wet lab research at Stanford Medicine (Kuo Lab, ovarian cancer organoids), which sounds like a pivot, but the experimental rigor transferred directly.
+              I also TA'd Stanford's core HCI sequence: CS 147, CS 278, and CS 347. Before all of this I was in wet lab research at Stanford Medicine, studying ovarian cancer organoids at Kuo Lab. That sounds like a left turn. The experimental rigor carried over.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              Now I'm APM at Coinbase, working on institutional derivatives.
+              Now I'm an APM at Coinbase on the institutional derivatives team.
             </p>
           </div>
         </div>
@@ -123,15 +137,15 @@ export default function About() {
             {[
               {
                 title: 'Interfaces that surface strengths',
-                body: 'Most health and productivity interfaces are optimized around gaps — what you haven\'t done, what you\'re missing. Bloom showed me that surfacing what people are already doing, in a way they haven\'t noticed, can shift self-perception more meaningfully than reminders and streaks. I\'m interested in building more systems that work this way.',
+                body: 'Most health and productivity apps are built around gaps: what you haven\'t done, what you\'re behind on. Bloom showed me the other direction. Surfacing what people are already doing, in a way they hadn\'t noticed, can shift how they see themselves more than any streak or reminder. I want to build more things that work that way.',
               },
               {
-                title: 'Rigid interfaces failing diverse populations',
-                body: 'We design for a hypothetical average user in a single context. Someone with ADHD finds a habit tracker designed for neurotypical attention spans becomes an obstacle. A student who processes information differently hits a wall in an interface that assumes one reading mode. AI and ubiquitous computing suggest we don\'t have to keep building this way.',
+                title: 'One-size-fits-all interfaces',
+                body: 'We design for a hypothetical average person in a hypothetical average context. Someone with ADHD trying to use a habit tracker built for neurotypical attention gets an obstacle, not a tool. A student who thinks differently hits a wall in an app that assumes one reading mode. AI makes it genuinely plausible to do something about this.',
               },
               {
-                title: 'Giving AI specific taste — not average taste',
-                body: 'AI generates infinite outputs but regresses to a mean. Most image or design requests converge on the same aesthetic because the model optimizes toward what\'s most represented online. The interesting question is how you give an AI genuinely spiky expertise — say, an agent that knows everything about Turkish hammam interiors and has opinions. How do you teach it that? Can it evolve? And critically: a lot of taste is built offline — things you touch, spaces you move through, what people wear on the street. Not words. Vision models and ubicomp make this tractable in ways that weren\'t possible before.',
+                title: 'Teaching AI to have taste',
+                body: 'Ask AI to design something and you usually get something competent and forgettable. Models optimize toward what\'s most represented online. The more interesting question: can you give an AI a genuinely specific point of view? Not broad competence but spiky expertise — an agent that really knows Turkish hammam aesthetics and can tell you why one space works better than another. And here\'s the part that interests me most: a lot of taste is built offline. Things you touch, spaces you move through, what people wear on the street. Vision models and ubicomp open up something genuinely new here.',
               },
             ].map(({ title, body }) => (
               <div key={title}>

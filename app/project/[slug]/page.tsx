@@ -584,7 +584,7 @@ const PROJECTS: Record<string, Project> = {
     team: 'Mohammed Khalil, Aaron Choi, Defne Genç',
     duration: 'TreeHacks 2024 (Stanford)',
     tools: 'Figma',
-    accentColor: '#7EB89A',
+    accentColor: '#C4621D',
     tags: ['UX', 'AI Agent', 'Hackathon'],
     sections: [
       {
