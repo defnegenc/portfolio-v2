@@ -33,23 +33,24 @@ function BinaryName({ text }: { text: string }) {
       nonSpaces.forEach((ci, pos) => {
         const el = refsArr.current[ci]
         if (!el) return
-        // staggered start
+        // binary string for this character's char code
+        const binStr = chars[ci].charCodeAt(0).toString(2).padStart(8, '0')
         const t0 = setTimeout(() => {
-          // flicker 4 times
-          ;[0, 1, 2, 3].forEach(k => {
+          // show each bit in sequence
+          binStr.split('').forEach((bit, k) => {
             const tf = setTimeout(() => {
-              if (el) el.textContent = k % 2 === 0 ? '0' : '1'
-            }, k * 48)
+              if (el) el.textContent = bit
+            }, k * 40)
             timers.current.push(tf)
           })
-          // resolve
+          // resolve back to character
           const tr = setTimeout(() => {
             if (el) el.textContent = chars[ci]
             done++
             if (done === nonSpaces.length) busy.current = false
-          }, 4 * 48)
+          }, binStr.length * 40 + 60)
           timers.current.push(tr)
-        }, pos * 38)
+        }, pos * 55)
         timers.current.push(t0)
       })
     }

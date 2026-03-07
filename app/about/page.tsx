@@ -96,19 +96,19 @@ export default function About() {
 
         {/* Background */}
         <div className="fade-up fade-up-5 content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
-          <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
+          <div style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
             Background
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <p style={{ fontSize: '1.1rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
+            <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I grew up in Istanbul and came to Stanford for undergrad — Symbolic Systems, which is what happens when you can't choose between cognitive science, linguistics, philosophy, and CS. I stayed for an MS in Computer Science (HCI), and the bulk of what I worked on during those two years was{' '}
               <a href="/project/bloom" className="about-link">Bloom</a>
               {' '}— an LLM-augmented physical activity coaching app with Prof. James Landay's lab. Second author on the CHI 2026 paper.
             </p>
-            <p style={{ fontSize: '1.1rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
+            <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               Alongside research, I was a teaching assistant for Stanford's core HCI sequence — CS 147, CS 278, and CS 347 — which kept me grounded in how designers actually learn to think. I started in wet lab research at Stanford Medicine (Kuo Lab, ovarian cancer organoids), which sounds like a pivot, but the experimental rigor transferred directly.
             </p>
-            <p style={{ fontSize: '1.1rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
+            <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               Now I'm APM at Coinbase, working on institutional derivatives.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function About() {
 
         {/* What I'm thinking about */}
         <div className="content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
-          <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
+          <div style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
             What I'm<br />thinking about
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -135,10 +135,10 @@ export default function About() {
               },
             ].map(({ title, body }) => (
               <div key={title}>
-                <div style={{ fontSize: '1.05rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
+                <div style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
                   {title}
                 </div>
-                <p style={{ fontSize: '0.95rem', fontWeight: 300, lineHeight: 1.8, color: 'var(--ink-dim)', maxWidth: 580 }}>
+                <p style={{ fontSize: '1.08rem', fontWeight: 300, lineHeight: 1.8, color: 'var(--ink-dim)', maxWidth: 580 }}>
                   {body}
                 </p>
               </div>
@@ -148,7 +148,7 @@ export default function About() {
 
         {/* Otherwise */}
         <div className="content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
-          <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
+          <div style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
             Otherwise
           </div>
           <div className="fact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem 3rem' }}>
@@ -163,10 +163,10 @@ export default function About() {
               ['Languages', 'Turkish (native), English (fluent), French (conversational)'],
             ].map(([label, value]) => (
               <div key={label}>
-                <div style={{ ...mono, fontSize: '0.58rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
+                <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
                   {label}
                 </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>{value}</div>
+                <div style={{ fontSize: '1rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>{value}</div>
               </div>
             ))}
           </div>
@@ -181,11 +181,11 @@ export default function About() {
             { label: 'Résumé', href: '/resume', text: 'View résumé' },
           ].map(({ label, href, text }) => (
             <div key={label}>
-              <div style={{ ...mono, fontSize: '0.58rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
+              <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
                 {label}
               </div>
               <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className="about-link"
-                style={{ fontSize: '0.88rem' }}>
+                style={{ fontSize: '1rem' }}>
                 {text}
               </a>
             </div>

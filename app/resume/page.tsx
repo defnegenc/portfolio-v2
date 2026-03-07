@@ -85,7 +85,7 @@ function SectionHeader({
         cursor: 'pointer',
       }}
     >
-      <span style={{ ...mono, fontSize: '0.6rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+      <span style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
         {label}
       </span>
       <span style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', transition: 'transform 0.2s', display: 'inline-block', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
@@ -102,14 +102,14 @@ function Role({ title, org, period, bullets }: {
     <div style={{ marginBottom: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div>
-          <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{title}</span>
-          <span style={{ ...dim, fontSize: '0.9rem' }}> — {org}</span>
+          <span style={{ fontWeight: 600, fontSize: '1.05rem' }}>{title}</span>
+          <span style={{ ...dim, fontSize: '1rem' }}> — {org}</span>
         </div>
-        <div style={{ ...mono, fontSize: '0.6rem', ...dim, whiteSpace: 'nowrap' }}>{period}</div>
+        <div style={{ ...mono, fontSize: '0.72rem', ...dim, whiteSpace: 'nowrap' }}>{period}</div>
       </div>
-      <ul style={{ paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.5rem' }}>
+      <ul style={{ paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.55rem' }}>
         {bullets.map((b, i) => (
-          <li key={i} style={{ fontSize: '0.88rem', lineHeight: 1.55, ...dim }}>{b}</li>
+          <li key={i} style={{ fontSize: '1rem', lineHeight: 1.65, ...dim }}>{b}</li>
         ))}
       </ul>
     </div>
@@ -156,13 +156,13 @@ export default function Resume() {
 
         {/* Nav */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3.5rem' }}>
-          <Link href="/" style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <Link href="/" style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             ← Back
           </Link>
           <button
             onClick={() => window.print()}
             style={{
-              ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)',
+              ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)',
               background: 'none', border: '1px solid var(--hairline)',
               padding: '0.4rem 0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer',
             }}
@@ -176,7 +176,7 @@ export default function Resume() {
           <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 300, letterSpacing: '-0.04em', lineHeight: 0.9, marginBottom: '1.25rem' }}>
             Defne Genç
           </h1>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', ...mono, fontSize: '0.7rem', ...dim }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', ...mono, fontSize: '0.85rem', ...dim }}>
             {[
               { label: 'defneg@stanford.edu', href: 'mailto:defneg@stanford.edu' },
               { label: 'defne.io', href: 'https://defne.io' },
@@ -196,17 +196,17 @@ export default function Resume() {
         <div className={`section-collapse ${open.education ? 'open' : 'closed'}`}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '0.75rem' }}>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.2rem' }}>M.S. Computer Science — HCI</div>
-              <div style={{ fontSize: '0.88rem', ...dim }}>Stanford University</div>
-              <div style={{ ...mono, fontSize: '0.6rem', ...dim, marginTop: '0.25rem' }}>2023 – 2025 · GPA 3.93 / 4.0</div>
+              <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.2rem' }}>M.S. Computer Science — HCI</div>
+              <div style={{ fontSize: '1rem', ...dim }}>Stanford University</div>
+              <div style={{ ...mono, fontSize: '0.72rem', ...dim, marginTop: '0.25rem' }}>2023 – 2025 · GPA 3.93 / 4.0</div>
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.2rem' }}>B.S. Symbolic Systems</div>
-              <div style={{ fontSize: '0.88rem', ...dim }}>Stanford University</div>
-              <div style={{ ...mono, fontSize: '0.6rem', ...dim, marginTop: '0.25rem' }}>2020 – 2024</div>
+              <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.2rem' }}>B.S. Symbolic Systems</div>
+              <div style={{ fontSize: '1rem', ...dim }}>Stanford University</div>
+              <div style={{ ...mono, fontSize: '0.72rem', ...dim, marginTop: '0.25rem' }}>2020 – 2024</div>
             </div>
           </div>
-          <div style={{ ...mono, fontSize: '0.65rem', ...dim, lineHeight: 1.8, marginBottom: '1.75rem' }}>
+          <div style={{ ...mono, fontSize: '0.8rem', ...dim, lineHeight: 1.8, marginBottom: '1.75rem' }}>
             Algorithms · Big Data · Probability · HCI · AI · Applied Stats (R/SQL) · Operating Systems · Computational Logic
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function Resume() {
                 className="resume-tab"
                 onClick={() => setActiveTab(tab)}
                 style={{
-                  ...mono, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em',
+                  ...mono, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em',
                   background: 'none', border: 'none', padding: '0.5rem 1rem 0.6rem',
                   color: activeTab === tab ? 'var(--ink)' : 'var(--ink-dim)',
                   borderBottom: `2px solid ${activeTab === tab ? 'var(--ink)' : 'transparent'}`,
@@ -242,13 +242,13 @@ export default function Resume() {
         <SectionHeader label="Research & Publications" open={open.publications} onToggle={() => toggle('publications')} />
         <div className={`section-collapse ${open.publications ? 'open' : 'closed'}`}>
           <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '0.3rem' }}>
+            <div style={{ fontSize: '1.05rem', lineHeight: 1.5, marginBottom: '0.3rem' }}>
               <span style={{ fontWeight: 600 }}>Bloom: Designing for LLM-Augmented Behavior Change Interactions</span>
             </div>
-            <div style={{ fontSize: '0.85rem', ...dim, marginBottom: '0.3rem' }}>
+            <div style={{ fontSize: '0.98rem', ...dim, marginBottom: '0.3rem' }}>
               Jörke, <span style={{ color: 'var(--ink)' }}>Genç</span>, Teutschbein, Sapkota, Chung, Schmiedmayer, Campero, King, Brunskill, Landay
             </div>
-            <div style={{ ...mono, fontSize: '0.62rem', ...dim, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ ...mono, fontSize: '0.75rem', ...dim, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <span>CHI 2026 · 2nd author · Accepted</span>
               <a href="https://arxiv.org/abs/2510.05449" target="_blank" rel="noreferrer"
                 style={{ color: 'var(--ink-dim)', textDecoration: 'none' }}>
@@ -257,13 +257,13 @@ export default function Resume() {
             </div>
           </div>
           <div style={{ marginBottom: '1.75rem' }}>
-            <div style={{ fontSize: '0.92rem', marginBottom: '0.2rem' }}>
+            <div style={{ fontSize: '1.05rem', marginBottom: '0.2rem' }}>
               Kuo Lab — Ovarian Cancer Organoids
             </div>
-            <div style={{ fontSize: '0.85rem', ...dim, marginBottom: '0.2rem' }}>
+            <div style={{ fontSize: '0.98rem', ...dim, marginBottom: '0.2rem' }}>
               Stanford School of Medicine · Wet Lab Researcher
             </div>
-            <div style={{ ...mono, fontSize: '0.62rem', ...dim }}>Jan 2021 – Jan 2022</div>
+            <div style={{ ...mono, fontSize: '0.75rem', ...dim }}>Jan 2021 – Jan 2022</div>
           </div>
         </div>
 
@@ -281,10 +281,10 @@ export default function Resume() {
               ['PM', 'PRDs, Roadmapping, BI Dashboards'],
             ].map(([cat, items]) => (
               <div key={cat}>
-                <div style={{ ...mono, fontSize: '0.58rem', ...dim, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.3rem' }}>
+                <div style={{ ...mono, fontSize: '0.72rem', ...dim, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.3rem' }}>
                   {cat}
                 </div>
-                <div style={{ fontSize: '0.82rem', ...dim, lineHeight: 1.5 }}>{items}</div>
+                <div style={{ fontSize: '0.95rem', ...dim, lineHeight: 1.6 }}>{items}</div>
               </div>
             ))}
           </div>
