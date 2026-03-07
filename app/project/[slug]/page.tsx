@@ -50,9 +50,10 @@ const PROJECTS: Record<string, Project> = {
     citation: 'Jörke, J., Genç, D., Teutschbein, M., Sapkota, S., Chung, J., Schmiedmayer, H.-B., Campero, A., King, A. C., Brunskill, E., & Landay, J. A. (2026). Bloom: Designing for LLM-Augmented Behavior Change Interactions. CHI \'26. ACM. https://arxiv.org/abs/2510.05449',
     duration: '4-week randomized field study · N=54',
     tools: 'Figma, React Native, LLM red-teaming, qualitative coding',
-    accentColor: '#8BAF8B',
+    accentColor: '#266C31',
     tags: ['HCI Research', 'Safety', 'Design'],
     externalLink: { href: 'https://stanfordhci.github.io/Bloom/', label: 'View the Bloom website ↗' },
+    secondaryLink: { href: '/bloom-app-guide.pdf', label: 'App Guide PDF ↗' },
     sections: [
       {
         type: 'text',
