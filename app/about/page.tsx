@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import AsciiCanvas from '@/components/AsciiCanvas'
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
@@ -13,10 +14,9 @@ export default function About() {
   return (
     <div
       data-theme={theme}
-      style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-main)' }}
+      style={{ height: '100vh', overflowY: 'auto', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-main)' }}
     >
       <style>{`
-        html, body { overflow: auto !important; }
         [data-theme="light"] {
           --bg: #F4F2EC;
           --ink: #1A1918;
@@ -42,7 +42,7 @@ export default function About() {
         .fade-up-5 { animation-delay: 0.36s; }
         @media (max-width: 700px) {
           .hero-inner { flex-direction: column !important; }
-          .hero-photo-wrap { width: 100% !important; height: 56vw !important; min-height: 220px !important; }
+          .hero-strips { display: none !important; }
           .content-grid { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
           .fact-grid { grid-template-columns: 1fr !important; }
         }
@@ -68,16 +68,29 @@ export default function About() {
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 2rem 8rem' }}>
 
-        {/* Hero — compact inline */}
+        {/* Hero */}
         <div className="fade-up fade-up-1 hero-inner" style={{ display: 'flex', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'flex-start' }}>
 
-          {/* Vertical animation strips */}
-          <div className="hero-photo-wrap" style={{ flexShrink: 0, display: 'flex', gap: 6, height: 300, alignItems: 'stretch' }}>
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} style={{ width: 52, height: '100%', overflow: 'hidden', opacity: 0.7 + i * 0.075 }}>
-                <AsciiCanvas breathe lightMode={isLight} />
-              </div>
-            ))}
+          {/* Photo + strips side by side */}
+          <div style={{ flexShrink: 0, display: 'flex', gap: 6, height: 300, alignItems: 'stretch' }}>
+            {/* Headshot */}
+            <div style={{ width: 200, height: '100%', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+              <Image
+                src="/headshot.jpg"
+                alt="Defne Genç"
+                fill
+                style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                priority
+              />
+            </div>
+            {/* ASCII strips */}
+            <div className="hero-strips" style={{ display: 'flex', gap: 6, height: '100%' }}>
+              {[0.5, 0.65, 0.8].map((opacity, i) => (
+                <div key={i} style={{ width: 44, height: '100%', overflow: 'hidden', opacity }}>
+                  <AsciiCanvas breathe lightMode={isLight} />
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Text */}
