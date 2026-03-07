@@ -291,6 +291,7 @@ export default function Home() {
           .filter-nav  { display: none !important; }
           .sym-controls { display: none !important; }
           .sym-mobile  { display: flex !important; }
+          .nav-links   { display: none !important; }
         }
 
         /* sym-mobile hidden on desktop */
@@ -347,6 +348,20 @@ export default function Home() {
           </div>
         </div>
         <div className="ns-seg" style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexShrink: 0 }}>
+          {/* Desktop nav links */}
+          <div className="nav-links" style={{ display: 'flex', gap: '0', alignItems: 'center' }}>
+            {([
+              { label: 'About',  href: '/about' },
+              { label: 'Résumé', href: '/resume' },
+            ]).map(({ label, href }) => (
+              <a key={label} href={href}
+                style={{ ...mono, fontSize: '0.6rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.4rem 0.75rem', transition: 'color 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--ink)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-dim)')}>
+                {label}
+              </a>
+            ))}
+          </div>
           {/* Light / Dark segmented control */}
           <div style={{ display: 'flex', border: '1px solid var(--hairline)', borderRadius: 3, overflow: 'hidden' }}>
             {(['light', 'dark'] as const).map(t => (
