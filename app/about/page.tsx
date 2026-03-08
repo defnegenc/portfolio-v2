@@ -117,7 +117,7 @@ export default function About() {
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I grew up in Istanbul and came to Stanford for undergrad. I studied Symbolic Systems, which is what you do when you can't choose between cognitive science, linguistics, philosophy, and CS. Stayed for an MS in Computer Science focused on HCI. That year mostly went into{' '}
               <a href="/project/bloom" className="about-link">Bloom</a>
-              , an LLM-augmented physical activity coaching app built with Prof. Landay's lab. Second author on the CHI 2026 paper. I also took Arabic, which felt like the right way to spend whatever time was left.
+              , an LLM-augmented physical activity coaching app we built with Prof. Landay's lab. Second author on the CHI 2026 paper. I also took Arabic, which felt like the right way to spend whatever time was left.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I TA'd Stanford's core HCI sequence alongside the research: CS 147, CS 278, and CS 347. Before all of this I was in wet lab research at Stanford Medicine, studying ovarian cancer organoids at Kuo Lab. The experimental rigor carried over.

@@ -44,7 +44,7 @@ const PROJECTS: Record<string, Project> = {
     slug: 'bloom',
     no: '01',
     name: 'Bloom',
-    tagline: 'LLM-augmented physical activity coaching app. The primary research project I worked on during my MS at Stanford with Prof. James Landay. CHI 2026, accepted.',
+    tagline: 'LLM-augmented physical activity coaching app. The primary research project we built during my MS at Stanford with Prof. James Landay. CHI 2026, accepted.',
     year: '2025',
     role: 'UI/UX Design · Safety Engineering · Frontend · Second Author',
     citation: 'Jörke, J., Genç, D., Teutschbein, M., Sapkota, S., Chung, J., Schmiedmayer, H.-B., Campero, A., King, A. C., Brunskill, E., & Landay, J. A. (2026). Bloom: Designing for LLM-Augmented Behavior Change Interactions. CHI \'26. ACM. https://arxiv.org/abs/2510.05449',
@@ -58,7 +58,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'What it is',
-        body: 'Bloom is an LLM-augmented physical activity coaching app built on Stanford\'s validated Active Choices Program. It integrates a conversational AI coach ("Beebo") with evidence-based behavior change UI — including an ambient garden display that grows as you complete your weekly exercise goals. The central question: can LLM coaching complement, not replace, established digital health interaction patterns? This is the primary research project I worked on during my MS, advised by Prof. James Landay.',
+        body: 'Bloom is an LLM-augmented physical activity coaching app built on Stanford\'s validated Active Choices Program. It integrates a conversational AI coach ("Beebo") with evidence-based behavior change UI — including an ambient garden display that grows as you complete your weekly exercise goals. The central question: can LLM coaching complement, not replace, established digital health interaction patterns? This is the primary research project we built during my MS, advised by Prof. James Landay.',
       },
       {
         type: 'stats',
@@ -76,12 +76,12 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'Garden Ambient Display',
-        body: 'The core design concept I led: a garden that lives on your homescreen and lockscreen and grows as you complete your weekly activity plan — in 20% increments. Every walk adds a bee (size proportional to duration); every other activity adds a butterfly (color varies by type). The garden resets if you don\'t hit 100% by week\'s end, and evolves to a new plant when you do. The goal was to make progress feel gradual and accumulative rather than binary, reducing the goal-fixation anxiety that metrics-forward health apps tend to produce.',
+        body: 'The core design concept I led: a garden that lives on your homescreen and lockscreen and grows as you complete your weekly activity plan — in 20% increments. Every walk adds a bee (size proportional to duration); every other activity adds a butterfly (color varies by type). The garden resets if you don\'t hit 100% by week\'s end, and evolves to a new plant when you do. The goal was to make progress feel gradual and accumulative rather than binary, reducing the goal-fixation anxiety that metrics-forward health apps tend to produce. This was one of the central design decisions we made as a team.',
       },
       {
         type: 'text',
         label: 'Two Conditions',
-        body: 'I designed both onboarding and user flows for the treatment condition (with Beebo, the LLM coach) and the control condition (without LLM coaching). Both conditions used the same garden ambient display, plan-setting, and wearable integration — the only difference was the conversational AI layer. This made it possible to isolate the effect of LLM coaching on engagement, mindset shift, and behavior change.',
+        body: 'We designed both conditions — treatment (with Beebo, the LLM coach) and control (without). Both used the same garden ambient display, plan-setting, and wearable integration. The only difference was the conversational AI layer, which let us isolate the effect of LLM coaching on engagement, mindset shift, and behavior change.',
       },
       {
         type: 'subheader',
@@ -90,17 +90,17 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'UI/UX Design',
-        body: 'I had the most influence on UI design across the app — from the garden metaphor and ambient lockscreen display to the activity logging interface, onboarding flows, and overall app architecture. I also designed the Bloom website. This was not a design handoff role: I owned decisions end to end, working directly with the research goals to make sure the UI served the study\'s behavior change hypotheses.',
+        body: 'I had the most influence on UI design across the app — from the garden metaphor and ambient lockscreen display to the activity logging interface, onboarding flows, and overall app architecture. I also designed the Bloom website. This wasn\'t a design handoff role: I owned decisions end to end, working closely with the team to make sure the UI served the study\'s behavior change hypotheses.',
       },
       {
         type: 'text',
         label: 'Safety Engineering',
-        body: 'I led red-teaming for the LLM coaching agent across a vulnerable participant population (adults with existing activity barriers, including chronic pain and mental health considerations). I created a taxonomy of harm categories, then validated a 600-example benchmark achieving >96% recall. This was domain-expert red-teaming — not automated — and it was critical: the LLM regularly encountered sensitive topics that required nuanced, harm-aware guardrails to keep responses safe and within scope.',
+        body: 'I led red-teaming for the LLM coaching agent across a vulnerable participant population (adults with existing activity barriers, including chronic pain and mental health considerations). I created a taxonomy of harm categories, then validated a 600-example benchmark achieving >96% recall. This was domain-expert red-teaming — not automated — and it was critical: Beebo regularly encountered sensitive topics that required nuanced, harm-aware guardrails to keep responses safe and within scope.',
       },
       {
         type: 'text',
         label: 'Frontend & Research Execution',
-        body: 'I had the most influence on frontend implementation decisions — building in React Native alongside the team. I also owned participant recruitment for the 54-person study, managed onboarding logistics, and completed qualitative coding of all offboarding interviews. I am second author on the published paper (CHI 2026, accepted).',
+        body: 'I had the most influence on frontend implementation decisions — building in React Native alongside the team. I also owned participant recruitment for the 54-person study, managed onboarding logistics, and completed qualitative coding of all offboarding interviews. Second author on the published paper (CHI 2026, accepted).',
       },
       {
         type: 'subheader',
