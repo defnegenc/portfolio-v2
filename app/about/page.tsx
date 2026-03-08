@@ -32,39 +32,8 @@ export default function About() {
           .hero-strips { height: 140px !important; }
           .content-grid { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
           .fact-grid { grid-template-columns: 1fr !important; }
-          .side-strip { display: none !important; }
         }
       `}</style>
-
-      {/* Scattered animation strips — both sides, different modes */}
-      <div className="side-strip" style={{ position: 'absolute', left: 0, top: 680, zIndex: 0, display: 'flex', gap: 5, height: 240, pointerEvents: 'none' }}>
-        {[0.35, 0.55].map((op, i) => (
-          <div key={i} style={{ width: 40, height: '100%', overflow: 'hidden', opacity: op }}>
-            <AsciiCanvas trailMode lightMode={isLight} />
-          </div>
-        ))}
-      </div>
-      <div className="side-strip" style={{ position: 'absolute', right: 0, top: 1250, zIndex: 0, display: 'flex', gap: 5, height: 200, pointerEvents: 'none' }}>
-        {[0.55, 0.4, 0.25].map((op, i) => (
-          <div key={i} style={{ width: 38, height: '100%', overflow: 'hidden', opacity: op }}>
-            <AsciiCanvas breathe lightMode={isLight} />
-          </div>
-        ))}
-      </div>
-      <div className="side-strip" style={{ position: 'absolute', left: 0, top: 1900, zIndex: 0, display: 'flex', gap: 5, height: 180, pointerEvents: 'none' }}>
-        {[0.3, 0.5, 0.3].map((op, i) => (
-          <div key={i} style={{ width: 36, height: '100%', overflow: 'hidden', opacity: op }}>
-            <AsciiCanvas lightMode={isLight} />
-          </div>
-        ))}
-      </div>
-      <div className="side-strip" style={{ position: 'absolute', right: 0, top: 2500, zIndex: 0, display: 'flex', gap: 5, height: 220, pointerEvents: 'none' }}>
-        {[0.4, 0.6].map((op, i) => (
-          <div key={i} style={{ width: 40, height: '100%', overflow: 'hidden', opacity: op }}>
-            <AsciiCanvas trailMode lightMode={isLight} />
-          </div>
-        ))}
-      </div>
 
       {/* Nav */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 2rem', borderBottom: '1px solid var(--hairline)', background: isLight ? 'rgba(244,242,236,0.92)' : 'rgba(10,10,10,0.92)', backdropFilter: 'blur(12px)' }}>
@@ -173,8 +142,8 @@ export default function About() {
               ['Current role', 'APM @ Coinbase'],
               ['Research', 'Stanford HCI Group · Landay Lab'],
               ['Teaching', 'CS 147 · CS 278 · CS 347'],
-              ['First research', 'Wet lab · Stanford Medicine · Kuo Lab'],
-              ['Languages', 'Turkish (native), English (fluent), French (conversational)'],
+              ['Kuo Lab', 'Wet lab · Stanford Medicine'],
+              ['Languages', 'Turkish (native), English (fluent), French (conversational), Arabic (elementary), Spanish (elementary)'],
             ].map(([label, value]) => (
               <div key={label}>
                 <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
