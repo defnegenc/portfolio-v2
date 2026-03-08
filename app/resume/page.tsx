@@ -198,7 +198,7 @@ export default function Resume() {
             <div>
               <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.2rem' }}>M.S. Computer Science — HCI</div>
               <div style={{ fontSize: '1rem', ...dim }}>Stanford University</div>
-              <div style={{ ...mono, fontSize: '0.72rem', ...dim, marginTop: '0.25rem' }}>2023 – 2025 · GPA 3.93 / 4.0</div>
+              <div style={{ ...mono, fontSize: '0.72rem', ...dim, marginTop: '0.25rem' }}>2024 – 2025 · GPA 3.93 / 4.0</div>
             </div>
             <div>
               <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.2rem' }}>B.S. Symbolic Systems</div>
