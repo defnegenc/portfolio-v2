@@ -120,7 +120,7 @@ export default function About() {
               , an LLM-augmented physical activity coaching app built with Prof. Landay's lab. Second author on the CHI 2026 paper. I also took Arabic, which felt like the right way to spend whatever time was left.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I TA'd Stanford's core HCI sequence alongside the research: CS 147, CS 278, and CS 347. Before all of this I was in wet lab research at Stanford Medicine, studying ovarian cancer organoids at Kuo Lab. That sounds like a left turn. The experimental rigor carried over.
+              I TA'd Stanford's core HCI sequence alongside the research: CS 147, CS 278, and CS 347. Before all of this I was in wet lab research at Stanford Medicine, studying ovarian cancer organoids at Kuo Lab. The experimental rigor carried over.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               Now I'm an APM at Coinbase on the institutional derivatives team.
