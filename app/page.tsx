@@ -5,45 +5,42 @@ import AsciiCanvas from '@/components/AsciiCanvas'
 
 // ─── Glitch Name ──────────────────────────────────────────────────────────────
 
-const ASCII_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*?/+=-'
+function TypewriterName({ text }: { text: string }) {
+  const elRef = useRef<HTMLSpanElement | null>(null)
+  const cursorRef = useRef<HTMLSpanElement | null>(null)
+  const animating = useRef(false)
 
-function GlitchName({ text }: { text: string }) {
-  const chars = text.split('')
-  const refsArr = useRef<(HTMLSpanElement | null)[]>([])
-  const intervals = useRef<(ReturnType<typeof setInterval> | null)[]>(chars.map(() => null))
+  const animate = async () => {
+    if (animating.current) return
+    animating.current = true
+    const el = elRef.current
+    const cur = cursorRef.current
+    if (!el || !cur) { animating.current = false; return }
 
-  useEffect(() => () => {
-    intervals.current.forEach(id => { if (id) clearInterval(id) })
-  }, [])
+    cur.style.opacity = '1'
 
-  const onEnter = (i: number) => {
-    const el = refsArr.current[i]
-    if (!el) return
-    intervals.current[i] = setInterval(() => {
-      el.textContent = ASCII_SET[Math.floor(Math.random() * ASCII_SET.length)]
-    }, 80)
-  }
+    // Delete
+    for (let i = text.length; i >= 0; i--) {
+      el.textContent = text.substring(0, i)
+      await new Promise(r => setTimeout(r, 25))
+    }
 
-  const onLeave = (i: number) => {
-    if (intervals.current[i]) { clearInterval(intervals.current[i]!); intervals.current[i] = null }
-    const el = refsArr.current[i]
-    if (el) el.textContent = chars[i]
+    await new Promise(r => setTimeout(r, 160))
+
+    // Retype
+    for (let i = 0; i <= text.length; i++) {
+      el.textContent = text.substring(0, i)
+      await new Promise(r => setTimeout(r, 40))
+    }
+
+    cur.style.opacity = '0'
+    animating.current = false
   }
 
   return (
-    <span style={{ display: 'inline-block', cursor: 'crosshair' }}>
-      {chars.map((ch, i) =>
-        ch === ' ' ? (
-          <span key={i} style={{ display: 'inline-block', width: '0.28em' }} />
-        ) : (
-          <span key={i} ref={el => { refsArr.current[i] = el }}
-            style={{ display: 'inline-block' }}
-            onMouseEnter={() => onEnter(i)}
-            onMouseLeave={() => onLeave(i)}>
-            {ch}
-          </span>
-        )
-      )}
+    <span style={{ display: 'inline-block', cursor: 'crosshair', whiteSpace: 'nowrap' }} onMouseEnter={animate}>
+      <span ref={elRef}>{text}</span>
+      <span ref={cursorRef} style={{ opacity: 0, transition: 'opacity 0.1s', marginLeft: 2 }}>_</span>
     </span>
   )
 }
@@ -196,6 +193,7 @@ export default function Home() {
     >
       <style>{`
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
 
         /* Light theme */
         [data-theme="light"] {
@@ -297,7 +295,7 @@ export default function Home() {
       <div className="name-strip" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
           <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-            <GlitchName text="DEFNE GENÇ" />
+            <TypewriterName text="DEFNE GENÇ" />
           </h1>
           <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
             Stanford CS HCI · APM @ Coinbase · NYC
