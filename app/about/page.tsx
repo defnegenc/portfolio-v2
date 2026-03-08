@@ -89,8 +89,8 @@ export default function About() {
         {/* Hero */}
         <div className="fade-up fade-up-1 hero-inner" style={{ display: 'flex', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'flex-start' }}>
           <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280, flexShrink: 0, alignSelf: 'stretch' }}>
-            {[0.4, 0.55, 0.7, 0.85, 1].map((opacity, i) => (
-              <div key={i} style={{ flex: 1, minWidth: 40, maxWidth: 52, height: '100%', overflow: 'hidden', opacity }}>
+            {[0.45, 0.65, 0.82, 1].map((opacity, i) => (
+              <div key={i} style={{ flex: 1, minWidth: 56, maxWidth: 72, height: '100%', overflow: 'hidden', opacity }}>
                 <AsciiCanvas breathe lightMode={isLight} />
               </div>
             ))}
