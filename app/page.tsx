@@ -5,66 +5,41 @@ import AsciiCanvas from '@/components/AsciiCanvas'
 
 // ─── Glitch Name ──────────────────────────────────────────────────────────────
 
-const GLITCH_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789▓▒░█◆■①②③④⑤⑥⑦⑧⑨⑩'
+const ASCII_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*?/+=-'
 
 function GlitchName({ text }: { text: string }) {
   const chars = text.split('')
   const refsArr = useRef<(HTMLSpanElement | null)[]>([])
-  const mainInterval = useRef<ReturnType<typeof setInterval> | null>(null)
-  const isHovered = useRef(false)
+  const intervals = useRef<(ReturnType<typeof setInterval> | null)[]>(chars.map(() => null))
 
-  useEffect(() => () => { if (mainInterval.current) clearInterval(mainInterval.current) }, [])
+  useEffect(() => () => {
+    intervals.current.forEach(id => { if (id) clearInterval(id) })
+  }, [])
 
-  const startGlitch = () => {
-    if (isHovered.current) return
-    isHovered.current = true
-    // Stagger the start of each letter for a wave feel
-    chars.forEach((ch, i) => {
-      if (ch === ' ') return
-      setTimeout(() => {
-        if (!isHovered.current) return
-        const el = refsArr.current[i]
-        if (!el) return
-        // Fast initial spin
-        let speed = 35
-        let frame = 0
-        const spin = () => {
-          if (!isHovered.current) { el.textContent = ch; return }
-          el.textContent = GLITCH_SET[Math.floor(Math.random() * GLITCH_SET.length)]
-          frame++
-          // Slow down after a bit for organic feel, then keep rolling
-          speed = frame < 6 ? 35 : frame < 14 ? 55 : 70
-          setTimeout(spin, speed)
-        }
-        spin()
-      }, i * 18) // 18ms stagger between letters
-    })
+  const onEnter = (i: number) => {
+    const el = refsArr.current[i]
+    if (!el) return
+    intervals.current[i] = setInterval(() => {
+      el.textContent = ASCII_SET[Math.floor(Math.random() * ASCII_SET.length)]
+    }, 80)
   }
 
-  const stopGlitch = () => {
-    isHovered.current = false
-    // Resolve back with a slight cascade
-    chars.forEach((ch, i) => {
-      if (ch === ' ') return
-      setTimeout(() => {
-        const el = refsArr.current[i]
-        if (el) el.textContent = ch
-      }, i * 12)
-    })
+  const onLeave = (i: number) => {
+    if (intervals.current[i]) { clearInterval(intervals.current[i]!); intervals.current[i] = null }
+    const el = refsArr.current[i]
+    if (el) el.textContent = chars[i]
   }
 
   return (
-    <span
-      style={{ display: 'inline-block', cursor: 'crosshair' }}
-      onMouseEnter={startGlitch}
-      onMouseLeave={stopGlitch}
-    >
+    <span style={{ display: 'inline-block', cursor: 'crosshair' }}>
       {chars.map((ch, i) =>
         ch === ' ' ? (
           <span key={i} style={{ display: 'inline-block', width: '0.28em' }} />
         ) : (
           <span key={i} ref={el => { refsArr.current[i] = el }}
-            style={{ display: 'inline-block' }}>
+            style={{ display: 'inline-block' }}
+            onMouseEnter={() => onEnter(i)}
+            onMouseLeave={() => onLeave(i)}>
             {ch}
           </span>
         )
