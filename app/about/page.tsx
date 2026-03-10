@@ -72,7 +72,7 @@ export default function About() {
               Defne<br />Genç
             </h1>
             <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
-              Technology is about what it affords. I am first and foremost a technologist. I use my engineering skills to collapse technical complexity into human value, and I believe the best technology does this so well it disappears entirely. How it shapes us in the process is what I find most interesting.
+              Technology is about what it affords. I am first and foremost a technologist. AI has transformed what computing can do, yet our interfaces remain locked in old paradigms. The systems we build to support health, learning, and productivity often undermine the very outcomes they are designed to serve. I want to change that: through adaptive systems that learn from people, surface what they are already doing well, and disappear into the background of a life well lived.
             </p>
           </div>
         </div>
