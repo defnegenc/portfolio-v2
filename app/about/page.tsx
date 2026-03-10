@@ -84,9 +84,9 @@ export default function About() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I grew up in Istanbul and came to Stanford for undergrad. I studied Symbolic Systems, which is what you do when you can't choose between cognitive science, linguistics, philosophy, and CS. Stayed for an MS in Computer Science focused on HCI. That year mostly went into{' '}
+              I grew up in Istanbul, Turkey, and came to Stanford to pursue a liberal arts education. I studied Symbolic Systems, which is what you do when you can't choose between cognitive science, linguistics, philosophy, and CS. I stayed another year to focus on research: I received an MS in CS and spent the year working on{' '}
               <a href="/project/bloom" className="about-link">Bloom</a>
-              , an LLM-augmented physical activity coaching app we built with Prof. Landay's lab. Second author on the CHI 2026 paper. I also took Arabic, which felt like the right way to spend whatever time was left.
+              , an LLM-augmented physical activity coaching app we built with Prof. Landay's lab, where I was second author on the CHI 2026 paper. I also took Arabic that year. One of my goals is to speak six languages before I'm 30.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I also spent a lot of time teaching. I was a course assistant for Stanford's core HCI sequence: CS 147, CS 278, and CS 347, and it was arguably one of my favorite things about being at Stanford. Teaching taught me just as much as my classes did. I worked with students in hands-on design studios, taking projects from early interviews to working prototypes, and led weekly sections reading through HCI research papers with small groups. The conversations about where the field is going were some of the best I had. It was a spectacular complement to the research, and someday I'd like to use what I've learned about HCI to think more seriously about education itself.
