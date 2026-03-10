@@ -248,8 +248,10 @@ export default function Home() {
           .nav-links   { display: none !important; }
         }
 
-        /* sym-mobile hidden on desktop */
+        /* sym-mobile and bio-mobile hidden on desktop */
         .sym-mobile { display: none; }
+        .bio-mobile { display: none; }
+        @media (max-width: 860px) { .bio-mobile { display: block !important; } }
 
         @media (max-width: 420px) {
           .name-strip  { padding: 0.65rem 1rem !important; gap: 0.5rem !important; }
@@ -361,6 +363,13 @@ export default function Home() {
       {/* ── SYMBOL CONTROLS — mobile only, below canvas ── */}
       <div className="sym-mobile" style={{ flexShrink: 0, flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
         <GlyphPicker glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} toggleBg={undefined} toggleFg={undefined} mono={mono} mobile />
+      </div>
+
+      {/* ── BIO — mobile only ── */}
+      <div className="bio-mobile" style={{ display: 'none', flexShrink: 0, padding: '1rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
+        <p style={{ fontSize: '0.88rem', lineHeight: 1.65, color: 'var(--ink-dim)', margin: 0 }}>
+          Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase working on institutional derivatives.
+        </p>
       </div>
 
       {/* ── BOTTOM: sidebar + main ── */}
