@@ -112,15 +112,15 @@ export default function About() {
             {[
               {
                 title: 'Interfaces that surface strengths',
-                body: 'Most health and productivity apps are built around gaps: what you haven\'t done, what you\'re behind on. Bloom showed me the other direction. Surfacing what people are already doing, in a way they hadn\'t noticed, can shift how they see themselves more than any streak or reminder. I want to build more things that work that way.',
+                body: 'Most health and productivity apps are built around gaps: what you haven\'t done, what you\'re behind on. Bloom showed me the other direction. Surfacing what people are already doing, in a way they hadn\'t noticed, can shift how they see themselves more than any streak or reminder.',
               },
               {
-                title: 'One-size-fits-all interfaces',
-                body: 'We design for a hypothetical average person in a hypothetical average context. Someone with ADHD trying to use a habit tracker built for neurotypical attention gets an obstacle, not a tool. A student who thinks differently hits a wall in an app that assumes one reading mode. AI makes it genuinely plausible to do something about this.',
+                title: 'The myth of the universal user',
+                body: 'Interface design has always worked from a fiction: the universal user, an average person in an average context. Someone with ADHD trying to use a habit tracker built for neurotypical attention gets an obstacle, not a tool. A student who thinks differently hits a wall in an app that assumes one reading mode. Generative models change the calculus here in a real way. For the first time, it\'s plausible to build interfaces that flex to the person rather than asking the person to flex to the interface. That\'s a meaningful shift and I think we\'re only beginning to understand what it makes possible.',
               },
               {
-                title: 'Teaching AI to have taste',
-                body: 'Ask AI to design something and you usually get something competent and forgettable. Models optimize toward what\'s most represented online. The more interesting question: can you give an AI a genuinely specific point of view? Not broad competence but spiky expertise — an agent that really knows Turkish hammam aesthetics and can tell you why one space works better than another. And here\'s the part that interests me most: a lot of taste is built offline. Things you touch, spaces you move through, what people wear on the street. Vision models and ubicomp open up something genuinely new here.',
+                title: 'Can AI have taste, or is it all slop?',
+                body: 'Technology that learns from human output tends, by design, to regress toward the mean. The most represented wins. But taste is almost the opposite of that: it\'s about having strong preferences, specific references, a point of view. I want to think about how to give AI genuine spikes, the way humans have them. Specialties. Dislikes. An aesthetic sensibility that can tell you not just what is good on average, but what is right for a specific place, material, or moment. Not broad competence but genuine conviction.',
               },
             ].map(({ title, body }) => (
               <div key={title}>
