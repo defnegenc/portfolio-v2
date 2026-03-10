@@ -120,7 +120,7 @@ export default function About() {
               },
               {
                 title: 'Can AI have taste, or is it all slop?',
-                body: 'Technology that learns from human output tends, by design, to <strong>regress toward the mean.</strong> The most represented wins. But taste is almost the opposite: it\'s about having strong preferences, specific references, a point of view. I want to think about how to give AI <strong>genuine spikes</strong>, the way humans have them. Specialties. Dislikes. An aesthetic sensibility that can tell you not just what is good on average, but what is right for a specific place, material, or moment. And here is what makes this hard: <strong>a lot of taste is built in the physical world.</strong> Things you touch, spaces you move through, what people wear on the street. Ubiquitous computing changes that — ambient sensing, wearables, and spatial awareness open up the possibility of grounding AI taste in real-world experience rather than just what has been written about it.',
+                body: 'Technology that learns from human output tends, by design, to <strong>regress toward the mean.</strong> The most represented wins. But taste is almost the opposite: it\'s about having strong preferences, specific references, a point of view. I want to think about how to give AI <strong>genuine spikes</strong>, the way humans have them. A lot of taste is built in the physical world — things you touch, spaces you move through, what people wear on the street. I see potential in ubiquitous computing to ground AI taste in real-world experience, rather than just what has been written about it.',
               },
             ].map(({ title, body }) => (
               <div key={title}>
