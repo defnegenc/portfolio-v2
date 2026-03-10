@@ -72,7 +72,7 @@ export default function About() {
               Defne<br />Genç
             </h1>
             <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
-              What I think about most as a technologist is technology that disappears — systems that are context-aware, human-centered, and so well fitted to a person's life that they stop feeling like technology at all.
+              What I think about most as a technologist is systems that are context-aware, human-centered, and so well fitted to a person's life that they stop feeling like technology at all.
             </p>
           </div>
         </div>
