@@ -44,7 +44,7 @@ const PROJECTS: Record<string, Project> = {
     slug: 'bloom',
     no: '01',
     name: 'Bloom',
-    tagline: 'LLM-augmented physical activity coaching app. The primary research project we built during my MS at Stanford with Prof. James Landay. CHI 2026, accepted.',
+    tagline: 'At Stanford with Prof. Landay, I co-designed and evaluated Bloom, an LLM-based physical activity coaching intervention. My contributions spanned early-stage design through full-stack implementation. CHI 2026, accepted.',
     year: '2025',
     role: 'UI/UX Design · Safety Engineering · Frontend · Second Author',
     citation: 'Jörke, J., Genç, D., Teutschbein, M., Sapkota, S., Chung, J., Schmiedmayer, H.-B., Campero, A., King, A. C., Brunskill, E., & Landay, J. A. (2026). Bloom: Designing for LLM-Augmented Behavior Change Interactions. CHI \'26. ACM. https://arxiv.org/abs/2510.05449',
@@ -58,7 +58,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'What it is',
-        body: 'Bloom is an LLM-augmented physical activity coaching app built on Stanford\'s validated Active Choices Program. It integrates a conversational AI coach ("Beebo") with evidence-based behavior change UI — including an ambient garden display that grows as you complete your weekly exercise goals. The central question: can LLM coaching complement, not replace, established digital health interaction patterns? This is the primary research project we built during my MS, advised by Prof. James Landay.',
+        body: 'Bloom is an LLM-augmented physical activity coaching app built on Stanford\'s validated Active Choices Program. It integrates a conversational AI coach ("Beebo") with evidence-based behavior change UI, including an ambient garden display that grows as you complete your weekly exercise goals. The central question: can LLM coaching complement, not replace, established digital health interaction patterns? We ran a 4-week randomized field study with 54 participants to find out.',
       },
       {
         type: 'stats',
@@ -90,17 +90,17 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'UI/UX Design',
-        body: 'I had the most influence on UI design across the app — from the garden metaphor and ambient lockscreen display to the activity logging interface, onboarding flows, and overall app architecture. I also designed the Bloom website. This wasn\'t a design handoff role: I owned decisions end to end, working closely with the team to make sure the UI served the study\'s behavior change hypotheses.',
+        body: 'I had the most influence on UI design across the app — from the garden metaphor and ambient lockscreen display to the activity logging interface, onboarding flows, and overall app architecture. I also designed and built the Bloom website. This wasn\'t a design handoff role: I made key decisions on app architecture and user experience end to end, working closely with the team to ensure the UI served the study\'s behavior change hypotheses.',
       },
       {
         type: 'text',
         label: 'Safety Engineering',
-        body: 'I led red-teaming for the LLM coaching agent across a vulnerable participant population (adults with existing activity barriers, including chronic pain and mental health considerations). I created a taxonomy of harm categories, then validated a 600-example benchmark achieving >96% recall. This was domain-expert red-teaming — not automated — and it was critical: Beebo regularly encountered sensitive topics that required nuanced, harm-aware guardrails to keep responses safe and within scope.',
+        body: 'I led red-teaming for the LLM coaching agent across a vulnerable participant population — adults with existing activity barriers, including chronic pain and mental health considerations. I created a taxonomy of harm categories and validated a 600-example benchmark achieving >96% recall across risk categories. This was domain-expert red-teaming, not automated, and it was critical: Beebo regularly encountered sensitive topics that required nuanced, harm-aware guardrails to keep responses safe and within scope.',
       },
       {
         type: 'text',
         label: 'Frontend & Research Execution',
-        body: 'I had the most influence on frontend implementation decisions — building in React Native alongside the team. I also owned participant recruitment for the 54-person study, managed onboarding logistics, and completed qualitative coding of all offboarding interviews. Second author on the published paper (CHI 2026, accepted).',
+        body: 'I had the most influence on frontend implementation decisions, building in React Native alongside the team. I was heavily involved in participant recruitment for the 54-person study, managed onboarding logistics, and completed qualitative coding of all offboarding interviews. Second author on the published paper (CHI 2026, accepted).',
       },
       {
         type: 'subheader',
@@ -109,7 +109,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'What we found',
-        body: 'Both conditions doubled weekly goal achievement (36% → 72% meeting 150 min/week). The LLM condition showed 5× longer engagement and greater mindset shifts (+1.2 vs +0.8 points in beliefs about activity benefits), with greater improvements in exercise enjoyment and self-compassion. No single conversational strategy drove these shifts consistently — the system\'s flexibility was the mechanism, allowing different participants to benefit from different aspects of the AI interaction.',
+        body: 'Both conditions doubled weekly goal achievement (36% to 72% meeting 150 min/week). Treatment participants showed larger mindset shifts (+1.2 vs +0.8 points in beliefs about activity benefits), with greater improvements in exercise enjoyment and self-compassion. No single conversational strategy drove these shifts consistently. The system\'s flexibility was the mechanism: different participants benefited from different aspects, whether activity reframing, goal alignment, or acknowledgment of existing efforts. Even those with shallow engagement showed meaningful changes, suggesting that adaptive, personalized representations can shift self-perception without requiring deep conversational interaction.',
       },
       {
         type: 'pullquote',

@@ -41,6 +41,21 @@ Second author. MS thesis work with Prof. Landay. LLM-augmented physical activity
 - Safety system: 600-example benchmark, >96% recall across harm categories
 - Contributions: UI design (most influence), safety filters (led red-teaming), frontend (most influence), recruitment, qualitative coding, paper
 
+## Defne's Writing Style
+
+When writing copy for this portfolio, match these characteristics:
+
+- **Direct and confident.** No hedging, no filler. Lead with the claim, then support it.
+- **No em dashes.** Use commas, periods, or colons instead.
+- **No cringe transitions.** Avoid "that sounds like a left turn", "in that order", meta-commentary about her own career arc.
+- **First person, not third.** "I led" not "she led."
+- **Research work: use "we" for team effort, "I" for specific individual contributions.**
+- **Concrete over vague.** Specific numbers, named tools, named people. "600-example benchmark" not "extensive testing."
+- **Intellectually serious.** She cares about ideas. Copy about her research interests should read like a smart person's genuine thinking, not a mission statement.
+- **Understated ambition.** Don't oversell. The facts are strong. Let them speak.
+- **Short sentences when making strong claims.** Longer sentences for nuance and context.
+- **No generic PM/designer speak.** Avoid "user-centric", "leverage", "drive impact", "stakeholders."
+
 ## Portfolio Design Direction
 
 - Showcase the intersection of research rigor + design taste + technical ability
