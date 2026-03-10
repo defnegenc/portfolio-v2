@@ -84,9 +84,9 @@ export default function About() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I grew up in Istanbul, Turkey, and came to Stanford to pursue a liberal arts education. I studied Symbolic Systems, which is what you do when you can't choose between cognitive science, linguistics, philosophy, and CS. I stayed another year to focus on research: I received an MS in CS and spent the year working on{' '}
+              I grew up in Istanbul, Turkey, and came to Stanford for undergrad, where I studied Symbolic Systems. I stayed another year for an MS in CS, spending most of it on{' '}
               <a href="/project/bloom" className="about-link">Bloom</a>
-              , an LLM-augmented physical activity coaching app we built in Prof. James Landay's Interaction Design Lab, where I was second author on the CHI 2026 paper. Alongside the research I also took Arabic, which felt like a natural way to spend the remaining time — I have a goal of speaking six languages before I turn 30.
+              , an LLM-augmented physical activity coaching app we built in Prof. James Landay's Interaction Design Lab, where I was second author on the CHI 2026 paper. I also took Arabic that year — I have a goal of speaking six languages before I turn 30.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I also spent a lot of time teaching. I was a course assistant for Stanford's core HCI sequence:{' '}
@@ -95,7 +95,7 @@ export default function About() {
               <a href="https://web.stanford.edu/class/cs278/" target="_blank" rel="noreferrer" className="about-link">CS 278</a>
               , and{' '}
               <a href="https://stanfordhci.github.io/cs347-winter-2025/index" target="_blank" rel="noreferrer" className="about-link">CS 347</a>
-              , and it was arguably one of my favorite things about being at Stanford. Teaching and my students taught me just as much as my classes did. I worked with students in hands-on design studios, taking projects from early interviews to working prototypes, and led weekly sections reading through HCI research papers with small groups. The conversations about where the field is going were some of the best I had. It was a spectacular complement to the research, and someday I'd like to use what I've learned about HCI to think more seriously about education itself.
+              — teaching was arguably one of my favorite things about being at Stanford. Teaching and my students taught me just as much as my classes did. I led design studios taking student projects from early interviews to working prototypes, and ran weekly seminar sections on HCI research. Someday I'd like to use what I know about HCI to think more seriously about education itself.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               Now I'm an <strong>APM at Coinbase</strong> on the institutional derivatives team, working on <strong>perpetual futures, dated futures, and options</strong> on one of the largest regulated crypto derivatives venues in the world.
