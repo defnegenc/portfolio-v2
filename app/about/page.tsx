@@ -72,7 +72,7 @@ export default function About() {
               Defne<br />Genç
             </h1>
             <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
-              Technology is about what it affords. I am first and foremost a technologist. AI has transformed what computing can do, yet our interfaces remain locked in old paradigms. The systems we build to support health, learning, and productivity often undermine the very outcomes they are designed to serve. I want to change that: through adaptive systems that learn from people, surface what they are already doing well, and disappear into the background of a life well lived.
+              I am first and foremost a technologist. What I think about most is technology that is backgrounded, context-aware, and genuinely human-centered — systems that adapt to people rather than asking people to adapt to them, and that are present enough to be useful but unobtrusive enough to stay out of the way.
             </p>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function About() {
             {[
               {
                 title: 'Interfaces that surface strengths',
-                body: 'I see two critical problems with current systems: rigid interfaces that fail to serve diverse populations, and negative feedback loops that undermine the very outcomes they\'re designed to support. I want to build adaptive ubiquitous computing systems that learn from ambient patterns, adapt to individual differences, and surface insights about positive behaviors people are unaware of. Beyond chat interfaces, I\'m interested in adaptive primitives: contextual interventions that emerge based on user state, editable ambient widgets, spatial design, and tangible objects that carry personal meaning. I want to run multi-week deployments that measure shifts in self-efficacy, perceived control, self-awareness, and confidence, and explore how technology can shift self-perception in ways that build confidence and support long-term behavior change.',
+                body: 'I see two critical problems with current behavior change systems: rigid interfaces that fail to serve diverse populations, and negative feedback loops that undermine the very outcomes they\'re designed to support. I want to build adaptive ubiquitous computing systems that learn from ambient patterns, adapt to individual differences, and surface insights about positive behaviors people are unaware of. Beyond chat interfaces, I\'m interested in adaptive primitives: contextual interventions that emerge based on user state, editable ambient widgets, spatial design, and tangible objects that carry personal meaning. I want to run multi-week deployments that measure shifts in self-efficacy, perceived control, self-awareness, and confidence, and explore how technology can shift self-perception in ways that build confidence and support long-term behavior change.',
               },
               {
                 title: 'The myth of the universal user',
