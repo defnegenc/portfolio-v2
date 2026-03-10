@@ -141,16 +141,14 @@ export default function About() {
             Otherwise
           </div>
           <div className="fact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem 3rem' }}>
-            {[
+            {([
               ['Origin', 'Istanbul, Turkey'],
               ['Based', 'New York City'],
               ['Education', 'Stanford MS CS (HCI) · BS SymSys'],
               ['Current role', 'APM @ Coinbase'],
-              ['Research', 'Stanford HCI Group · Landay Lab'],
               ['Teaching', 'CS 147 · CS 278 · CS 347'],
-              ['Kuo Lab', 'Wet lab · Stanford Medicine'],
               ['Languages', 'Turkish (native), English (fluent), French (conversational), Arabic (elementary), Spanish (elementary)'],
-            ].map(([label, value]) => (
+            ] as [string, string][]).map(([label, value]) => (
               <div key={label}>
                 <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
                   {label}
@@ -158,6 +156,13 @@ export default function About() {
                 <div style={{ fontSize: '1rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>{value}</div>
               </div>
             ))}
+            <div>
+              <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>Research</div>
+              <div style={{ fontSize: '1rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+                <a href="https://hci.stanford.edu/" target="_blank" rel="noreferrer" className="about-link">Landay Lab (Computer Science)</a>
+                {' · Kuo Lab (Stanford Medicine)'}
+              </div>
+            </div>
           </div>
         </div>
 
