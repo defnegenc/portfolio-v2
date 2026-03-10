@@ -72,7 +72,7 @@ export default function About() {
               Defne<br />Genç
             </h1>
             <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
-              I think like a designer, work like a researcher, and build like an engineer. Usually in that order, sometimes all at once.
+              Technology is about what it affords. I am first and foremost a technologist, and I use my engineering skills to bring good user experiences to life.
             </p>
           </div>
         </div>
