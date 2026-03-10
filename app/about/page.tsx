@@ -86,7 +86,7 @@ export default function About() {
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I grew up in Istanbul, Turkey, and came to Stanford to pursue a liberal arts education. I studied Symbolic Systems, which is what you do when you can't choose between cognitive science, linguistics, philosophy, and CS. I stayed another year to focus on research: I received an MS in CS and spent the year working on{' '}
               <a href="/project/bloom" className="about-link">Bloom</a>
-              , an LLM-augmented physical activity coaching app we built with Prof. Landay's lab, where I was second author on the CHI 2026 paper. I also took Arabic that year. One of my goals is to speak six languages before I'm 30.
+              , an LLM-augmented physical activity coaching app we built in Prof. James Landay's Interaction Design Lab, where I was second author on the CHI 2026 paper. Alongside the research I also took Arabic, which felt like a natural way to spend the remaining time — I have a goal of speaking six languages before I turn 30.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I also spent a lot of time teaching. I was a course assistant for Stanford's core HCI sequence:{' '}
