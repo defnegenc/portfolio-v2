@@ -89,7 +89,7 @@ export default function About() {
               , an LLM-augmented physical activity coaching app we built with Prof. Landay's lab. Second author on the CHI 2026 paper. I also took Arabic, which felt like the right way to spend whatever time was left.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I TA'd Stanford's core HCI sequence alongside the research: CS 147, CS 278, and CS 347. Before all of this I was in wet lab research at Stanford Medicine, studying ovarian cancer organoids at Kuo Lab. The experimental rigor carried over.
+              I also spent a lot of time teaching. I was a course assistant for Stanford's core HCI sequence: CS 147, CS 278, and CS 347, and it was arguably one of my favorite things about being at Stanford. Teaching taught me just as much as my classes did. I worked with students in hands-on design studios, taking projects from early interviews to working prototypes, and led weekly sections reading through HCI research papers with small groups. The conversations about where the field is going were some of the best I had. It was a spectacular complement to the research, and someday I'd like to use what I've learned about HCI to think more seriously about education itself.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               Now I'm an APM at Coinbase on the institutional derivatives team.
