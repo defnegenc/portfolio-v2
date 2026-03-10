@@ -72,7 +72,7 @@ export default function About() {
               Defne<br />Genç
             </h1>
             <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
-              Technology is about what it affords. I am first and foremost a technologist, and I use my engineering skills to bring good user experiences to life.
+              Technology is about what it affords. I am first and foremost a technologist. I use my engineering skills to collapse technical complexity into human value, and I believe the best technology does this so well it disappears entirely. How it shapes us in the process is what I find most interesting.
             </p>
           </div>
         </div>
