@@ -98,7 +98,7 @@ export default function About() {
               , and it was arguably one of my favorite things about being at Stanford. Teaching and my students taught me just as much as my classes did. I worked with students in hands-on design studios, taking projects from early interviews to working prototypes, and led weekly sections reading through HCI research papers with small groups. The conversations about where the field is going were some of the best I had. It was a spectacular complement to the research, and someday I'd like to use what I've learned about HCI to think more seriously about education itself.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              Now I'm an APM at Coinbase on the institutional derivatives team, working on perpetual futures, dated futures, and options on one of the largest regulated crypto derivatives venues in the world.
+              Now I'm an <strong>APM at Coinbase</strong> on the institutional derivatives team, working on <strong>perpetual futures, dated futures, and options</strong> on one of the largest regulated crypto derivatives venues in the world.
             </p>
           </div>
         </div>
@@ -112,24 +112,23 @@ export default function About() {
             {[
               {
                 title: 'Interfaces that surface strengths',
-                body: 'I see two critical problems with current behavior change systems: rigid interfaces that fail diverse populations, and negative feedback loops that undermine the outcomes they\'re designed to support. I want to build adaptive systems that learn from ambient patterns and surface positive behaviors people are unaware of. Beyond chat, I\'m interested in contextual interventions, editable ambient widgets, spatial design, and tangible objects that carry personal meaning — deployed over weeks to measure real shifts in self-efficacy and confidence.',
+                body: 'I see two critical problems with current behavior change systems: <strong>rigid interfaces</strong> that fail diverse populations, and <strong>negative feedback loops</strong> that undermine the outcomes they\'re designed to support. I want to build adaptive systems that learn from ambient patterns and surface positive behaviors people are unaware of. Beyond chat, I\'m interested in contextual interventions, editable ambient widgets, spatial design, and tangible objects that carry personal meaning — deployed over weeks to measure real shifts in self-efficacy and confidence.',
               },
               {
                 title: 'The myth of the universal user',
-                body: 'Interface design has always operated on the premise of the "universal user." Someone with ADHD using a habit tracker built for neurotypical attention doesn\'t have a personal failing — they have an interface that was never designed for them. This isn\'t only a challenge for marginalized populations. Even the so-called ideal user is constrained by interfaces that assume a singular context. AI changes this. Systems can now understand semantic goals and adapt to how someone is engaging in real time. Flexible interfaces are no longer a research aspiration. They are a design problem, and we will build the solutions with AI.',
+                body: 'Interface design has always operated on the premise of the <strong>"universal user."</strong> Someone with ADHD using a habit tracker built for neurotypical attention doesn\'t have a personal failing — they have an interface that was never designed for them. This isn\'t only a challenge for marginalized populations. Even the so-called ideal user is constrained by interfaces that assume a singular context. <strong>AI changes this.</strong> Systems can now understand semantic goals and adapt to how someone is engaging in real time. Flexible interfaces are no longer a research aspiration. They are a design problem, and we will build the solutions with AI.',
               },
               {
                 title: 'Can AI have taste, or is it all slop?',
-                body: 'Technology that learns from human output tends, by design, to regress toward the mean. The most represented wins. But taste is almost the opposite of that: it\'s about having strong preferences, specific references, a point of view. I want to think about how to give AI genuine spikes, the way humans have them. Specialties. Dislikes. An aesthetic sensibility that can tell you not just what is good on average, but what is right for a specific place, material, or moment. And here is what makes this hard: a lot of taste is built in the physical world. Things you touch, spaces you move through, what people wear on the street. It is embodied and contextual in a way that text on the internet is not. Ubiquitous computing changes that. Ambient sensing, wearables, spatial awareness — these open up the possibility of grounding AI taste in real-world experience rather than just what has been written about it.',
+                body: 'Technology that learns from human output tends, by design, to <strong>regress toward the mean.</strong> The most represented wins. But taste is almost the opposite: it\'s about having strong preferences, specific references, a point of view. I want to think about how to give AI <strong>genuine spikes</strong>, the way humans have them. Specialties. Dislikes. An aesthetic sensibility that can tell you not just what is good on average, but what is right for a specific place, material, or moment. And here is what makes this hard: <strong>a lot of taste is built in the physical world.</strong> Things you touch, spaces you move through, what people wear on the street. Ubiquitous computing changes that — ambient sensing, wearables, and spatial awareness open up the possibility of grounding AI taste in real-world experience rather than just what has been written about it.',
               },
             ].map(({ title, body }) => (
               <div key={title}>
                 <div style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
                   {title}
                 </div>
-                <p style={{ fontSize: '1.08rem', fontWeight: 300, lineHeight: 1.8, color: 'var(--ink-dim)', maxWidth: 580 }}>
-                  {body}
-                </p>
+                <p style={{ fontSize: '1.08rem', fontWeight: 300, lineHeight: 1.8, color: 'var(--ink-dim)', maxWidth: 580 }}
+                  dangerouslySetInnerHTML={{ __html: body }} />
               </div>
             ))}
           </div>
