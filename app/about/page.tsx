@@ -92,7 +92,7 @@ export default function About() {
               I also spent a lot of time teaching. I was a course assistant for Stanford's core HCI sequence: CS 147, CS 278, and CS 347, and it was arguably one of my favorite things about being at Stanford. Teaching taught me just as much as my classes did. I worked with students in hands-on design studios, taking projects from early interviews to working prototypes, and led weekly sections reading through HCI research papers with small groups. The conversations about where the field is going were some of the best I had. It was a spectacular complement to the research, and someday I'd like to use what I've learned about HCI to think more seriously about education itself.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              Now I'm an APM at Coinbase on the institutional derivatives team.
+              Now I'm an APM at Coinbase on the institutional derivatives team, working on perpetual futures, dated futures, and options on one of the largest regulated crypto derivatives venues in the world.
             </p>
           </div>
         </div>
