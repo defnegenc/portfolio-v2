@@ -56,22 +56,24 @@ export default function About() {
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 2rem 8rem', position: 'relative', zIndex: 1 }}>
 
         {/* Hero */}
-        <div className="fade-up fade-up-1 hero-inner" style={{ display: 'flex', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'flex-start' }}>
-          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280, flexShrink: 0, alignSelf: 'stretch' }}>
+        <div className="fade-up fade-up-1 content-grid hero-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'end' }}>
+          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280 }}>
             {[0.45, 0.65, 0.82, 1].map((opacity, i) => (
-              <div key={i} style={{ flex: 1, minWidth: 56, maxWidth: 72, height: '100%', overflow: 'hidden', opacity }}>
+              <div key={i} style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'hidden', opacity }}>
                 <AsciiCanvas breathe lightMode={isLight} />
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingTop: '1rem' }}>
-            <div className="fade-up fade-up-2" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
-              Istanbul · Stanford · New York
+          <div className="fade-up fade-up-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+            <div>
+              <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
+                Istanbul · Stanford · New York
+              </div>
+              <h1 className="fade-up fade-up-3" style={{ fontSize: 'clamp(2.8rem, 5vw, 5.5rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.88 }}>
+                Defne<br />Genç
+              </h1>
             </div>
-            <h1 className="fade-up fade-up-3" style={{ fontSize: 'clamp(2.8rem, 5vw, 5.5rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.88, marginBottom: '1.75rem' }}>
-              Defne<br />Genç
-            </h1>
-            <p className="fade-up fade-up-4" style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', fontWeight: 300, lineHeight: 1.75, color: 'var(--ink-dim)', maxWidth: 420 }}>
+            <p className="fade-up fade-up-4" style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               What I think about most as a technologist is systems that are context-aware, human-centered, and so well fitted to a person's life that they stop feeling like technology at all.
             </p>
           </div>
