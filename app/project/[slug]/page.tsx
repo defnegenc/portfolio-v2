@@ -954,7 +954,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
           )}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)', flexWrap: 'wrap' }}>
             {section.items.map((item, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', width: 'clamp(200px, 30vw, 260px)' }}>
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', flex: '1 1 0', maxWidth: 380, minWidth: 200 }}>
                 <div style={{
                   width: '100%',
                   background: '#000',
