@@ -207,10 +207,6 @@ const PROJECTS: Record<string, Project> = {
         body: 'Rather than rigid scoring formulas, a Gemini agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context.',
       },
       {
-        type: 'pullquote',
-        text: 'A user who "looked at a dish 3 times without ordering" was scored the same as someone who "viewed it once." The agent sees the flag LOOKED AT BUT NEVER ORDERED and can reason about why. It also handles meal composition that pointwise scoring fundamentally cannot.',
-      },
-      {
         type: 'list',
         label: 'The Pipeline',
         items: [
