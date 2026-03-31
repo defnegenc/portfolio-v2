@@ -132,7 +132,7 @@ const PROJECTS: Record<string, Project> = {
     slug: 'menuto',
     no: '03',
     name: 'Menuto',
-    tagline: 'Personalized restaurant dish recommendations powered by an LLM agent that learns your taste over time. Solo-built end to end: product, design, React Native frontend, FastAPI backend, and deployment.',
+    tagline: 'Personalized restaurant dish recommendations powered by an LLM agent that learns your taste over time, using your favorites from other restaurants to inform what you\'ll love at new ones. Solo-built end to end: product, design, React Native frontend, FastAPI backend, and deployment.',
     year: '2024',
     role: 'Solo — Product · Design · Full-Stack',
     duration: 'Personal Project · End-to-End Ownership',
@@ -933,32 +933,32 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
               {section.label}
             </p>
           )}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1rem, 3vw, 2.5rem)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(0.75rem, 2vw, 1.5rem)', flexWrap: 'wrap', margin: '0 -2rem' }}>
             {section.items.map((item, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', flex: '1 1 0', minWidth: 180, maxWidth: 280 }}>
                 <div style={{
-                  width: 'clamp(160px, 22vw, 220px)',
+                  width: '100%',
                   background: '#000',
-                  borderRadius: 'clamp(24px, 3.3vw, 36px)',
-                  padding: 'clamp(6px, 0.8vw, 10px)',
+                  borderRadius: 'clamp(28px, 4vw, 44px)',
+                  padding: 'clamp(7px, 1vw, 12px)',
                   boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
                   position: 'relative' as const,
                 }}>
                   {/* Dynamic Island */}
                   <div style={{
                     position: 'absolute' as const,
-                    top: 'clamp(8px, 1.1vw, 13px)',
+                    top: 'clamp(10px, 1.4vw, 16px)',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    width: 'clamp(52px, 7vw, 72px)',
-                    height: 'clamp(14px, 1.9vw, 20px)',
+                    width: 'clamp(60px, 8vw, 84px)',
+                    height: 'clamp(16px, 2.2vw, 24px)',
                     background: '#000',
                     borderRadius: 999,
                     zIndex: 2,
                   }} />
                   {/* Screen */}
                   <div style={{
-                    borderRadius: 'clamp(18px, 2.5vw, 28px)',
+                    borderRadius: 'clamp(21px, 3vw, 34px)',
                     overflow: 'hidden',
                     position: 'relative' as const,
                     aspectRatio: '9/19.5',
