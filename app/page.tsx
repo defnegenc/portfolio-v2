@@ -48,18 +48,12 @@ function TypewriterName({ text }: { text: string }) {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
-  { no: '01', name: 'Bloom',      tags: ['HCI Research', 'Safety', 'Design'],     year: '2025', href: '/project/bloom',                       external: false },
-  { no: '02', name: 'Dishcovery', tags: ['UI Design', 'Frontend', 'UX Research'], year: '2024', href: '/project/dishcovery',                  external: false },
-  { no: '03', name: 'Menuto',     tags: ['Full-Stack', 'AI', 'Mobile'],           year: '2026', href: '/project/menuto',                      external: false },
-  { no: '04', name: 'LearningEtAl', tags: ['Product', 'Engineering', 'Solo'],      year: '2026', href: 'https://learningetal.com',              external: true },
+  { no: '01', name: 'Bloom',        tags: ['HCI Research', 'Safety', 'Design'],     year: '2025', href: '/project/bloom',            external: false },
+  { no: '02', name: 'LearningEtAl', tags: ['Product', 'Engineering', 'Solo'],       year: '2026', href: 'https://learningetal.com',  external: true },
+  { no: '03', name: 'Menuto',       tags: ['Full-Stack', 'AI', 'Mobile'],           year: '2026', href: '/project/menuto',           external: false },
+  { no: '04', name: 'Dishcovery',   tags: ['UI Design', 'Frontend', 'UX Research'], year: '2024', href: '/project/dishcovery',       external: false },
 ]
 
-const TAB_FILTERS: Record<string, (tags: string[]) => boolean> = {
-  'All':         ()    => true,
-  'Research':    tags  => tags.some(t => /Research|Safety/i.test(t)),
-  'Design':      tags  => tags.some(t => /Design|UI|UX/i.test(t)),
-  'Engineering': tags  => tags.some(t => /Stack|Frontend|AI|Mobile/i.test(t)),
-}
 
 const PUBLICATIONS = [
   { title: 'Bloom: Designing for LLM-Augmented Behavior Change Interactions', venue: 'CHI 2026', note: '2nd author · accepted', href: 'https://arxiv.org/abs/2510.05449' },
@@ -143,7 +137,6 @@ export default function Home() {
   const [navOpen, setNavOpen]     = useState(false)
   const [contactOpen, setContact] = useState(false)
   const [formSent, setFormSent]   = useState(false)
-  const [activeTab, setActiveTab] = useState('All')
   const [theme, setTheme]         = useState<'dark' | 'light'>('dark')
   const [glyphMode, setGlyphMode] = useState<'default' | 'chunky' | 'custom'>('chunky')
   const [customChars, setCustomChars] = useState('s-h')
@@ -182,8 +175,6 @@ export default function Home() {
   const toggleFg = isLight ? '#F4F2EC' : '#0A0A0A'
 
   const activeChars = glyphMode === 'default' ? undefined : glyphMode === 'chunky' ? '▓▒░' : customChars || undefined
-
-  const filteredProjects = PROJECTS.filter(p => TAB_FILTERS[activeTab](p.tags))
 
   return (
     <div
@@ -242,7 +233,6 @@ export default function Home() {
           .pt          { min-height: 160px !important; }
           .pt::after   { display: none !important; }
           .canvas-zone { flex: 0 0 22vh !important; flex: 0 0 22dvh !important; }
-          .filter-nav  { display: none !important; }
           .sym-controls { display: none !important; }
           .sym-mobile  { display: flex !important; }
           .nav-links   { display: none !important; }
@@ -368,7 +358,7 @@ export default function Home() {
       {/* ── BIO — mobile only ── */}
       <div className="bio-mobile" style={{ display: 'none', flexShrink: 0, padding: '1rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
         <p style={{ fontSize: '0.88rem', lineHeight: 1.65, color: 'var(--ink-dim)', margin: 0 }}>
-          Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase working on institutional derivatives.
+          Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently exploring how to build recommendation systems best using LLMs.
         </p>
       </div>
 
@@ -379,7 +369,7 @@ export default function Home() {
         <aside className="sidebar" style={{ width: 300, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--hairline)', background: 'var(--bg)' }}>
           <div style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', overflowY: 'auto' }} className="scrollbar-none">
             <div style={{ fontSize: '0.88rem', lineHeight: 1.6, color: 'var(--ink-dim)' }}>
-              Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase working on institutional derivatives.
+              Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently exploring how to build recommendation systems best using LLMs.
             </div>
             <div>
               <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', opacity: 0.6, marginBottom: '0.25rem' }}>40.7128° N · 74.0060° W</div>
@@ -424,22 +414,9 @@ export default function Home() {
         {/* Main */}
         <main style={{ flex: 1, height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
-          {/* Filter tabs */}
-          <nav className="filter-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg)', backdropFilter: 'blur(10px)', flexShrink: 0 }}>
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
-              {['All', 'Research', 'Design', 'Engineering'].map(tab => (
-                <button key={tab} className="nav-tab" onClick={() => setActiveTab(tab)}
-                  style={{ ...mono, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', background: 'none', border: 'none', padding: 0, color: activeTab === tab ? 'var(--ink)' : 'var(--ink-dim)' }}>
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <span style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)' }}>{filteredProjects.length} works</span>
-          </nav>
-
           {/* Project grid */}
           <div className="pgrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', flex: 1 }}>
-            {filteredProjects.map(p => (
+            {PROJECTS.map(p => (
               <a key={p.no} href={p.href} target={p.external ? '_blank' : undefined} rel="noreferrer"
                 className="pt" data-no={p.no}
                 style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 220, padding: '1.5rem 1.75rem', borderRight: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)', background: 'transparent' }}>
