@@ -13,6 +13,7 @@ type Section =
   | { type: 'pullquote'; text: string }
   | { type: 'image'; src: string; alt: string; caption?: string; aspect?: string }
   | { type: 'images'; items: { src: string; alt: string; caption?: string }[]; aspect?: string }
+  | { type: 'phones'; items: { src: string; alt: string; caption?: string }[]; label?: string }
   | { type: 'stats'; items: { value: string; label: string }[] }
   | { type: 'list'; label: string; items: string[] }
   | { type: 'subheader'; text: string; id?: string }
@@ -131,32 +132,31 @@ const PROJECTS: Record<string, Project> = {
     slug: 'menuto',
     no: '03',
     name: 'Menuto',
-    tagline: 'A full-stack AI dish recommendation app — solo-built end to end. Tell it your restaurants and taste preferences, it tells you what to order. Fully functional, deployed to TestFlight.',
+    tagline: 'Personalized restaurant dish recommendations powered by an LLM agent that learns your taste over time. Solo-built end to end: product, design, React Native frontend, FastAPI backend, and deployment.',
     year: '2024',
     role: 'Solo — Product · Design · Full-Stack',
     duration: 'Personal Project · End-to-End Ownership',
-    tools: 'React Native · Expo · FastAPI · OpenAI GPT-4o · Supabase · PostgreSQL · Google Places API · Tesseract OCR',
+    tools: 'React Native · Expo 53 · FastAPI · Google Gemini 2.5 Flash · Supabase · PostgreSQL · Google Places API',
     accentColor: '#D8131F',
     tags: ['Full-Stack', 'AI', 'Mobile'],
     icon: '/menuto-icon.png',
     externalLink: { href: 'https://github.com/defnegenc/menuto', label: 'View on GitHub ↗' },
-    secondaryLink: { href: 'https://testflight.apple.com', label: 'TestFlight ↗' },
     sections: [
       {
         type: 'text',
-        label: 'The Idea',
-        body: 'Restaurant reviews tell you where to eat. Nothing tells you what to order — especially at a place you\'ve never been. I wanted an app that knows your taste profile, browses the actual menu, and surfaces the right dishes for you specifically. So I built it, entirely solo: product vision, design, React Native frontend, FastAPI backend, database schema, LLM integration, and deployment.',
+        label: 'The Problem',
+        body: 'You\'re at a restaurant. You don\'t know what to order. Reviews tell you where to eat, but nothing tells you what to order once you\'re there. Menuto reads the menu, understands your preferences, and picks dishes for you, with personal explanations like "You mentioned you\'re craving something rich, and the reviewers specifically call out the truffle cream on this one." The more you use it, the smarter it gets.',
       },
       {
         type: 'pullquote',
-        text: 'I\'m always indecisive about what to order at restaurants. So I solved my own problem.',
+        text: 'Rate a dish, and the system learns not just that you liked it, but why, extracting taste signals from your feedback text and adjusting future recommendations accordingly.',
       },
       {
         type: 'stats',
         items: [
-          { value: '2', label: 'Codebases: FastAPI backend + React Native app' },
-          { value: '3', label: 'Tabs: My Restaurants, Choose Dish, Profile' },
-          { value: '60–80%', label: 'LLM cost reduction via model + prompt optimization' },
+          { value: '8', label: 'Signal sources per recommendation' },
+          { value: '5', label: 'Pipeline stages: parse → filter → enrich → select → learn' },
+          { value: '2', label: 'Codebases: FastAPI + React Native' },
           { value: '0', label: 'Team members — fully solo' },
         ],
       },
@@ -165,56 +165,84 @@ const PROJECTS: Record<string, Project> = {
         text: 'The App',
       },
       {
-        type: 'images',
-        aspect: '9/19.5',
+        type: 'phones',
+        label: 'Search, browse, and save restaurants. Tap Choose Dish to start the recommendation flow.',
         items: [
-          { src: '/addrestaurants.PNG', alt: 'Add Restaurants screen', caption: 'Add restaurants' },
-          { src: '/restaurantdetailscreen2.PNG', alt: 'Restaurant menu', caption: 'Browse menu' },
-          { src: '/choosedish1.PNG', alt: 'Choose Dish preferences', caption: 'Set preferences' },
+          { src: '/choosedish1.png', alt: 'Find your dish — search', caption: 'Search for a restaurant' },
+          { src: '/choosedish2.png', alt: 'Restaurant search results', caption: 'Find by name or location' },
+          { src: '/restaurantdetailscreen.png', alt: 'Restaurant detail with menu', caption: 'Browse the full menu' },
         ],
       },
       {
-        type: 'text',
-        label: 'User Flow',
-        body: 'Add up to 3 restaurants from Google Places (location-aware) → browse each restaurant\'s full menu, filtered by course (All / Starter / Main / Dessert), and save favorite dishes → open Choose Dish, confirm the restaurant and menu, then indicate preferences — how hungry you are, how much you want popular vs. personalized picks, and what you\'re craving (light, fresh, carb-heavy, protein-heavy, spicy, creamy, crispy, comforting) → AI loads your recommendations.',
+        type: 'phones',
+        label: 'Set your mood, cravings, hunger level, and how adventurous you\'re feeling. The agent uses all of it.',
+        items: [
+          { src: '/choosedish3.png', alt: 'Preference sliders', caption: 'Hunger and taste sliders' },
+          { src: '/choosedish4.png', alt: 'Craving and dining style', caption: 'Cravings and dining context' },
+          { src: '/dishesloading.png', alt: 'Agent thinking', caption: 'Browsing the kitchen' },
+        ],
       },
       {
-        type: 'images',
-        aspect: '9/19.5',
+        type: 'phones',
+        label: 'Get personalized picks with explanations, select what you\'re ordering, then rate after your meal.',
         items: [
-          { src: '/choosedish2.PNG', alt: 'Craving selector', caption: 'Craving chips' },
-          { src: '/myrestaurants.PNG', alt: 'My Restaurants', caption: 'Saved restaurants' },
-          { src: '/profiletop.PNG', alt: 'Profile', caption: 'Taste profile' },
+          { src: '/chosendishes.png', alt: 'Recommended dishes', caption: 'Your picks with reasons' },
+          { src: '/ratedishes.png', alt: 'Rate your dishes', caption: 'Rate and save favorites' },
+          { src: '/Your-Restaurants.png', alt: 'Saved restaurants', caption: 'Your restaurant list' },
         ],
       },
       {
         type: 'subheader',
-        text: 'The AI Pipeline',
+        text: 'The Recommendation Engine',
       },
       {
         type: 'text',
-        label: 'Menu Parsing',
-        body: 'The FastAPI backend accepts a menu image, URL, or raw text. Images go through Tesseract OCR; all inputs are structured by GPT-4o (vision) or GPT-4o-mini (text) into a typed JSON array: dish name, description, price, course category, ingredients, and dietary tags. The same `/upload-menu` endpoint handles all three input types via content-type detection. Low-confidence parses surface a user-correction flow rather than silently passing bad data downstream.',
+        label: 'Agent-First Architecture',
+        body: 'Rather than rigid scoring formulas, a Gemini agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context. A user who "looked at a dish 3 times without ordering" was scored the same as someone who "viewed it once." The agent sees the flag LOOKED AT BUT NEVER ORDERED and can reason about why. It also handles meal composition (don\'t recommend 3 pasta dishes) that pointwise scoring fundamentally cannot.',
       },
       {
         type: 'text',
-        label: 'Cost Optimization',
-        body: 'Initially used GPT-4 across all calls. After the first working build, I profiled the cost per request and systematically reduced it: switched text-based parsing to GPT-4o-mini, added max_tokens caps (300–1,500 depending on call type), and reduced the recommendation set from 8 to 5. Total cost reduction: 60–80% with no perceptible quality loss.',
+        label: 'The Pipeline',
+        body: 'Stage 1: Data gathering from 8 sources: parsed menu items, Google Places reviews (cached 14 days), review-based dish popularity via mention frequency, cross-user order counts, past ratings, behavioral signals (views/orders/favorites), Gemini-extracted taste keywords from feedback text, and embedding-based taste similarity (cosine similarity between the user\'s taste profile vector and each dish description, computed in 2 batch API calls). Stage 2: Dietary filtering with LLM-generated flags, explicit instructions to catch hidden ingredients (anchovy in Caesar dressing, fish sauce in Pad Thai, parmesan in pesto). Stage 3: Signal enrichment as readable flags: MATCHES YOUR TASTE, POPULAR (60%), WELL-REVIEWED. Stage 4: Agent selection with the full user narrative. Stage 5: Feedback loop where Gemini extracts taste signals from free-text ratings.',
+      },
+      {
+        type: 'text',
+        label: 'Research Foundations',
+        body: 'This approach was informed by Microsoft\'s RecAI framework (Zhao et al., ACM Web Conference 2024), the "LLM-as-brain, traditional-models-as-tools" pattern where traditional signals handle candidate generation and the LLM handles final reasoning. The serendipity slot (reserving one recommendation for something outside the user\'s usual picks) draws from the SERAL paper on filter bubble mitigation (Feb 2025). The implicit negative feedback model follows Hu, Koren & Volinsky\'s foundational work on collaborative filtering for implicit feedback datasets.',
       },
       {
         type: 'subheader',
-        text: 'Engineering Decisions',
+        text: 'Key Decisions',
       },
       {
         type: 'list',
-        label: 'Technical Highlights',
+        label: 'Why These Choices',
         items: [
-          'Mixed navigation — state-machine for top-level transitions (sign-in → onboarding → main app), React Navigation tabs only for the inner My Restaurants / Choose Dish / Profile views.',
-          'Zustand state management — typed slices for user preferences, current menu session, and recommendation state; no prop-drilling across screens.',
-          'Location-aware restaurant search — debounced Google Places autocomplete (300ms) with GPS; graceful degradation to city-level if permission denied.',
-          'Supabase/PostgreSQL schema — user preference vectors, dish favorites per restaurant, and restaurant menu cache; structured so ratings and preferences update asynchronously.',
-          'Dual AI models — GPT-4o vision for photo menus (richer context needed), GPT-4o-mini for text/URL parsing (cost-efficient, output quality equivalent).',
+          'Gemini embeddings over keyword matching — a user who likes "rich, umami, slightly spicy" food matches a miso-glazed dish even though no keywords overlap. Two API calls total: one for the taste profile, one batch for all candidates.',
+          'Supabase Auth over Clerk — cost. Supabase Auth is free (50k MAUs) and was already in the stack. Migration involved rewriting JWT verification from RS256 (Clerk JWKS) to HS256 (Supabase JWT secret).',
+          'Google review caching (14 days) — the Places API returns max 5 reviews on their free tier (1,000 calls/month). First request takes ~2 seconds, subsequent requests are instant. From 5 reviews, Gemini extracts 8-15 dish mentions with sentiment.',
+          'Thompson Sampling for signal weighting — Beta priors per scoring signal per user learn which signal types best predict each user\'s satisfaction over time, activating after ~10+ ratings.',
+          'Tab persistence via opacity: 0 / pointerEvents: none — menu parsing progress survives tab switches and restaurant detail navigation, instead of conditional rendering which would destroy state.',
         ],
+      },
+      {
+        type: 'subheader',
+        text: 'Optimization',
+      },
+      {
+        type: 'text',
+        label: 'Codebase Cleanup',
+        body: 'Reduced the codebase from ~15,000 lines of mixed SQLAlchemy + Clerk + OpenAI references + 90 print-statement debugging to a clean Supabase + Gemini stack. Deleted 12 dead files, removed 3 dead routers, consolidated 6 auth screens into 1, split 2 screens over 1,500 lines into sub-components.',
+      },
+      {
+        type: 'text',
+        label: 'LLM Cost',
+        body: 'Menu parsing uses a single Gemini call per URL (previously per-section). Review enrichment processes all 5 reviews in one batch call (previously per-review). The agent makes one call per recommendation request. Embedding similarity is 2 calls total (not per-dish). All results are cached in Supabase.',
+      },
+      {
+        type: 'text',
+        label: 'Cold Start',
+        body: 'New users with no history get recommendations weighted toward cross-user popularity and review sentiment rather than personal taste. The free-text mood input ("I\'m feeling adventurous") gives the agent rich context even for first-time users.',
       },
     ],
   },
@@ -896,6 +924,58 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
         </div>
       )
     }
+
+    case 'phones':
+      return (
+        <div>
+          {section.label && (
+            <p style={{ fontSize: '0.95rem', lineHeight: 1.7, color: 'var(--ink-dim)', marginBottom: '1.5rem', maxWidth: 700 }}>
+              {section.label}
+            </p>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1rem, 3vw, 2.5rem)', flexWrap: 'wrap' }}>
+            {section.items.map((item, i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: 'clamp(160px, 22vw, 220px)',
+                  background: '#000',
+                  borderRadius: 'clamp(24px, 3.3vw, 36px)',
+                  padding: 'clamp(6px, 0.8vw, 10px)',
+                  boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
+                  position: 'relative' as const,
+                }}>
+                  {/* Dynamic Island */}
+                  <div style={{
+                    position: 'absolute' as const,
+                    top: 'clamp(8px, 1.1vw, 13px)',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 'clamp(52px, 7vw, 72px)',
+                    height: 'clamp(14px, 1.9vw, 20px)',
+                    background: '#000',
+                    borderRadius: 999,
+                    zIndex: 2,
+                  }} />
+                  {/* Screen */}
+                  <div style={{
+                    borderRadius: 'clamp(18px, 2.5vw, 28px)',
+                    overflow: 'hidden',
+                    position: 'relative' as const,
+                    aspectRatio: '9/19.5',
+                  }}>
+                    <Image src={item.src} alt={item.alt} fill style={{ objectFit: 'cover' }} />
+                  </div>
+                </div>
+                {item.caption && (
+                  <div style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)', textAlign: 'center' as const }}>
+                    {item.caption}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
 
     default:
       return null
