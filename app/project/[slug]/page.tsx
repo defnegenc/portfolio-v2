@@ -166,27 +166,32 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'phones',
-        label: 'Search, browse, and save restaurants. Tap Choose Dish to start the recommendation flow.',
+        label: 'Search for a restaurant by name or browse nearby. Tap into one to see its full menu.',
         items: [
-          { src: '/choosedish1.png', alt: 'Find your dish — search', caption: 'Search for a restaurant' },
-          { src: '/choosedish2.png', alt: 'Restaurant search results', caption: 'Find by name or location' },
+          { src: '/choosedish2.png', alt: 'Restaurant search results', caption: 'Find a restaurant' },
           { src: '/restaurantdetailscreen.png', alt: 'Restaurant detail with menu', caption: 'Browse the full menu' },
         ],
       },
       {
         type: 'phones',
-        label: 'Set your mood, cravings, hunger level, and how adventurous you\'re feeling. The agent uses all of it.',
+        label: 'Set your mood: how hungry you are, how adventurous, what you\'re craving, and how you\'re dining.',
         items: [
           { src: '/choosedish3.png', alt: 'Preference sliders', caption: 'Hunger and taste sliders' },
           { src: '/choosedish4.png', alt: 'Craving and dining style', caption: 'Cravings and dining context' },
-          { src: '/dishesloading.png', alt: 'Agent thinking', caption: 'Browsing the kitchen' },
         ],
       },
       {
         type: 'phones',
-        label: 'Get personalized picks with explanations, select what you\'re ordering, then rate after your meal.',
+        label: 'The agent reasons about your signals and returns personalized picks with explanations.',
         items: [
+          { src: '/dishesloading.png', alt: 'Agent thinking', caption: 'Browsing the kitchen' },
           { src: '/chosendishes.png', alt: 'Recommended dishes', caption: 'Your picks with reasons' },
+        ],
+      },
+      {
+        type: 'phones',
+        label: 'Rate dishes after your meal. Your favorites carry across restaurants for future visits.',
+        items: [
           { src: '/ratedishes.png', alt: 'Rate your dishes', caption: 'Rate and save favorites' },
           { src: '/Your-Restaurants.png', alt: 'Saved restaurants', caption: 'Your restaurant list' },
         ],
@@ -933,9 +938,9 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
               {section.label}
             </p>
           )}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(0.75rem, 2vw, 1.5rem)', flexWrap: 'wrap', margin: '0 -2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)', flexWrap: 'wrap' }}>
             {section.items.map((item, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', flex: '1 1 0', minWidth: 180, maxWidth: 280 }}>
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', width: 'clamp(200px, 30vw, 260px)' }}>
                 <div style={{
                   width: '100%',
                   background: '#000',
