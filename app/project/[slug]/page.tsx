@@ -140,7 +140,8 @@ const PROJECTS: Record<string, Project> = {
     accentColor: '#D8131F',
     tags: ['Full-Stack', 'AI', 'Mobile'],
     icon: '/menuto-icon.png',
-    externalLink: { href: 'https://github.com/defnegenc/menuto', label: 'View on GitHub ↗' },
+    externalLink: { href: 'https://testflight.apple.com/join/SZY7qqtY', label: 'Try on TestFlight ↗' },
+    secondaryLink: { href: 'https://github.com/defnegenc/menuto', label: 'View on GitHub ↗' },
     sections: [
       {
         type: 'text',
