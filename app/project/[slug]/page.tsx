@@ -133,7 +133,7 @@ const PROJECTS: Record<string, Project> = {
     no: '03',
     name: 'Menuto',
     tagline: 'Personalized restaurant dish recommendations powered by an LLM agent that learns your taste over time, using your favorites from other restaurants to inform what you\'ll love at new ones. Solo-built end to end: product, design, React Native frontend, FastAPI backend, and deployment.',
-    year: '2024',
+    year: '2026',
     role: 'Solo — Product · Design · Full-Stack',
     duration: 'Personal Project · End-to-End Ownership',
     tools: 'React Native · Expo 53 · FastAPI · Google Gemini 2.5 Flash · Supabase · PostgreSQL · Google Places API',
