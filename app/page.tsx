@@ -51,7 +51,7 @@ const PROJECTS = [
   { no: '01', name: 'Bloom',           tags: ['Research', 'Safety', 'Design'],       year: '2025', href: '/project/bloom',           external: false, preview: '', badge: 'CHI 2026 Best Paper · Top 1%' },
   { no: '02', name: 'Learning Et Al.', tags: ['Solo', 'RecSys', 'LLM'],              year: '2026', href: '/project/learningetal',    external: false, preview: '/learningetal-icon.png', previewIcon: true },
   { no: '03', name: 'Menuto',          tags: ['Solo', 'AI', 'Mobile'],               year: '2026', href: '/project/menuto',          external: false, preview: '/menuto-icon.png', previewIcon: true },
-  { no: '04', name: 'Dishcovery',      tags: ['Design', 'Frontend', 'Research'],     year: '2024', href: '/project/dishcovery',      external: false, preview: '' },
+  { no: '04', name: 'Dishcovery',      tags: ['Needfinding', 'Prototyping', 'Design'],  year: '2024', href: '/project/dishcovery',      external: false, preview: '' },
 ]
 
 
