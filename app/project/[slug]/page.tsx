@@ -1051,18 +1051,6 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
                   boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
                   position: 'relative' as const,
                 }}>
-                  {/* Dynamic Island */}
-                  <div style={{
-                    position: 'absolute' as const,
-                    top: 'clamp(10px, 1.4vw, 16px)',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 'clamp(60px, 8vw, 84px)',
-                    height: 'clamp(16px, 2.2vw, 24px)',
-                    background: '#000',
-                    borderRadius: 999,
-                    zIndex: 2,
-                  }} />
                   {/* Screen */}
                   <div style={{
                     borderRadius: 'clamp(21px, 3vw, 34px)',
