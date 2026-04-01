@@ -48,10 +48,10 @@ function TypewriterName({ text }: { text: string }) {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
-  { no: '01', name: 'Bloom',           tags: ['HCI Research', 'Safety', 'Design'],     year: '2025', href: '/project/bloom',           external: false, preview: '' },
-  { no: '02', name: 'Learning Et Al.', tags: ['Solo Project', 'RecSys', 'LLM Agents'], year: '2026', href: '/project/learningetal',    external: false, preview: '/learningetal-cover.png' },
-  { no: '03', name: 'Menuto',          tags: ['Full-Stack', 'AI', 'Mobile'],           year: '2026', href: '/project/menuto',          external: false, preview: '/menuto-icon.png', previewIcon: true },
-  { no: '04', name: 'Dishcovery',      tags: ['UI Design', 'Frontend', 'UX Research'], year: '2024', href: '/project/dishcovery',      external: false, preview: '' },
+  { no: '01', name: 'Bloom',           tags: ['Research', 'Safety', 'Design'],       year: '2025', href: '/project/bloom',           external: false, preview: '' },
+  { no: '02', name: 'Learning Et Al.', tags: ['Solo', 'RecSys', 'LLM'],              year: '2026', href: '/project/learningetal',    external: false, preview: '/learningetal-cover.png' },
+  { no: '03', name: 'Menuto',          tags: ['Solo', 'AI', 'Mobile'],               year: '2026', href: '/project/menuto',          external: false, preview: '/menuto-icon.png', previewIcon: true },
+  { no: '04', name: 'Dishcovery',      tags: ['Design', 'Frontend', 'Research'],     year: '2024', href: '/project/dishcovery',      external: false, preview: '' },
 ]
 
 
@@ -443,9 +443,11 @@ export default function Home() {
                     {p.name}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem 0.5rem' }}>
-                      {p.tags.map(t => (
-                        <span key={t} className="td" style={{ ...mono, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink-dim)' }}>{t}</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem 0.15rem', alignItems: 'center' }}>
+                      {p.tags.map((t, i) => (
+                        <span key={t} className="td" style={{ ...mono, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink-dim)' }}>
+                          {t}{i < p.tags.length - 1 ? ' ·' : ''}
+                        </span>
                       ))}
                     </div>
                     <span className="ta" style={{ ...mono, fontSize: '0.9rem', opacity: 0, transition: 'opacity .2s' }}>→</span>
