@@ -88,19 +88,19 @@ export default function About() {
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
               I grew up in Istanbul, Turkey, and came to Stanford for undergrad, where I studied Symbolic Systems. I stayed another year for an MS in CS, spending most of it on{' '}
               <a href="/project/bloom" className="about-link">Bloom</a>
-              , an LLM-augmented physical activity coaching app we built in Prof. James Landay's Interaction Design Lab, where I was second author on the CHI 2026 paper. I also took Arabic that year — I have a goal of speaking six languages before I turn 30.
+              , an LLM-augmented physical activity coaching app we built in Prof. James Landay{'\u2019'}s Interaction Design Lab. I was second author on the paper, which won Best Paper at CHI 2026 (top 1% of submissions). I also took Arabic that year because I have a goal of speaking six languages before I turn 30.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I also spent a lot of time teaching. I was a course assistant for Stanford's core HCI sequence:{' '}
+              I spent a lot of time teaching too. I was a course assistant for Stanford{'\u2019'}s core HCI sequence ({' '}
               <a href="https://hci.stanford.edu/courses/cs147/2024/au/" target="_blank" rel="noreferrer" className="about-link">CS 147</a>
               ,{' '}
               <a href="https://web.stanford.edu/class/cs278/" target="_blank" rel="noreferrer" className="about-link">CS 278</a>
               , and{' '}
               <a href="https://stanfordhci.github.io/cs347-winter-2025/index" target="_blank" rel="noreferrer" className="about-link">CS 347</a>
-              — teaching was arguably one of my favorite things about being at Stanford. Teaching and my students taught me just as much as my classes did. I led design studios taking student projects from early interviews to working prototypes, and ran weekly seminar sections on HCI research. Someday I'd like to use what I know about HCI to think more seriously about education itself.
+              ), and it was arguably my favorite thing about being at Stanford. My students taught me just as much as my classes did. I led design studios taking student projects from early interviews to working prototypes and ran weekly seminar sections on HCI research. Someday I{'\u2019'}d like to use what I know about HCI to think more seriously about education itself.
             </p>
             <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              Now I'm an <strong>APM at Coinbase</strong> on the institutional derivatives team, working on <strong>perpetual futures, dated futures, and options</strong> on one of the largest regulated crypto derivatives venues in the world.
+              Now I{'\u2019'}m an <strong>APM at Coinbase</strong> on the institutional derivatives team, working on <strong>perpetual futures, dated futures, and options</strong> on one of the largest regulated crypto derivatives venues in the world.
             </p>
           </div>
         </div>
@@ -113,16 +113,16 @@ export default function About() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
             {[
               {
-                title: 'Interfaces that surface strengths',
-                body: 'I see two critical problems with current behavior change systems: <strong>rigid interfaces</strong> that fail diverse populations, and <strong>negative feedback loops</strong> that undermine the outcomes they\'re designed to support. I want to build adaptive systems that learn from ambient patterns and surface positive behaviors people are unaware of. Beyond chat, I\'m interested in contextual interventions, editable ambient widgets, spatial design, and tangible objects that carry personal meaning — deployed over weeks to measure real shifts in self-efficacy and confidence.',
+                title: 'Recommendation systems using LLMs',
+                body: 'I\u2019m building two systems right now that approach this question from different angles. <a href="/project/menuto" class="about-link">Menuto</a> uses an LLM agent as the final reasoning layer over 8 traditional scoring signals (embeddings, popularity, behavioral history) to recommend restaurant dishes, with Bayesian weight learning that adapts per user over time. <a href="/project/learningetal" class="about-link">Learning Et Al.</a> uses hybrid ranking (BM25 + semantic embeddings via Reciprocal Rank Fusion) to find academic papers, then a 15-call synthesis pipeline to make them readable. The interesting question across both: <strong>what\u2019s the right balance of agentic reasoning and rule-based scoring?</strong> When should the LLM override traditional signals, and when should it defer? What makes an LLM-powered system actually good at ranking, not just good at generating text about rankings?',
               },
               {
-                title: 'The myth of the universal user',
-                body: 'Interface design has always operated on the premise of the <strong>"universal user."</strong> Someone with ADHD using a habit tracker built for neurotypical attention doesn\'t have a personal failing — they have an interface that was never designed for them. This isn\'t only a challenge for marginalized populations. Even the so-called ideal user is constrained by interfaces that assume a singular context. <strong>AI changes this.</strong> Systems can now understand semantic goals and adapt to how someone is engaging in real time. Flexible interfaces are no longer a research aspiration. They are a design problem, and we will build the solutions with AI.',
+                title: 'Interfaces that surface strengths',
+                body: 'Current behavior change systems have two problems: <strong>rigid interfaces</strong> that fail diverse populations, and <strong>negative feedback loops</strong> that undermine the outcomes they\u2019re designed to support. With <a href="/project/bloom" class="about-link">Bloom</a>, we found that the LLM coach\u2019s primary value was psychological, not behavioral: surfacing behaviors people already do so they realize they\u2019re doing more than they\u2019ve given themselves credit for. I want to build adaptive systems that learn from ambient patterns and surface positive behaviors, through contextual interventions, editable ambient widgets, and tangible objects that carry personal meaning.',
               },
               {
                 title: 'Can AI have taste, or is it all slop?',
-                body: 'Technology that learns from human output tends, by design, to <strong>regress toward the mean.</strong> The most represented wins. But taste is almost the opposite: it\'s about having strong preferences, specific references, a point of view. I want to think about how to give AI <strong>genuine spikes</strong>, the way humans have them. A lot of taste is built in the physical world — things you touch, spaces you move through, what people wear on the street. I see potential in ubiquitous computing to ground AI taste in real-world experience, rather than just what has been written about it.',
+                body: 'Technology that learns from human output tends, by design, to <strong>regress toward the mean.</strong> The most represented wins. But taste is the opposite: it\u2019s about having strong preferences, specific references, a point of view. I want to think about how to give AI <strong>genuine spikes</strong>, the way humans have them. A lot of taste is built in the physical world, through things you touch, spaces you move through, what people wear on the street. I see potential in ubiquitous computing to ground AI taste in real-world experience, rather than just what has been written about it.',
               },
             ].map(({ title, body }) => (
               <div key={title}>
