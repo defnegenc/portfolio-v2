@@ -258,9 +258,102 @@ const PROJECTS: Record<string, Project> = {
     ],
   },
 
+  learningetal: {
+    slug: 'learningetal',
+    no: '02',
+    name: 'Learning Et Al.',
+    tagline: 'A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests. Not an abstract delivery service. More like a curious friend explaining something over coffee.',
+    year: '2026',
+    role: 'Solo — Product · Design · Full-Stack',
+    duration: 'Personal Project · End-to-End Ownership',
+    tools: 'Next.js 16 · Turso/libsql · Drizzle ORM · Tailwind + shadcn/ui · ONNX Embeddings · Vercel',
+    accentColor: '#1a1a1a',
+    tags: ['Solo Project', 'RecSys', 'LLM Agents'],
+    externalLink: { href: 'https://learningetal.com', label: 'Visit learningetal.com ↗' },
+    sections: [
+      {
+        type: 'image',
+        src: '/learningetal-cover.png',
+        alt: 'Learning Et Al. interface',
+        aspect: '16/9',
+      },
+      {
+        type: 'text',
+        label: 'The Core Idea',
+        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching for a single paper: "Can AI agents be fashionable?" or "What if buildings could sense your mood?" Then it finds papers and news articles that serve as tools to think with in relation to that question. Papers don\'t need to answer it. They need to offer a surprising lens on it.',
+      },
+      {
+        type: 'pullquote',
+        text: 'Papers don\'t need to answer the question. They need to offer a surprising lens on it.',
+      },
+      {
+        type: 'subheader',
+        text: 'The Synthesis Pipeline',
+      },
+      {
+        type: 'text',
+        label: '15+ LLM Calls Per Digest',
+        body: 'Each digest goes through a multi-stage pipeline: metadata extraction, skeleton building (identifying paper roles, tensions, argument arcs as structured JSON), prose generation, self-critique, revision, and a hard coverage gate that verifies every paper actually appears in bold in the final output. This came from iterating through a single-call approach (too shallow), then a 7-call pipeline (still produced book reports), landing on a skeleton-first architecture inspired by Yao 2023\'s Tree of Thoughts and Madaan 2023\'s Self-Refine.',
+      },
+      {
+        type: 'subheader',
+        text: 'How Papers Are Found',
+      },
+      {
+        type: 'text',
+        label: 'Hybrid Ranking via Reciprocal Rank Fusion',
+        body: 'Candidate papers are scored by both BM25 (keyword) and local embeddings (semantic), then fused via RRF, which elegantly sidesteps the problem of combining signals with incompatible scales. On top of that, venue/institution quality boosts and Maximal Marginal Relevance (\u03BB=0.6) ensure diversity: no two papers from the same lab making the same point.',
+      },
+      {
+        type: 'text',
+        label: 'In-Process Embeddings with Graceful Degradation',
+        body: 'Runs all-MiniLM-L6-v2 locally via ONNX/transformers.js. Zero API cost, zero external dependency. When ONNX can\'t load (e.g. serverless cold starts), a sentinel value triggers a keyword-overlap fallback transparently, keeping the same API surface. An isEmbeddingDegraded() flag surfaces the mode for logging.',
+      },
+      {
+        type: 'subheader',
+        text: 'Staying Interesting',
+      },
+      {
+        type: 'text',
+        label: 'Theme Novelty Enforcement',
+        body: 'Each generated question is compared against the last 5 digests\' themes via embedding similarity. If cosine similarity exceeds 0.5, the system triggers a novelty rewrite with explicit instructions to pick different interest combinations. Without this, LLMs converge to a predictable question template within weeks.',
+      },
+      {
+        type: 'text',
+        label: 'Interest Learning with Decay',
+        body: 'Interests decay daily (\u00D70.95), recently-used topics get a frequency penalty from the last 5 digests, and selection is weighted random, not top-N, so even low-weight interests surface occasionally. Engagement signals are intentionally microscopic (+0.1 per star, +0.05 per question) after discovering that a single starred paper could pollute an entire feed.',
+      },
+      {
+        type: 'text',
+        label: 'Prompt Engineering by Antipattern',
+        body: 'Instead of vague tone instructions, the synthesis prompts ban specific bad patterns by example: "The question of whether X isn\'t just about Y, it\'s about Z" (the worst one). Plus a hard banned-words list (demonstrates, reveals, highlights, nuanced, multifaceted), data-driven from observing every synthesis sounding identical.',
+      },
+      {
+        type: 'subheader',
+        text: 'Things We Reworked',
+      },
+      {
+        type: 'list',
+        label: 'Iterations',
+        items: [
+          'Anchor-paper to theme-first: Original approach derived themes from a "best paper." Highly-cited papers dominated and pulled in wrong-field methodology papers. Eliminated the anchor entirely.',
+          'Paper selection went through 4 iterations: Citation graph (cross-field contamination), keyword matching (terrible precision), embedding-only (missed specifics), BM25+embedding RRF with MMR diversity.',
+          'Synthesis structure: Paper-by-paper paragraphs (book reports), single LLM call (too shallow), 7-call pipeline, current 6-stage skeleton-first approach with coverage gating.',
+          'Theme revision: Tried letting the LLM decide whether to revise. It always said "no change needed." Made revision mandatory. Output quality jumped.',
+          'News sources: Hardcoded RSS, then DuckDuckGo scraping (broke on one CSS change), then Serper/DDG with User-Agent rotation and field-specific RSS fallback chain.',
+        ],
+      },
+      {
+        type: 'text',
+        label: 'The Vault',
+        body: 'Past digests live in a searchable archive where you can browse themes over time and compare any two papers side by side. Brutalist research archive aesthetic: hard borders, box shadows, crosshair cursor, accent colors only in tags.',
+      },
+    ],
+  },
+
   dishcovery: {
     slug: 'dishcovery',
-    no: '02',
+    no: '04',
     name: 'Dishcovery',
     tagline: 'An image-recognition app that helps you recognise, learn about, and cook with ingredients from cultures around the world.',
     year: '2024',
@@ -686,7 +779,7 @@ export function generateStaticParams() {
 
 // ─── Nav helper ───────────────────────────────────────────────────────────────
 
-const ALL_SLUGS = ['bloom', 'dishcovery', 'menuto', 'flock', 'tailor', 'hercules']
+const ALL_SLUGS = ['bloom', 'learningetal', 'menuto', 'dishcovery', 'flock', 'tailor', 'hercules']
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 

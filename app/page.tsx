@@ -48,10 +48,10 @@ function TypewriterName({ text }: { text: string }) {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
-  { no: '01', name: 'Bloom',        tags: ['HCI Research', 'Safety', 'Design'],     year: '2025', href: '/project/bloom',            external: false },
-  { no: '02', name: 'Learning Et Al.', tags: ['Solo Project', 'RecSys', 'LLM Agents'], year: '2026', href: 'https://learningetal.com',  external: true },
-  { no: '03', name: 'Menuto',       tags: ['Full-Stack', 'AI', 'Mobile'],           year: '2026', href: '/project/menuto',           external: false },
-  { no: '04', name: 'Dishcovery',   tags: ['UI Design', 'Frontend', 'UX Research'], year: '2024', href: '/project/dishcovery',       external: false },
+  { no: '01', name: 'Bloom',           tags: ['HCI Research', 'Safety', 'Design'],     year: '2025', href: '/project/bloom',           external: false, preview: '' },
+  { no: '02', name: 'Learning Et Al.', tags: ['Solo Project', 'RecSys', 'LLM Agents'], year: '2026', href: '/project/learningetal',    external: false, preview: '/learningetal-cover.png' },
+  { no: '03', name: 'Menuto',          tags: ['Full-Stack', 'AI', 'Mobile'],           year: '2026', href: '/project/menuto',          external: false, preview: '/menuto-icon.png' },
+  { no: '04', name: 'Dishcovery',      tags: ['UI Design', 'Frontend', 'UX Research'], year: '2024', href: '/project/dishcovery',      external: false, preview: '' },
 ]
 
 
@@ -199,6 +199,7 @@ export default function Home() {
         .pt::after { content: attr(data-no); position: absolute; bottom: -0.15em; right: 0.3em; font-size: 7rem; font-weight: 700; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.07); pointer-events: none; opacity: 0; transform: translateY(0.2em); transition: opacity .35s, transform .35s cubic-bezier(.16,1,.3,1); }
         .pt:hover::after { opacity: 1; transform: translateY(0); }
         .pt:hover { background: var(--ink) !important; color: var(--bg) !important; }
+        .pt:hover .pt-preview { opacity: 0.18 !important; }
         .pt:hover .td  { color: var(--bg) !important; opacity: 0.55; }
         .pt:hover .trg { border-color: rgba(255,255,255,0.15) !important; color: var(--bg) !important; }
         .pt:hover .tn  { transform: translateX(4px); letter-spacing: 0.02em; }
@@ -419,12 +420,21 @@ export default function Home() {
             {PROJECTS.map(p => (
               <a key={p.no} href={p.href} target={p.external ? '_blank' : undefined} rel="noreferrer"
                 className="pt" data-no={p.no}
-                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 220, padding: '1.5rem 1.75rem', borderRight: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)', background: 'transparent' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 220, padding: '1.5rem 1.75rem', borderRight: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)', background: 'transparent', position: 'relative' }}>
+                {p.preview && (
+                  <div className="pt-preview" style={{
+                    position: 'absolute', inset: 0, zIndex: 0,
+                    backgroundImage: `url(${p.preview})`,
+                    backgroundSize: 'cover', backgroundPosition: 'center',
+                    opacity: 0, transition: 'opacity .4s cubic-bezier(.16,1,.3,1)',
+                    pointerEvents: 'none',
+                  }} />
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
                   <span className="td" style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)' }}>{p.no}</span>
                   <span className="td trg" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', border: '1px solid var(--hairline)', padding: '0.15rem 0.5rem', borderRadius: 999 }}>{p.year}</span>
                 </div>
-                <div>
+                <div style={{ position: 'relative', zIndex: 1 }}>
                   <div className="tn" style={{ fontSize: 'clamp(1.4rem,2.2vw,2.2rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: '0.7rem', transition: 'transform .25s cubic-bezier(.16,1,.3,1)' }}>
                     {p.name}
                   </div>
