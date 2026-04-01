@@ -144,13 +144,13 @@ const PROJECTS: Record<string, Project> = {
     secondaryLink: { href: 'https://github.com/defnegenc/menuto', label: 'View on GitHub ↗' },
     sections: [
       {
-        type: 'text',
-        label: 'The Problem',
-        body: 'I\'m always indecisive at restaurants, and when I do decide, it\'s always the wrong thing. What if I could let AI decide for me? Sounds like a bad idea, or why not just ask an LLM chatbot by sending it a photo of the menu? I wanted something more sophisticated, so I built a system that tracks my favorite dishes across restaurants and uses an 8-component composite scoring algorithm with Bayesian weight learning to figure out what I\'d actually love at a place I\'ve never been.',
+        type: 'pullquote',
+        text: 'I\'m always indecisive at restaurants, and when I do decide, it\'s always the wrong thing.',
       },
       {
-        type: 'pullquote',
-        text: 'Rate a dish, and the system learns not just that you liked it, but why, extracting taste signals from your feedback text and adjusting future recommendations accordingly.',
+        type: 'text',
+        label: 'Why Not Just Ask an LLM?',
+        body: 'You could send ChatGPT a photo of the menu and ask "what should I order?" You\'d get a generic answer based on what\'s popular in its training data, with no memory of what you\'ve liked before, no awareness of what reviewers actually say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings ("loved the cream sauce" becomes liked: ["cream", "rich sauce"]), and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions. Not a chatbot. A recommendation engine that gets better every time you eat.',
       },
       {
         type: 'stats',
