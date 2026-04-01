@@ -1052,14 +1052,14 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
                 <div style={{
                   width: '100%',
                   background: '#000',
-                  borderRadius: 'clamp(28px, 4vw, 44px)',
-                  padding: 'clamp(7px, 1vw, 12px)',
+                  borderRadius: 'clamp(24px, 3.5vw, 38px)',
+                  padding: 'clamp(4px, 0.5vw, 6px)',
                   boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
                   position: 'relative' as const,
                 }}>
                   {/* Screen */}
                   <div style={{
-                    borderRadius: 'clamp(21px, 3vw, 34px)',
+                    borderRadius: 'clamp(20px, 3vw, 33px)',
                     overflow: 'hidden',
                     position: 'relative' as const,
                     aspectRatio: '9/19.5',
