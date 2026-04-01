@@ -48,7 +48,7 @@ function TypewriterName({ text }: { text: string }) {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
-  { no: '01', name: 'Bloom',           tags: ['CHI 2026', 'Best Paper', 'Top 1%'],   year: '2025', href: '/project/bloom',           external: false, preview: '' },
+  { no: '01', name: 'Bloom',           tags: ['Research', 'Safety', 'Design'],       year: '2025', href: '/project/bloom',           external: false, preview: '', badge: 'CHI 2026 Best Paper · Top 1%' },
   { no: '02', name: 'Learning Et Al.', tags: ['Solo', 'RecSys', 'LLM'],              year: '2026', href: '/project/learningetal',    external: false, preview: '/learningetal-icon.png', previewIcon: true },
   { no: '03', name: 'Menuto',          tags: ['Solo', 'AI', 'Mobile'],               year: '2026', href: '/project/menuto',          external: false, preview: '/menuto-icon.png', previewIcon: true },
   { no: '04', name: 'Dishcovery',      tags: ['Design', 'Frontend', 'Research'],     year: '2024', href: '/project/dishcovery',      external: false, preview: '' },
@@ -439,9 +439,14 @@ export default function Home() {
                   <span className="td trg" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', border: '1px solid var(--hairline)', padding: '0.15rem 0.5rem', borderRadius: 999 }}>{p.year}</span>
                 </div>
                 <div style={{ position: 'relative', zIndex: 1 }}>
-                  <div className="tn" style={{ fontSize: 'clamp(1.4rem,2.2vw,2.2rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: '0.7rem', transition: 'transform .25s cubic-bezier(.16,1,.3,1)' }}>
+                  <div className="tn" style={{ fontSize: 'clamp(1.4rem,2.2vw,2.2rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: p.badge ? '0.5rem' : '0.7rem', transition: 'transform .25s cubic-bezier(.16,1,.3,1)' }}>
                     {p.name}
                   </div>
+                  {p.badge && (
+                    <div className="td" style={{ ...mono, fontSize: '0.6rem', letterSpacing: '0.06em', color: '#266C31', fontWeight: 600, marginBottom: '0.5rem' }}>
+                      {p.badge}
+                    </div>
+                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem 0.15rem', alignItems: 'center' }}>
                       {p.tags.map((t, i) => (
