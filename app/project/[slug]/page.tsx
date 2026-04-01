@@ -14,6 +14,7 @@ type Section =
   | { type: 'image'; src: string; alt: string; caption?: string; aspect?: string }
   | { type: 'images'; items: { src: string; alt: string; caption?: string }[]; aspect?: string }
   | { type: 'phones'; items: { src: string; alt: string; caption?: string }[]; label?: string }
+  | { type: 'diagram'; id: string }
   | { type: 'stats'; items: { value: string; label: string }[] }
   | { type: 'list'; label: string; items: string[] }
   | { type: 'subheader'; text: string; id?: string }
@@ -203,6 +204,10 @@ const PROJECTS: Record<string, Project> = {
         text: 'The Recommendation Engine',
       },
       {
+        type: 'diagram',
+        id: 'menuto-pipeline',
+      },
+      {
         type: 'text',
         label: 'Agent-First Architecture',
         body: 'Rather than rigid scoring formulas, an LLM agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context.',
@@ -296,6 +301,10 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'subheader',
         text: 'Why Not Just Summarize Papers?',
+      },
+      {
+        type: 'diagram',
+        id: 'learningetal-pipeline',
       },
       {
         type: 'text',
@@ -1080,7 +1089,162 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
         </div>
       )
 
+    case 'diagram':
+      if (section.id === 'menuto-pipeline') return <MenutoPipelineDiagram />
+      if (section.id === 'learningetal-pipeline') return <LearningEtAlPipelineDiagram />
+      return null
+
     default:
       return null
   }
+}
+
+// ─── Menuto Pipeline Diagram ──────────────────────────────────────────────────
+
+function MenutoPipelineDiagram() {
+  const mono = "'Fragment Mono', monospace"
+  const c = { bg: '#FFF5F5', accent: '#D8131F', accentLight: '#FDDCDC', border: '#E8CDCD', text: '#1A1918', dim: '#5A5955' }
+  const stages = [
+    { label: 'Menu Parse', sub: '3 input modes', detail: 'URL · Photo · Text' },
+    { label: 'Dietary Filter', sub: 'LLM-analyzed', detail: '6 flags per dish' },
+    { label: 'Signal Enrich', sub: '8 sources', detail: 'Reviews · History · Embeddings' },
+    { label: 'Agent Select', sub: 'LLM reasoning', detail: 'Full user narrative' },
+    { label: 'Feedback Loop', sub: 'Taste extraction', detail: 'Bayesian weight update' },
+  ]
+  const W = 900, stageW = 140, stageH = 88, gap = 22
+  const totalW = stages.length * stageW + (stages.length - 1) * gap
+  const startX = (W - totalW) / 2
+
+  return (
+    <div style={{ margin: '0 -2rem', overflowX: 'auto' }}>
+      <svg viewBox={`0 0 ${W} 160`} style={{ width: '100%', maxWidth: W, display: 'block', margin: '0 auto' }}>
+        <defs>
+          <marker id="arrow-menuto" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill={c.accent} />
+          </marker>
+        </defs>
+        {stages.map((s, i) => {
+          const x = startX + i * (stageW + gap)
+          const y = 20
+          return (
+            <g key={i}>
+              <rect x={x} y={y} width={stageW} height={stageH} rx={6} fill={c.bg} stroke={c.accent} strokeWidth={1.5} />
+              <text x={x + stageW / 2} y={y + 24} textAnchor="middle" fontFamily={mono} fontSize={10} fontWeight={600} fill={c.text} letterSpacing="0.03em">
+                {s.label.toUpperCase()}
+              </text>
+              <text x={x + stageW / 2} y={y + 42} textAnchor="middle" fontFamily={mono} fontSize={8.5} fill={c.accent} letterSpacing="0.02em">
+                {s.sub}
+              </text>
+              <text x={x + stageW / 2} y={y + 60} textAnchor="middle" fontFamily={mono} fontSize={7.5} fill={c.dim} letterSpacing="0.02em">
+                {s.detail}
+              </text>
+              {i < stages.length - 1 && (
+                <line x1={x + stageW + 2} y1={y + stageH / 2} x2={x + stageW + gap - 2} y2={y + stageH / 2} stroke={c.accent} strokeWidth={1.5} markerEnd="url(#arrow-menuto)" />
+              )}
+            </g>
+          )
+        })}
+        {/* Feedback return arrow */}
+        <path
+          d={`M ${startX + 4 * (stageW + gap) + stageW / 2} ${20 + stageH + 4} L ${startX + 4 * (stageW + gap) + stageW / 2} ${20 + stageH + 28} L ${startX + stageW / 2} ${20 + stageH + 28} L ${startX + stageW / 2} ${20 + stageH + 4}`}
+          fill="none" stroke={c.accentLight} strokeWidth={1.5} strokeDasharray="4 3" markerEnd="url(#arrow-menuto)"
+        />
+        <text x={W / 2} y={20 + stageH + 42} textAnchor="middle" fontFamily={mono} fontSize={7} fill={c.dim} letterSpacing="0.06em">
+          TASTE SIGNALS FEED BACK INTO SCORING
+        </text>
+      </svg>
+    </div>
+  )
+}
+
+// ─── Learning Et Al. Pipeline Diagram ─────────────────────────────────────────
+
+function LearningEtAlPipelineDiagram() {
+  const mono = "'Fragment Mono', monospace"
+  const c = { bg: '#FFF0F6', accent: '#C2185B', accentLight: '#F8BBD0', border: '#E1A5BD', text: '#1A1918', dim: '#5A5955' }
+
+  const topRow = [
+    { label: 'Interests', sub: 'Decay + rotation', detail: 'Weighted random' },
+    { label: 'Question Gen', sub: 'Theme-first', detail: 'Novelty enforced' },
+    { label: 'Paper Search', sub: 'BM25 + Embeddings', detail: 'RRF + MMR diversity' },
+  ]
+  const botRow = [
+    { label: 'Skeleton', sub: 'Roles + tensions', detail: 'Structured JSON' },
+    { label: 'Prose', sub: 'Argument arc', detail: 'Not summaries' },
+    { label: 'Critique + Revise', sub: 'Self-refine', detail: 'Mandatory revision' },
+    { label: 'Digest', sub: 'One per day', detail: 'Gap-based Q&A' },
+  ]
+
+  const W = 900, stageW = 140, stageH = 82, gap = 18
+  const topTotalW = topRow.length * stageW + (topRow.length - 1) * gap
+  const botTotalW = botRow.length * stageW + (botRow.length - 1) * gap
+  const topStartX = (W - topTotalW) / 2
+  const botStartX = (W - botTotalW) / 2
+  const topY = 16, botY = 130
+
+  return (
+    <div style={{ margin: '0 -2rem', overflowX: 'auto' }}>
+      <svg viewBox={`0 0 ${W} 248`} style={{ width: '100%', maxWidth: W, display: 'block', margin: '0 auto' }}>
+        <defs>
+          <marker id="arrow-lea" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill={c.accent} />
+          </marker>
+        </defs>
+
+        {/* Top label */}
+        <text x={topStartX} y={10} fontFamily={mono} fontSize={7.5} fill={c.dim} letterSpacing="0.1em">DISCOVERY</text>
+
+        {topRow.map((s, i) => {
+          const x = topStartX + i * (stageW + gap)
+          return (
+            <g key={`t${i}`}>
+              <rect x={x} y={topY} width={stageW} height={stageH} rx={6} fill={c.bg} stroke={c.accent} strokeWidth={1.5} />
+              <text x={x + stageW / 2} y={topY + 22} textAnchor="middle" fontFamily={mono} fontSize={10} fontWeight={600} fill={c.text} letterSpacing="0.03em">
+                {s.label.toUpperCase()}
+              </text>
+              <text x={x + stageW / 2} y={topY + 40} textAnchor="middle" fontFamily={mono} fontSize={8.5} fill={c.accent} letterSpacing="0.02em">
+                {s.sub}
+              </text>
+              <text x={x + stageW / 2} y={topY + 56} textAnchor="middle" fontFamily={mono} fontSize={7.5} fill={c.dim} letterSpacing="0.02em">
+                {s.detail}
+              </text>
+              {i < topRow.length - 1 && (
+                <line x1={x + stageW + 2} y1={topY + stageH / 2} x2={x + stageW + gap - 2} y2={topY + stageH / 2} stroke={c.accent} strokeWidth={1.5} markerEnd="url(#arrow-lea)" />
+              )}
+            </g>
+          )
+        })}
+
+        {/* Connecting arrow from top row to bottom row */}
+        <path
+          d={`M ${topStartX + 2 * (stageW + gap) + stageW / 2} ${topY + stageH + 2} L ${topStartX + 2 * (stageW + gap) + stageW / 2} ${topY + stageH + 14} L ${botStartX + stageW / 2} ${topY + stageH + 14} L ${botStartX + stageW / 2} ${botY - 2}`}
+          fill="none" stroke={c.accent} strokeWidth={1.5} markerEnd="url(#arrow-lea)"
+        />
+
+        {/* Bottom label */}
+        <text x={botStartX} y={botY - 8} fontFamily={mono} fontSize={7.5} fill={c.dim} letterSpacing="0.1em">SYNTHESIS (15+ LLM CALLS)</text>
+
+        {botRow.map((s, i) => {
+          const x = botStartX + i * (stageW + gap)
+          return (
+            <g key={`b${i}`}>
+              <rect x={x} y={botY} width={stageW} height={stageH} rx={6} fill={c.bg} stroke={c.accent} strokeWidth={1.5} />
+              <text x={x + stageW / 2} y={botY + 22} textAnchor="middle" fontFamily={mono} fontSize={10} fontWeight={600} fill={c.text} letterSpacing="0.03em">
+                {s.label.toUpperCase()}
+              </text>
+              <text x={x + stageW / 2} y={botY + 40} textAnchor="middle" fontFamily={mono} fontSize={8.5} fill={c.accent} letterSpacing="0.02em">
+                {s.sub}
+              </text>
+              <text x={x + stageW / 2} y={botY + 56} textAnchor="middle" fontFamily={mono} fontSize={7.5} fill={c.dim} letterSpacing="0.02em">
+                {s.detail}
+              </text>
+              {i < botRow.length - 1 && (
+                <line x1={x + stageW + 2} y1={botY + stageH / 2} x2={x + stageW + gap - 2} y2={botY + stageH / 2} stroke={c.accent} strokeWidth={1.5} markerEnd="url(#arrow-lea)" />
+              )}
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
 }
