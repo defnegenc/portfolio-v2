@@ -329,6 +329,11 @@ const PROJECTS: Record<string, Project> = {
         body: 'Instead of vague tone instructions, the synthesis prompts ban specific bad patterns by example: "The question of whether X isn\'t just about Y, it\'s about Z" (the worst one). Plus a hard banned-words list (demonstrates, reveals, highlights, nuanced, multifaceted), data-driven from observing every synthesis sounding identical.',
       },
       {
+        type: 'text',
+        label: 'Gap-Based Follow-Up Questions',
+        body: 'The suggested questions come from a separate prompt architecture that targets what the synthesis intentionally leaves out: "wait, but how?" moments tied to each paper\'s most intriguing detail. Generic questions ("What are the implications?") and broad ones ("How does AI affect education?") are banned. Answers are pre-generated at digest time with full paper context, so even logged-out visitors get instant, substantive follow-ups without any API call.',
+      },
+      {
         type: 'subheader',
         text: 'Things I Reworked',
       },
