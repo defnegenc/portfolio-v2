@@ -262,7 +262,7 @@ const PROJECTS: Record<string, Project> = {
     slug: 'learningetal',
     no: '02',
     name: 'Learning Et Al.',
-    tagline: 'A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests. Not an abstract delivery service. More like a curious friend explaining something over coffee.',
+    tagline: 'Learning Et Al. ("learning it all"). A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests. Not an abstract delivery service. More like a curious friend explaining something over coffee.',
     year: '2026',
     role: 'Solo — Product · Design · Full-Stack',
     duration: 'Personal Project · End-to-End Ownership',
