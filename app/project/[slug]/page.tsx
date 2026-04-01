@@ -52,7 +52,8 @@ const PROJECTS: Record<string, Project> = {
     duration: '4-week randomized field study · N=54',
     tools: 'Figma, React Native, LLM red-teaming, qualitative coding',
     accentColor: '#266C31',
-    tags: ['HCI Research', 'Safety', 'Design'],
+    tags: ['CHI 2026', 'Best Paper', 'Top 1%'],
+    awards: 'Best Paper Award · Top 1% of submissions',
     externalLink: { href: 'https://stanfordhci.github.io/Bloom/', label: 'View the Bloom website ↗' },
     secondaryLink: { href: '/bloom-app-guide.pdf', label: 'App Guide PDF ↗' },
     sections: [
@@ -285,20 +286,26 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Core Idea',
-        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching for a single paper: \u201cCan AI agents be fashionable?\u201d or \u201cWhat if buildings could sense your mood?\u201d Then it finds papers and news articles that serve as tools to think with in relation to that question. Papers don\u2019t need to answer it. They need to offer a surprising lens on it.',
-      },
-      {
-        type: 'pullquote',
-        text: 'Papers don\u2019t need to answer the question. They need to offer a surprising lens on it.',
-      },
-      {
-        type: 'subheader',
-        text: 'The Synthesis Pipeline',
+        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching for papers: \u201cCan AI agents be fashionable?\u201d or \u201cWhat if buildings could sense your mood?\u201d Then it finds papers and news articles that serve as tools to think with in relation to that question, not papers that answer it directly, but papers that offer a surprising lens on it.',
       },
       {
         type: 'text',
-        label: '15+ LLM Calls Per Digest',
-        body: 'Each digest goes through a multi-stage pipeline: metadata extraction, skeleton building (identifying paper roles, tensions, argument arcs as structured JSON), prose generation, self-critique, revision, and a hard coverage gate that verifies every paper actually appears in bold in the final output. This came from iterating through a single-call approach (too shallow), then a 7-call pipeline (still produced book reports), landing on a skeleton-first architecture inspired by Yao 2023\'s Tree of Thoughts and Madaan 2023\'s Self-Refine.',
+        label: 'One Digest Per Day',
+        body: 'You get one curated digest each morning. You can\u2019t regenerate it. The constraint is the product: either you engage with today\u2019s papers, dig deeper, ask questions, take notes, or you wait for tomorrow. This is anti-engagement-maximizing by design. The value is in curation, not volume.',
+      },
+      {
+        type: 'subheader',
+        text: 'Why Not Just Summarize Papers?',
+      },
+      {
+        type: 'text',
+        label: 'The Synthesis Pipeline',
+        body: 'A single LLM call produces shallow summaries. I tried it. Then a 7-call pipeline, which still read like book reports. The current approach uses 15+ calls across 6 stages: first it extracts metadata, then builds a structural skeleton (which paper supports the argument, which complicates it, where the tension is) as JSON before any prose is written. Then prose generation, self-critique, and mandatory revision. The skeleton-first architecture is inspired by Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+      },
+      {
+        type: 'text',
+        label: 'Gap-Based Follow-Up Questions',
+        body: 'The suggested questions come from a separate prompt that targets what the synthesis intentionally leaves out: \u201cwait, but how?\u201d moments tied to each paper\u2019s most intriguing detail. Generic questions (\u201cWhat are the implications?\u201d) are banned. Answers are pre-generated at digest time with full paper context, so even logged-out visitors get instant, substantive follow-ups without any API call.',
       },
       {
         type: 'subheader',
@@ -306,13 +313,13 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'text',
-        label: 'Hybrid Ranking via Reciprocal Rank Fusion',
-        body: 'Candidate papers are scored by both BM25 (keyword) and local embeddings (semantic), then fused via RRF, which elegantly sidesteps the problem of combining signals with incompatible scales. On top of that, venue/institution quality boosts and Maximal Marginal Relevance (\u03BB=0.6) ensure diversity: no two papers from the same lab making the same point.',
+        label: 'Hybrid Ranking',
+        body: 'Candidate papers are scored by both keyword matching (BM25) and semantic similarity (local embeddings), then combined via Reciprocal Rank Fusion, which sidesteps the problem of combining signals with incompatible scales. Venue and institution quality boosts push better sources up, and Maximal Marginal Relevance (\u03BB=0.6) enforces diversity so you don\u2019t get two papers from the same lab making the same point.',
       },
       {
         type: 'text',
-        label: 'In-Process Embeddings with Graceful Degradation',
-        body: 'Runs all-MiniLM-L6-v2 locally via ONNX/transformers.js. Zero API cost, zero external dependency. When ONNX can\'t load (e.g. serverless cold starts), a sentinel value triggers a keyword-overlap fallback transparently, keeping the same API surface. An isEmbeddingDegraded() flag surfaces the mode for logging.',
+        label: 'Local Embeddings',
+        body: 'All semantic similarity runs locally via ONNX, zero API cost, zero external dependency. When the model can\u2019t load on serverless cold starts, the system falls back to keyword overlap transparently, keeping the same API surface with a degradation flag for logging.',
       },
       {
         type: 'subheader',
@@ -320,23 +327,18 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'text',
-        label: 'Theme Novelty Enforcement',
-        body: 'Each generated question is compared against the last 5 digests\' themes via embedding similarity. If cosine similarity exceeds 0.5, the system triggers a novelty rewrite with explicit instructions to pick different interest combinations. Without this, LLMs converge to a predictable question template within weeks.',
+        label: 'Theme Novelty',
+        body: 'Each generated question is compared against the last 5 digests\u2019 themes via embedding similarity. If the cosine similarity exceeds 0.5, the system forces a novelty rewrite with explicit instructions to pick different interest combinations. Without this, LLMs converge to a predictable question template within weeks.',
       },
       {
         type: 'text',
-        label: 'Interest Learning with Decay',
-        body: 'Interests decay daily (\u00D70.95), recently-used topics get a frequency penalty from the last 5 digests, and selection is weighted random, not top-N, so even low-weight interests surface occasionally. Engagement signals are intentionally microscopic (+0.1 per star, +0.05 per question) after discovering that a single starred paper could pollute an entire feed.',
+        label: 'Interest Decay',
+        body: 'Interests decay daily (\u00D70.95), recently-used topics get a frequency penalty, and selection is weighted random rather than top-N so even low-weight interests surface occasionally. Engagement signals are intentionally microscopic (+0.1 per star, +0.05 per question) after discovering that a single starred paper could pollute an entire feed.',
       },
       {
         type: 'text',
         label: 'Prompt Engineering by Antipattern',
-        body: 'Instead of vague tone instructions, the synthesis prompts ban specific bad patterns by example: "The question of whether X isn\'t just about Y, it\'s about Z" (the worst one). Plus a hard banned-words list (demonstrates, reveals, highlights, nuanced, multifaceted), data-driven from observing every synthesis sounding identical.',
-      },
-      {
-        type: 'text',
-        label: 'Gap-Based Follow-Up Questions',
-        body: 'The suggested questions come from a separate prompt architecture that targets what the synthesis intentionally leaves out: "wait, but how?" moments tied to each paper\'s most intriguing detail. Generic questions ("What are the implications?") and broad ones ("How does AI affect education?") are banned. Answers are pre-generated at digest time with full paper context, so even logged-out visitors get instant, substantive follow-ups without any API call.',
+        body: 'Instead of vague tone instructions, the synthesis prompts ban specific bad patterns by example: \u201cThe question of whether X isn\u2019t just about Y, it\u2019s about Z\u201d (the worst one). Plus a hard banned-words list (demonstrates, reveals, highlights, nuanced, multifaceted), data-driven from observing every synthesis sounding identical.',
       },
       {
         type: 'subheader',
@@ -346,11 +348,11 @@ const PROJECTS: Record<string, Project> = {
         type: 'list',
         label: 'Iterations',
         items: [
-          'Anchor-paper to theme-first: Original approach derived themes from a "best paper." Highly-cited papers dominated and pulled in wrong-field methodology papers. Eliminated the anchor entirely.',
-          'Paper selection went through 4 iterations: Citation graph (cross-field contamination), keyword matching (terrible precision), embedding-only (missed specifics), BM25+embedding RRF with MMR diversity.',
-          'Synthesis structure: Paper-by-paper paragraphs (book reports), single LLM call (too shallow), 7-call pipeline, current 6-stage skeleton-first approach with coverage gating.',
-          'Theme revision: Tried letting the LLM decide whether to revise. It always said "no change needed." Made revision mandatory. Output quality jumped.',
-          'News sources: Hardcoded RSS, then DuckDuckGo scraping (broke on one CSS change), then Serper/DDG with User-Agent rotation and field-specific RSS fallback chain.',
+          'Anchor-paper \u2192 theme-first: Original approach derived themes from a \u201cbest paper.\u201d Highly-cited papers dominated and pulled in wrong-field methodology papers. Eliminated the anchor entirely.',
+          'Paper selection: Citation graph (cross-field contamination) \u2192 keyword matching (terrible precision) \u2192 embedding-only (missed specifics) \u2192 BM25+embedding RRF with MMR diversity.',
+          'Synthesis: Paper-by-paper paragraphs (book reports) \u2192 single LLM call (too shallow) \u2192 7-call pipeline \u2192 current 6-stage skeleton-first approach.',
+          'Theme revision: Tried letting the LLM decide whether to revise. It always said \u201cno change needed.\u201d Made revision mandatory. Output quality jumped.',
+          'News sources: Hardcoded RSS \u2192 DuckDuckGo scraping (broke on one CSS change) \u2192 Serper/DDG with User-Agent rotation and field-specific RSS fallback chain.',
         ],
       },
       {

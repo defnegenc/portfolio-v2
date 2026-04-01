@@ -26,11 +26,11 @@ See individual project files for full context. Source portfolio at `/Users/defne
 Projects are not split by design vs. dev — most span both. Present as a unified list.
 
 - **Bloom** (anchor project) — `bloom.md` — Stanford HCI research, second author, LLM coaching app; research + safety + design + frontend
-- **Menuto** — `menuto.md` — Personal project, AI dish recommendation; React Native + FastAPI + GPT-4; design + full-stack
+- **Learning Et Al.** — learningetal.com — Solo project, daily research digest; Next.js 16 + Turso + Drizzle + ONNX embeddings + Vercel; hybrid ranking (BM25+embedding RRF), multi-stage synthesis pipeline, interest decay, theme novelty enforcement
+- **Menuto** — `menuto.md` — Solo project, AI dish recommendation; React Native + Expo + FastAPI + Gemini + Supabase; 8-component composite scoring with Bayesian weight learning, embedding-based taste compatibility
 - **Dishcovery** — `dishcovery.md` — CS 147 + CS 194H, award-winning; food/culture app; UI design + frontend
 - **Flock** — `flock.md` — CS 278 (Social Computing), React Native social app; design + full-stack
 - **Spiritwood** — `spiritwood.md` — CS 247G (Design for Play), Unity puzzle-platformer; narrative + visual + game design
-- **Hercules** — `hercules.md` — Hackathon, AI mobility tracking agent; product scoping + UX + UI
 - **Tailor** — `tailor.md` — SYMSYS 161, solo UX research; Turkish textile SME platform concept
 
 ## Bloom Summary (anchor project)
