@@ -146,7 +146,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Problem',
-        body: 'Restaurant reviews tell you where to eat, but nothing tells you what to order once you\'re there. Menuto reads the actual menu, understands your preferences, and picks dishes for you with personal explanations like "You mentioned you\'re craving something rich, and the reviewers specifically call out the truffle cream on this one." The more you use it, the smarter it gets.',
+        body: 'I\'m always indecisive at restaurants, and when I do decide, it\'s always the wrong thing. What if I could let AI decide for me? Sounds like a bad idea, or why not just ask an LLM chatbot by sending it a photo of the menu? I wanted something more sophisticated, so I built a system that tracks my favorite dishes across restaurants and uses an 8-component composite scoring algorithm with Bayesian weight learning to figure out what I\'d actually love at a place I\'ve never been.',
       },
       {
         type: 'pullquote',
