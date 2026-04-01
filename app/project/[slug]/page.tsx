@@ -155,10 +155,10 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'stats',
         items: [
-          { value: '8', label: 'Signal sources per recommendation' },
-          { value: '5', label: 'Pipeline stages: parse → filter → enrich → select → learn' },
-          { value: '2', label: 'Codebases: FastAPI + React Native' },
-          { value: '0', label: 'Team members — fully solo' },
+          { value: '~50', label: 'Dishes scored per request across 8 signal sources' },
+          { value: '3', label: 'Menu input modes: photo, URL, paste — all Gemini-powered' },
+          { value: '4', label: 'Gemini calls per recommendation (embeddings + agent reasoning)' },
+          { value: '6', label: 'LLM-analyzed dietary flags per dish (catches hidden ingredients)' },
         ],
       },
       {
