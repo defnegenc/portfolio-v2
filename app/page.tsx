@@ -360,7 +360,7 @@ export default function Home() {
       {/* ── BIO — mobile only ── */}
       <div className="bio-mobile" style={{ display: 'none', flexShrink: 0, padding: '1rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
         <p style={{ fontSize: '0.88rem', lineHeight: 1.65, color: 'var(--ink-dim)', margin: 0 }}>
-          Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently exploring how to build recommendation systems best using LLMs.
+          Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase. Current projects: recommendation systems using LLMs.
         </p>
       </div>
 
@@ -371,7 +371,7 @@ export default function Home() {
         <aside className="sidebar" style={{ width: 300, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--hairline)', background: 'var(--bg)' }}>
           <div style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', overflowY: 'auto' }} className="scrollbar-none">
             <div style={{ fontSize: '0.88rem', lineHeight: 1.6, color: 'var(--ink-dim)' }}>
-              Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently exploring how to build recommendation systems best using LLMs.
+              Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase. Current projects: recommendation systems using LLMs.
             </div>
             <div>
               <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', opacity: 0.6, marginBottom: '0.25rem' }}>40.7128° N · 74.0060° W</div>

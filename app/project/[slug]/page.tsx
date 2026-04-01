@@ -151,14 +151,14 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'Why Not Just Ask an LLM?',
-        body: 'You could send ChatGPT a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer based on what\u2019s popular in its training data, with no memory of what you\u2019ve liked before, no awareness of what reviewers actually say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings (\u201cloved the cream sauce\u201d becomes liked: [\u201ccream\u201d, \u201crich sauce\u201d]), and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions. Not a chatbot. A recommendation engine that gets better every time you eat.',
+        body: 'You could send ChatGPT a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer with no memory of what you\u2019ve liked before, no awareness of what reviewers say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings, and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions over time.',
       },
       {
         type: 'stats',
         items: [
           { value: '~50', label: 'Dishes scored per request across 8 signal sources' },
-          { value: '3', label: 'Menu input modes: photo, URL, paste — all Gemini-powered' },
-          { value: '4', label: 'Gemini calls per recommendation (embeddings + agent reasoning)' },
+          { value: '3', label: 'Menu input modes: photo, URL, paste' },
+          { value: '4', label: 'LLM calls per recommendation (embeddings + agent reasoning)' },
           { value: '6', label: 'LLM-analyzed dietary flags per dish (catches hidden ingredients)' },
         ],
       },
@@ -205,23 +205,23 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'Agent-First Architecture',
-        body: 'Rather than rigid scoring formulas, a Gemini agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context.',
+        body: 'Rather than rigid scoring formulas, an LLM agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context.',
       },
       {
         type: 'list',
         label: 'The Pipeline',
         items: [
-          'Data Gathering: 8 signal sources per dish. Parsed menu items, Google Places reviews (cached 14 days), review-based dish popularity via mention frequency, cross-user order counts, past ratings, behavioral signals (views/orders/favorites), Gemini-extracted taste keywords from feedback text, and embedding-based taste similarity (cosine similarity computed in 2 batch API calls).',
+          'Data Gathering: 8 signal sources per dish. Parsed menu items, Google Places reviews (cached 14 days), review-based dish popularity via mention frequency, cross-user order counts, past ratings, behavioral signals (views/orders/favorites), LLM-extracted taste keywords from feedback text, and embedding-based taste similarity (cosine similarity computed in 2 batch API calls).',
           'Dietary Filtering: The only rigid step. LLM-generated dietary flags per dish, with explicit instructions to catch hidden ingredients (anchovy in Caesar dressing, fish sauce in Pad Thai, parmesan in pesto). Falls back to a 30+ term keyword list for menus parsed before LLM tagging was added.',
           'Signal Enrichment: Each candidate gets readable flags attached. MATCHES YOUR TASTE, POPULAR (60%), WELL-REVIEWED, LOOKED AT BUT NEVER ORDERED, HAS FLAVORS YOU LIKE. No numerical scoring, just facts the agent can reason about.',
           'Agent Selection: The agent receives the full user narrative. Taste profile, spice tolerance, learned flavor preferences, hunger level, cravings, adventure-vs-safe slider, dining occasion, free-text mood input, history at this restaurant, and what\'s popular. It reasons about meal composition, honors cravings, and writes personal explanations per dish.',
-          'Feedback Loop: After ordering, the user rates dishes with quick-tap tags and optional free-text notes. Gemini extracts taste signals from the text. "Loved the cream sauce" becomes a liked: ["cream", "rich sauce"] signal that boosts similar dishes in future visits.',
+          'Feedback Loop: After ordering, the user rates dishes with quick-tap tags and optional free-text notes. The LLM extracts taste signals from the text. \u201cLoved the cream sauce\u201d becomes a liked: [\u201ccream\u201d, \u201crich sauce\u201d] signal that boosts similar dishes in future visits.',
         ],
       },
       {
         type: 'text',
         label: 'Research Foundations',
-        body: 'Informed by Microsoft\'s RecAI framework (Zhao et al., ACM Web Conference 2024): the "LLM-as-brain, traditional-models-as-tools" pattern where traditional signals handle candidate generation and the LLM handles final reasoning. The serendipity slot draws from the SERAL paper on filter bubble mitigation (Feb 2025). The implicit negative feedback model follows Hu, Koren & Volinsky\'s foundational work on collaborative filtering for implicit feedback datasets.',
+        body: 'Informed by Microsoft\u2019s RecAI framework (Zhao et al., ACM Web Conference 2024): the \u201cLLM-as-brain, traditional-models-as-tools\u201d pattern where traditional signals handle candidate generation and the LLM handles final reasoning. The serendipity slot draws from SERAL (Chen et al., \u201cSerendipity-Enhanced Recommender Agent with LLM,\u201d arXiv 2502.07132, Feb 2025) on filter bubble mitigation. The implicit negative feedback model follows Hu, Koren & Volinsky\u2019s foundational work on collaborative filtering for implicit feedback datasets (IEEE ICDM 2008).',
       },
       {
         type: 'subheader',
@@ -240,7 +240,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'Review Sentiment Decomposition',
-        body: 'Google Places reviews are processed through Gemini to extract per-dish sentiment. "The cacio e pepe was transcendent but the tiramisu was dry" gets decomposed into dish-level praise and criticism scores that feed directly into the recommendation\'s customer_praise component. Cached 14 days in Supabase to stay within the Places API free tier.',
+        body: 'Google Places reviews are processed through the LLM to extract per-dish sentiment. \u201cThe cacio e pepe was transcendent but the tiramisu was dry\u201d gets decomposed into dish-level praise and criticism scores that feed directly into the recommendation\'s customer_praise component. Cached 14 days in Supabase to stay within the Places API free tier.',
       },
       {
         type: 'subheader',
@@ -250,7 +250,7 @@ const PROJECTS: Record<string, Project> = {
         type: 'list',
         label: 'Architecture Decisions',
         items: [
-          'Multi-modal menu ingestion: Three input paths (URL/HTML scraping, PDF extraction via PyMuPDF, camera photo via Gemini Vision) all normalize into the same ParsedDish schema. Auto-detects content type from response headers with byte-sniffing fallback.',
+          'Multi-modal menu ingestion: Three input paths (URL/HTML scraping, PDF extraction via PyMuPDF, camera photo via LLM vision) all normalize into the same ParsedDish schema. Auto-detects content type from response headers with byte-sniffing fallback.',
           'Composite scoring with 8 independent components: Personal taste (embedding similarity), craving match, hunger appropriateness, popularity/sentiment, dietary compliance, cuisine affinity, price fit, and friend boost. The system can explain exactly why a dish was recommended by surfacing which components dominated.',
           'Behavioral signals as separate normalized tables: dish_views, dish_ratings, dish_orders, dish_favorites are separate tables rather than a single interactions table. Enables efficient per-signal queries and signal-specific columns (hunger_level_when_ordered on orders, taste_signals JSONB on ratings).',
           'Cold start via cross-user popularity: New users with no history get recommendations weighted toward what other users ordered and review sentiment. Free-text mood input ("celebrating tonight") gives the agent rich context even without rating history.',
