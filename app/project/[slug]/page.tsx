@@ -330,7 +330,7 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'subheader',
-        text: 'Things We Reworked',
+        text: 'Things I Reworked',
       },
       {
         type: 'list',
