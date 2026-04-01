@@ -269,6 +269,7 @@ const PROJECTS: Record<string, Project> = {
     tools: 'Next.js 16 · Turso/libsql · Drizzle ORM · Tailwind + shadcn/ui · ONNX Embeddings · Vercel',
     accentColor: '#1a1a1a',
     tags: ['Solo Project', 'RecSys', 'LLM Agents'],
+    icon: '/learningetal-icon.png',
     externalLink: { href: 'https://learningetal.com', label: 'Visit learningetal.com ↗' },
     sections: [
       {
