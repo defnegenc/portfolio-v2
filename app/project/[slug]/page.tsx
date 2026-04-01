@@ -145,12 +145,12 @@ const PROJECTS: Record<string, Project> = {
     sections: [
       {
         type: 'pullquote',
-        text: 'I\'m always indecisive at restaurants, and when I do decide, it\'s always the wrong thing.',
+        text: 'I\u2019m always indecisive at restaurants, and when I do decide, it\u2019s always the wrong thing.',
       },
       {
         type: 'text',
         label: 'Why Not Just Ask an LLM?',
-        body: 'You could send ChatGPT a photo of the menu and ask "what should I order?" You\'d get a generic answer based on what\'s popular in its training data, with no memory of what you\'ve liked before, no awareness of what reviewers actually say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings ("loved the cream sauce" becomes liked: ["cream", "rich sauce"]), and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions. Not a chatbot. A recommendation engine that gets better every time you eat.',
+        body: 'You could send ChatGPT a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer based on what\u2019s popular in its training data, with no memory of what you\u2019ve liked before, no awareness of what reviewers actually say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings (\u201cloved the cream sauce\u201d becomes liked: [\u201ccream\u201d, \u201crich sauce\u201d]), and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions. Not a chatbot. A recommendation engine that gets better every time you eat.',
       },
       {
         type: 'stats',
@@ -273,6 +273,10 @@ const PROJECTS: Record<string, Project> = {
     externalLink: { href: 'https://learningetal.com', label: 'Visit learningetal.com ↗' },
     sections: [
       {
+        type: 'pullquote',
+        text: 'I didn\u2019t want to stray from the literature after leaving research and entering the workforce, but I didn\u2019t want to read entire papers either. I wanted to see what\u2019s out there and find new things to be genuinely curious about.',
+      },
+      {
         type: 'image',
         src: '/learningetal-cover.png',
         alt: 'Learning Et Al. interface',
@@ -281,11 +285,11 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Core Idea',
-        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching for a single paper: "Can AI agents be fashionable?" or "What if buildings could sense your mood?" Then it finds papers and news articles that serve as tools to think with in relation to that question. Papers don\'t need to answer it. They need to offer a surprising lens on it.',
+        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching for a single paper: \u201cCan AI agents be fashionable?\u201d or \u201cWhat if buildings could sense your mood?\u201d Then it finds papers and news articles that serve as tools to think with in relation to that question. Papers don\u2019t need to answer it. They need to offer a surprising lens on it.',
       },
       {
         type: 'pullquote',
-        text: 'Papers don\'t need to answer the question. They need to offer a surprising lens on it.',
+        text: 'Papers don\u2019t need to answer the question. They need to offer a surprising lens on it.',
       },
       {
         type: 'subheader',
