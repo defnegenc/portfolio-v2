@@ -146,7 +146,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Problem',
-        body: 'You\'re at a restaurant. You don\'t know what to order. Reviews tell you where to eat, but nothing tells you what to order once you\'re there. Menuto reads the menu, understands your preferences, and picks dishes for you, with personal explanations like "You mentioned you\'re craving something rich, and the reviewers specifically call out the truffle cream on this one." The more you use it, the smarter it gets.',
+        body: 'Restaurant reviews tell you where to eat, but nothing tells you what to order once you\'re there. Menuto reads the actual menu, understands your preferences, and picks dishes for you with personal explanations like "You mentioned you\'re craving something rich, and the reviewers specifically call out the truffle cream on this one." The more you use it, the smarter it gets.',
       },
       {
         type: 'pullquote',
