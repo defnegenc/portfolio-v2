@@ -825,10 +825,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div style={{ ...mono, fontSize: '0.72rem', color: project.accentColor, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
             {project.tags.join(' · ')}
           </div>
-          {project.icon && (
-            <Image src={project.icon} alt={project.name + ' icon'} width={56} height={56}
-              style={{ borderRadius: 14, marginBottom: '1.25rem', display: 'block' }} />
-          )}
           <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 7rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.9, marginBottom: '1.5rem' }}>
             {project.name}
           </h1>
