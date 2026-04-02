@@ -35,7 +35,7 @@ Projects are not split by design vs. dev — most span both. Present as a unifie
 
 ## Bloom Summary (anchor project)
 
-Second author. MS thesis work with Prof. Landay. LLM-augmented physical activity coaching app.
+Second author. MS thesis work with Prof. Landay. LLM-augmented physical activity coaching app. **Won Best Paper at CHI 2026 (top 1% of submissions).**
 - Full details in `bloom.md`
 - Key stat: 5x longer engagement, +1.2 vs +0.8 mindset shift in LLM condition
 - Safety system: 600-example benchmark, >96% recall across harm categories
@@ -47,6 +47,10 @@ When writing copy for this portfolio, match these characteristics:
 
 - **Direct and confident.** No hedging, no filler. Lead with the claim, then support it.
 - **No em dashes.** Use commas, periods, or colons instead.
+- **No staccato ad-copy sentences.** "You're at a restaurant. You don't know what to order." reads as cringe. Flow naturally.
+- **Curly quotes (\u201c\u201d) not straight quotes** in all portfolio copy.
+- **Don\u2019t name-drop LLM providers (Gemini, ChatGPT, OpenAI) in body copy.** Say "LLM" or "the model." Brand names only in the Tools metadata field.
+- **Solo projects use "I", never "we".**
 - **No cringe transitions.** Avoid "that sounds like a left turn", "in that order", meta-commentary about her own career arc.
 - **First person, not third.** "I led" not "she led."
 - **Research work: use "we" for team effort, "I" for specific individual contributions.**
@@ -66,4 +70,11 @@ When writing copy for this portfolio, match these characteristics:
 
 ## Stack / Technical Notes
 
-(Update as the project takes shape — framework choice, libraries, etc.)
+- Next.js 15 App Router, static export (`output: 'export'`, `images: { unoptimized: true }`)
+- All project data lives in `app/project/[slug]/page.tsx` as a single `PROJECTS` record with typed `Section` union
+- Section types: text, pullquote, image, images, phones (iPhone mockup CSS frames), diagram (inline SVG), stats, list, subheader
+- Homepage project data (order, tags, previews, badge) lives in `app/page.tsx` PROJECTS array
+- Hover previews use alpha PNGs (`*-0alpha.png`) shown at 85% opacity via CSS class `.pt-preview`
+- File casing matters: deploy target is case-sensitive Linux. Always use lowercase extensions (.png not .PNG)
+- `ListItem` component parses both "Key — description" and "Key: description" formats for bold keys
+- Apercu Pro font files in `public/fonts/`, Fragment Mono via next/font
