@@ -199,7 +199,7 @@ export default function Home() {
         .pt::after { content: attr(data-no); position: absolute; bottom: -0.15em; right: 0.3em; font-size: 7rem; font-weight: 700; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.07); pointer-events: none; opacity: 0; transform: translateY(0.2em); transition: opacity .35s, transform .35s cubic-bezier(.16,1,.3,1); }
         .pt:hover::after { opacity: 1; transform: translateY(0); }
         .pt:hover { background: var(--ink) !important; color: var(--bg) !important; }
-        .pt:hover .pt-preview { opacity: 0.85 !important; }
+        .pt:hover .pt-preview { opacity: 1 !important; }
         .pt:hover .td  { color: var(--bg) !important; opacity: 0.55; }
         .pt:hover .trg { border-color: rgba(255,255,255,0.15) !important; color: var(--bg) !important; }
         .pt:hover .tn  { transform: translateX(4px); letter-spacing: 0.02em; }
@@ -423,7 +423,7 @@ export default function Home() {
                 style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 220, padding: '1.5rem 1.75rem', borderRight: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)', background: 'transparent', position: 'relative' }}>
                 {p.preview && (
                   <div className="pt-preview" style={{
-                    position: 'absolute', inset: 0, zIndex: 0,
+                    position: 'absolute', inset: '20% 25%', zIndex: 0,
                     backgroundImage: `url(${p.preview})`,
                     backgroundSize: 'contain',
                     backgroundPosition: 'center',
