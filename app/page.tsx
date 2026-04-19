@@ -61,71 +61,101 @@ const PUBLICATIONS = [
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
-// ─── Glyph Picker ─────────────────────────────────────────────────────────────
+// ─── Icons ────────────────────────────────────────────────────────────────────
 
-interface GlyphPickerProps {
-  glyphMode: 'default' | 'chunky' | 'custom'
-  setGlyphMode: (m: 'default' | 'chunky' | 'custom') => void
+function SunIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  )
+}
+
+function MoonIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  )
+}
+
+// ─── Canvas Controls ──────────────────────────────────────────────────────────
+
+interface CanvasControlsProps {
+  glyphMode: 'default' | 'custom'
+  setGlyphMode: (m: 'default' | 'custom') => void
   customChars: string
   setCustomChars: (c: string) => void
+  theme: 'dark' | 'light'
+  setTheme: (t: 'dark' | 'light') => void
   toggleBg?: string
   toggleFg?: string
   mono: React.CSSProperties
   mobile?: boolean
 }
 
-function GlyphPicker({ glyphMode, setGlyphMode, customChars, setCustomChars, toggleBg, toggleFg, mono, mobile }: GlyphPickerProps) {
+function CanvasControls({ glyphMode, setGlyphMode, customChars, setCustomChars, theme, setTheme, toggleBg, toggleFg, mono, mobile }: CanvasControlsProps) {
   const bg = toggleBg ?? 'var(--bg)'
   const fg = toggleFg ?? 'var(--ink)'
 
-  const btnBase: React.CSSProperties = {
+  const btn = (active: boolean): React.CSSProperties => ({
+    cursor: 'pointer', userSelect: 'none' as const,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: active ? fg : 'transparent',
+    color: active ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
+    transition: 'background 0.15s, color 0.15s',
+  })
+
+  const textBtn = (active: boolean): React.CSSProperties => ({
     ...mono, fontSize: '0.6rem', textTransform: 'uppercase' as const, letterSpacing: '0.08em',
     padding: '0.38rem 0.72rem', cursor: 'pointer', userSelect: 'none' as const,
+    background: active ? fg : 'transparent',
+    color: active ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
     transition: 'background 0.15s, color 0.15s',
+  })
+
+  const pill: React.CSSProperties = {
+    display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden',
+    border: mobile ? '1px solid var(--hairline)' : 'none',
   }
 
   return (
-    <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
-      {/* minimal */}
-      <span onClick={() => setGlyphMode('default')} style={{
-        ...btnBase,
-        background: glyphMode === 'default' ? fg : 'transparent',
-        color: glyphMode === 'default' ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
-      }}>minimal</span>
+    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+      {/* Theme toggle */}
+      <div style={pill}>
+        <span onClick={() => setTheme('light')} style={{ ...btn(theme === 'light'), padding: '0.38rem 0.5rem' }}>
+          <SunIcon />
+        </span>
+        <span onClick={() => setTheme('dark')} style={{ ...btn(theme === 'dark'), padding: '0.38rem 0.5rem' }}>
+          <MoonIcon />
+        </span>
+      </div>
 
-      {/* chunky */}
-      <span onClick={() => setGlyphMode('chunky')} style={{
-        ...btnBase,
-        background: glyphMode === 'chunky' ? fg : 'transparent',
-        color: glyphMode === 'chunky' ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
-      }}>chunky</span>
-
-      {/* custom — becomes an input when active */}
-      {glyphMode === 'custom' ? (
-        <input
-          autoFocus
-          type="text"
-          maxLength={3}
-          value={customChars}
-          onChange={e => setCustomChars(e.target.value)}
-          style={{
-            ...mono, fontSize: '0.6rem', letterSpacing: '0.08em',
-            background: fg,
-            color: bg,
-            border: 'none',
-            padding: '0.38rem 0.6rem',
-            width: '3.8rem',
-            outline: 'none',
-            cursor: 'text',
-          }}
-        />
-      ) : (
-        <span onClick={() => setGlyphMode('custom')} style={{
-          ...btnBase,
-          background: 'transparent',
-          color: mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
-        }}>custom</span>
-      )}
+      {/* Glyph toggle */}
+      <div style={pill}>
+        <span onClick={() => setGlyphMode('default')} style={textBtn(glyphMode === 'default')}>default</span>
+        {glyphMode === 'custom' ? (
+          <input
+            autoFocus type="text" maxLength={3} value={customChars}
+            onChange={e => setCustomChars(e.target.value)}
+            style={{
+              ...mono, fontSize: '0.6rem', letterSpacing: '0.08em',
+              background: fg, color: bg, border: 'none',
+              padding: '0.38rem 0.6rem', width: '3.8rem', outline: 'none', cursor: 'text',
+            }}
+          />
+        ) : (
+          <span onClick={() => setGlyphMode('custom')} style={textBtn(false)}>custom</span>
+        )}
+      </div>
     </div>
   )
 }
@@ -138,7 +168,7 @@ export default function Home() {
   const [contactOpen, setContact] = useState(false)
   const [formSent, setFormSent]   = useState(false)
   const [theme, setTheme]         = useState<'dark' | 'light'>('dark')
-  const [glyphMode, setGlyphMode] = useState<'default' | 'chunky' | 'custom'>('chunky')
+  const [glyphMode, setGlyphMode] = useState<'default' | 'custom'>('default')
   const [customChars, setCustomChars] = useState('s-h')
 
   useEffect(() => {
@@ -174,7 +204,7 @@ export default function Home() {
   const toggleBg = isLight ? 'rgba(26,25,24,0.82)' : 'rgba(232,230,224,0.88)'
   const toggleFg = isLight ? '#F4F2EC' : '#0A0A0A'
 
-  const activeChars = glyphMode === 'default' ? undefined : glyphMode === 'chunky' ? '▓▒░' : customChars || undefined
+  const activeChars = glyphMode === 'custom' ? (customChars || undefined) : '▓▒░'
 
   return (
     <div
@@ -302,18 +332,6 @@ export default function Home() {
               </a>
             ))}
           </div>
-          {/* Light / Dark segmented control */}
-          <div style={{ display: 'flex', border: '1px solid var(--hairline)', borderRadius: 3, overflow: 'hidden' }}>
-            {(['light', 'dark'] as const).map(t => (
-              <span key={t} onClick={() => setTheme(t)} style={{
-                ...mono, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em',
-                padding: '0.4rem 0.7rem', cursor: 'pointer', userSelect: 'none',
-                background: theme === t ? 'var(--ink)' : 'transparent',
-                color: theme === t ? 'var(--bg)' : 'var(--ink-dim)',
-                transition: 'background 0.15s, color 0.15s', display: 'block',
-              }}>{t}</span>
-            ))}
-          </div>
           {/* Hamburger */}
           <button
             onClick={() => setNavOpen(true)}
@@ -338,15 +356,15 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Symbol controls — bottom left */}
-        <div className="sym-controls" style={{ position: 'absolute', bottom: '1rem', left: '1.75rem', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start' }}>
-          <GlyphPicker glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} toggleBg={toggleBg} toggleFg={toggleFg} mono={mono} />
+        {/* Canvas controls — bottom left */}
+        <div className="sym-controls" style={{ position: 'absolute', bottom: '1rem', left: '1.75rem', zIndex: 10 }}>
+          <CanvasControls glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} theme={theme} setTheme={setTheme} toggleBg={toggleBg} toggleFg={toggleFg} mono={mono} />
         </div>
       </div>
 
       {/* ── SYMBOL CONTROLS — mobile only, below canvas ── */}
       <div className="sym-mobile" style={{ flexShrink: 0, flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
-        <GlyphPicker glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} toggleBg={undefined} toggleFg={undefined} mono={mono} mobile />
+        <CanvasControls glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} theme={theme} setTheme={setTheme} mono={mono} mobile />
       </div>
 
       {/* ── BIO — mobile only ── */}
@@ -434,7 +452,7 @@ export default function Home() {
                     {p.name}
                   </div>
                   {p.badge && (
-                    <div className="td" style={{ ...mono, fontSize: '0.6rem', letterSpacing: '0.06em', color: '#266C31', fontWeight: 600, marginBottom: '0.5rem' }}>
+                    <div style={{ ...mono, fontSize: '0.6rem', letterSpacing: '0.06em', color: isLight ? '#266C31' : '#52C462', fontWeight: 600, marginBottom: '0.5rem' }}>
                       {p.badge}
                     </div>
                   )}
