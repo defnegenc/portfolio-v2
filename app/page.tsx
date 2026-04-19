@@ -195,15 +195,8 @@ export default function Home() {
         }
 
         /* Tiles */
-        .pt { transition: background .3s cubic-bezier(.16,1,.3,1), color .3s; overflow: hidden; position: relative; }
-        .pt::after { content: attr(data-no); position: absolute; bottom: -0.15em; right: 0.3em; font-size: 7rem; font-weight: 700; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.07); pointer-events: none; opacity: 0; transform: translateY(0.2em); transition: opacity .35s, transform .35s cubic-bezier(.16,1,.3,1); }
-        .pt:hover::after { opacity: 1; transform: translateY(0); }
-        .pt:hover { background: var(--ink) !important; color: var(--bg) !important; }
+        .pt { overflow: hidden; position: relative; }
         .pt:hover .pt-preview { opacity: 1 !important; }
-        .pt:hover .td  { color: var(--bg) !important; opacity: 0.55; }
-        .pt:hover .trg { border-color: rgba(255,255,255,0.15) !important; color: var(--bg) !important; }
-        .pt:hover .tn  { transform: translateX(4px); letter-spacing: 0.02em; }
-        .pt:hover .ta  { opacity: 1 !important; }
 
         /* Nav overlay links */
         .ni { transition: color .2s, transform .25s; }
@@ -453,7 +446,6 @@ export default function Home() {
                         </span>
                       ))}
                     </div>
-                    <span className="ta" style={{ ...mono, fontSize: '0.9rem', opacity: 0, transition: 'opacity .2s' }}>→</span>
                   </div>
                 </div>
               </a>

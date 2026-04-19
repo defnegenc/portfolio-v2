@@ -268,7 +268,7 @@ const PROJECTS: Record<string, Project> = {
     slug: 'learningetal',
     no: '02',
     name: 'Learning Et Al.',
-    tagline: 'Learning Et Al. ("learning it all"). A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests. Not an abstract delivery service. More like a curious friend explaining something over coffee.',
+    tagline: 'Learning Et Al. (\u201clearning it all\u201d). A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests. Not an abstract delivery service \u2014 more like a curious friend explaining something over coffee, one question a day.',
     year: '2026',
     role: 'Solo — Product · Design · Full-Stack',
     duration: 'Personal Project · End-to-End Ownership',
@@ -291,7 +291,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Core Idea',
-        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching for papers: \u201cCan AI agents be fashionable?\u201d or \u201cWhat if buildings could sense your mood?\u201d Then it finds papers and news articles that serve as tools to think with in relation to that question, not papers that answer it directly, but papers that offer a surprising lens on it.',
+        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching \u2014 \u201cCan AI agents be fashionable?\u201d or \u201cWhat if buildings could sense your mood?\u201d \u2014 and then looks for papers that serve as tools to think with in relation to that question. Papers don\u2019t answer the theme; they offer a surprising lens on it. Cross-domain pairings are the goal. Once the papers are found, the theme gets a second chance: if the papers don\u2019t genuinely thread the original question, the system rewrites the theme to fit what was actually found. But only if needed. Mandatory theme revision was tried and rejected \u2014 it would warp the theme to accommodate a weak paper rather than admit the paper was off-topic. Conditional revision with a clear \u201ckeep if it fits\u201d path works better.',
       },
       {
         type: 'text',
@@ -309,7 +309,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Synthesis Pipeline',
-        body: 'A single LLM call produces shallow summaries. I tried it. Then a 7-call pipeline, which still read like book reports. The current approach uses 15+ calls across 6 stages: first it extracts metadata, then builds a structural skeleton (which paper supports the argument, which complicates it, where the tension is) as JSON before any prose is written. Then prose generation, self-critique, and mandatory revision. The skeleton-first architecture is inspired by Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+        body: 'A single LLM call produces shallow summaries. I tried it. Then a 7-call pipeline, which still read like book reports. The current approach uses 9\u201315 calls across 6 stages (depending on which conditional gates fire): metadata extraction \u2192 argument skeleton (which paper supports, which complicates, where the tension is, as JSON) \u2192 prose draft \u2192 factual accuracy check \u2192 multi-dimensional self-critique \u2192 targeted revision \u2192 final coverage gate. The self-critique scores on six dimensions: argument, connection, accessibility, specificity, coverage, and freshness. Freshness scans for banned pattern families (not literal strings) and returns a list of phrases the revision step must explicitly rewrite \u2014 not paraphrase around. Specificity is capped at 2 when prose uses words like \u201cbarriers\u201d or \u201climitations\u201d without naming a concrete instance. Any score below 4 triggers revision with the exact failure mode and offending phrases. Architecture inspired by Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
       },
       {
         type: 'text',
@@ -322,13 +322,18 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'text',
-        label: 'Hybrid Ranking',
-        body: 'Candidate papers are scored by both keyword matching (BM25) and semantic similarity (local embeddings), then combined via Reciprocal Rank Fusion, which sidesteps the problem of combining signals with incompatible scales. Venue and institution quality boosts push better sources up, and Maximal Marginal Relevance (\u03BB=0.6) enforces diversity so you don\u2019t get two papers from the same lab making the same point.',
+        label: 'How Papers Are Found',
+        body: 'Candidate papers are scored by both keyword matching (BM25) and semantic similarity (local ONNX embeddings), then combined via Reciprocal Rank Fusion, which sidesteps the problem of combining signals with incompatible scales. Venue and institution quality boosts push better sources up; predatory publishers (SciRP, OMICS, Bentham Open) are filtered entirely, and high-volume controversial journals (MDPI, Hindawi, Frontiers family) get a soft penalty so only their strong matches pass. Maximal Marginal Relevance (\u03BB=0.6) enforces diversity, then an LLM complementarity step picks the final set with a hard relevance gate \u2014 cross-domain analogical \u201cbridging\u201d is explicitly forbidden.',
       },
       {
         type: 'text',
         label: 'Local Embeddings',
         body: 'All semantic similarity runs locally via ONNX, zero API cost, zero external dependency. When the model can\u2019t load on serverless cold starts, the system falls back to keyword overlap transparently, keeping the same API surface with a degradation flag for logging.',
+      },
+      {
+        type: 'text',
+        label: 'Self-Correcting Loops',
+        body: 'Nothing in the pipeline assumes the LLM got it right the first time. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract \u2014 if a summary looks disconnected from its paper (a known hallucination mode when multiple papers sit in context), it falls back to the abstract\u2019s first sentence. Synthesis drafts get a factual accuracy check against each paper\u2019s findings before style critique runs. The final coverage gate extracts every bolded phrase from the synthesis and verifies each paper appears by name \u2014 if one was dropped during revision, a targeted rewrite re-inserts it. Trust-but-verify, at every stage.',
       },
       {
         type: 'subheader',
@@ -347,7 +352,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'Prompt Engineering by Antipattern',
-        body: 'Instead of vague tone instructions, the synthesis prompts ban specific bad patterns by example: \u201cThe question of whether X isn\u2019t just about Y, it\u2019s about Z\u201d (the worst one). Plus a hard banned-words list (demonstrates, reveals, highlights, nuanced, multifaceted), data-driven from observing every synthesis sounding identical.',
+        body: 'The obvious approach is to list bad phrases. I did this: banned \u201cdemonstrates\u201d, \u201creveals\u201d, \u201chighlights\u201d, \u201cnuanced\u201d, \u201cmultifaceted\u201d, and the worst AI crutch: \u201cThe question of whether X isn\u2019t just about Y, it\u2019s about Z.\u201d It mostly worked, then the LLM started inventing variants. Banning \u201chere\u2019s where it gets interesting\u201d caused \u201chere\u2019s where it gets messier\u201d, \u201cthis is where it gets tricky\u201d \u2014 same pattern, different words. Literal string bans don\u2019t work against generative models. The fix: move from strings to pattern families and gates. The self-critique scans for the pattern shape (any \u201chere\u2019s where it gets [adjective]\u201d is caught, not just that week\u2019s specific phrasing). Some rules stopped being about what not to say and became about what a claim requires: any mention of \u201cbarriers\u201d or \u201climitations\u201d must be paired with a concrete instance from the paper in the same sentence, or the claim gets dropped. Vague prose is treated as factually deficient, not stylistically weak.',
       },
       {
         type: 'subheader',
@@ -360,7 +365,14 @@ const PROJECTS: Record<string, Project> = {
           'Anchor-paper \u2192 theme-first: Original approach derived themes from a \u201cbest paper.\u201d Highly-cited papers dominated and pulled in wrong-field methodology papers. Eliminated the anchor entirely.',
           'Paper selection: Citation graph (cross-field contamination) \u2192 keyword matching (terrible precision) \u2192 embedding-only (missed specifics) \u2192 BM25+embedding RRF with MMR diversity.',
           'Synthesis: Paper-by-paper paragraphs (book reports) \u2192 single LLM call (too shallow) \u2192 7-call pipeline \u2192 current 6-stage skeleton-first approach.',
-          'Theme revision: Tried letting the LLM decide whether to revise. It always said \u201cno change needed.\u201d Made revision mandatory. Output quality jumped.',
+          'Theme revision: Tried letting the LLM decide whether to revise: it always said \u201cno change needed.\u201d Made revision mandatory. Output quality jumped \u2014 but mandatory revision also backfired. The LLM would warp the theme to accommodate a weak paper rather than admit the paper was off-topic. Reverted to conditional revision with an explicit \u201ckeep if all papers genuinely fit\u201d path. Lesson: the right policy for an LLM decision isn\u2019t always \u201calways\u201d or \u201cnever\u201d \u2014 sometimes it\u2019s \u201chere\u2019s the exact condition.\u201d',
+          'Paper drop logic: Early re-ranking would drop off-topic papers with no replacement \u2014 collapsing digests from 3 to 2 papers. Synthesis then had to stretch 2 papers across the same slot, producing worse output than just keeping the weak paper and letting the synthesis handle it. Changed to swap-or-keep: drops only happen when a replacement exists.',
+          'Venue filtering: No quality filter meant predatory publishers (SciRP, OMICS, Bentham Open) could pass similarity thresholds and surface as legitimate sources. Added a hard blocklist and a soft penalty for high-volume controversial publishers (MDPI, Hindawi, Frontiers journal family).',
+          'Synthesis anti-bridging: The complementarity prompt asked for \u201ctension\u201d between papers, which caused the LLM to use cross-domain papers as conceptual analogies \u2014 an education paper used to \u201cilluminate\u201d an AI hiring theme, because both mention AI. Added explicit rule: a paper from a different domain fails the relevance gate regardless of methodological interest.',
+          'Era-aware synthesis: Old papers (>10 years) were presented as current findings. Added a prompt signal when 2+ papers are dated \u2014 synthesis now acknowledges the era and adds one sentence contrasting with what\u2019s changed at the frontier.',
+          'Summary integrity: Discovered Stage A metadata would occasionally hallucinate summaries disconnected from the actual paper (LLM mixing up content across multiple papers in context). Added a runtime overlap check \u2014 if a generated summary shares fewer than 2 content words with its paper\u2019s abstract, it falls back to the abstract\u2019s first sentence.',
+          'Specificity gate: Syntheses used vague language like \u201cstructural limitations\u201d or \u201csystemic barriers\u201d without naming what they were. Added a gate: any mention of barriers, limitations, constraints, or challenges must be paired with a concrete instance from the paper within the same sentence, or the claim is dropped.',
+          'Pattern-family bans: Banned specific phrases like \u201chere\u2019s where it gets interesting\u201d \u2014 and watched the LLM invent new variants. Literal string bans don\u2019t work against generative models. Rewrote the self-critique to scan for pattern families and return a bannedPhrasesFound array that the revision step must explicitly rewrite, not substitute around.',
           'News sources: Hardcoded RSS \u2192 DuckDuckGo scraping (broke on one CSS change) \u2192 Serper/DDG with User-Agent rotation and field-specific RSS fallback chain.',
         ],
       },
