@@ -87,75 +87,30 @@ function MoonIcon() {
   )
 }
 
-// ─── Canvas Controls ──────────────────────────────────────────────────────────
+// ─── Theme Toggle ─────────────────────────────────────────────────────────────
 
-interface CanvasControlsProps {
-  glyphMode: 'default' | 'custom'
-  setGlyphMode: (m: 'default' | 'custom') => void
-  customChars: string
-  setCustomChars: (c: string) => void
+interface ThemeToggleProps {
   theme: 'dark' | 'light'
   setTheme: (t: 'dark' | 'light') => void
   toggleBg?: string
   toggleFg?: string
-  mono: React.CSSProperties
   mobile?: boolean
 }
 
-function CanvasControls({ glyphMode, setGlyphMode, customChars, setCustomChars, theme, setTheme, toggleBg, toggleFg, mono, mobile }: CanvasControlsProps) {
+function ThemeToggle({ theme, setTheme, toggleBg, toggleFg, mobile }: ThemeToggleProps) {
   const bg = toggleBg ?? 'var(--bg)'
   const fg = toggleFg ?? 'var(--ink)'
-
   const btn = (active: boolean): React.CSSProperties => ({
-    cursor: 'pointer', userSelect: 'none' as const,
+    padding: '0.38rem 0.5rem', cursor: 'pointer', userSelect: 'none' as const,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: active ? fg : 'transparent',
     color: active ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
     transition: 'background 0.15s, color 0.15s',
   })
-
-  const textBtn = (active: boolean): React.CSSProperties => ({
-    ...mono, fontSize: '0.6rem', textTransform: 'uppercase' as const, letterSpacing: '0.08em',
-    padding: '0.38rem 0.72rem', cursor: 'pointer', userSelect: 'none' as const,
-    background: active ? fg : 'transparent',
-    color: active ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
-    transition: 'background 0.15s, color 0.15s',
-  })
-
-  const pill: React.CSSProperties = {
-    display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden',
-    border: mobile ? '1px solid var(--hairline)' : 'none',
-  }
-
   return (
-    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-      {/* Theme toggle */}
-      <div style={pill}>
-        <span onClick={() => setTheme('light')} style={{ ...btn(theme === 'light'), padding: '0.38rem 0.5rem' }}>
-          <SunIcon />
-        </span>
-        <span onClick={() => setTheme('dark')} style={{ ...btn(theme === 'dark'), padding: '0.38rem 0.5rem' }}>
-          <MoonIcon />
-        </span>
-      </div>
-
-      {/* Glyph toggle */}
-      <div style={pill}>
-        <span onClick={() => setGlyphMode('default')} style={textBtn(glyphMode === 'default')}>default</span>
-        {glyphMode === 'custom' ? (
-          <input
-            autoFocus type="text" maxLength={3} value={customChars}
-            onChange={e => setCustomChars(e.target.value)}
-            style={{
-              ...mono, fontSize: '0.6rem', letterSpacing: '0.08em',
-              background: fg, color: bg, border: 'none',
-              padding: '0.38rem 0.6rem', width: '3.8rem', outline: 'none', cursor: 'text',
-            }}
-          />
-        ) : (
-          <span onClick={() => setGlyphMode('custom')} style={textBtn(false)}>custom</span>
-        )}
-      </div>
+    <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
+      <span onClick={() => setTheme('light')} style={btn(theme === 'light')}><SunIcon /></span>
+      <span onClick={() => setTheme('dark')} style={btn(theme === 'dark')}><MoonIcon /></span>
     </div>
   )
 }
@@ -168,8 +123,6 @@ export default function Home() {
   const [contactOpen, setContact] = useState(false)
   const [formSent, setFormSent]   = useState(false)
   const [theme, setTheme]         = useState<'dark' | 'light'>('dark')
-  const [glyphMode, setGlyphMode] = useState<'default' | 'custom'>('default')
-  const [customChars, setCustomChars] = useState('s-h')
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString('en-US', {
@@ -203,8 +156,6 @@ export default function Home() {
   const isLight = theme === 'light'
   const toggleBg = isLight ? 'rgba(26,25,24,0.82)' : 'rgba(232,230,224,0.88)'
   const toggleFg = isLight ? '#F4F2EC' : '#0A0A0A'
-
-  const activeChars = glyphMode === 'custom' ? (customChars || undefined) : '▓▒░'
 
   return (
     <div
@@ -346,7 +297,7 @@ export default function Home() {
 
       {/* ── CANVAS ZONE ── */}
       <div className="canvas-zone" style={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid var(--hairline)', background: isLight ? '#F4F2EC' : '#050505' }}>
-        <AsciiCanvas breathe lightMode={isLight} chars={activeChars} />
+        <AsciiCanvas breathe lightMode={isLight} chars='▓▒░' />
 
         {/* Canvas hint — top right */}
         <div className="sym-controls" style={{ position: 'absolute', top: '0.9rem', right: '1.75rem', zIndex: 10, pointerEvents: 'none', textAlign: 'right' }}>
@@ -358,13 +309,13 @@ export default function Home() {
 
         {/* Canvas controls — bottom left */}
         <div className="sym-controls" style={{ position: 'absolute', bottom: '1rem', left: '1.75rem', zIndex: 10 }}>
-          <CanvasControls glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} theme={theme} setTheme={setTheme} toggleBg={toggleBg} toggleFg={toggleFg} mono={mono} />
+          <ThemeToggle theme={theme} setTheme={setTheme} toggleBg={toggleBg} toggleFg={toggleFg} />
         </div>
       </div>
 
       {/* ── SYMBOL CONTROLS — mobile only, below canvas ── */}
       <div className="sym-mobile" style={{ flexShrink: 0, flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
-        <CanvasControls glyphMode={glyphMode} setGlyphMode={setGlyphMode} customChars={customChars} setCustomChars={setCustomChars} theme={theme} setTheme={setTheme} mono={mono} mobile />
+        <ThemeToggle theme={theme} setTheme={setTheme} mobile />
       </div>
 
       {/* ── BIO — mobile only ── */}
