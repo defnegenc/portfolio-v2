@@ -103,9 +103,9 @@ function ThemeToggle({ theme, setTheme, toggleBg, toggleFg, mobile }: ThemeToggl
   const btn = (active: boolean): React.CSSProperties => ({
     padding: '0.38rem 0.5rem', cursor: 'pointer', userSelect: 'none' as const,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: active ? fg : 'transparent',
-    color: active ? bg : mobile ? 'var(--ink-dim)' : `${toggleFg}99`,
-    transition: 'background 0.15s, color 0.15s',
+    background: 'transparent', color: fg,
+    opacity: active ? 1 : 0.35,
+    transition: 'opacity 0.15s',
   })
   return (
     <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
@@ -175,9 +175,10 @@ export default function Home() {
           --hairline: rgba(26, 25, 24, 0.15);
         }
 
-        /* Tiles */
-        .pt { overflow: hidden; position: relative; }
-        .pt:hover .pt-preview { opacity: 1 !important; }
+        /* Project list */
+        .pl { transition: background .2s; }
+        .pl:hover { background: var(--hairline) !important; }
+        .pl:hover .pl-thumb { opacity: 0.9 !important; }
 
         /* Nav overlay links */
         .ni { transition: color .2s, transform .25s; }
@@ -204,9 +205,8 @@ export default function Home() {
         @media (max-width: 860px) { .sidebar { display: none !important; } }
 
         @media (max-width: 600px) {
-          .pgrid       { grid-template-columns: 1fr !important; }
-          .pt          { min-height: 160px !important; }
-          .pt::after   { display: none !important; }
+          .pl-thumb    { display: none !important; }
+          .pl-tags     { display: none !important; }
           .canvas-zone { flex: 0 0 22vh !important; flex: 0 0 22dvh !important; }
           .sym-controls { display: none !important; }
           .sym-mobile  { display: flex !important; }
@@ -377,46 +377,47 @@ export default function Home() {
         {/* Main */}
         <main style={{ flex: 1, height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
-          {/* Project grid */}
-          <div className="pgrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', flex: 1 }}>
+          {/* Project list */}
+          <div>
             {PROJECTS.map(p => (
               <a key={p.no} href={p.href} target={p.external ? '_blank' : undefined} rel="noreferrer"
-                className="pt" data-no={p.no}
-                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 220, padding: '1.5rem 1.75rem', borderRight: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)', background: 'transparent', position: 'relative' }}>
-                {p.preview && (
-                  <div className="pt-preview" style={{
-                    position: 'absolute', inset: '20% 25%', zIndex: 0,
-                    backgroundImage: `url(${p.preview})`,
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    opacity: 0, transition: 'opacity .4s cubic-bezier(.16,1,.3,1)',
-                    pointerEvents: 'none',
-                  }} />
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-                  <span className="td" style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)' }}>{p.no}</span>
-                  <span className="td trg" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', border: '1px solid var(--hairline)', padding: '0.15rem 0.5rem', borderRadius: 999 }}>{p.year}</span>
-                </div>
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                  <div className="tn" style={{ fontSize: 'clamp(1.4rem,2.2vw,2.2rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: p.badge ? '0.5rem' : '0.7rem', transition: 'transform .25s cubic-bezier(.16,1,.3,1)' }}>
+                className="pl"
+                style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.25rem 1.75rem', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)' }}>
+
+                <span style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', flexShrink: 0, width: '1.2rem' }}>{p.no}</span>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 'clamp(1.15rem, 1.8vw, 1.6rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1 }}>
                     {p.name}
                   </div>
                   {p.badge && (
-                    <div style={{ ...mono, fontSize: '0.6rem', letterSpacing: '0.06em', color: isLight ? '#266C31' : '#52C462', fontWeight: 600, marginBottom: '0.5rem' }}>
+                    <div style={{ ...mono, fontSize: '0.58rem', letterSpacing: '0.06em', color: isLight ? '#266C31' : '#52C462', fontWeight: 600, marginTop: '0.4rem' }}>
                       {p.badge}
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem 0.15rem', alignItems: 'center' }}>
-                      {p.tags.map((t, i) => (
-                        <span key={t} className="td" style={{ ...mono, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink-dim)' }}>
-                          {t}{i < p.tags.length - 1 ? ' ·' : ''}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
                 </div>
+
+                <div className="pl-tags" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                  {p.tags.map((t, i) => (
+                    <span key={t} style={{ ...mono, fontSize: '0.6rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {t}{i < p.tags.length - 1 ? '\u00a0·\u00a0' : ''}
+                    </span>
+                  ))}
+                </div>
+
+                <span style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', flexShrink: 0 }}>{p.year}</span>
+
+                {p.preview && (
+                  <div className="pl-thumb" style={{
+                    width: 88, height: 60, flexShrink: 0,
+                    backgroundImage: `url(${p.preview})`,
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'center right',
+                    backgroundRepeat: 'no-repeat',
+                    opacity: 0.45,
+                    transition: 'opacity .35s cubic-bezier(.16,1,.3,1)',
+                  }} />
+                )}
               </a>
             ))}
           </div>
