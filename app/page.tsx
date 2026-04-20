@@ -65,7 +65,7 @@ const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
 function SunIcon() {
   return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
       <circle cx="12" cy="12" r="5"/>
       <line x1="12" y1="1" x2="12" y2="3"/>
       <line x1="12" y1="21" x2="12" y2="23"/>
@@ -81,7 +81,7 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
     </svg>
   )
@@ -89,26 +89,16 @@ function MoonIcon() {
 
 // ─── Theme Toggle ─────────────────────────────────────────────────────────────
 
-interface ThemeToggleProps {
-  theme: 'dark' | 'light'
-  setTheme: (t: 'dark' | 'light') => void
-  toggleBg?: string
-  toggleFg?: string
-  mobile?: boolean
-}
-
-function ThemeToggle({ theme, setTheme, toggleBg, toggleFg, mobile }: ThemeToggleProps) {
-  const bg = toggleBg ?? 'var(--bg)'
-  const fg = toggleFg ?? 'var(--ink)'
+function ThemeToggle({ theme, setTheme }: { theme: 'dark' | 'light'; setTheme: (t: 'dark' | 'light') => void }) {
   const btn = (active: boolean): React.CSSProperties => ({
-    padding: '0.38rem 0.5rem', cursor: 'pointer', userSelect: 'none' as const,
+    padding: '0.42rem 0.6rem', cursor: 'pointer', userSelect: 'none' as const,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'transparent', color: fg,
-    opacity: active ? 1 : 0.35,
+    background: 'transparent', color: 'var(--ink)',
+    opacity: active ? 1 : 0.3,
     transition: 'opacity 0.15s',
   })
   return (
-    <div style={{ display: 'flex', background: bg, borderRadius: 3, overflow: 'hidden', border: mobile ? '1px solid var(--hairline)' : 'none' }}>
+    <div style={{ display: 'flex', border: '1px solid var(--hairline)', borderRadius: 3, overflow: 'hidden' }}>
       <span onClick={() => setTheme('light')} style={btn(theme === 'light')}><SunIcon /></span>
       <span onClick={() => setTheme('dark')} style={btn(theme === 'dark')}><MoonIcon /></span>
     </div>
@@ -154,8 +144,6 @@ export default function Home() {
   }
 
   const isLight = theme === 'light'
-  const toggleBg = isLight ? 'rgba(26,25,24,0.82)' : 'rgba(232,230,224,0.88)'
-  const toggleFg = isLight ? '#F4F2EC' : '#0A0A0A'
 
   return (
     <div
@@ -206,13 +194,10 @@ export default function Home() {
         @media (max-width: 600px) {
           .pl-tags     { display: none !important; }
           .canvas-zone { flex: 0 0 22vh !important; flex: 0 0 22dvh !important; }
-          .sym-controls { display: none !important; }
-          .sym-mobile  { display: flex !important; }
           .nav-links   { display: none !important; }
         }
 
-        /* sym-mobile and bio-mobile hidden on desktop */
-        .sym-mobile { display: none; }
+        /* bio-mobile hidden on desktop */
         .bio-mobile { display: none; }
         @media (max-width: 860px) { .bio-mobile { display: block !important; } }
 
@@ -281,6 +266,8 @@ export default function Home() {
               </a>
             ))}
           </div>
+          {/* Theme toggle */}
+          <ThemeToggle theme={theme} setTheme={setTheme} />
           {/* Hamburger */}
           <button
             onClick={() => setNavOpen(true)}
@@ -297,23 +284,6 @@ export default function Home() {
       <div className="canvas-zone" style={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid var(--hairline)', background: isLight ? '#F4F2EC' : '#050505' }}>
         <AsciiCanvas breathe lightMode={isLight} chars='▓▒░' />
 
-        {/* Canvas hint — top right */}
-        <div className="sym-controls" style={{ position: 'absolute', top: '0.9rem', right: '1.75rem', zIndex: 10, pointerEvents: 'none', textAlign: 'right' }}>
-          <div style={{ ...mono, fontSize: '0.52rem', color: isLight ? 'rgba(26,25,24,0.38)' : 'rgba(232,230,224,0.3)', textTransform: 'uppercase', letterSpacing: '0.13em', lineHeight: 1.75 }}>
-            interactive canvas<br />
-            hover · drag · set symbols ↙
-          </div>
-        </div>
-
-        {/* Canvas controls — bottom left */}
-        <div className="sym-controls" style={{ position: 'absolute', bottom: '1rem', left: '1.75rem', zIndex: 10 }}>
-          <ThemeToggle theme={theme} setTheme={setTheme} toggleBg={toggleBg} toggleFg={toggleFg} />
-        </div>
-      </div>
-
-      {/* ── SYMBOL CONTROLS — mobile only, below canvas ── */}
-      <div className="sym-mobile" style={{ flexShrink: 0, flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
-        <ThemeToggle theme={theme} setTheme={setTheme} mobile />
       </div>
 
       {/* ── BIO — mobile only ── */}
