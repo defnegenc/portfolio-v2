@@ -48,10 +48,10 @@ function TypewriterName({ text }: { text: string }) {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
-  { no: '01', name: 'Bloom',           tags: ['Research', 'Safety', 'Design'],       year: '2025', href: '/project/bloom',           external: false, preview: '/bloom-0alpha.png', badge: 'CHI 2026 Best Paper · Top 1%' },
-  { no: '02', name: 'Learning Et Al.', tags: ['Solo', 'RecSys', 'LLM'],              year: '2026', href: '/project/learningetal',    external: false, preview: '/learningetal-0alpha.png' },
-  { no: '03', name: 'Menuto',          tags: ['Solo', 'AI', 'Mobile'],               year: '2026', href: '/project/menuto',          external: false, preview: '/menuto-0alpha.png' },
-  { no: '04', name: 'Dishcovery',      tags: ['Needfinding', 'Prototyping', 'Design'],  year: '2024', href: '/project/dishcovery',      external: false, preview: '/dishcovery-0alpha.png' },
+  { no: '01', name: 'Bloom',           kind: 'Publication',        tags: ['Research', 'Safety', 'Design'],          year: '2025', href: '/project/bloom',        external: false, badge: 'CHI 2026 Best Paper · Top 1%' },
+  { no: '02', name: 'Learning Et Al.', kind: 'Website',            tags: ['Solo', 'RecSys', 'LLM'],                 year: '2026', href: '/project/learningetal', external: false },
+  { no: '03', name: 'Menuto',          kind: 'Full Stack iOS App', tags: ['Solo', 'AI', 'Mobile'],                  year: '2026', href: '/project/menuto',       external: false },
+  { no: '04', name: 'Dishcovery',      kind: 'Full Stack iOS App', tags: ['Needfinding', 'Prototyping', 'Design'],  year: '2024', href: '/project/dishcovery',   external: false },
 ]
 
 
@@ -388,6 +388,11 @@ export default function Home() {
                   <div style={{ fontSize: 'clamp(1.15rem, 1.8vw, 1.6rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1 }}>
                     {p.name}
                   </div>
+                  {p.kind && (
+                    <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', marginTop: '0.35rem', opacity: 0.7 }}>
+                      {p.kind}
+                    </div>
+                  )}
                   {p.badge && (
                     <div style={{ ...mono, fontSize: '0.68rem', letterSpacing: '0.06em', color: isLight ? '#266C31' : '#52C462', fontWeight: 600, marginTop: '0.4rem' }}>
                       {p.badge}
