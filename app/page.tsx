@@ -178,7 +178,6 @@ export default function Home() {
         /* Project list */
         .pl { transition: background .2s; }
         .pl:hover { background: var(--hairline) !important; }
-        .pl:hover .pl-thumb { opacity: 0.9 !important; }
 
         /* Nav overlay links */
         .ni { transition: color .2s, transform .25s; }
@@ -205,7 +204,6 @@ export default function Home() {
         @media (max-width: 860px) { .sidebar { display: none !important; } }
 
         @media (max-width: 600px) {
-          .pl-thumb    { display: none !important; }
           .pl-tags     { display: none !important; }
           .canvas-zone { flex: 0 0 22vh !important; flex: 0 0 22dvh !important; }
           .sym-controls { display: none !important; }
@@ -330,7 +328,7 @@ export default function Home() {
 
         {/* Sidebar */}
         <aside className="sidebar" style={{ width: 300, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--hairline)', background: 'var(--bg)' }}>
-          <div style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', overflowY: 'auto' }} className="scrollbar-none">
+          <div style={{ flex: 1, minHeight: 0, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', overflowY: 'auto' }} className="scrollbar-none">
             <div style={{ fontSize: '0.88rem', lineHeight: 1.6, color: 'var(--ink-dim)' }}>
               Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase. Current projects: recommendation systems using LLMs.
             </div>
@@ -378,20 +376,20 @@ export default function Home() {
         <main style={{ flex: 1, height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
           {/* Project list */}
-          <div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             {PROJECTS.map(p => (
               <a key={p.no} href={p.href} target={p.external ? '_blank' : undefined} rel="noreferrer"
                 className="pl"
-                style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.25rem 1.75rem', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)' }}>
+                style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.25rem 1.75rem', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)' }}>
 
-                <span style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', flexShrink: 0, width: '1.2rem' }}>{p.no}</span>
+                <span style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)', flexShrink: 0, width: '1.2rem' }}>{p.no}</span>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 'clamp(1.15rem, 1.8vw, 1.6rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1 }}>
                     {p.name}
                   </div>
                   {p.badge && (
-                    <div style={{ ...mono, fontSize: '0.58rem', letterSpacing: '0.06em', color: isLight ? '#266C31' : '#52C462', fontWeight: 600, marginTop: '0.4rem' }}>
+                    <div style={{ ...mono, fontSize: '0.68rem', letterSpacing: '0.06em', color: isLight ? '#266C31' : '#52C462', fontWeight: 600, marginTop: '0.4rem' }}>
                       {p.badge}
                     </div>
                   )}
@@ -399,25 +397,13 @@ export default function Home() {
 
                 <div className="pl-tags" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                   {p.tags.map((t, i) => (
-                    <span key={t} style={{ ...mono, fontSize: '0.6rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <span key={t} style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {t}{i < p.tags.length - 1 ? '\u00a0·\u00a0' : ''}
                     </span>
                   ))}
                 </div>
 
-                <span style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', flexShrink: 0 }}>{p.year}</span>
-
-                {p.preview && (
-                  <div className="pl-thumb" style={{
-                    width: 88, height: 60, flexShrink: 0,
-                    backgroundImage: `url(${p.preview})`,
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center right',
-                    backgroundRepeat: 'no-repeat',
-                    opacity: 0.45,
-                    transition: 'opacity .35s cubic-bezier(.16,1,.3,1)',
-                  }} />
-                )}
+                <span style={{ ...mono, fontSize: '0.78rem', color: 'var(--ink-dim)', flexShrink: 0 }}>{p.year}</span>
               </a>
             ))}
           </div>
