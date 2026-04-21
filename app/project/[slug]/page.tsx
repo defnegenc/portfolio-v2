@@ -291,7 +291,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Core Idea',
-        body: 'Three things differentiate this from a paper search engine. First, it generates a central question before searching. A sample of your interests gets fed to the model, which produces a theme \u2014 \u201cCan AI agents be fashionable?\u201d \u2014 and search queries. Papers from adjacent fields get pulled in deliberately; cross-domain pairings are the point, not an artifact. Second, candidates are ranked by combining keyword matching with semantic similarity, diversity-filtered so the final pool isn\u2019t variations of the same finding, then an LLM picks the final 2\u20133 by complementarity: which papers make the best argument together. Third, synthesis builds an argument skeleton before writing any prose \u2014 which paper supports the theme, which complicates it, where the tension is \u2014 then critiques the draft on factual accuracy and structural dimensions before output.',
+        body: 'Three things differentiate this from a paper search engine. **First**, it generates a central question before searching. A sample of your interests gets fed to the model, which produces a theme like \u201cCan AI agents be fashionable?\u201d and search queries. Papers from adjacent fields get pulled in deliberately; cross-domain pairings are the point, not an artifact. **Second**, candidates are ranked by combining keyword matching with semantic similarity, diversity-filtered so the final pool isn\u2019t variations of the same finding, then an LLM picks the final 2\u20133 by complementarity: which papers make the best argument together. **Third**, synthesis builds an argument skeleton before writing any prose: which paper supports the theme, which complicates it, where the tension is. Then it critiques the draft on factual accuracy and structural dimensions before output.',
       },
       {
         type: 'text',
@@ -309,7 +309,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Synthesis Pipeline',
-        body: 'You could ask an LLM to summarize papers about X. When papers are on the same narrow topic, that works. When they span different fields \u2014 as they do here \u2014 a summary produces parallel descriptions rather than an argument. The synthesis has to build the connection. The current approach writes a structured skeleton first: which paper supports the theme, which complicates it, where the tension is. Only then does prose get written, scored across six dimensions, and revised against specific failure modes. Single-call and 7-call approaches both read like book reports. The skeleton-first architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+        body: 'You could ask an LLM to summarize papers about X. When papers are on the same narrow topic, that works. When they span different fields, as they do here, a summary produces parallel descriptions rather than an argument. The synthesis has to build the connection. The current approach writes a **structured skeleton first**: which paper supports the theme, which complicates it, where the tension is. Only then does prose get written, scored across six dimensions, and revised against specific failure modes. Single-call and 7-call approaches both read like book reports. The skeleton-first architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
       },
       {
         type: 'text',
@@ -320,26 +320,26 @@ const PROJECTS: Record<string, Project> = {
         type: 'list',
         label: 'How Papers Are Found',
         items: [
-          'Keyword matching \u2014 rare, topic-specific terms score higher than common ones. A paper on \u201cattention mechanisms\u201d ranks above one that just mentions \u201clearning.\u201d (BM25)',
-          'Semantic similarity \u2014 captures meaning rather than exact words, so a query about \u201creward shaping\u201d also surfaces papers on related concepts even without keyword overlap. Runs locally at zero API cost. (ONNX embeddings)',
-          'Combined ranking \u2014 keyword and semantic scores are on incompatible scales, so both ranked lists are merged by position rather than raw score. (Reciprocal Rank Fusion)',
-          'Diversity enforcement \u2014 each additional paper is penalized for similarity to already-selected ones, so the pool covers different angles rather than the same finding six times. (Maximal Marginal Relevance)',
-          'Venue filtering \u2014 predatory publishers are hard-excluded. High-volume controversial journals get a soft penalty so only their stronger matches pass.',
-          'Complementarity selection \u2014 the final 2\u20133 papers are chosen by which combination makes the best argument together, not which scored highest individually.',
+          'Keyword matching: rare, topic-specific terms score higher than common ones. A paper on \u201cattention mechanisms\u201d ranks above one that just mentions \u201clearning.\u201d (BM25)',
+          'Semantic similarity: captures meaning rather than exact words, so a query about \u201creward shaping\u201d also surfaces papers on related concepts even without keyword overlap. Runs locally at zero API cost. (ONNX embeddings)',
+          'Combined ranking: keyword and semantic scores are on incompatible scales, so both ranked lists are merged by position rather than raw score. (Reciprocal Rank Fusion)',
+          'Diversity enforcement: each additional paper is penalized for similarity to already-selected ones, so the pool covers different angles rather than the same finding six times. (Maximal Marginal Relevance)',
+          'Venue filtering: predatory publishers are hard-excluded. High-volume controversial journals get a soft penalty so only their stronger matches pass.',
+          'Complementarity selection: the final 2\u20133 papers are chosen by which combination makes the best argument together, not which scored highest individually.',
         ],
       },
       {
         type: 'text',
         label: 'Self-Correcting Loops',
-        body: 'Each stage assumes the previous one may have gotten something wrong. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract \u2014 if a summary looks disconnected from its source (a reliable hallucination mode when multiple papers share a context window), it falls back to the abstract\u2019s first sentence. Synthesis drafts are checked for factual accuracy against each paper\u2019s findings before style critique runs. The final coverage gate extracts every bolded phrase and verifies each paper appears by name \u2014 if one was dropped during revision, a targeted rewrite re-inserts it.',
+        body: 'Each stage assumes the previous one may have gotten something wrong. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract; if a summary looks disconnected from its source (a hallucination mode when multiple papers share context), it falls back to the abstract\u2019s first sentence. Synthesis drafts are checked for **factual accuracy** against each paper\u2019s findings before style critique runs. A final **coverage gate** verifies each paper appears by name; if one was dropped during revision, a targeted rewrite re-inserts it.',
       },
       {
         type: 'list',
         label: 'Staying Interesting',
         items: [
           'Theme novelty: new themes are compared against the last 5 via embedding cosine similarity. If similarity exceeds 0.5, the system retries with different interest combinations. Without this, themes converge to a predictable template within weeks.',
-          'Interest decay: topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose \u2014 a single starred paper once dominated the feed.',
-          'Antipattern prompting: generative models route around banned strings \u2014 banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
+          'Interest decay: topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose; a single starred paper once dominated the feed.',
+          'Antipattern prompting: generative models route around banned strings. Banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
         ],
       },
       {
@@ -350,9 +350,9 @@ const PROJECTS: Record<string, Project> = {
         type: 'list',
         label: 'Iterations',
         items: [
-          'Theme generation: Started with a \u201cbest paper\u201d anchor \u2014 scrapped it when highly-cited papers pulled in wrong-field methodology papers. Tried mandatory theme revision; quality improved, then backfired when the LLM warped themes to fit weak papers rather than discard them. Conditional revision with a clear \u201ckeep if it fits\u201d exit works better.',
+          'Theme generation: Started with a \u201cbest paper\u201d anchor, scrapped when highly-cited papers pulled in wrong-field methodology papers. Tried mandatory theme revision; quality improved, then backfired when the LLM warped themes to fit weak papers rather than discard them. Conditional revision with a clear \u201ckeep if it fits\u201d exit works better.',
           'Paper selection and filtering: Citation graph \u2192 keyword matching \u2192 embedding-only \u2192 BM25+embedding RRF with MMR diversity. Added hard blocklists for predatory publishers and soft penalties for high-volume journals. Added a domain gate after the complementarity step started producing cross-field analogies instead of thematically connected papers.',
-          'Synthesis quality: Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The LLM consistently produced vague, pattern-heavy prose \u2014 fixing this required moving from banned phrases to pattern families, and from style rules to factual requirements.',
+          'Synthesis quality: Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The LLM consistently produced vague, pattern-heavy prose; fixing this required moving from banned phrases to pattern families, and from style rules to factual requirements.',
           'News sources: Hardcoded RSS \u2192 DuckDuckGo scraping (broke on one CSS change) \u2192 Serper/DDG with User-Agent rotation and field-specific RSS fallback.',
         ],
       },
@@ -916,6 +916,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
 // ─── Section components ────────────────────────────────────────────────────────
 
+function renderBody(text: string): React.ReactNode {
+  const parts = text.split('**')
+  if (parts.length === 1) return text
+  return parts.map((part, i) =>
+    i % 2 === 1
+      ? <strong key={i} style={{ color: 'var(--ink)', fontWeight: 600 }}>{part}</strong>
+      : part
+  )
+}
+
 function ExternalOrLocalImage({ src, alt, aspect = '16/9' }: { src: string; alt: string; aspect?: string }) {
   return (
     <div style={{ position: 'relative', width: '100%', aspectRatio: aspect, background: 'rgba(26,25,24,0.04)', overflow: 'hidden' }}>
@@ -965,7 +975,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
             {section.label}
           </h3>
           <p style={{ fontSize: '1rem', lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 700 }}>
-            {section.body}
+            {renderBody(section.body)}
           </p>
         </div>
       )
