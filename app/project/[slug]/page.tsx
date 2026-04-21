@@ -268,7 +268,7 @@ const PROJECTS: Record<string, Project> = {
     slug: 'learningetal',
     no: '02',
     name: 'Learning Et Al.',
-    tagline: 'Learning Et Al. (\u201clearning it all\u201d). A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests. Not an abstract delivery service \u2014 more like a curious friend explaining something over coffee, one question a day.',
+    tagline: 'Learning Et Al. (\u201clearning it all\u201d). A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests.',
     year: '2026',
     role: 'Solo — Product · Design · Full-Stack',
     duration: 'Personal Project · End-to-End Ownership',
@@ -291,7 +291,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Core Idea',
-        body: 'The algorithm is backwards on purpose. Most recommendation systems find content first, then label it. This one generates a provocative central question before searching \u2014 \u201cCan AI agents be fashionable?\u201d or \u201cWhat if buildings could sense your mood?\u201d \u2014 and then finds papers that serve as tools to think with in relation to that question. Papers don\u2019t answer the theme; they offer a surprising lens on it. Cross-domain pairings are the goal. Once papers are found, the theme gets a second pass: if they don\u2019t genuinely thread the original question, the system revises it to fit what was actually found, but only when needed. Mandatory revision backfired \u2014 the model would warp the theme to accommodate a weak paper rather than acknowledge the paper was off-topic. Conditional revision, with an explicit \u201ckeep if it fits\u201d path, produces better output.',
+        body: 'Three things differentiate this from a paper search engine. First, it generates a central question before searching. A sample of your interests gets fed to the model, which produces a theme \u2014 \u201cCan AI agents be fashionable?\u201d \u2014 and search queries. Papers from adjacent fields get pulled in deliberately; cross-domain pairings are the point, not an artifact. Second, candidates are ranked by combining keyword matching with semantic similarity, diversity-filtered so the final pool isn\u2019t variations of the same finding, then an LLM picks the final 2\u20133 by complementarity: which papers make the best argument together. Third, synthesis builds an argument skeleton before writing any prose \u2014 which paper supports the theme, which complicates it, where the tension is \u2014 then critiques the draft on factual accuracy and structural dimensions before output.',
       },
       {
         type: 'text',
@@ -309,26 +309,24 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Synthesis Pipeline',
-        body: 'Single-call approaches produce summaries too shallow to be interesting; a 7-call pipeline was an improvement but still read like book reports. The current approach uses 9\u201315 calls across 6 stages (depending on which conditional gates fire): metadata extraction \u2192 argument skeleton (which paper supports, which complicates, where the tension is, as JSON) \u2192 prose draft \u2192 factual accuracy check \u2192 multi-dimensional self-critique \u2192 targeted revision \u2192 final coverage gate. The self-critique scores on six dimensions: argument, connection, accessibility, specificity, coverage, and freshness. Freshness scans for banned pattern families rather than literal strings, returning phrases the revision step must rewrite outright. Specificity is capped at 2 when the prose uses words like \u201cbarriers\u201d or \u201climitations\u201d without naming a concrete instance. Any score below 4 triggers revision with the exact failure mode. Architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+        body: 'You could ask an LLM to summarize papers about your interests. When papers are on the same narrow topic that works well enough. When papers span different fields and the connection between them is the point \u2014 as they are here \u2014 a summary call produces parallel book reports rather than an argument: the synthesis has to build the connection, not just describe each paper. A 7-call pipeline was better but the same problem persisted. The current approach uses 9\u201315 calls across 6 stages depending on which conditional gates fire: metadata extraction, argument skeleton (structured JSON capturing which paper supports the theme, which complicates it, where the tension is), prose draft, factual accuracy check against each paper\u2019s findings, multi-dimensional self-critique, and targeted revision. The self-critique scores on six dimensions: argument, connection, accessibility, specificity, coverage, and freshness. Specificity is capped at 2 if prose uses words like \u201cbarriers\u201d without a concrete instance from the paper. Any score below 4 triggers revision with the exact failure mode. A final coverage gate verifies every paper appears by name in the output. Architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
       },
       {
         type: 'text',
-        label: 'Gap-Based Follow-Up Questions',
-        body: 'The suggested questions come from a separate prompt that targets what the synthesis intentionally leaves out: \u201cwait, but how?\u201d moments tied to each paper\u2019s most intriguing detail. Generic questions (\u201cWhat are the implications?\u201d) are banned. Answers are pre-generated at digest time with full paper context, so even logged-out visitors get instant, substantive follow-ups without any API call.',
+        label: 'Follow-Up Questions',
+        body: 'Each digest suggests questions targeting the specific detail in each paper most likely to make a reader want to know more: the mechanism that\u2019s glossed over, the assumption that\u2019s doing heavy lifting. Generic questions (\u201cWhat are the implications?\u201d) are explicitly banned. Answers are pre-generated at digest creation time so they\u2019re instant for every visitor.',
       },
       {
-        type: 'subheader',
-        text: 'How Papers Are Found',
-      },
-      {
-        type: 'text',
+        type: 'list',
         label: 'How Papers Are Found',
-        body: 'Candidate papers are scored by both keyword matching (BM25) and semantic similarity (local ONNX embeddings), then combined via Reciprocal Rank Fusion, which sidesteps the problem of combining signals with incompatible scales. Venue and institution quality boosts push better sources up; predatory publishers (SciRP, OMICS, Bentham Open) are filtered entirely, and high-volume controversial journals (MDPI, Hindawi, Frontiers family) get a soft penalty so only their strong matches pass. Maximal Marginal Relevance (\u03BB=0.6) enforces diversity, then an LLM complementarity step picks the final set with a hard relevance gate \u2014 cross-domain analogical \u201cbridging\u201d is explicitly forbidden.',
-      },
-      {
-        type: 'text',
-        label: 'Local Embeddings',
-        body: 'All semantic similarity runs locally via ONNX, zero API cost, zero external dependency. When the model can\u2019t load on serverless cold starts, the system falls back to keyword overlap transparently, keeping the same API surface with a degradation flag for logging.',
+        items: [
+          'BM25 \u2014 keyword scoring that weights rare, topic-specific terms more heavily. Precise on exact terminology, blind to conceptual matches.',
+          'Semantic embeddings (all-MiniLM-L6-v2, local ONNX) \u2014 dense vector similarity that catches conceptual matches keyword search misses. Runs locally at zero API cost; falls back to keyword overlap on serverless cold starts.',
+          'Reciprocal Rank Fusion \u2014 merges BM25 and embedding ranked lists by position rather than raw score, avoiding the problem of combining signals on incompatible scales.',
+          'Maximal Marginal Relevance (\u03BB=0.6) \u2014 diversifies the candidate pool by penalizing each new pick for similarity to already-selected papers. Prevents six versions of the same finding.',
+          'Venue filtering \u2014 predatory publishers (SciRP, OMICS, Bentham Open) are hard-filtered out. High-volume controversial journals (MDPI, Hindawi, Frontiers) get a soft penalty so only strong matches pass.',
+          'LLM complementarity step \u2014 the final 2\u20133 papers are chosen for how well they argue together, not individual score. Cross-field analogies are explicitly excluded.',
+        ],
       },
       {
         type: 'text',
@@ -336,23 +334,13 @@ const PROJECTS: Record<string, Project> = {
         body: 'Each stage assumes the previous one may have gotten something wrong. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract \u2014 if a summary looks disconnected from its source (a reliable hallucination mode when multiple papers share a context window), it falls back to the abstract\u2019s first sentence. Synthesis drafts are checked for factual accuracy against each paper\u2019s findings before style critique runs. The final coverage gate extracts every bolded phrase and verifies each paper appears by name \u2014 if one was dropped during revision, a targeted rewrite re-inserts it.',
       },
       {
-        type: 'subheader',
-        text: 'Staying Interesting',
-      },
-      {
-        type: 'text',
-        label: 'Theme Novelty',
-        body: 'Each generated question is compared against the last 5 digests\u2019 themes via embedding similarity. If the cosine similarity exceeds 0.5, the system forces a novelty rewrite with explicit instructions to pick different interest combinations. Without this, LLMs converge to a predictable question template within weeks.',
-      },
-      {
-        type: 'text',
-        label: 'Interest Decay',
-        body: 'Interests decay daily (\u00D70.95), recently-used topics get a frequency penalty, and selection is weighted random rather than top-N so even low-weight interests surface occasionally. Engagement signals are intentionally microscopic (+0.1 per star, +0.05 per question) after discovering that a single starred paper could pollute an entire feed.',
-      },
-      {
-        type: 'text',
-        label: 'Prompt Engineering by Antipattern',
-        body: 'Banning specific phrases is a reasonable starting point: \u201cdemonstrates\u201d, \u201creveals\u201d, \u201chighlights\u201d, \u201cnuanced\u201d, \u201cmultifaceted\u201d, plus structural AI clich\u00e9s like \u201cThe question of whether X isn\u2019t just about Y, it\u2019s about Z.\u201d The problem is that generative models route around literal string constraints. Banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier\u201d and \u201cthis is where it gets tricky\u201d \u2014 same pattern shape, different words. The self-critique now scans for pattern families: any \u201chere\u2019s where it gets [adjective]\u201d construction is caught regardless of which adjective the model chose that week. A second shift: some rules stopped being about what not to say and became about what a claim requires. Any mention of \u201cbarriers\u201d or \u201climitations\u201d must be paired with a concrete instance from the paper in the same sentence, or the claim is dropped. Vague prose is treated as factually deficient, not stylistically weak.',
+        type: 'list',
+        label: 'Staying Interesting',
+        items: [
+          'Theme novelty: new themes are compared against the last 5 via embedding cosine similarity. If similarity exceeds 0.5, the system retries with different interest combinations. Without this, themes converge to a predictable template within weeks.',
+          'Interest decay: topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose \u2014 a single starred paper once dominated the feed.',
+          'Antipattern prompting: generative models route around banned strings \u2014 banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
+        ],
       },
       {
         type: 'subheader',
