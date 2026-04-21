@@ -16,7 +16,7 @@ type Section =
   | { type: 'phones'; items: { src: string; alt: string; caption?: string }[]; label?: string }
   | { type: 'diagram'; id: string }
   | { type: 'stats'; items: { value: string; label: string }[] }
-  | { type: 'list'; label: string; items: string[] }
+  | { type: 'list'; label: string; items: string[]; numbered?: boolean }
   | { type: 'subheader'; text: string; id?: string }
 
 interface Project {
@@ -319,14 +319,15 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'list',
         label: 'How It Works',
+        numbered: true,
         items: [
-          'Step 1, interest sampling: It samples from your interests, weighting down topics covered recently, then asks the LLM to turn them into a central question (max 8 words) and a few search queries. If the question is too similar to one from the past few days, it tries a different angle.',
-          'Step 2, paper fetching: For each query it tries OpenAlex first, falls back to Semantic Scholar, then arXiv. About 10 results per query, deduplicated across sources.',
-          'Step 3, relevance scoring: Every candidate is scored two ways: semantic similarity (do the paper\u2019s ideas match the theme?) and keyword overlap (does it share key terms?). The two signals are fused. Papers from predatory journals are dropped; recent papers and high-quality venues get a small boost. Anything below the similarity threshold is cut. If too few pass, the threshold relaxes; if it still can\u2019t find enough, it restarts from Step 1 with a new theme.',
-          'Step 4, diversity pool: From the papers that passed, 6 are selected so each pick maximizes relevance while minimizing overlap with what\u2019s already been chosen. Prevents 6 variations of the same finding.',
-          'Step 5, complementarity: The 6-paper pool goes to the LLM, which chooses the 2\u20133 that make the most interesting argument together, looking for papers that support, complicate, or explain each other rather than just agreeing. Each paper gets a short nickname anchored to the author\u2019s name.',
-          'Step 6, news (parallel): While papers are being scored, it searches the web for recent coverage of the same theme. How many news items to include is decided dynamically: 3 or more strong papers and news is skipped entirely; thin papers and news fills the gap.',
-          'Step 7, synthesis: Multi-stage writing: argument skeleton first, then a full draft, then self-critique scoring specificity and flagging clich\u00e9s or vague claims, then targeted revision. A final coverage check verifies every paper got cited correctly.',
+          'Interest sampling: It samples from your interests, weighting down topics covered recently, then asks the LLM to turn them into a central question (max 8 words) and a few search queries. If the question is too similar to one from the past few days, it tries a different angle.',
+          'Paper fetching: For each query it tries OpenAlex first, falls back to Semantic Scholar, then arXiv. About 10 results per query, deduplicated across sources.',
+          'Relevance scoring: Every candidate is scored two ways: semantic similarity (do the paper\u2019s ideas match the theme?) and keyword overlap (does it share key terms?). The two signals are fused. Papers from predatory journals are dropped; recent papers and high-quality venues get a small boost. Anything below the similarity threshold is cut. If too few pass, the threshold relaxes; if it still can\u2019t find enough, it restarts from step 1 with a new theme.',
+          'Diversity pool: From the papers that passed, 6 are selected so each pick maximizes relevance while minimizing overlap with what\u2019s already been chosen. Prevents 6 variations of the same finding.',
+          'Complementarity: The 6-paper pool goes to the LLM, which chooses the 2\u20133 that make the most interesting argument together, looking for papers that support, complicate, or explain each other rather than just agreeing. Each paper gets a short nickname anchored to the author\u2019s name.',
+          'News (parallel): While papers are being scored, it searches the web for recent coverage of the same theme. How many news items to include is decided dynamically: 3 or more strong papers and news is skipped entirely; thin papers and news fills the gap.',
+          'Synthesis: Multi-stage writing: argument skeleton first, then a full draft, then self-critique scoring specificity and flagging clich\u00e9s or vague claims, then targeted revision. A final coverage check verifies every paper got cited correctly.',
         ],
       },
       {
@@ -936,7 +937,7 @@ function ExternalOrLocalImage({ src, alt, aspect = '16/9' }: { src: string; alt:
 }
 
 // Parse "Key — description" or "Key: description" format and bold the key
-function ListItem({ text, accent }: { text: string; accent: string }) {
+function ListItem({ text, accent, index }: { text: string; accent: string; index?: number }) {
   const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
   const emMatch = text.match(/^(.+?)\s*—\s*(.+)$/)
   const colonMatch = text.match(/^(.+?):\s*(.+)$/)
@@ -944,7 +945,7 @@ function ListItem({ text, accent }: { text: string; accent: string }) {
   const sep = emMatch ? ' — ' : ': '
   return (
     <li style={{ display: 'flex', gap: '1rem', fontSize: '0.95rem', lineHeight: 1.7, color: 'var(--ink-dim)', borderBottom: '1px solid var(--hairline)', paddingBottom: '0.65rem' }}>
-      <span style={{ ...mono, fontSize: '0.7rem', color: accent, flexShrink: 0, paddingTop: '0.2rem' }}>—</span>
+      <span style={{ ...mono, fontSize: '0.7rem', color: accent, flexShrink: 0, paddingTop: '0.2rem', minWidth: index !== undefined ? '1.2rem' : 'auto' }}>{index !== undefined ? `${index + 1}.` : '—'}</span>
       <span>
         {match
           ? <><strong style={{ color: 'var(--ink)', fontWeight: 600 }}>{match[1]}</strong>{sep}{match[2]}</>
@@ -1014,7 +1015,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
           </h3>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
             {section.items.map((item, i) => (
-              <ListItem key={i} text={item} accent={accent} />
+              <ListItem key={i} text={item} accent={accent} index={section.numbered ? i : undefined} />
             ))}
           </ul>
         </div>
