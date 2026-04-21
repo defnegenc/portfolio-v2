@@ -309,7 +309,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'The Synthesis Pipeline',
-        body: 'You could ask an LLM to summarize papers about your interests. When papers are on the same narrow topic that works well enough. When papers span different fields and the connection between them is the point \u2014 as they are here \u2014 a summary call produces parallel book reports rather than an argument: the synthesis has to build the connection, not just describe each paper. A 7-call pipeline was better but the same problem persisted. The current approach uses 9\u201315 calls across 6 stages depending on which conditional gates fire: metadata extraction, argument skeleton (structured JSON capturing which paper supports the theme, which complicates it, where the tension is), prose draft, factual accuracy check against each paper\u2019s findings, multi-dimensional self-critique, and targeted revision. The self-critique scores on six dimensions: argument, connection, accessibility, specificity, coverage, and freshness. Specificity is capped at 2 if prose uses words like \u201cbarriers\u201d without a concrete instance from the paper. Any score below 4 triggers revision with the exact failure mode. A final coverage gate verifies every paper appears by name in the output. Architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+        body: 'You could ask an LLM to summarize papers about X. When papers are on the same narrow topic, that works. When they span different fields \u2014 as they do here \u2014 a summary produces parallel descriptions rather than an argument. The synthesis has to build the connection. The current approach writes a structured skeleton first: which paper supports the theme, which complicates it, where the tension is. Only then does prose get written, scored across six dimensions, and revised against specific failure modes. Single-call and 7-call approaches both read like book reports. The skeleton-first architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
       },
       {
         type: 'text',
@@ -320,12 +320,12 @@ const PROJECTS: Record<string, Project> = {
         type: 'list',
         label: 'How Papers Are Found',
         items: [
-          'BM25 \u2014 keyword scoring that weights rare, topic-specific terms more heavily. Precise on exact terminology, blind to conceptual matches.',
-          'Semantic embeddings (all-MiniLM-L6-v2, local ONNX) \u2014 dense vector similarity that catches conceptual matches keyword search misses. Runs locally at zero API cost; falls back to keyword overlap on serverless cold starts.',
-          'Reciprocal Rank Fusion \u2014 merges BM25 and embedding ranked lists by position rather than raw score, avoiding the problem of combining signals on incompatible scales.',
-          'Maximal Marginal Relevance (\u03BB=0.6) \u2014 diversifies the candidate pool by penalizing each new pick for similarity to already-selected papers. Prevents six versions of the same finding.',
-          'Venue filtering \u2014 predatory publishers (SciRP, OMICS, Bentham Open) are hard-filtered out. High-volume controversial journals (MDPI, Hindawi, Frontiers) get a soft penalty so only strong matches pass.',
-          'LLM complementarity step \u2014 the final 2\u20133 papers are chosen for how well they argue together, not individual score. Cross-field analogies are explicitly excluded.',
+          'Keyword matching \u2014 rare, topic-specific terms score higher than common ones. A paper on \u201cattention mechanisms\u201d ranks above one that just mentions \u201clearning.\u201d (BM25)',
+          'Semantic similarity \u2014 captures meaning rather than exact words, so a query about \u201creward shaping\u201d also surfaces papers on related concepts even without keyword overlap. Runs locally at zero API cost. (ONNX embeddings)',
+          'Combined ranking \u2014 keyword and semantic scores are on incompatible scales, so both ranked lists are merged by position rather than raw score. (Reciprocal Rank Fusion)',
+          'Diversity enforcement \u2014 each additional paper is penalized for similarity to already-selected ones, so the pool covers different angles rather than the same finding six times. (Maximal Marginal Relevance)',
+          'Venue filtering \u2014 predatory publishers are hard-excluded. High-volume controversial journals get a soft penalty so only their stronger matches pass.',
+          'Complementarity selection \u2014 the final 2\u20133 papers are chosen by which combination makes the best argument together, not which scored highest individually.',
         ],
       },
       {
