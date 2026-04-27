@@ -3,6 +3,48 @@
 import { useState, useEffect, useRef } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
 
+// ─── Pixel Eye Logo ───────────────────────────────────────────────────────────
+
+// 20×11 grid: 0=bg, 1=#111, 2=#1E1E1C, 3=#323230, 4=#DEDAD2(sclera), 5=#4E4C4A(iris), 6=#0A0A08(pupil)
+const EYE_GRID = [
+  [0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
+  [0,0,0,1,1,2,3,3,3,3,3,3,3,3,2,1,1,0,0,0],
+  [0,0,1,2,2,3,4,4,4,4,4,4,4,4,3,2,2,1,0,0],
+  [0,1,2,3,4,4,4,4,4,4,4,4,4,4,4,4,3,2,1,0],
+  [1,2,3,4,4,5,5,5,5,5,5,5,5,5,4,4,4,3,2,1],
+  [1,2,3,4,5,5,6,6,6,6,6,6,6,5,5,4,4,3,2,1],
+  [1,2,3,4,4,5,5,5,5,5,5,5,5,5,4,4,4,3,2,1],
+  [0,1,2,3,4,4,4,4,4,4,4,4,4,4,4,4,3,2,1,0],
+  [0,0,1,2,2,3,4,4,4,4,4,4,4,4,3,2,2,1,0,0],
+  [0,0,0,1,1,2,3,3,3,3,3,3,3,3,2,1,1,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
+] as const
+
+const EYE_PALETTE = ['transparent','#111111','#1E1E1C','#323230','#DEDAD2','#4E4C4A','#0A0A08'] as const
+
+function PixelEye({ height = 28 }: { height?: number }) {
+  const cols = EYE_GRID[0].length  // 20
+  const rows = EYE_GRID.length     // 11
+  const w = Math.round(height * cols / rows)
+  return (
+    <svg
+      viewBox={`0 0 ${cols} ${rows}`}
+      width={w}
+      height={height}
+      shapeRendering="crispEdges"
+      style={{ display: 'block', flexShrink: 0 }}
+    >
+      {EYE_GRID.map((row, y) =>
+        row.map((v, x) =>
+          v === 0 ? null : (
+            <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={EYE_PALETTE[v]} />
+          )
+        )
+      )}
+    </svg>
+  )
+}
+
 // ─── Glitch Name ──────────────────────────────────────────────────────────────
 
 function TypewriterName({ text }: { text: string }) {
@@ -243,12 +285,15 @@ export default function Home() {
 
       {/* ── NAME STRIP ── */}
       <div className="name-strip" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
-          <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-            <TypewriterName text="DEFNE GENÇ" />
-          </h1>
-          <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-            Stanford CS HCI · APM @ Coinbase · NYC
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', minWidth: 0 }}>
+          <PixelEye height={28} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
+            <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
+              <TypewriterName text="DEFNE GENÇ" />
+            </h1>
+            <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+              Stanford CS HCI · APM @ Coinbase · NYC
+            </div>
           </div>
         </div>
         <div className="ns-seg" style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexShrink: 0 }}>
