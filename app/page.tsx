@@ -5,39 +5,35 @@ import AsciiCanvas from '@/components/AsciiCanvas'
 
 // ─── Pixel Eye Logo ───────────────────────────────────────────────────────────
 
-// 20×11 grid: 0=bg, 1=#111, 2=#1E1E1C, 3=#323230, 4=#DEDAD2(sclera), 5=#4E4C4A(iris), 6=#0A0A08(pupil)
+// 12×8 grid — fewer, larger cells so the cross-stitch gap is visible at logo size
+// 0=transparent, 1=frame, 2=inner frame, 3=sclera, 4=iris, 5=pupil
 const EYE_GRID = [
-  [0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
-  [0,0,0,1,1,2,3,3,3,3,3,3,3,3,2,1,1,0,0,0],
-  [0,0,1,2,2,3,4,4,4,4,4,4,4,4,3,2,2,1,0,0],
-  [0,1,2,3,4,4,4,4,4,4,4,4,4,4,4,4,3,2,1,0],
-  [1,2,3,4,4,5,5,5,5,5,5,5,5,5,4,4,4,3,2,1],
-  [1,2,3,4,5,5,6,6,6,6,6,6,6,5,5,4,4,3,2,1],
-  [1,2,3,4,4,5,5,5,5,5,5,5,5,5,4,4,4,3,2,1],
-  [0,1,2,3,4,4,4,4,4,4,4,4,4,4,4,4,3,2,1,0],
-  [0,0,1,2,2,3,4,4,4,4,4,4,4,4,3,2,2,1,0,0],
-  [0,0,0,1,1,2,3,3,3,3,3,3,3,3,2,1,1,0,0,0],
-  [0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
+  [0,0,1,1,1,1,1,1,1,1,0,0],
+  [0,1,2,2,2,2,2,2,2,2,1,0],
+  [1,2,2,3,3,3,3,3,3,2,2,1],
+  [1,2,3,3,4,4,4,4,3,3,2,1],
+  [1,2,3,4,4,5,5,4,4,3,2,1],
+  [1,2,3,3,4,4,4,4,3,3,2,1],
+  [0,1,2,2,2,2,2,2,2,2,1,0],
+  [0,0,1,1,1,1,1,1,1,1,0,0],
 ] as const
 
-const EYE_PALETTE = ['transparent','#111111','#1E1E1C','#323230','#DEDAD2','#4E4C4A','#0A0A08'] as const
+const EYE_PALETTE = ['transparent','#2E2E2C','#1E1E1C','#DEDAD2','#4A4846','#0A0A08'] as const
 
-function PixelEye({ height = 28 }: { height?: number }) {
-  const cols = EYE_GRID[0].length  // 20
-  const rows = EYE_GRID.length     // 11
-  const w = Math.round(height * cols / rows)
+function PixelEye() {
+  const cols = 12, rows = 8
+  const G = 0.12  // gap per side — 0.76×0.76 cell, ~1.8px gap at 44px height
+  const sz = 1 - G * 2
   return (
     <svg
       viewBox={`0 0 ${cols} ${rows}`}
-      width={w}
-      height={height}
       shapeRendering="crispEdges"
-      style={{ display: 'block', flexShrink: 0 }}
+      style={{ display: 'block', flexShrink: 0, height: 'clamp(28px, 3.2vw, 44px)', width: 'auto' }}
     >
       {EYE_GRID.map((row, y) =>
         row.map((v, x) =>
           v === 0 ? null : (
-            <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={EYE_PALETTE[v]} />
+            <rect key={`${x}-${y}`} x={x + G} y={y + G} width={sz} height={sz} fill={EYE_PALETTE[v]} />
           )
         )
       )}
@@ -286,7 +282,7 @@ export default function Home() {
       {/* ── NAME STRIP ── */}
       <div className="name-strip" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', minWidth: 0 }}>
-          <PixelEye height={28} />
+          <PixelEye />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
             <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
               <TypewriterName text="DEFNE GENÇ" />
