@@ -3,40 +3,45 @@
 import { useState, useEffect, useRef } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
 
-// ─── Pixel Eye Logo ───────────────────────────────────────────────────────────
+// ─── Ditherform Logo ──────────────────────────────────────────────────────────
+// Bayer-ordered dithering producing a halftone D — ported from Claude Design
 
-// 12×8 grid — fewer, larger cells so the cross-stitch gap is visible at logo size
-// 0=transparent, 1=frame, 2=inner frame, 3=sclera, 4=iris, 5=pupil
-const EYE_GRID = [
-  [0,0,1,1,1,1,1,1,1,1,0,0],
-  [0,1,2,2,2,2,2,2,2,2,1,0],
-  [1,2,2,3,3,3,3,3,3,2,2,1],
-  [1,2,3,3,4,4,4,4,3,3,2,1],
-  [1,2,3,4,4,5,5,4,4,3,2,1],
-  [1,2,3,3,4,4,4,4,3,3,2,1],
-  [0,1,2,2,2,2,2,2,2,2,1,0],
-  [0,0,1,1,1,1,1,1,1,1,0,0],
-] as const
+const BAYER_8 = [
+  [ 0,32, 8,40, 2,34,10,42],
+  [48,16,56,24,50,18,58,26],
+  [12,44, 4,36,14,46, 6,38],
+  [60,28,52,20,62,30,54,22],
+  [ 3,35,11,43, 1,33, 9,41],
+  [51,19,59,27,49,17,57,25],
+  [15,47, 7,39,13,45, 5,37],
+  [63,31,55,23,61,29,53,21],
+].map(r => r.map(v => (v + 0.5) / 64))
 
-const EYE_PALETTE = ['transparent','#2E2E2C','#1E1E1C','#DEDAD2','#4A4846','#0A0A08'] as const
-
-function PixelEye() {
-  const cols = 12, rows = 8
-  const G = 0.12  // gap per side — 0.76×0.76 cell, ~1.8px gap at 44px height
-  const sz = 1 - G * 2
+function DitherformLogo({ grid = 28 }: { grid?: number }) {
+  const cx = grid * 0.32, cy = grid * 0.5
+  const rOuter = grid * 0.55, rInner = rOuter * 0.45
+  const cells: React.ReactElement[] = []
+  for (let y = 0; y < grid; y++) {
+    for (let x = 0; x < grid; x++) {
+      const dx = x - cx, dy = y - cy
+      const d = Math.sqrt(dx*dx + dy*dy)
+      let v: number
+      if (d < rInner) v = 1
+      else if (d > rOuter) v = 0
+      else v = 1 - (d - rInner) / (rOuter - rInner)
+      if (x < grid * 0.18 && y > grid * 0.08 && y < grid * 0.92) v = Math.max(v, 1)
+      if (v > BAYER_8[y % 8][x % 8]) {
+        cells.push(<rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill="currentColor" />)
+      }
+    }
+  }
   return (
     <svg
-      viewBox={`0 0 ${cols} ${rows}`}
+      viewBox={`0 0 ${grid} ${grid}`}
       shapeRendering="crispEdges"
-      style={{ display: 'block', flexShrink: 0, height: 'clamp(28px, 3.2vw, 44px)', width: 'auto' }}
+      style={{ display: 'block', flexShrink: 0, height: 'clamp(28px, 3.2vw, 44px)', width: 'auto', color: 'var(--ink)' }}
     >
-      {EYE_GRID.map((row, y) =>
-        row.map((v, x) =>
-          v === 0 ? null : (
-            <rect key={`${x}-${y}`} x={x + G} y={y + G} width={sz} height={sz} fill={EYE_PALETTE[v]} />
-          )
-        )
-      )}
+      {cells}
     </svg>
   )
 }
@@ -282,7 +287,7 @@ export default function Home() {
       {/* ── NAME STRIP ── */}
       <div className="name-strip" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', minWidth: 0 }}>
-          <PixelEye />
+          <DitherformLogo />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: 0 }}>
             <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
               <TypewriterName text="DEFNE GENÇ" />

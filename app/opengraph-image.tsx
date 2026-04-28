@@ -5,76 +5,79 @@ export const alt = 'Defne Genç — Portfolio'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// 12×8 pixel eye grid (matches inline logo)
-// 0=bg, 1=frame, 2=inner frame, 3=sclera, 4=iris, 5=pupil
-const GRID = [
-  [0,0,1,1,1,1,1,1,1,1,0,0],
-  [0,1,2,2,2,2,2,2,2,2,1,0],
-  [1,2,2,3,3,3,3,3,3,2,2,1],
-  [1,2,3,3,4,4,4,4,3,3,2,1],
-  [1,2,3,4,4,5,5,4,4,3,2,1],
-  [1,2,3,3,4,4,4,4,3,3,2,1],
-  [0,1,2,2,2,2,2,2,2,2,1,0],
-  [0,0,1,1,1,1,1,1,1,1,0,0],
-]
+// Bayer 8×8 ordered dither — same algorithm as the inline DitherformLogo
+const BAYER_8 = [
+  [ 0,32, 8,40, 2,34,10,42],
+  [48,16,56,24,50,18,58,26],
+  [12,44, 4,36,14,46, 6,38],
+  [60,28,52,20,62,30,54,22],
+  [ 3,35,11,43, 1,33, 9,41],
+  [51,19,59,27,49,17,57,25],
+  [15,47, 7,39,13,45, 5,37],
+  [63,31,55,23,61,29,53,21],
+].map(r => r.map(v => (v + 0.5) / 64))
 
-const PALETTE: Record<number, string> = {
-  0: '#0A0A0A',
-  1: '#2E2E2C',
-  2: '#1E1E1C',
-  3: '#DEDAD2',
-  4: '#4A4846',
-  5: '#0A0A08',
+function computeDitherCells(grid: number): [number, number][] {
+  const cx = grid * 0.32, cy = grid * 0.5
+  const rOuter = grid * 0.55, rInner = rOuter * 0.45
+  const cells: [number, number][] = []
+  for (let y = 0; y < grid; y++) {
+    for (let x = 0; x < grid; x++) {
+      const dx = x - cx, dy = y - cy
+      const d = Math.sqrt(dx * dx + dy * dy)
+      let v: number
+      if (d < rInner) v = 1
+      else if (d > rOuter) v = 0
+      else v = 1 - (d - rInner) / (rOuter - rInner)
+      if (x < grid * 0.18 && y > grid * 0.08 && y < grid * 0.92) v = Math.max(v, 1)
+      if (v > BAYER_8[y % 8][x % 8]) cells.push([x, y])
+    }
+  }
+  return cells
 }
 
-const CELL = 44  // px per cell — large enough for clear cross-stitch gap
-const GAP  = 6   // gap between cells
-
 export default function OGImage() {
-  const gridW = GRID[0].length * (CELL + GAP) - GAP  // 12*(44+6)-6 = 594px
-  const gridH = GRID.length    * (CELL + GAP) - GAP  //  8*(44+6)-6 = 394px
+  const grid = 56
+  const cell = 8   // px per cell at 56-grid — total logo ~448×448px
+  const cells = computeDitherCells(grid)
+  const logoSize = grid * cell
 
   return new ImageResponse(
     (
       <div
         style={{
-          width: '100%',
-          height: '100%',
-          background: '#0A0A0A',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 52,
+          width: '100%', height: '100%',
+          background: '#070707',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          gap: 48,
           fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
-        {/* pixel eye grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: GAP, width: gridW, height: gridH }}>
-          {GRID.map((row, y) => (
-            <div key={y} style={{ display: 'flex', gap: GAP }}>
-              {row.map((v, x) => (
-                <div
-                  key={x}
-                  style={{
-                    width: CELL,
-                    height: CELL,
-                    background: PALETTE[v],
-                    flexShrink: 0,
-                  }}
-                />
-              ))}
-            </div>
+        {/* Ditherform mark */}
+        <div style={{ position: 'relative', width: logoSize, height: logoSize, display: 'flex' }}>
+          {cells.map(([x, y]) => (
+            <div
+              key={`${x}-${y}`}
+              style={{
+                position: 'absolute',
+                left: x * cell,
+                top: y * cell,
+                width: cell,
+                height: cell,
+                background: '#e8e8e3',
+              }}
+            />
           ))}
         </div>
 
-        {/* name + sub */}
+        {/* name + subtitle */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
-          <div style={{ color: '#E8E6E0', fontSize: 88, fontWeight: 400, letterSpacing: '-4px', lineHeight: 1 }}>
+          <div style={{ color: '#e8e8e3', fontSize: 84, fontWeight: 400, letterSpacing: '-3px', lineHeight: 1 }}>
             DEFNE GENÇ
           </div>
-          <div style={{ color: '#AEADA6', fontSize: 28, letterSpacing: '2px', textTransform: 'uppercase' }}>
-            Stanford CS HCI · APM @ Coinbase
+          <div style={{ color: '#666662', fontSize: 26, letterSpacing: '3px' }}>
+            STANFORD CS HCI · APM @ COINBASE
           </div>
         </div>
       </div>
