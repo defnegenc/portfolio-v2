@@ -19,7 +19,7 @@ type Section =
   | { type: 'diagram'; id: string }
   | { type: 'stats'; items: { value: string; label: string }[] }
   | { type: 'list'; label: string; items: string[]; numbered?: boolean }
-  | { type: 'tiles'; items: { label: string; body: string }[] }
+  | { type: 'tiles'; items: { title: string; rows: { label?: string; body: string }[]; featured?: boolean }[] }
   | { type: 'subheader'; text: string; id?: string }
 
 interface Project {
@@ -153,9 +153,13 @@ const PROJECTS: Record<string, Project> = {
         text: 'I\u2019m always indecisive at restaurants, and when I do decide, it\u2019s always the wrong thing.',
       },
       {
-        type: 'text',
-        label: 'Why Not Just Ask an LLM?',
-        body: 'You could send ChatGPT a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer with no memory of what you\u2019ve liked before, no awareness of what reviewers say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings, and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions over time.',
+        type: 'tiles',
+        items: [{
+          title: 'Why Not Just Ask an LLM?',
+          rows: [{
+            body: 'You could send a model a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer with no memory of what you\u2019ve liked before, no awareness of what reviewers say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings, and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions over time.',
+          }],
+        }],
       },
       {
         type: 'stats',
@@ -172,32 +176,20 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'phones',
-        label: 'Search for a restaurant by name or browse nearby. Tap into one to see its full menu.',
+        label: 'Find a restaurant and browse its full menu, then set your mood: how hungry you are, how adventurous, what you’re craving, and how you’re dining.',
         items: [
           { src: '/choosedish2.png', alt: 'Restaurant search results', caption: 'Find a restaurant' },
           { src: '/restaurantdetailscreen.png', alt: 'Restaurant detail with menu', caption: 'Browse the full menu' },
-        ],
-      },
-      {
-        type: 'phones',
-        label: 'Set your mood: how hungry you are, how adventurous, what you\'re craving, and how you\'re dining.',
-        items: [
           { src: '/choosedish3.png', alt: 'Preference sliders', caption: 'Hunger and taste sliders' },
           { src: '/choosedish4.png', alt: 'Craving and dining style', caption: 'Cravings and dining context' },
         ],
       },
       {
         type: 'phones',
-        label: 'The agent reasons about your signals and returns personalized picks with explanations.',
+        label: 'The agent reasons about your signals and returns personalized picks with explanations. Rate dishes after your meal; your favorites carry across restaurants for future visits.',
         items: [
           { src: '/dishesloading.png', alt: 'Agent thinking', caption: 'Browsing the kitchen' },
           { src: '/chosendishes.png', alt: 'Recommended dishes', caption: 'Your picks with reasons' },
-        ],
-      },
-      {
-        type: 'phones',
-        label: 'Rate dishes after your meal. Your favorites carry across restaurants for future visits.',
-        items: [
           { src: '/ratedishes.png', alt: 'Rate your dishes', caption: 'Rate and save favorites' },
           { src: '/Your-Restaurants.png', alt: 'Saved restaurants', caption: 'Your restaurant list' },
         ],
@@ -211,69 +203,75 @@ const PROJECTS: Record<string, Project> = {
         id: 'menuto-pipeline',
       },
       {
-        type: 'text',
-        label: 'Agent-First Architecture',
-        body: 'Rather than rigid scoring formulas, an LLM agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context.',
-      },
-      {
-        type: 'list',
-        label: 'The Pipeline',
+        type: 'tiles',
         items: [
-          'Data Gathering: 8 signal sources per dish. Parsed menu items, Google Places reviews (cached 14 days), review-based dish popularity via mention frequency, cross-user order counts, past ratings, behavioral signals (views/orders/favorites), LLM-extracted taste keywords from feedback text, and embedding-based taste similarity (cosine similarity computed in 2 batch API calls).',
-          'Dietary Filtering: The only rigid step. LLM-generated dietary flags per dish, with explicit instructions to catch hidden ingredients (anchovy in Caesar dressing, fish sauce in Pad Thai, parmesan in pesto). Falls back to a 30+ term keyword list for menus parsed before LLM tagging was added.',
-          'Signal Enrichment: Each candidate gets readable flags attached. MATCHES YOUR TASTE, POPULAR (60%), WELL-REVIEWED, LOOKED AT BUT NEVER ORDERED, HAS FLAVORS YOU LIKE. No numerical scoring, just facts the agent can reason about.',
-          'Agent Selection: The agent receives the full user narrative. Taste profile, spice tolerance, learned flavor preferences, hunger level, cravings, adventure-vs-safe slider, dining occasion, free-text mood input, history at this restaurant, and what\'s popular. It reasons about meal composition, honors cravings, and writes personal explanations per dish.',
-          'Feedback Loop: After ordering, the user rates dishes with quick-tap tags and optional free-text notes. The LLM extracts taste signals from the text. \u201cLoved the cream sauce\u201d becomes a liked: [\u201ccream\u201d, \u201crich sauce\u201d] signal that boosts similar dishes in future visits.',
+          {
+            title: 'Agent-First Architecture',
+            rows: [{
+              body: 'Rather than rigid scoring formulas, an LLM agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context.',
+            }],
+          },
+          {
+            title: 'Research Foundations',
+            rows: [{
+              body: 'Informed by Microsoft\u2019s RecAI framework (Zhao et al., ACM Web Conference 2024): the \u201cLLM-as-brain, traditional-models-as-tools\u201d pattern where traditional signals handle candidate generation and the LLM handles final reasoning. The serendipity slot draws from SERAL (Chen et al., \u201cSerendipity-Enhanced Recommender Agent with LLM,\u201d arXiv 2502.07132, Feb 2025) on filter bubble mitigation. The implicit negative feedback model follows Hu, Koren & Volinsky\u2019s foundational work on collaborative filtering for implicit feedback datasets (IEEE ICDM 2008).',
+            }],
+          },
         ],
       },
       {
-        type: 'text',
-        label: 'Research Foundations',
-        body: 'Informed by Microsoft\u2019s RecAI framework (Zhao et al., ACM Web Conference 2024): the \u201cLLM-as-brain, traditional-models-as-tools\u201d pattern where traditional signals handle candidate generation and the LLM handles final reasoning. The serendipity slot draws from SERAL (Chen et al., \u201cSerendipity-Enhanced Recommender Agent with LLM,\u201d arXiv 2502.07132, Feb 2025) on filter bubble mitigation. The implicit negative feedback model follows Hu, Koren & Volinsky\u2019s foundational work on collaborative filtering for implicit feedback datasets (IEEE ICDM 2008).',
-      },
-      {
-        type: 'subheader',
-        text: 'How It Learns',
+        type: 'tiles',
+        items: [{
+          title: 'The Pipeline',
+          rows: [
+            { label: 'Data Gathering', body: '8 signal sources per dish. Parsed menu items, Google Places reviews (cached 14 days), review-based dish popularity via mention frequency, cross-user order counts, past ratings, behavioral signals (views/orders/favorites), LLM-extracted taste keywords from feedback text, and embedding-based taste similarity (cosine similarity computed in 2 batch API calls).' },
+            { label: 'Dietary Filtering', body: 'The only rigid step. LLM-generated dietary flags per dish, with explicit instructions to catch hidden ingredients (anchovy in Caesar dressing, fish sauce in Pad Thai, parmesan in pesto). Falls back to a 30+ term keyword list for menus parsed before LLM tagging was added.' },
+            { label: 'Signal Enrichment', body: 'Each candidate gets readable flags attached. MATCHES YOUR TASTE, POPULAR (60%), WELL-REVIEWED, LOOKED AT BUT NEVER ORDERED, HAS FLAVORS YOU LIKE. No numerical scoring, just facts the agent can reason about.' },
+            { label: 'Agent Selection', body: 'The agent receives the full user narrative. Taste profile, spice tolerance, learned flavor preferences, hunger level, cravings, adventure-vs-safe slider, dining occasion, free-text mood input, history at this restaurant, and what\'s popular. It reasons about meal composition, honors cravings, and writes personal explanations per dish.' },
+            { label: 'Feedback Loop', body: 'After ordering, the user rates dishes with quick-tap tags and optional free-text notes. The LLM extracts taste signals from the text. \u201cLoved the cream sauce\u201d becomes a liked: [\u201ccream\u201d, \u201crich sauce\u201d] signal that boosts similar dishes in future visits.' },
+          ],
+        }],
       },
       {
         type: 'tiles',
         items: [
           {
-            label: 'Thompson Sampling for Weight Learning',
-            body: 'The 8-component scoring algorithm doesn\'t use fixed weights. Each user has Bayesian priors (alpha/beta per component) that update every time they rate a dish. Over time, the system learns whether a specific user responds more to popularity signals vs. personal taste matching vs. craving alignment, without needing a cold-start dataset. After ~10 ratings, the weights diverge meaningfully from the uniform prior.',
+            title: 'How It Learns',
+            rows: [
+              {
+                label: 'Thompson Sampling for Weight Learning',
+                body: 'The 8-component scoring algorithm doesn\'t use fixed weights. Each user has Bayesian priors (alpha/beta per component) that update every time they rate a dish. Over time, the system learns whether a specific user responds more to popularity signals vs. personal taste matching vs. craving alignment, without needing a cold-start dataset. After ~10 ratings, the weights diverge meaningfully from the uniform prior.',
+              },
+              {
+                label: 'Embedding-Based Taste Compatibility',
+                body: 'Both the user\'s taste profile and each dish description are embedded into the same vector space via gemini-embedding-001, then scored by cosine similarity. Someone who likes "creamy burrata" will score well on "stracciatella with olive oil" even though no keywords overlap. Two API calls total: one for the taste profile, one batch for all candidates.',
+              },
+              {
+                label: 'Review Sentiment Decomposition',
+                body: 'Google Places reviews are processed through the LLM to extract per-dish sentiment. \u201cThe cacio e pepe was transcendent but the tiramisu was dry\u201d gets decomposed into dish-level praise and criticism scores that feed directly into the recommendation\'s customer_praise component. Cached 14 days in Supabase to stay within the Places API free tier.',
+              },
+            ],
           },
           {
-            label: 'Embedding-Based Taste Compatibility',
-            body: 'Both the user\'s taste profile and each dish description are embedded into the same vector space via gemini-embedding-001, then scored by cosine similarity. Someone who likes "creamy burrata" will score well on "stracciatella with olive oil" even though no keywords overlap. Two API calls total: one for the taste profile, one batch for all candidates.',
-          },
-          {
-            label: 'Review Sentiment Decomposition',
-            body: 'Google Places reviews are processed through the LLM to extract per-dish sentiment. \u201cThe cacio e pepe was transcendent but the tiramisu was dry\u201d gets decomposed into dish-level praise and criticism scores that feed directly into the recommendation\'s customer_praise component. Cached 14 days in Supabase to stay within the Places API free tier.',
-          },
-        ],
-      },
-      {
-        type: 'subheader',
-        text: 'System Design',
-      },
-      {
-        type: 'tiles',
-        items: [
-          {
-            label: 'Multi-modal menu ingestion',
-            body: 'Three input paths (URL/HTML scraping, PDF extraction via PyMuPDF, camera photo via LLM vision) all normalize into the same ParsedDish schema. Auto-detects content type from response headers with byte-sniffing fallback.',
-          },
-          {
-            label: 'Composite scoring, 8 components',
-            body: 'Personal taste (embedding similarity), craving match, hunger appropriateness, popularity/sentiment, dietary compliance, cuisine affinity, price fit, and friend boost. The system can explain exactly why a dish was recommended by surfacing which components dominated.',
-          },
-          {
-            label: 'Behavioral signals as separate tables',
-            body: 'dish_views, dish_ratings, dish_orders, dish_favorites are separate normalized tables rather than a single interactions table. Enables efficient per-signal queries and signal-specific columns (hunger_level_when_ordered on orders, taste_signals JSONB on ratings).',
-          },
-          {
-            label: 'Cold start via cross-user popularity',
-            body: 'New users with no history get recommendations weighted toward what other users ordered and review sentiment. Free-text mood input ("celebrating tonight") gives the agent rich context even without rating history.',
+            title: 'System Design',
+            rows: [
+              {
+                label: 'Multi-modal menu ingestion',
+                body: 'Three input paths (URL/HTML scraping, PDF extraction via PyMuPDF, camera photo via LLM vision) all normalize into the same ParsedDish schema. Auto-detects content type from response headers with byte-sniffing fallback.',
+              },
+              {
+                label: 'Composite scoring, 8 components',
+                body: 'Personal taste (embedding similarity), craving match, hunger appropriateness, popularity/sentiment, dietary compliance, cuisine affinity, price fit, and friend boost. The system can explain exactly why a dish was recommended by surfacing which components dominated.',
+              },
+              {
+                label: 'Behavioral signals as separate tables',
+                body: 'dish_views, dish_ratings, dish_orders, dish_favorites are separate normalized tables rather than a single interactions table. Enables efficient per-signal queries and signal-specific columns (hunger_level_when_ordered on orders, taste_signals JSONB on ratings).',
+              },
+              {
+                label: 'Cold start via cross-user popularity',
+                body: 'New users with no history get recommendations weighted toward what other users ordered and review sentiment. Free-text mood input ("celebrating tonight") gives the agent rich context even without rating history.',
+              },
+            ],
           },
         ],
       },
@@ -299,21 +297,21 @@ const PROJECTS: Record<string, Project> = {
         text: 'I didn\u2019t want to stray from the literature after leaving research and entering the workforce, but I didn\u2019t want to read entire papers either. I wanted to see what\u2019s out there and find new things to be genuinely curious about.',
       },
       {
-        type: 'image',
-        src: '/learningetal-cover.png',
-        alt: 'Learning Et Al. interface',
-        aspect: '16/9',
-      },
-      {
         type: 'tiles',
         items: [
           {
-            label: 'The Core Idea',
-            body: 'Three things differentiate this from a paper search engine. **First**, it generates a central question before searching. A sample of your interests gets fed to the model, which produces a theme like \u201cCan AI agents be fashionable?\u201d and search queries. Papers from adjacent fields get pulled in deliberately; cross-domain pairings are the point, not an artifact. **Second**, candidates are ranked by combining keyword matching with semantic similarity, diversity-filtered so the final pool isn\u2019t variations of the same finding, then an LLM picks the final 2\u20133 by complementarity: which papers make the best argument together. **Third**, synthesis builds an argument skeleton before writing any prose: which paper supports the theme, which complicates it, where the tension is. Then it critiques the draft on factual accuracy and structural dimensions before output.',
+            title: 'The Core Idea',
+            featured: true,
+            rows: [{
+              body: 'It generates a central question from your interests before searching, then deliberately pulls in papers from adjacent fields so the pairings are cross-domain by design. Candidates are ranked by relevance and diversity, and an LLM picks the two or three that make the best **argument** together. Synthesis builds a structured skeleton before writing, so you get an argument, not parallel summaries.',
+            }],
           },
           {
-            label: 'One Digest Per Day',
-            body: 'You get one curated digest each morning. You can\u2019t regenerate it. The constraint is the product: either you engage with today\u2019s papers, dig deeper, ask questions, take notes, or you wait for tomorrow. This is anti-engagement-maximizing by design. The value is in curation, not volume.',
+            title: 'One Digest Per Day',
+            featured: true,
+            rows: [{
+              body: 'You get one curated digest each morning. You can\u2019t regenerate it. The constraint is the product: either you engage with today\u2019s papers, dig deeper, ask questions, take notes, or you wait for tomorrow. This is anti-engagement-maximizing by design. The value is in curation, not volume.',
+            }],
           },
         ],
       },
@@ -326,80 +324,97 @@ const PROJECTS: Record<string, Project> = {
         id: 'learningetal-pipeline',
       },
       {
-        type: 'text',
-        label: 'The Synthesis Pipeline',
-        body: 'You could ask an LLM to summarize papers about X. When papers are on the same narrow topic, that works. When they span different fields, as they do here, a summary produces parallel descriptions rather than an argument. The synthesis has to build the connection. The current approach writes a **structured skeleton first**: which paper supports the theme, which complicates it, where the tension is. Only then does prose get written, scored across six dimensions, and revised against specific failure modes. Single-call and 7-call approaches both read like book reports. The skeleton-first architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
-      },
-      {
-        type: 'text',
-        label: 'Follow-Up Questions',
-        body: 'Each digest suggests questions targeting the specific detail in each paper most likely to make a reader want to know more: the mechanism that\u2019s glossed over, the assumption that\u2019s doing heavy lifting. Generic questions (\u201cWhat are the implications?\u201d) are explicitly banned. Answers are pre-generated at digest creation time so they\u2019re instant for every visitor.',
-      },
-      {
-        type: 'list',
-        label: 'How It Works',
-        numbered: true,
+        type: 'tiles',
         items: [
-          'Interest sampling: It samples from your interests, weighting down topics covered recently, then asks the LLM to turn them into a central question (max 8 words) and a few search queries. If the question is too similar to one from the past few days, it tries a different angle.',
-          'Paper fetching: For each query it tries OpenAlex first, falls back to Semantic Scholar, then arXiv. About 10 results per query, deduplicated across sources.',
-          'Relevance scoring: Every candidate is scored two ways: semantic similarity (do the paper\u2019s ideas match the theme?) and keyword overlap (does it share key terms?). The two signals are fused. Papers from predatory journals are dropped; recent papers and high-quality venues get a small boost. Anything below the similarity threshold is cut. If too few pass, the threshold relaxes; if it still can\u2019t find enough, it restarts from step 1 with a new theme.',
-          'Diversity pool: From the papers that passed, 6 are selected so each pick maximizes relevance while minimizing overlap with what\u2019s already been chosen. Prevents 6 variations of the same finding.',
-          'Complementarity: The 6-paper pool goes to the LLM, which chooses the 2\u20133 that make the most interesting argument together, looking for papers that support, complicate, or explain each other rather than just agreeing. Each paper gets a short nickname anchored to the author\u2019s name.',
-          'News (parallel): While papers are being scored, it searches the web for recent coverage of the same theme. How many news items to include is decided dynamically: 3 or more strong papers and news is skipped entirely; thin papers and news fills the gap.',
-          'Synthesis: Multi-stage writing: argument skeleton first, then a full draft, then self-critique scoring specificity and flagging clich\u00e9s or vague claims, then targeted revision. A final coverage check verifies every paper got cited correctly.',
+          {
+            title: 'The Synthesis Pipeline',
+            rows: [{
+              body: 'You could ask an LLM to summarize papers about X. When papers are on the same narrow topic, that works. When they span different fields, as they do here, a summary produces parallel descriptions rather than an argument. The synthesis has to build the connection. The current approach writes a **structured skeleton first**: which paper supports the theme, which complicates it, where the tension is. Only then does prose get written, scored across six dimensions, and revised against specific failure modes. Single-call and 7-call approaches both read like book reports. The skeleton-first architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+            }],
+          },
+          {
+            title: 'Follow-Up Questions',
+            rows: [{
+              body: 'Each digest suggests questions targeting the specific detail in each paper most likely to make a reader want to know more: the mechanism that\u2019s glossed over, the assumption that\u2019s doing heavy lifting. Generic questions (\u201cWhat are the implications?\u201d) are explicitly banned. Answers are pre-generated at digest creation time so they\u2019re instant for every visitor.',
+            }],
+          },
         ],
       },
       {
-        type: 'text',
-        label: 'Self-Correcting Loops',
-        body: 'Each stage assumes the previous one may have gotten something wrong. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract; if a summary looks disconnected from its source (a hallucination mode when multiple papers share context), it falls back to the abstract\u2019s first sentence. Synthesis drafts are checked for **factual accuracy** against each paper\u2019s findings before style critique runs. A final **coverage gate** verifies each paper appears by name; if one was dropped during revision, a targeted rewrite re-inserts it.',
+        type: 'tiles',
+        items: [{
+          title: 'How It Works',
+          rows: [
+            { label: 'Interest sampling', body: 'It samples from your interests, weighting down topics covered recently, then asks the LLM to turn them into a central question (max 8 words) and a few search queries. If the question is too similar to one from the past few days, it tries a different angle.' },
+            { label: 'Paper fetching', body: 'For each query it tries OpenAlex first, falls back to Semantic Scholar, then arXiv. About 10 results per query, deduplicated across sources.' },
+            { label: 'Relevance scoring', body: 'Every candidate is scored two ways: semantic similarity (do the paper\u2019s ideas match the theme?) and keyword overlap (does it share key terms?). The two signals are fused. Papers from predatory journals are dropped; recent papers and high-quality venues get a small boost. Anything below the similarity threshold is cut. If too few pass, the threshold relaxes; if it still can\u2019t find enough, it restarts from step 1 with a new theme.' },
+            { label: 'Diversity pool', body: 'From the papers that passed, 6 are selected so each pick maximizes relevance while minimizing overlap with what\u2019s already been chosen. Prevents 6 variations of the same finding.' },
+            { label: 'Complementarity', body: 'The 6-paper pool goes to the LLM, which chooses the 2\u20133 that make the most interesting argument together, looking for papers that support, complicate, or explain each other rather than just agreeing. Each paper gets a short nickname anchored to the author\u2019s name.' },
+            { label: 'News (parallel)', body: 'While papers are being scored, it searches the web for recent coverage of the same theme. How many news items to include is decided dynamically: 3 or more strong papers and news is skipped entirely; thin papers and news fills the gap.' },
+            { label: 'Synthesis', body: 'Multi-stage writing: argument skeleton first, then a full draft, then self-critique scoring specificity and flagging clich\u00e9s or vague claims, then targeted revision. A final coverage check verifies every paper got cited correctly.' },
+          ],
+        }],
+      },
+      {
+        type: 'tiles',
+        items: [{
+          title: 'Self-Correcting Loops',
+          rows: [{
+            body: 'Each stage assumes the previous one may have gotten something wrong. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract; if a summary looks disconnected from its source (a hallucination mode when multiple papers share context), it falls back to the abstract\u2019s first sentence. Synthesis drafts are checked for **factual accuracy** against each paper\u2019s findings before style critique runs. A final **coverage gate** verifies each paper appears by name; if one was dropped during revision, a targeted rewrite re-inserts it.',
+          }],
+        }],
       },
       {
         type: 'tiles',
         items: [
           {
-            label: 'Theme novelty',
-            body: 'New themes are compared against the last 5 via embedding cosine similarity. If similarity exceeds 0.5, the system retries with different interest combinations. Without this, themes converge to a predictable template within weeks.',
+            title: 'Staying Interesting',
+            rows: [
+              {
+                label: 'Theme novelty',
+                body: 'New themes are compared against the last 5 via embedding cosine similarity. If similarity exceeds 0.5, the system retries with different interest combinations. Without this, themes converge to a predictable template within weeks.',
+              },
+              {
+                label: 'Interest decay',
+                body: 'Topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose; a single starred paper once dominated the feed.',
+              },
+              {
+                label: 'Antipattern prompting',
+                body: 'Generative models route around banned strings. Banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
+              },
+            ],
           },
           {
-            label: 'Interest decay',
-            body: 'Topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose; a single starred paper once dominated the feed.',
-          },
-          {
-            label: 'Antipattern prompting',
-            body: 'Generative models route around banned strings. Banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
+            title: 'Things I Reworked',
+            rows: [
+              {
+                label: 'Theme generation',
+                body: 'Started with a \u201cbest paper\u201d anchor, scrapped when highly-cited papers pulled in wrong-field methodology papers. Tried mandatory theme revision; quality improved, then backfired when the LLM warped themes to fit weak papers rather than discard them. Conditional revision with a clear \u201ckeep if it fits\u201d exit works better.',
+              },
+              {
+                label: 'Paper selection and filtering',
+                body: 'Citation graph \u2192 keyword matching \u2192 embedding-only \u2192 BM25+embedding RRF with MMR diversity. Added hard blocklists for predatory publishers and soft penalties for high-volume journals. Added a domain gate after the complementarity step started producing cross-field analogies instead of thematically connected papers.',
+              },
+              {
+                label: 'Synthesis quality',
+                body: 'Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The LLM consistently produced vague, pattern-heavy prose; fixing this required moving from banned phrases to pattern families, and from style rules to factual requirements.',
+              },
+              {
+                label: 'News sources',
+                body: 'Hardcoded RSS \u2192 DuckDuckGo scraping (broke on one CSS change) \u2192 Serper/DDG with User-Agent rotation and field-specific RSS fallback.',
+              },
+            ],
           },
         ],
-      },
-      {
-        type: 'subheader',
-        text: 'Things I Reworked',
       },
       {
         type: 'tiles',
-        items: [
-          {
-            label: 'Theme generation',
-            body: 'Started with a \u201cbest paper\u201d anchor, scrapped when highly-cited papers pulled in wrong-field methodology papers. Tried mandatory theme revision; quality improved, then backfired when the LLM warped themes to fit weak papers rather than discard them. Conditional revision with a clear \u201ckeep if it fits\u201d exit works better.',
-          },
-          {
-            label: 'Paper selection and filtering',
-            body: 'Citation graph \u2192 keyword matching \u2192 embedding-only \u2192 BM25+embedding RRF with MMR diversity. Added hard blocklists for predatory publishers and soft penalties for high-volume journals. Added a domain gate after the complementarity step started producing cross-field analogies instead of thematically connected papers.',
-          },
-          {
-            label: 'Synthesis quality',
-            body: 'Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The LLM consistently produced vague, pattern-heavy prose; fixing this required moving from banned phrases to pattern families, and from style rules to factual requirements.',
-          },
-          {
-            label: 'News sources',
-            body: 'Hardcoded RSS \u2192 DuckDuckGo scraping (broke on one CSS change) \u2192 Serper/DDG with User-Agent rotation and field-specific RSS fallback.',
-          },
-        ],
-      },
-      {
-        type: 'text',
-        label: 'The Vault',
-        body: 'Past digests live in a searchable archive where you can browse themes over time and compare any two papers side by side. Brutalist research archive aesthetic: hard borders, box shadows, crosshair cursor, accent colors only in tags.',
+        items: [{
+          title: 'The Vault',
+          rows: [{
+            body: 'Past digests live in a searchable archive where you can browse themes over time and compare any two papers side by side. Brutalist research archive aesthetic: hard borders, box shadows, crosshair cursor, accent colors only in tags.',
+          }],
+        }],
       },
     ],
   },
@@ -854,7 +869,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           ← Work
         </Link>
         <span style={{ ...mono, fontSize: '0.72rem', color: 'rgba(136,136,128,0.4)', letterSpacing: '0.1em' }}>
-          {project.no} / {project.name.toUpperCase()}
+          {project.name.toUpperCase()}
         </span>
         <Link href="/resume" style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
           Résumé →
@@ -865,17 +880,23 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
         {/* Hero */}
         <div style={{ padding: '3rem 0 2.5rem', borderBottom: `1px solid ${HL}` }}>
-          <div style={{ ...mono, fontSize: '0.72rem', color: project.accentColor, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
+          {/* Eyebrow tags (full width, above both columns) */}
+          <div style={{ ...mono, fontSize: '0.72rem', color: project.accentColor, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.5rem' }}>
             {project.tags.join(' · ')}
           </div>
+
+          <div className="section-row" style={{ display: 'grid', gridTemplateColumns: '1.65fr 1fr', gap: '3rem', alignItems: 'start' }}>
+
+          {/* Left: name + description */}
+          <div>
           <h1 style={{ ...heroTitle, marginBottom: '1.25rem' }}>
             {project.name}
           </h1>
-          <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.15rem)', fontWeight: 300, lineHeight: 1.6, color: 'var(--ink-dim)', maxWidth: 640, marginBottom: '2.5rem' }}>
+          <p style={{ fontSize: 'clamp(0.95rem, 1.3vw, 1.08rem)', fontWeight: 300, lineHeight: 1.6, color: 'var(--ink-dim)', marginBottom: '2rem' }}>
             {project.tagline}
           </p>
 
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {project.externalLink && (
               <a href={project.externalLink.href} target="_blank" rel="noreferrer"
                 style={{ ...mono, display: 'inline-block', fontSize: '0.75rem', color: '#fff', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', background: project.accentColor, padding: '0.7rem 1.5rem', fontWeight: 600 }}>
@@ -895,9 +916,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               </a>
             )}
           </div>
+          </div>
 
-          {/* Meta grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1.25rem 2rem' }}>
+          {/* Right: meta spec sheet */}
+          <div style={{ borderTop: `1px solid ${HL}` }}>
             {[
               { label: 'Year', value: project.year },
               { label: 'Role', value: project.role },
@@ -906,20 +928,21 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               project.tools ? { label: 'Tools', value: project.tools } : null,
               project.awards ? { label: 'Awards', value: project.awards } : null,
             ].filter(Boolean).map(item => item && (
-              <div key={item.label}>
-                <div style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
+              <div key={item.label} style={{ display: 'grid', gridTemplateColumns: '4.75rem 1fr', gap: '1rem', padding: '0.7rem 0', borderBottom: `1px solid ${HL}`, alignItems: 'baseline' }}>
+                <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.65 }}>
                   {item.label}
                 </div>
-                <div style={{ fontSize: '0.88rem', lineHeight: 1.5, color: 'var(--ink-dim)' }}>
+                <div style={{ fontSize: '0.85rem', lineHeight: 1.45, color: 'var(--ink)' }}>
                   {item.value}
                 </div>
               </div>
             ))}
           </div>
+          </div>
 
           {/* Citation (full-width, copyable) */}
           {project.citation && (
-            <div style={{ marginTop: '1.5rem' }}>
+            <div style={{ marginTop: '1.75rem' }}>
               <div style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.4rem', opacity: 0.6 }}>
                 Citation
               </div>
@@ -1022,22 +1045,25 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
 
     case 'pullquote':
       return (
-        <div style={{ borderLeft: `3px solid ${accent}`, paddingLeft: '1.5rem', margin: '0.5rem 0', background: 'rgba(26,25,24,0.03)', padding: '1.25rem 1.5rem' }}>
-          <p style={{ fontSize: 'clamp(1.05rem, 1.8vw, 1.25rem)', fontWeight: 400, lineHeight: 1.65, color: 'var(--ink)', fontStyle: 'italic', letterSpacing: '-0.01em' }}>
+        <figure style={{ margin: '1.5rem auto', maxWidth: 820, textAlign: 'center' }}>
+          <div aria-hidden="true" style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 'clamp(3rem, 5vw, 4rem)', lineHeight: 0.5, color: accent, fontWeight: 700, marginBottom: '1rem', userSelect: 'none' }}>
+            “
+          </div>
+          <blockquote style={{ margin: 0, fontSize: 'clamp(1.2rem, 2.2vw, 1.6rem)', fontWeight: 400, lineHeight: 1.45, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
             {section.text}
-          </p>
-        </div>
+          </blockquote>
+        </figure>
       )
 
     case 'stats':
       return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '1.25rem', padding: '1.75rem 0', borderTop: `1px solid ${HL}`, borderBottom: `1px solid ${HL}` }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '2.5rem', padding: '2rem 0', borderTop: `1px solid ${HL}`, borderBottom: `1px solid ${HL}` }}>
           {section.items.map(item => (
             <div key={item.label}>
-              <div style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', fontWeight: 300, letterSpacing: '-0.05em', color: accent, lineHeight: 1, marginBottom: '0.4rem' }}>
+              <div style={{ fontSize: 'clamp(2rem, 3.5vw, 2.8rem)', fontWeight: 300, letterSpacing: '-0.05em', color: accent, lineHeight: 1, marginBottom: '0.5rem' }}>
                 {item.value}
               </div>
-              <div style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)', lineHeight: 1.4 }}>
+              <div style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', lineHeight: 1.45 }}>
                 {item.label}
               </div>
             </div>
@@ -1092,52 +1118,51 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
     }
 
     case 'phones': {
-      const phoneRow = (
-        <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          {section.items.map((item, i) => (
-            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: '0 1 180px', maxWidth: 200, minWidth: 130 }}>
-              <div style={{
-                width: '100%',
-                background: '#000',
-                borderRadius: 'clamp(18px, 2.5vw, 26px)',
-                padding: 'clamp(3px, 0.4vw, 5px)',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
-                position: 'relative' as const,
-              }}>
+      // Compact screens, 4 across, with a readable caption under each.
+      return (
+        <div>
+          {section.label && (
+            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, maxWidth: 760, marginBottom: '1.5rem' }}>
+              {section.label}
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: 'clamp(1rem, 2vw, 2rem)', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+            {section.items.map((item, i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.85rem', flex: '1 1 0', maxWidth: 210, minWidth: 130 }}>
                 <div style={{
-                  borderRadius: 'clamp(15px, 2vw, 22px)',
-                  overflow: 'hidden',
+                  width: '100%',
+                  background: '#000',
+                  borderRadius: 'clamp(18px, 2.5vw, 26px)',
+                  padding: 'clamp(3px, 0.4vw, 5px)',
+                  boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
                   position: 'relative' as const,
-                  aspectRatio: '9/19.5',
                 }}>
-                  <Image src={item.src} alt={item.alt} fill style={{ objectFit: 'cover' }} />
+                  <div style={{
+                    borderRadius: 'clamp(15px, 2vw, 22px)',
+                    overflow: 'hidden',
+                    position: 'relative' as const,
+                    aspectRatio: '9/19.5',
+                  }}>
+                    <Image src={item.src} alt={item.alt} fill sizes="210px" style={{ objectFit: 'cover' }} />
+                  </div>
                 </div>
+                {item.caption && (
+                  <div style={{ fontSize: '0.85rem', color: 'var(--ink-dim)', textAlign: 'center' as const, lineHeight: 1.4, maxWidth: 200 }}>
+                    {item.caption}
+                  </div>
+                )}
               </div>
-              {item.caption && (
-                <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textAlign: 'center' as const, lineHeight: 1.35 }}>
-                  {item.caption}
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )
-      // With a label, lay the narrative beside the screens (collapses on mobile via .section-row).
-      return section.label ? (
-        <div className="section-row" style={{ display: 'grid', gridTemplateColumns: '0.55fr 2fr', gap: '3rem', alignItems: 'center' }}>
-          <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300 }}>
-            {section.label}
-          </p>
-          {phoneRow}
-        </div>
-      ) : phoneRow
     }
 
     case 'tiles':
       return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: section.items.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
           {section.items.map((item, i) => (
-            <ExpandableTile key={i} label={item.label} body={item.body} accent={accent} />
+            <ExpandableTile key={i} title={item.title} rows={item.rows} accent={accent} featured={item.featured} />
           ))}
         </div>
       )
@@ -1156,7 +1181,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
 
 function MenutoPipelineDiagram() {
   const mono = "'Fragment Mono', monospace"
-  const c = { bg: '#FFF5F5', accent: '#D8131F', accentLight: '#FDDCDC', border: '#E8CDCD', text: '#1A1918', dim: '#5A5955' }
+  const c = { bg: '#F7CACA', accent: '#D8131F', accentLight: '#F0A9A9', border: '#E89B9B', text: '#1A1918', dim: '#5A5955' }
   const stages = [
     { label: 'Menu Parse', sub: '3 input modes', detail: 'URL · Photo · Text' },
     { label: 'Dietary Filter', sub: 'LLM-analyzed', detail: '6 flags per dish' },
@@ -1164,13 +1189,13 @@ function MenutoPipelineDiagram() {
     { label: 'Agent Select', sub: 'LLM reasoning', detail: 'Full user narrative' },
     { label: 'Feedback Loop', sub: 'Taste extraction', detail: 'Bayesian weight update' },
   ]
-  const W = 900, stageW = 140, stageH = 88, gap = 22
+  const W = 980, stageW = 168, stageH = 88, gap = 22
   const totalW = stages.length * stageW + (stages.length - 1) * gap
   const startX = (W - totalW) / 2
 
   return (
-    <div style={{ margin: '0 -2rem', overflowX: 'auto' }}>
-      <svg viewBox={`0 0 ${W} 160`} style={{ width: '100%', maxWidth: W, display: 'block', margin: '0 auto' }}>
+    <div style={{ position: 'relative', left: '50%', transform: 'translateX(-50%)', width: 'min(1400px, 94vw)', overflowX: 'auto' }}>
+      <svg viewBox={`0 0 ${W} 160`} style={{ width: '100%', maxWidth: '100%', display: 'block', margin: '0 auto' }}>
         <defs>
           <marker id="arrow-menuto" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
             <polygon points="0 0, 10 3.5, 0 7" fill={c.accent} />
@@ -1214,7 +1239,7 @@ function MenutoPipelineDiagram() {
 
 function LearningEtAlPipelineDiagram() {
   const mono = "'Fragment Mono', monospace"
-  const c = { bg: '#FFF0F6', accent: '#C2185B', accentLight: '#F8BBD0', border: '#E1A5BD', text: '#1A1918', dim: '#5A5955' }
+  const c = { bg: '#D8CBF0', accent: '#6D28D9', accentLight: '#B49DE6', border: '#AE97E0', text: '#1A1918', dim: '#5A5955' }
 
   const topRow = [
     { label: 'Interests', sub: 'Decay + rotation', detail: 'Weighted random' },
@@ -1228,7 +1253,7 @@ function LearningEtAlPipelineDiagram() {
     { label: 'Digest', sub: 'One per day', detail: 'Gap-based Q&A' },
   ]
 
-  const W = 900, stageW = 140, stageH = 82, gap = 18
+  const W = 980, stageW = 168, stageH = 82, gap = 18
   const topTotalW = topRow.length * stageW + (topRow.length - 1) * gap
   const botTotalW = botRow.length * stageW + (botRow.length - 1) * gap
   const topStartX = (W - topTotalW) / 2
@@ -1236,8 +1261,8 @@ function LearningEtAlPipelineDiagram() {
   const topY = 16, botY = 130
 
   return (
-    <div style={{ margin: '0 -2rem', overflowX: 'auto' }}>
-      <svg viewBox={`0 0 ${W} 248`} style={{ width: '100%', maxWidth: W, display: 'block', margin: '0 auto' }}>
+    <div style={{ position: 'relative', left: '50%', transform: 'translateX(-50%)', width: 'min(1400px, 94vw)', overflowX: 'auto' }}>
+      <svg viewBox={`0 0 ${W} 248`} style={{ width: '100%', maxWidth: '100%', display: 'block', margin: '0 auto' }}>
         <defs>
           <marker id="arrow-lea" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
             <polygon points="0 0, 10 3.5, 0 7" fill={c.accent} />
@@ -1274,8 +1299,8 @@ function LearningEtAlPipelineDiagram() {
           fill="none" stroke={c.accent} strokeWidth={1.5} markerEnd="url(#arrow-lea)"
         />
 
-        {/* Bottom label */}
-        <text x={botStartX} y={botY - 8} fontFamily={mono} fontSize={7.5} fill={c.dim} letterSpacing="0.1em">SYNTHESIS (15+ LLM CALLS)</text>
+        {/* Bottom label (right-aligned to clear the connecting arrow) */}
+        <text x={botStartX + botTotalW} y={botY - 8} textAnchor="end" fontFamily={mono} fontSize={7.5} fill={c.dim} letterSpacing="0.1em">SYNTHESIS (15+ LLM CALLS)</text>
 
         {botRow.map((s, i) => {
           const x = botStartX + i * (stageW + gap)
