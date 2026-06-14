@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import CopyBlock from './CopyBlock'
+import ExpandableTile from './ExpandableTile'
+import { PAGE_MAX, heroTitle, sectionHeading } from '@/components/layout'
 
 // ─── Project Data ─────────────────────────────────────────────────────────────
 
@@ -17,6 +19,7 @@ type Section =
   | { type: 'diagram'; id: string }
   | { type: 'stats'; items: { value: string; label: string }[] }
   | { type: 'list'; label: string; items: string[]; numbered?: boolean }
+  | { type: 'tiles'; items: { label: string; body: string }[] }
   | { type: 'subheader'; text: string; id?: string }
 
 interface Project {
@@ -233,32 +236,45 @@ const PROJECTS: Record<string, Project> = {
         text: 'How It Learns',
       },
       {
-        type: 'text',
-        label: 'Thompson Sampling for Weight Learning',
-        body: 'The 8-component scoring algorithm doesn\'t use fixed weights. Each user has Bayesian priors (alpha/beta per component) that update every time they rate a dish. Over time, the system learns whether a specific user responds more to popularity signals vs. personal taste matching vs. craving alignment, without needing a cold-start dataset. After ~10 ratings, the weights diverge meaningfully from the uniform prior.',
-      },
-      {
-        type: 'text',
-        label: 'Embedding-Based Taste Compatibility',
-        body: 'Both the user\'s taste profile and each dish description are embedded into the same vector space via gemini-embedding-001, then scored by cosine similarity. Someone who likes "creamy burrata" will score well on "stracciatella with olive oil" even though no keywords overlap. Two API calls total: one for the taste profile, one batch for all candidates.',
-      },
-      {
-        type: 'text',
-        label: 'Review Sentiment Decomposition',
-        body: 'Google Places reviews are processed through the LLM to extract per-dish sentiment. \u201cThe cacio e pepe was transcendent but the tiramisu was dry\u201d gets decomposed into dish-level praise and criticism scores that feed directly into the recommendation\'s customer_praise component. Cached 14 days in Supabase to stay within the Places API free tier.',
+        type: 'tiles',
+        items: [
+          {
+            label: 'Thompson Sampling for Weight Learning',
+            body: 'The 8-component scoring algorithm doesn\'t use fixed weights. Each user has Bayesian priors (alpha/beta per component) that update every time they rate a dish. Over time, the system learns whether a specific user responds more to popularity signals vs. personal taste matching vs. craving alignment, without needing a cold-start dataset. After ~10 ratings, the weights diverge meaningfully from the uniform prior.',
+          },
+          {
+            label: 'Embedding-Based Taste Compatibility',
+            body: 'Both the user\'s taste profile and each dish description are embedded into the same vector space via gemini-embedding-001, then scored by cosine similarity. Someone who likes "creamy burrata" will score well on "stracciatella with olive oil" even though no keywords overlap. Two API calls total: one for the taste profile, one batch for all candidates.',
+          },
+          {
+            label: 'Review Sentiment Decomposition',
+            body: 'Google Places reviews are processed through the LLM to extract per-dish sentiment. \u201cThe cacio e pepe was transcendent but the tiramisu was dry\u201d gets decomposed into dish-level praise and criticism scores that feed directly into the recommendation\'s customer_praise component. Cached 14 days in Supabase to stay within the Places API free tier.',
+          },
+        ],
       },
       {
         type: 'subheader',
         text: 'System Design',
       },
       {
-        type: 'list',
-        label: 'Architecture Decisions',
+        type: 'tiles',
         items: [
-          'Multi-modal menu ingestion: Three input paths (URL/HTML scraping, PDF extraction via PyMuPDF, camera photo via LLM vision) all normalize into the same ParsedDish schema. Auto-detects content type from response headers with byte-sniffing fallback.',
-          'Composite scoring with 8 independent components: Personal taste (embedding similarity), craving match, hunger appropriateness, popularity/sentiment, dietary compliance, cuisine affinity, price fit, and friend boost. The system can explain exactly why a dish was recommended by surfacing which components dominated.',
-          'Behavioral signals as separate normalized tables: dish_views, dish_ratings, dish_orders, dish_favorites are separate tables rather than a single interactions table. Enables efficient per-signal queries and signal-specific columns (hunger_level_when_ordered on orders, taste_signals JSONB on ratings).',
-          'Cold start via cross-user popularity: New users with no history get recommendations weighted toward what other users ordered and review sentiment. Free-text mood input ("celebrating tonight") gives the agent rich context even without rating history.',
+          {
+            label: 'Multi-modal menu ingestion',
+            body: 'Three input paths (URL/HTML scraping, PDF extraction via PyMuPDF, camera photo via LLM vision) all normalize into the same ParsedDish schema. Auto-detects content type from response headers with byte-sniffing fallback.',
+          },
+          {
+            label: 'Composite scoring, 8 components',
+            body: 'Personal taste (embedding similarity), craving match, hunger appropriateness, popularity/sentiment, dietary compliance, cuisine affinity, price fit, and friend boost. The system can explain exactly why a dish was recommended by surfacing which components dominated.',
+          },
+          {
+            label: 'Behavioral signals as separate tables',
+            body: 'dish_views, dish_ratings, dish_orders, dish_favorites are separate normalized tables rather than a single interactions table. Enables efficient per-signal queries and signal-specific columns (hunger_level_when_ordered on orders, taste_signals JSONB on ratings).',
+          },
+          {
+            label: 'Cold start via cross-user popularity',
+            body: 'New users with no history get recommendations weighted toward what other users ordered and review sentiment. Free-text mood input ("celebrating tonight") gives the agent rich context even without rating history.',
+          },
         ],
       },
     ],
@@ -289,14 +305,17 @@ const PROJECTS: Record<string, Project> = {
         aspect: '16/9',
       },
       {
-        type: 'text',
-        label: 'The Core Idea',
-        body: 'Three things differentiate this from a paper search engine. **First**, it generates a central question before searching. A sample of your interests gets fed to the model, which produces a theme like \u201cCan AI agents be fashionable?\u201d and search queries. Papers from adjacent fields get pulled in deliberately; cross-domain pairings are the point, not an artifact. **Second**, candidates are ranked by combining keyword matching with semantic similarity, diversity-filtered so the final pool isn\u2019t variations of the same finding, then an LLM picks the final 2\u20133 by complementarity: which papers make the best argument together. **Third**, synthesis builds an argument skeleton before writing any prose: which paper supports the theme, which complicates it, where the tension is. Then it critiques the draft on factual accuracy and structural dimensions before output.',
-      },
-      {
-        type: 'text',
-        label: 'One Digest Per Day',
-        body: 'You get one curated digest each morning. You can\u2019t regenerate it. The constraint is the product: either you engage with today\u2019s papers, dig deeper, ask questions, take notes, or you wait for tomorrow. This is anti-engagement-maximizing by design. The value is in curation, not volume.',
+        type: 'tiles',
+        items: [
+          {
+            label: 'The Core Idea',
+            body: 'Three things differentiate this from a paper search engine. **First**, it generates a central question before searching. A sample of your interests gets fed to the model, which produces a theme like \u201cCan AI agents be fashionable?\u201d and search queries. Papers from adjacent fields get pulled in deliberately; cross-domain pairings are the point, not an artifact. **Second**, candidates are ranked by combining keyword matching with semantic similarity, diversity-filtered so the final pool isn\u2019t variations of the same finding, then an LLM picks the final 2\u20133 by complementarity: which papers make the best argument together. **Third**, synthesis builds an argument skeleton before writing any prose: which paper supports the theme, which complicates it, where the tension is. Then it critiques the draft on factual accuracy and structural dimensions before output.',
+          },
+          {
+            label: 'One Digest Per Day',
+            body: 'You get one curated digest each morning. You can\u2019t regenerate it. The constraint is the product: either you engage with today\u2019s papers, dig deeper, ask questions, take notes, or you wait for tomorrow. This is anti-engagement-maximizing by design. The value is in curation, not volume.',
+          },
+        ],
       },
       {
         type: 'subheader',
@@ -336,12 +355,20 @@ const PROJECTS: Record<string, Project> = {
         body: 'Each stage assumes the previous one may have gotten something wrong. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract; if a summary looks disconnected from its source (a hallucination mode when multiple papers share context), it falls back to the abstract\u2019s first sentence. Synthesis drafts are checked for **factual accuracy** against each paper\u2019s findings before style critique runs. A final **coverage gate** verifies each paper appears by name; if one was dropped during revision, a targeted rewrite re-inserts it.',
       },
       {
-        type: 'list',
-        label: 'Staying Interesting',
+        type: 'tiles',
         items: [
-          'Theme novelty: new themes are compared against the last 5 via embedding cosine similarity. If similarity exceeds 0.5, the system retries with different interest combinations. Without this, themes converge to a predictable template within weeks.',
-          'Interest decay: topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose; a single starred paper once dominated the feed.',
-          'Antipattern prompting: generative models route around banned strings. Banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
+          {
+            label: 'Theme novelty',
+            body: 'New themes are compared against the last 5 via embedding cosine similarity. If similarity exceeds 0.5, the system retries with different interest combinations. Without this, themes converge to a predictable template within weeks.',
+          },
+          {
+            label: 'Interest decay',
+            body: 'Topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose; a single starred paper once dominated the feed.',
+          },
+          {
+            label: 'Antipattern prompting',
+            body: 'Generative models route around banned strings. Banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
+          },
         ],
       },
       {
@@ -349,13 +376,24 @@ const PROJECTS: Record<string, Project> = {
         text: 'Things I Reworked',
       },
       {
-        type: 'list',
-        label: 'Iterations',
+        type: 'tiles',
         items: [
-          'Theme generation: Started with a \u201cbest paper\u201d anchor, scrapped when highly-cited papers pulled in wrong-field methodology papers. Tried mandatory theme revision; quality improved, then backfired when the LLM warped themes to fit weak papers rather than discard them. Conditional revision with a clear \u201ckeep if it fits\u201d exit works better.',
-          'Paper selection and filtering: Citation graph \u2192 keyword matching \u2192 embedding-only \u2192 BM25+embedding RRF with MMR diversity. Added hard blocklists for predatory publishers and soft penalties for high-volume journals. Added a domain gate after the complementarity step started producing cross-field analogies instead of thematically connected papers.',
-          'Synthesis quality: Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The LLM consistently produced vague, pattern-heavy prose; fixing this required moving from banned phrases to pattern families, and from style rules to factual requirements.',
-          'News sources: Hardcoded RSS \u2192 DuckDuckGo scraping (broke on one CSS change) \u2192 Serper/DDG with User-Agent rotation and field-specific RSS fallback.',
+          {
+            label: 'Theme generation',
+            body: 'Started with a \u201cbest paper\u201d anchor, scrapped when highly-cited papers pulled in wrong-field methodology papers. Tried mandatory theme revision; quality improved, then backfired when the LLM warped themes to fit weak papers rather than discard them. Conditional revision with a clear \u201ckeep if it fits\u201d exit works better.',
+          },
+          {
+            label: 'Paper selection and filtering',
+            body: 'Citation graph \u2192 keyword matching \u2192 embedding-only \u2192 BM25+embedding RRF with MMR diversity. Added hard blocklists for predatory publishers and soft penalties for high-volume journals. Added a domain gate after the complementarity step started producing cross-field analogies instead of thematically connected papers.',
+          },
+          {
+            label: 'Synthesis quality',
+            body: 'Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The LLM consistently produced vague, pattern-heavy prose; fixing this required moving from banned phrases to pattern families, and from style rules to factual requirements.',
+          },
+          {
+            label: 'News sources',
+            body: 'Hardcoded RSS \u2192 DuckDuckGo scraping (broke on one CSS change) \u2192 Serper/DDG with User-Agent rotation and field-specific RSS fallback.',
+          },
         ],
       },
       {
@@ -823,17 +861,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </Link>
       </nav>
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 6rem' }}>
+      <div style={{ maxWidth: PAGE_MAX, margin: '0 auto', padding: '0 2.5rem 6rem' }}>
 
         {/* Hero */}
-        <div style={{ padding: '4rem 0 3rem', borderBottom: `1px solid ${HL}` }}>
+        <div style={{ padding: '3rem 0 2.5rem', borderBottom: `1px solid ${HL}` }}>
           <div style={{ ...mono, fontSize: '0.72rem', color: project.accentColor, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
             {project.tags.join(' · ')}
           </div>
-          <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 7rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.9, marginBottom: '1.5rem' }}>
+          <h1 style={{ ...heroTitle, marginBottom: '1.25rem' }}>
             {project.name}
           </h1>
-          <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.2rem)', fontWeight: 300, lineHeight: 1.6, color: 'var(--ink-dim)', maxWidth: 600, marginBottom: '2.5rem' }}>
+          <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.15rem)', fontWeight: 300, lineHeight: 1.6, color: 'var(--ink-dim)', maxWidth: 640, marginBottom: '2.5rem' }}>
             {project.tagline}
           </p>
 
@@ -964,7 +1002,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
     case 'subheader':
       return (
         <div id={section.id} style={{ borderTop: `2px solid ${accent}`, paddingTop: '1.25rem', marginBottom: '-1rem' }}>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.04em', color: 'var(--ink)' }}>
+          <h2 style={sectionHeading}>
             {section.text}
           </h2>
         </div>
@@ -976,7 +1014,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
           <h3 style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
             {section.label}
           </h3>
-          <p style={{ fontSize: '1rem', lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 700 }}>
+          <p style={{ fontSize: '1rem', lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 760 }}>
             {renderBody(section.body)}
           </p>
         </div>
@@ -1053,43 +1091,54 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
       )
     }
 
-    case 'phones':
-      return (
-        <div>
-          {section.label && (
-            <p style={{ fontSize: '0.95rem', lineHeight: 1.7, color: 'var(--ink-dim)', marginBottom: '1.5rem', maxWidth: 700 }}>
-              {section.label}
-            </p>
-          )}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)', flexWrap: 'wrap' }}>
-            {section.items.map((item, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', flex: '1 1 0', maxWidth: 380, minWidth: 200 }}>
+    case 'phones': {
+      const phoneRow = (
+        <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {section.items.map((item, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: '0 1 180px', maxWidth: 200, minWidth: 130 }}>
+              <div style={{
+                width: '100%',
+                background: '#000',
+                borderRadius: 'clamp(18px, 2.5vw, 26px)',
+                padding: 'clamp(3px, 0.4vw, 5px)',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
+                position: 'relative' as const,
+              }}>
                 <div style={{
-                  width: '100%',
-                  background: '#000',
-                  borderRadius: 'clamp(24px, 3.5vw, 38px)',
-                  padding: 'clamp(4px, 0.5vw, 6px)',
-                  boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
+                  borderRadius: 'clamp(15px, 2vw, 22px)',
+                  overflow: 'hidden',
                   position: 'relative' as const,
+                  aspectRatio: '9/19.5',
                 }}>
-                  {/* Screen */}
-                  <div style={{
-                    borderRadius: 'clamp(20px, 3vw, 33px)',
-                    overflow: 'hidden',
-                    position: 'relative' as const,
-                    aspectRatio: '9/19.5',
-                  }}>
-                    <Image src={item.src} alt={item.alt} fill style={{ objectFit: 'cover' }} />
-                  </div>
+                  <Image src={item.src} alt={item.alt} fill style={{ objectFit: 'cover' }} />
                 </div>
-                {item.caption && (
-                  <div style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)', textAlign: 'center' as const }}>
-                    {item.caption}
-                  </div>
-                )}
               </div>
-            ))}
-          </div>
+              {item.caption && (
+                <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textAlign: 'center' as const, lineHeight: 1.35 }}>
+                  {item.caption}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )
+      // With a label, lay the narrative beside the screens (collapses on mobile via .section-row).
+      return section.label ? (
+        <div className="section-row" style={{ display: 'grid', gridTemplateColumns: '0.55fr 2fr', gap: '3rem', alignItems: 'center' }}>
+          <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300 }}>
+            {section.label}
+          </p>
+          {phoneRow}
+        </div>
+      ) : phoneRow
+    }
+
+    case 'tiles':
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+          {section.items.map((item, i) => (
+            <ExpandableTile key={i} label={item.label} body={item.body} accent={accent} />
+          ))}
         </div>
       )
 

@@ -28,7 +28,7 @@
 :root {
   --bg: #0A0A0A;
   --ink: #E8E6E0;
-  --ink-dim: #AEADA6;
+  --ink-dim: #BFBDB7;
   --hairline: rgba(232, 230, 224, 0.1);
   --font-main: 'Apercu Pro', -apple-system, sans-serif;
   --font-mono: var(--font-mono), monospace;
@@ -45,6 +45,7 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  font-size: 17px;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-main);
@@ -67,3 +68,12 @@ a { cursor: crosshair; }
 input, textarea, button { font-family: inherit; }
 input::placeholder, textarea::placeholder { color: var(--ink-dim); }
 input:focus, textarea:focus { outline: none; }
+
+/* Shared SectionRow layout (components/layout.tsx) — collapse to one column on mobile */
+@media (max-width: 760px) {
+  .section-row {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+    padding: 1.75rem 0 !important;
+  }
+}

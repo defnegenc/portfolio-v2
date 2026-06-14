@@ -91,7 +91,7 @@ function TypewriterName({ text }: { text: string }) {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
-  { no: '01', name: 'Bloom',           kind: 'Publication',        tags: ['Research', 'Safety', 'Design'],          year: '2025', href: '/project/bloom',        external: false, badge: 'CHI 2026 Best Paper · Top 1%' },
+  { no: '01', name: 'Bloom',           kind: 'Publication',        tags: ['Research', 'Safety', 'Design'],          year: '2025', href: 'https://arxiv.org/html/2510.05449v1', external: true, badge: 'CHI 2026 Best Paper · Top 1%' },
   { no: '02', name: 'Learning Et Al.', kind: 'Website',            tags: ['Solo', 'RecSys', 'LLM'],                 year: '2026', href: '/project/learningetal', external: false },
   { no: '03', name: 'Menuto',          kind: 'Full Stack iOS App', tags: ['Solo', 'AI', 'Mobile'],                  year: '2026', href: '/project/menuto',       external: false },
   { no: '04', name: 'Dishcovery',      kind: 'Full Stack iOS App', tags: ['Needfinding', 'Prototyping', 'Design'],  year: '2024', href: '/project/dishcovery',   external: false },
@@ -293,7 +293,7 @@ export default function Home() {
               <TypewriterName text="DEFNE GENÇ" />
             </h1>
             <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-              Stanford CS HCI · APM @ Coinbase · NYC
+              Stanford CS HCI · Product @ Coinbase · NYC
             </div>
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function Home() {
       {/* ── BIO — mobile only ── */}
       <div className="bio-mobile" style={{ display: 'none', flexShrink: 0, padding: '1rem 1.25rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)' }}>
         <p style={{ fontSize: '0.88rem', lineHeight: 1.65, color: 'var(--ink-dim)', margin: 0 }}>
-          Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase. Current projects: recommendation systems using LLMs.
+          Engineer and interaction designer. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently product manager at Coinbase, working on institutional derivatives. Current projects: recommendation systems using LLMs.
         </p>
       </div>
 
@@ -346,10 +346,9 @@ export default function Home() {
         <aside className="sidebar" style={{ width: 300, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--hairline)', background: 'var(--bg)' }}>
           <div style={{ flex: 1, minHeight: 0, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.9rem', overflowY: 'auto' }} className="scrollbar-none">
             <div style={{ fontSize: '0.88rem', lineHeight: 1.6, color: 'var(--ink-dim)' }}>
-              Engineer, designer, researcher, and product manager. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently APM at Coinbase. Current projects: recommendation systems using LLMs.
+              Engineer and interaction designer. BS and MS in CS from Stanford University, where I specialized in human-AI interaction. Currently product manager at Coinbase, working on institutional derivatives. Current projects: recommendation systems using LLMs.
             </div>
             <div>
-              <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', opacity: 0.6, marginBottom: '0.25rem' }}>40.7128° N · 74.0060° W</div>
               <div style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)' }}>NYC {clock}</div>
             </div>
             <div style={{ borderTop: '1px solid var(--hairline)', paddingTop: '0.9rem', marginTop: '0.1rem' }}>
@@ -370,7 +369,6 @@ export default function Home() {
                 { label: 'Email',    action: () => setContact(true) },
                 { label: 'LinkedIn', href: 'https://linkedin.com/in/-defne' },
                 { label: 'GitHub',   href: 'https://github.com/defnegenc' },
-                { label: 'Résumé',   href: '/resume' },
               ] as { label: string; href?: string; action?: () => void }[]).map(({ label, href, action }) =>
                 action ? (
                   <button key={label} className="ul" onClick={action}
@@ -397,8 +395,6 @@ export default function Home() {
               <a key={p.no} href={p.href} target={p.external ? '_blank' : undefined} rel="noreferrer"
                 className="pl"
                 style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.25rem 1.75rem', borderBottom: '1px solid var(--hairline)', textDecoration: 'none', color: 'var(--ink)' }}>
-
-                <span style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)', flexShrink: 0, width: '1.2rem' }}>{p.no}</span>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 'clamp(1.15rem, 1.8vw, 1.6rem)', fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1 }}>

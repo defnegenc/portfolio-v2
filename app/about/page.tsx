@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import AsciiCanvas from '@/components/AsciiCanvas'
+import { SectionRow, pageContainer, heroTitle, eyebrow, bodyText, TEXT_MAX } from '@/components/layout'
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
@@ -53,64 +54,60 @@ export default function About() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 2rem 8rem', position: 'relative', zIndex: 1 }}>
+      <div style={pageContainer()}>
 
         {/* Hero */}
-        <div className="fade-up fade-up-1 content-grid hero-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '4rem 0 4.5rem', borderBottom: '1px solid var(--hairline)', alignItems: 'end' }}>
-          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 280 }}>
+        <div className="fade-up fade-up-1 content-grid hero-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '3.5rem', padding: '3rem 0 3.25rem', borderBottom: '1px solid var(--hairline)', alignItems: 'end' }}>
+          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 220 }}>
             {[0.45, 0.65, 0.82, 1].map((opacity, i) => (
               <div key={i} style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'hidden', opacity }}>
                 <AsciiCanvas breathe lightMode={isLight} />
               </div>
             ))}
           </div>
-          <div className="fade-up fade-up-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+          <div className="fade-up fade-up-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div>
-              <div style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1.25rem' }}>
+              <div style={{ ...eyebrow, fontSize: '0.62rem', marginBottom: '1rem' }}>
                 Istanbul · Stanford · New York
               </div>
-              <h1 className="fade-up fade-up-3" style={{ fontSize: 'clamp(2.8rem, 5vw, 5.5rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 0.88 }}>
+              <h1 className="fade-up fade-up-3" style={{ ...heroTitle, lineHeight: 0.88 }}>
                 Defne<br />Genç
               </h1>
             </div>
-            <p className="fade-up fade-up-4" style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
+            <p className="fade-up fade-up-4" style={{ ...bodyText, fontSize: '1.1rem', lineHeight: 1.7, maxWidth: 720 }}>
               What I think about most as a technologist is systems that are context-aware, human-centered, and so well fitted to a person's life that they stop feeling like technology at all.
             </p>
           </div>
         </div>
 
         {/* Background */}
-        <div className="fade-up fade-up-5 content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
-          <div style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
-            Background
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I grew up in Istanbul, Turkey, and came to Stanford for undergrad, where I studied Symbolic Systems. I stayed another year for an MS in CS, spending most of it on{' '}
-              <a href="/project/bloom" className="about-link">Bloom</a>
-              , an LLM-augmented physical activity coaching app we built in Prof. James Landay{'\u2019'}s Interaction Design Lab. I was second author on the paper, which won Best Paper at CHI 2026 (top 1% of submissions). I also took Arabic that year because I have a goal of speaking six languages before I turn 30.
-            </p>
-            <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              I spent a lot of time teaching too. I was a course assistant for Stanford{'\u2019'}s core HCI sequence ({' '}
-              <a href="https://hci.stanford.edu/courses/cs147/2024/au/" target="_blank" rel="noreferrer" className="about-link">CS 147</a>
-              ,{' '}
-              <a href="https://web.stanford.edu/class/cs278/" target="_blank" rel="noreferrer" className="about-link">CS 278</a>
-              , and{' '}
-              <a href="https://stanfordhci.github.io/cs347-winter-2025/index" target="_blank" rel="noreferrer" className="about-link">CS 347</a>
-              ), and it was arguably my favorite thing about being at Stanford. My students taught me just as much as my classes did. I led design studios taking student projects from early interviews to working prototypes and ran weekly seminar sections on HCI research. Someday I{'\u2019'}d like to use what I know about HCI to think more seriously about education itself.
-            </p>
-            <p style={{ fontSize: '1.2rem', fontWeight: 300, lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 640 }}>
-              Now I{'\u2019'}m an <strong>APM at Coinbase</strong> on the institutional derivatives team, working on <strong>perpetual futures, dated futures, and options</strong> on one of the largest regulated crypto derivatives venues in the world.
-            </p>
-          </div>
+        <div className="fade-up fade-up-5">
+          <SectionRow label="Background">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <p style={{ ...bodyText, maxWidth: TEXT_MAX }}>
+                I grew up in Istanbul, Turkey, and came to Stanford for undergrad, where I studied Symbolic Systems. I stayed another year for an MS in CS, spending most of it on{' '}
+                <a href="/project/bloom" className="about-link">Bloom</a>
+                , an LLM-augmented physical activity coaching app we built in Prof. James Landay{'\u2019'}s Interaction Design Lab. I was second author on the paper, which won Best Paper at CHI 2026 (top 1% of submissions). I also took Arabic that year because I have a goal of speaking six languages before I turn 30.
+              </p>
+              <p style={{ ...bodyText, maxWidth: TEXT_MAX }}>
+                I spent a lot of time teaching too. I was a course assistant for Stanford{'\u2019'}s core HCI sequence ({' '}
+                <a href="https://hci.stanford.edu/courses/cs147/2024/au/" target="_blank" rel="noreferrer" className="about-link">CS 147</a>
+                ,{' '}
+                <a href="https://web.stanford.edu/class/cs278/" target="_blank" rel="noreferrer" className="about-link">CS 278</a>
+                , and{' '}
+                <a href="https://stanfordhci.github.io/cs347-winter-2025/index" target="_blank" rel="noreferrer" className="about-link">CS 347</a>
+                ), and it was arguably my favorite thing about being at Stanford. My students taught me just as much as my classes did. I led design studios taking student projects from early interviews to working prototypes and ran weekly seminar sections on HCI research. Someday I{'\u2019'}d like to use what I know about HCI to think more seriously about education itself.
+              </p>
+              <p style={{ ...bodyText, maxWidth: TEXT_MAX }}>
+                Now I{'\u2019'}m a <strong>product manager at Coinbase</strong> on the institutional derivatives team, working on <strong>perpetual futures, dated futures, and options</strong> on one of the largest regulated crypto derivatives venues in the world.
+              </p>
+            </div>
+          </SectionRow>
         </div>
 
         {/* What I'm thinking about */}
-        <div className="content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
-          <div style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
-            What I'm<br />thinking about
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+        <SectionRow label={<>What I{'’'}m<br />thinking about</>}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {[
               {
                 title: 'Recommendation systems using LLMs',
@@ -126,27 +123,24 @@ export default function About() {
               },
             ].map(({ title, body }) => (
               <div key={title}>
-                <div style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
+                <div style={{ fontSize: '1.08rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.5rem' }}>
                   {title}
                 </div>
-                <p style={{ fontSize: '1.08rem', fontWeight: 300, lineHeight: 1.8, color: 'var(--ink-dim)', maxWidth: 580 }}
+                <p style={{ ...bodyText, maxWidth: TEXT_MAX }}
                   dangerouslySetInnerHTML={{ __html: body }} />
               </div>
             ))}
           </div>
-        </div>
+        </SectionRow>
 
         {/* Otherwise */}
-        <div className="content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '4rem', padding: '5rem 0', borderBottom: '1px solid var(--hairline)' }}>
-          <div style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', paddingTop: '0.4rem' }}>
-            Otherwise
-          </div>
-          <div className="fact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem 3rem' }}>
+        <SectionRow label="Otherwise" last>
+          <div className="fact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem 3rem' }}>
             {([
               ['Origin', 'Istanbul, Turkey'],
               ['Based', 'New York City'],
               ['Education', 'Stanford MS CS (HCI) · BS SymSys'],
-              ['Current role', 'APM @ Coinbase'],
+              ['Current role', 'Product manager @ Coinbase'],
               ['Teaching', 'CS 147 · CS 278 · CS 347'],
               ['Languages', 'Turkish (native), English (fluent), French (conversational), Arabic (elementary), Spanish (elementary)'],
             ] as [string, string][]).map(([label, value]) => (
@@ -165,7 +159,7 @@ export default function About() {
               </div>
             </div>
           </div>
-        </div>
+        </SectionRow>
 
         {/* Contact */}
         <div style={{ display: 'flex', gap: '2.5rem', padding: '3.5rem 0', flexWrap: 'wrap' }}>
