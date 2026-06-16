@@ -441,7 +441,7 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'text',
         label: 'Overview',
-        body: 'Dishcovery helps you recognise, learn about, and cook with foods from around the world. It is a consumer app using image recognition to scan foreign ingredients and learn about their cultural and culinary contexts. The app allows users to scan an ingredient, explore recipes by cuisine or ingredient, and save recipes for later.',
+        body: 'Dishcovery is a consumer app that uses image recognition to help you recognise, learn about, and cook with foods from around the world. Scan an unfamiliar ingredient to see its cultural and culinary context, explore recipes by cuisine or ingredient, and save what you want to try.',
       },
       {
         type: 'image',

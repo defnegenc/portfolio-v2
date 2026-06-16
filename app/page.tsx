@@ -91,7 +91,7 @@ function TypewriterName({ text }: { text: string }) {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
-  { no: '01', name: 'Bloom',           kind: 'Publication',        tags: ['Research', 'Safety', 'Design'],          year: '2025', href: 'https://arxiv.org/html/2510.05449v1', external: true, badge: 'CHI 2026 Best Paper · Top 1%' },
+  { no: '01', name: 'Bloom',           kind: 'Publication',        tags: ['Research', 'Safety', 'Design'],          year: '2025', href: '/project/bloom', external: false, badge: 'CHI 2026 Best Paper · Top 1%' },
   { no: '02', name: 'Learning Et Al.', kind: 'Website',            tags: ['Solo', 'RecSys', 'LLM'],                 year: '2026', href: '/project/learningetal', external: false },
   { no: '03', name: 'Menuto',          kind: 'Full Stack iOS App', tags: ['Solo', 'AI', 'Mobile'],                  year: '2026', href: '/project/menuto',       external: false },
   { no: '04', name: 'Dishcovery',      kind: 'Full Stack iOS App', tags: ['Needfinding', 'Prototyping', 'Design'],  year: '2024', href: '/project/dishcovery',   external: false },
