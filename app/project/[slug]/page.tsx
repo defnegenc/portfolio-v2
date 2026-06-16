@@ -1124,32 +1124,32 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
     }
 
     case 'phones': {
-      // Compact screens, 4 across, with a readable caption under each.
+      // Bigger screens, 4 across, centered in a wider band than the text column.
       return (
-        <div>
+        <div style={{ position: 'relative', left: '50%', transform: 'translateX(-50%)', width: 'min(1320px, 92vw)' }}>
           {section.label && (
-            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, maxWidth: 760, marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, maxWidth: 760, margin: '0 auto 1.75rem', textAlign: 'center' as const }}>
               {section.label}
             </p>
           )}
-          <div style={{ display: 'flex', gap: 'clamp(1rem, 2vw, 2rem)', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: 'clamp(1.25rem, 2vw, 2rem)', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'center' }}>
             {section.items.map((item, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.85rem', flex: '1 1 0', maxWidth: 210, minWidth: 130 }}>
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.85rem', flex: '1 1 0', maxWidth: 270, minWidth: 150 }}>
                 <div style={{
                   width: '100%',
                   background: '#000',
-                  borderRadius: 'clamp(18px, 2.5vw, 26px)',
-                  padding: 'clamp(3px, 0.4vw, 5px)',
+                  borderRadius: 'clamp(20px, 2.5vw, 30px)',
+                  padding: 'clamp(4px, 0.4vw, 6px)',
                   boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)',
                   position: 'relative' as const,
                 }}>
                   <div style={{
-                    borderRadius: 'clamp(15px, 2vw, 22px)',
+                    borderRadius: 'clamp(16px, 2vw, 25px)',
                     overflow: 'hidden',
                     position: 'relative' as const,
                     aspectRatio: '9/19.5',
                   }}>
-                    <Image src={item.src} alt={item.alt} fill sizes="210px" style={{ objectFit: 'cover' }} />
+                    <Image src={item.src} alt={item.alt} fill sizes="270px" style={{ objectFit: 'cover' }} />
                   </div>
                 </div>
                 {item.caption && (
