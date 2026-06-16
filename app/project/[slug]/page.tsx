@@ -157,7 +157,7 @@ const PROJECTS: Record<string, Project> = {
         items: [{
           title: 'Why Not Just Ask an LLM?',
           rows: [{
-            body: 'You could send a model a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer with no memory of what you\u2019ve liked before, no awareness of what reviewers say about this specific restaurant, and no ability to learn from the fact that you rated the cacio e pepe 5 stars last week but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings, and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you specifically make decisions over time.',
+            body: 'You could send a model a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer: no memory of what you\u2019ve liked, no awareness of what reviewers say about this restaurant, no way to learn that you loved the cacio e pepe but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings, and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you decide.',
           }],
         }],
       },
@@ -208,13 +208,13 @@ const PROJECTS: Record<string, Project> = {
           {
             title: 'Agent-First Architecture',
             rows: [{
-              body: 'Rather than rigid scoring formulas, an LLM agent receives all available signals about the user and reasons about what to recommend. An earlier version used 10 hand-tuned scoring components (personal taste: 0.30, sentiment: 0.17, etc.). The weights were identical for everyone and couldn\'t reason about context.',
+              body: 'Rather than rigid scoring formulas, an LLM agent receives every signal about the user and reasons about what to recommend. An earlier version used 10 hand-tuned components (personal taste: 0.30, sentiment: 0.17, etc.), but the weights were identical for everyone and couldn\'t reason about context.',
             }],
           },
           {
             title: 'Research Foundations',
             rows: [{
-              body: 'Informed by Microsoft\u2019s RecAI framework (Zhao et al., ACM Web Conference 2024): the \u201cLLM-as-brain, traditional-models-as-tools\u201d pattern where traditional signals handle candidate generation and the LLM handles final reasoning. The serendipity slot draws from SERAL (Chen et al., \u201cSerendipity-Enhanced Recommender Agent with LLM,\u201d arXiv 2502.07132, Feb 2025) on filter bubble mitigation. The implicit negative feedback model follows Hu, Koren & Volinsky\u2019s foundational work on collaborative filtering for implicit feedback datasets (IEEE ICDM 2008).',
+              body: 'Informed by Microsoft\u2019s RecAI framework (Zhao et al., 2024): the \u201cLLM-as-brain, models-as-tools\u201d pattern where traditional signals generate candidates and the LLM handles final reasoning. The serendipity slot draws on SERAL (Chen et al., 2025) for filter-bubble mitigation, and the implicit negative feedback model follows Hu, Koren & Volinsky (2008) on collaborative filtering for implicit feedback.',
             }],
           },
         ],
@@ -224,11 +224,11 @@ const PROJECTS: Record<string, Project> = {
         items: [{
           title: 'The Pipeline',
           rows: [
-            { label: 'Data Gathering', body: '8 signal sources per dish. Parsed menu items, Google Places reviews (cached 14 days), review-based dish popularity via mention frequency, cross-user order counts, past ratings, behavioral signals (views/orders/favorites), LLM-extracted taste keywords from feedback text, and embedding-based taste similarity (cosine similarity computed in 2 batch API calls).' },
-            { label: 'Dietary Filtering', body: 'The only rigid step. LLM-generated dietary flags per dish, with explicit instructions to catch hidden ingredients (anchovy in Caesar dressing, fish sauce in Pad Thai, parmesan in pesto). Falls back to a 30+ term keyword list for menus parsed before LLM tagging was added.' },
-            { label: 'Signal Enrichment', body: 'Each candidate gets readable flags attached. MATCHES YOUR TASTE, POPULAR (60%), WELL-REVIEWED, LOOKED AT BUT NEVER ORDERED, HAS FLAVORS YOU LIKE. No numerical scoring, just facts the agent can reason about.' },
-            { label: 'Agent Selection', body: 'The agent receives the full user narrative. Taste profile, spice tolerance, learned flavor preferences, hunger level, cravings, adventure-vs-safe slider, dining occasion, free-text mood input, history at this restaurant, and what\'s popular. It reasons about meal composition, honors cravings, and writes personal explanations per dish.' },
-            { label: 'Feedback Loop', body: 'After ordering, the user rates dishes with quick-tap tags and optional free-text notes. The LLM extracts taste signals from the text. \u201cLoved the cream sauce\u201d becomes a liked: [\u201ccream\u201d, \u201crich sauce\u201d] signal that boosts similar dishes in future visits.' },
+            { label: 'Data Gathering', body: '8 signal sources per dish: parsed menu items, Google Places reviews (cached 14 days), review-based popularity, cross-user order counts, past ratings, behavioral signals (views/orders/favorites), LLM-extracted taste keywords, and embedding-based taste similarity (2 batch API calls).' },
+            { label: 'Dietary Filtering', body: 'The only rigid step. LLM-generated dietary flags per dish, prompted to catch hidden ingredients (anchovy in Caesar dressing, fish sauce in Pad Thai). Falls back to a 30+ term keyword list for older menus.' },
+            { label: 'Signal Enrichment', body: 'Each candidate gets readable flags: MATCHES YOUR TASTE, POPULAR (60%), WELL-REVIEWED, LOOKED AT BUT NEVER ORDERED. No numerical scoring, just facts the agent can reason about.' },
+            { label: 'Agent Selection', body: 'The agent receives the full user narrative: taste profile, spice tolerance, hunger, cravings, the adventure-vs-safe slider, dining occasion, free-text mood, and history here. It reasons about meal composition, honors cravings, and writes a personal explanation per dish.' },
+            { label: 'Feedback Loop', body: 'After ordering, the user rates dishes with quick-tap tags and optional notes. The LLM extracts taste signals from the text: \u201cLoved the cream sauce\u201d becomes liked: [\u201ccream\u201d, \u201crich sauce\u201d], boosting similar dishes next time.' },
           ],
         }],
       },
@@ -240,15 +240,15 @@ const PROJECTS: Record<string, Project> = {
             rows: [
               {
                 label: 'Thompson Sampling for Weight Learning',
-                body: 'The 8-component scoring algorithm doesn\'t use fixed weights. Each user has Bayesian priors (alpha/beta per component) that update every time they rate a dish. Over time, the system learns whether a specific user responds more to popularity signals vs. personal taste matching vs. craving alignment, without needing a cold-start dataset. After ~10 ratings, the weights diverge meaningfully from the uniform prior.',
+                body: 'The 8-component algorithm doesn\'t use fixed weights. Each user has Bayesian priors (alpha/beta per component) that update on every rating, so the system learns whether they respond more to popularity, taste matching, or craving alignment, with no cold-start dataset. After ~10 ratings the weights diverge meaningfully from the uniform prior.',
               },
               {
                 label: 'Embedding-Based Taste Compatibility',
-                body: 'Both the user\'s taste profile and each dish description are embedded into the same vector space via gemini-embedding-001, then scored by cosine similarity. Someone who likes "creamy burrata" will score well on "stracciatella with olive oil" even though no keywords overlap. Two API calls total: one for the taste profile, one batch for all candidates.',
+                body: 'The user\'s taste profile and each dish description are embedded into the same vector space, then scored by cosine similarity. Someone who likes "creamy burrata" scores well on "stracciatella with olive oil" even with no keyword overlap. Two API calls total: one for the profile, one batch for all candidates.',
               },
               {
                 label: 'Review Sentiment Decomposition',
-                body: 'Google Places reviews are processed through the LLM to extract per-dish sentiment. \u201cThe cacio e pepe was transcendent but the tiramisu was dry\u201d gets decomposed into dish-level praise and criticism scores that feed directly into the recommendation\'s customer_praise component. Cached 14 days in Supabase to stay within the Places API free tier.',
+                body: 'The LLM extracts per-dish sentiment from Google Places reviews. \u201cThe cacio e pepe was transcendent but the tiramisu was dry\u201d decomposes into dish-level praise and criticism scores feeding the customer_praise component. Cached 14 days to stay within the Places API free tier.',
               },
             ],
           },
@@ -257,11 +257,11 @@ const PROJECTS: Record<string, Project> = {
             rows: [
               {
                 label: 'Multi-modal menu ingestion',
-                body: 'Three input paths (URL/HTML scraping, PDF extraction via PyMuPDF, camera photo via LLM vision) all normalize into the same ParsedDish schema. Auto-detects content type from response headers with byte-sniffing fallback.',
+                body: 'Three input paths (URL/HTML scraping, PDF via PyMuPDF, camera photo via LLM vision) normalize into the same ParsedDish schema. Content type is auto-detected from response headers with a byte-sniffing fallback.',
               },
               {
                 label: 'Composite scoring, 8 components',
-                body: 'Personal taste (embedding similarity), craving match, hunger appropriateness, popularity/sentiment, dietary compliance, cuisine affinity, price fit, and friend boost. The system can explain exactly why a dish was recommended by surfacing which components dominated.',
+                body: 'Personal taste (embedding similarity), craving match, hunger fit, popularity/sentiment, dietary compliance, cuisine affinity, price fit, and friend boost. The system explains each recommendation by surfacing which components dominated.',
               },
               {
                 label: 'Behavioral signals as separate tables',
@@ -269,7 +269,7 @@ const PROJECTS: Record<string, Project> = {
               },
               {
                 label: 'Cold start via cross-user popularity',
-                body: 'New users with no history get recommendations weighted toward what other users ordered and review sentiment. Free-text mood input ("celebrating tonight") gives the agent rich context even without rating history.',
+                body: 'New users get recommendations weighted toward what others ordered and review sentiment. Free-text mood ("celebrating tonight") gives the agent context even without rating history.',
               },
             ],
           },
@@ -294,7 +294,7 @@ const PROJECTS: Record<string, Project> = {
     sections: [
       {
         type: 'pullquote',
-        text: 'I didn\u2019t want to stray from the literature after leaving research and entering the workforce, but I didn\u2019t want to read entire papers either. I wanted to see what\u2019s out there and find new things to be genuinely curious about.',
+        text: 'After leaving research, I didn\u2019t want to stray from the literature, but I didn\u2019t want to read entire papers either. I wanted to see what\u2019s out there and find new things to be curious about.',
       },
       {
         type: 'tiles',
@@ -310,7 +310,7 @@ const PROJECTS: Record<string, Project> = {
             title: 'One Digest Per Day',
             featured: true,
             rows: [{
-              body: 'You get one curated digest each morning. You can\u2019t regenerate it. The constraint is the product: either you engage with today\u2019s papers, dig deeper, ask questions, take notes, or you wait for tomorrow. This is anti-engagement-maximizing by design. The value is in curation, not volume.',
+              body: 'One curated digest each morning, and you can\u2019t regenerate it. The constraint is the product: engage with today\u2019s papers or wait for tomorrow. It\u2019s anti-engagement-maximizing by design. The value is in curation, not volume.',
             }],
           },
         ],
@@ -329,13 +329,13 @@ const PROJECTS: Record<string, Project> = {
           {
             title: 'The Synthesis Pipeline',
             rows: [{
-              body: 'You could ask an LLM to summarize papers about X. When papers are on the same narrow topic, that works. When they span different fields, as they do here, a summary produces parallel descriptions rather than an argument. The synthesis has to build the connection. The current approach writes a **structured skeleton first**: which paper supports the theme, which complicates it, where the tension is. Only then does prose get written, scored across six dimensions, and revised against specific failure modes. Single-call and 7-call approaches both read like book reports. The skeleton-first architecture draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+              body: 'Summarizing papers on one narrow topic works. When they span different fields, as they do here, a summary produces parallel descriptions rather than an argument. So the synthesis writes a **structured skeleton first**: which paper supports the theme, which complicates it, where the tension is. Only then is prose written, scored across six dimensions, and revised. The skeleton-first approach draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
             }],
           },
           {
             title: 'Follow-Up Questions',
             rows: [{
-              body: 'Each digest suggests questions targeting the specific detail in each paper most likely to make a reader want to know more: the mechanism that\u2019s glossed over, the assumption that\u2019s doing heavy lifting. Generic questions (\u201cWhat are the implications?\u201d) are explicitly banned. Answers are pre-generated at digest creation time so they\u2019re instant for every visitor.',
+              body: 'Each digest suggests questions targeting the detail most likely to make a reader want to know more: the glossed-over mechanism, the assumption doing heavy lifting. Generic questions (\u201cWhat are the implications?\u201d) are banned. Answers are pre-generated, so they\u2019re instant.',
             }],
           },
         ],
@@ -345,13 +345,13 @@ const PROJECTS: Record<string, Project> = {
         items: [{
           title: 'How It Works',
           rows: [
-            { label: 'Interest sampling', body: 'It samples from your interests, weighting down topics covered recently, then asks the LLM to turn them into a central question (max 8 words) and a few search queries. If the question is too similar to one from the past few days, it tries a different angle.' },
-            { label: 'Paper fetching', body: 'For each query it tries OpenAlex first, falls back to Semantic Scholar, then arXiv. About 10 results per query, deduplicated across sources.' },
-            { label: 'Relevance scoring', body: 'Every candidate is scored two ways: semantic similarity (do the paper\u2019s ideas match the theme?) and keyword overlap (does it share key terms?). The two signals are fused. Papers from predatory journals are dropped; recent papers and high-quality venues get a small boost. Anything below the similarity threshold is cut. If too few pass, the threshold relaxes; if it still can\u2019t find enough, it restarts from step 1 with a new theme.' },
-            { label: 'Diversity pool', body: 'From the papers that passed, 6 are selected so each pick maximizes relevance while minimizing overlap with what\u2019s already been chosen. Prevents 6 variations of the same finding.' },
-            { label: 'Complementarity', body: 'The 6-paper pool goes to the LLM, which chooses the 2\u20133 that make the most interesting argument together, looking for papers that support, complicate, or explain each other rather than just agreeing. Each paper gets a short nickname anchored to the author\u2019s name.' },
-            { label: 'News (parallel)', body: 'While papers are being scored, it searches the web for recent coverage of the same theme. How many news items to include is decided dynamically: 3 or more strong papers and news is skipped entirely; thin papers and news fills the gap.' },
-            { label: 'Synthesis', body: 'Multi-stage writing: argument skeleton first, then a full draft, then self-critique scoring specificity and flagging clich\u00e9s or vague claims, then targeted revision. A final coverage check verifies every paper got cited correctly.' },
+            { label: 'Interest sampling', body: 'It samples your interests, down-weighting recent topics, then turns them into a central question (max 8 words) and search queries. If the question is too similar to a recent one, it tries a different angle.' },
+            { label: 'Paper fetching', body: 'For each query: OpenAlex first, then Semantic Scholar, then arXiv. About 10 results per query, deduplicated across sources.' },
+            { label: 'Relevance scoring', body: 'Each candidate is scored by semantic similarity and keyword overlap, fused into one signal. Predatory journals are dropped; recent papers and strong venues get a small boost. Anything below threshold is cut, and if too few pass, the threshold relaxes or it restarts with a new theme.' },
+            { label: 'Diversity pool', body: 'Six papers are selected so each pick maximizes relevance while minimizing overlap with the others. Prevents six variations of the same finding.' },
+            { label: 'Complementarity', body: 'The LLM picks the two or three papers that make the most interesting argument together: ones that support, complicate, or explain each other rather than just agreeing. Each gets a short nickname from the author\u2019s name.' },
+            { label: 'News (parallel)', body: 'While papers are scored, it searches the web for recent coverage of the theme. The count is dynamic: three or more strong papers and news is skipped; thin papers and news fills the gap.' },
+            { label: 'Synthesis', body: 'Multi-stage writing: skeleton, draft, self-critique for specificity and clich\u00e9s, then targeted revision. A final check verifies every paper was cited correctly.' },
           ],
         }],
       },
@@ -360,7 +360,7 @@ const PROJECTS: Record<string, Project> = {
         items: [{
           title: 'Self-Correcting Loops',
           rows: [{
-            body: 'Each stage assumes the previous one may have gotten something wrong. Metadata summaries are checked at runtime for content-word overlap with the paper\u2019s abstract; if a summary looks disconnected from its source (a hallucination mode when multiple papers share context), it falls back to the abstract\u2019s first sentence. Synthesis drafts are checked for **factual accuracy** against each paper\u2019s findings before style critique runs. A final **coverage gate** verifies each paper appears by name; if one was dropped during revision, a targeted rewrite re-inserts it.',
+            body: 'Each stage assumes the previous one may have erred. Metadata summaries are checked against the abstract; if one looks disconnected from its source, it falls back to the abstract\u2019s first sentence. Drafts are checked for **factual accuracy** before style critique. A final **coverage gate** verifies each paper appears by name, re-inserting any dropped during revision.',
           }],
         }],
       },
@@ -372,15 +372,15 @@ const PROJECTS: Record<string, Project> = {
             rows: [
               {
                 label: 'Theme novelty',
-                body: 'New themes are compared against the last 5 via embedding cosine similarity. If similarity exceeds 0.5, the system retries with different interest combinations. Without this, themes converge to a predictable template within weeks.',
+                body: 'New themes are compared against the last five by cosine similarity. Above 0.5, it retries with different interest combinations. Without this, themes converge to a template within weeks.',
               },
               {
                 label: 'Interest decay',
-                body: 'Topics lose weight daily (\u00D70.95) with a frequency penalty for recent use. Selection is weighted random rather than top-N, so low-weight interests still surface. Engagement signals are small on purpose; a single starred paper once dominated the feed.',
+                body: 'Topics lose weight daily (\u00D70.95) with a penalty for recent use. Selection is weighted-random rather than top-N, so low-weight interests still surface. Engagement signals are kept small: one starred paper once dominated the feed.',
               },
               {
                 label: 'Antipattern prompting',
-                body: 'Generative models route around banned strings. Banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d The self-critique now scans for pattern shapes rather than literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) require a concrete example from the paper in the same sentence, or the claim is dropped.',
+                body: 'Models route around banned strings: banning \u201chere\u2019s where it gets interesting\u201d produces \u201chere\u2019s where it gets messier.\u201d So the self-critique scans for pattern shapes, not literal phrases. Vague claims (\u201cbarriers\u201d, \u201climitations\u201d) need a concrete example in the same sentence or they\u2019re dropped.',
               },
             ],
           },
@@ -389,15 +389,15 @@ const PROJECTS: Record<string, Project> = {
             rows: [
               {
                 label: 'Theme generation',
-                body: 'Started with a \u201cbest paper\u201d anchor, scrapped when highly-cited papers pulled in wrong-field methodology papers. Tried mandatory theme revision; quality improved, then backfired when the LLM warped themes to fit weak papers rather than discard them. Conditional revision with a clear \u201ckeep if it fits\u201d exit works better.',
+                body: 'Started with a \u201cbest paper\u201d anchor, scrapped when highly-cited papers pulled in wrong-field methods. Mandatory theme revision helped, then backfired when the LLM warped themes to fit weak papers. Conditional revision with a \u201ckeep if it fits\u201d exit works better.',
               },
               {
                 label: 'Paper selection and filtering',
-                body: 'Citation graph \u2192 keyword matching \u2192 embedding-only \u2192 BM25+embedding RRF with MMR diversity. Added hard blocklists for predatory publishers and soft penalties for high-volume journals. Added a domain gate after the complementarity step started producing cross-field analogies instead of thematically connected papers.',
+                body: 'Citation graph \u2192 keyword matching \u2192 embedding-only \u2192 BM25+embedding RRF with MMR diversity. Hard blocklists for predatory publishers, soft penalties for high-volume journals, and a domain gate after complementarity started producing cross-field analogies instead of connected papers.',
               },
               {
                 label: 'Synthesis quality',
-                body: 'Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The LLM consistently produced vague, pattern-heavy prose; fixing this required moving from banned phrases to pattern families, and from style rules to factual requirements.',
+                body: 'Iterated from a single call to a 7-call pipeline to the current skeleton-first approach. The prose stayed vague and pattern-heavy until I moved from banned phrases to pattern families, and from style rules to factual requirements.',
               },
               {
                 label: 'News sources',
@@ -412,7 +412,7 @@ const PROJECTS: Record<string, Project> = {
         items: [{
           title: 'The Vault',
           rows: [{
-            body: 'Past digests live in a searchable archive where you can browse themes over time and compare any two papers side by side. Brutalist research archive aesthetic: hard borders, box shadows, crosshair cursor, accent colors only in tags.',
+            body: 'Past digests live in a searchable archive where you can browse themes over time and compare any two papers side by side. Brutalist aesthetic: hard borders, box shadows, crosshair cursor, accent colors only in tags.',
           }],
         }],
       },
