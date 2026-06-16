@@ -11,7 +11,7 @@ const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const HL = 'var(--hairline)'
 
 type Section =
-  | { type: 'text'; label: string; body: string }
+  | { type: 'text'; label?: string; body: string }
   | { type: 'pullquote'; text: string }
   | { type: 'image'; src: string; alt: string; caption?: string; aspect?: string }
   | { type: 'images'; items: { src: string; alt: string; caption?: string }[]; aspect?: string }
@@ -320,6 +320,10 @@ const PROJECTS: Record<string, Project> = {
         text: 'Why Not Just Summarize Papers?',
       },
       {
+        type: 'text',
+        body: 'Because a summary of papers from different fields just lists them side by side; the interesting part is the argument between them, and that has to be built, not summarized.',
+      },
+      {
         type: 'diagram',
         id: 'learningetal-pipeline',
       },
@@ -329,7 +333,7 @@ const PROJECTS: Record<string, Project> = {
           {
             title: 'The Synthesis Pipeline',
             rows: [{
-              body: 'Summarizing papers on one narrow topic works. When they span different fields, as they do here, a summary produces parallel descriptions rather than an argument. So the synthesis writes a **structured skeleton first**: which paper supports the theme, which complicates it, where the tension is. Only then is prose written, scored across six dimensions, and revised. The skeleton-first approach draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
+              body: 'So the synthesis writes a **structured skeleton first**: which paper supports the theme, which complicates it, where the tension is. Only then is prose written, scored across six dimensions, and revised. The skeleton-first approach draws on Yao 2023\u2019s Tree of Thoughts and Madaan 2023\u2019s Self-Refine.',
             }],
           },
           {
@@ -1034,9 +1038,11 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
     case 'text':
       return (
         <div>
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
-            {section.label}
-          </h3>
+          {section.label && (
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.6rem' }}>
+              {section.label}
+            </h3>
+          )}
           <p style={{ fontSize: '1rem', lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 760 }}>
             {renderBody(section.body)}
           </p>
