@@ -293,7 +293,7 @@ export default function Home() {
               <TypewriterName text="DEFNE GENÇ" />
             </h1>
             <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-              Stanford CS HCI · Product @ Coinbase · NYC
+              Stanford CS · Product @ Coinbase · NYC
             </div>
           </div>
         </div>

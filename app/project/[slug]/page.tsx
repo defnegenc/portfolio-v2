@@ -54,7 +54,7 @@ const PROJECTS: Record<string, Project> = {
     role: 'UI/UX Design · Safety Engineering · Frontend · Second Author',
     citation: 'Jörke, J., Genç, D., Teutschbein, M., Sapkota, S., Chung, J., Schmiedmayer, H.-B., Campero, A., King, A. C., Brunskill, E., & Landay, J. A. (2026). Bloom: Designing for LLM-Augmented Behavior Change Interactions. CHI \'26. ACM. https://arxiv.org/abs/2510.05449',
     duration: '4-week randomized field study · N=54',
-    tools: 'Figma, React Native, LLM red-teaming, qualitative coding',
+    tools: 'Figma · React Native · TypeScript · Swift/HealthKit · Python/FastAPI · Firebase · OpenAI · LLM red-teaming · Qualitative coding',
     accentColor: '#266C31',
     tags: ['CHI 2026', 'Best Paper', 'Top 1%'],
     awards: 'Best Paper Award · Top 1% of submissions',
