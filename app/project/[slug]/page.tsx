@@ -49,7 +49,7 @@ const PROJECTS: Record<string, Project> = {
     slug: 'bloom',
     no: '01',
     name: 'Bloom',
-    tagline: 'At Stanford with Prof. Landay, I co-designed and evaluated Bloom, an LLM-based physical activity coaching intervention. My contributions spanned early-stage design through full-stack implementation. CHI 2026, accepted.',
+    tagline: 'At Stanford with Prof. Landay, I co-designed and evaluated Bloom, an LLM-based physical activity coaching intervention. My contributions spanned early-stage design through full-stack implementation.',
     year: '2025',
     role: 'UI/UX Design · Safety Engineering · Frontend · Second Author',
     citation: 'Jörke, J., Genç, D., Teutschbein, M., Sapkota, S., Chung, J., Schmiedmayer, H.-B., Campero, A., King, A. C., Brunskill, E., & Landay, J. A. (2026). Bloom: Designing for LLM-Augmented Behavior Change Interactions. CHI \'26. ACM. https://arxiv.org/abs/2510.05449',
