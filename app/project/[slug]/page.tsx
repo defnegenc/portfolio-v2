@@ -19,7 +19,7 @@ type Section =
   | { type: 'diagram'; id: string }
   | { type: 'stats'; items: { value: string; label: string }[] }
   | { type: 'list'; label: string; items: string[]; numbered?: boolean }
-  | { type: 'tiles'; items: { title: string; rows: { label?: string; body: string }[]; featured?: boolean }[] }
+  | { type: 'tiles'; items: { title: string; rows: { label?: string; body: string }[]; featured?: boolean; palette?: boolean }[] }
   | { type: 'subheader'; text: string; id?: string }
 
 interface Project {
@@ -37,6 +37,7 @@ interface Project {
   accentColor: string
   tags: string[]
   icon?: string
+  heroAside?: { src: string; alt: string; width?: number }
   externalLink?: { href: string; label: string }
   secondaryLink?: { href: string; label: string }
   jumpTo?: { anchor: string; label: string }
@@ -290,6 +291,7 @@ const PROJECTS: Record<string, Project> = {
     accentColor: '#1a1a1a',
     tags: ['Solo Project', 'RecSys', 'LLM Agents'],
     icon: '/learningetal-icon.png',
+    heroAside: { src: '/learningetal-share.png', alt: 'Learning Et Al. share card', width: 260 },
     externalLink: { href: 'https://learningetal.com', label: 'Visit learningetal.com ↗' },
     sections: [
       {
@@ -297,11 +299,12 @@ const PROJECTS: Record<string, Project> = {
         text: 'After leaving research, I didn\u2019t want to stray from the literature, but I didn\u2019t want to read entire papers either. I wanted to see what\u2019s out there and find new things to be curious about.',
       },
       {
-        type: 'image',
-        src: '/learningetal-digest.png',
-        alt: 'Today\u2019s digest on learningetal.com: the central question, a one-line answer, and the first source card',
+        type: 'images',
         aspect: '1280/1014',
-        caption: 'Today\u2019s digest: the question, a one-line answer, then the sources one at a time.',
+        items: [
+          { src: '/learningetal-digest.png', alt: 'Today\u2019s digest on learningetal.com: the central question, a one-line answer, and the first source card' },
+          { src: '/learningetal-card.png', alt: 'A single source card: title, byline, TL;DR, and findings beside a takeaway' },
+        ],
       },
       {
         type: 'stats',
@@ -368,6 +371,7 @@ const PROJECTS: Record<string, Project> = {
         type: 'tiles',
         items: [{
           title: 'The Pipeline, Step by Step',
+          palette: true,
           rows: [
             { label: 'Topic seed', body: 'A weighted sample picks the day\u2019s interest, then the system resolves it against the live OpenAlex taxonomy: field to subfield to topic. Topics used in the last eight digests are excluded, anything under 3,000 works is skipped, and sampling inside the vetted pool uses a square-root rank discount so lower-ranked topics still surface. Novelty stays bounded by a real research neighborhood instead of randomness.' },
             { label: 'Central question', body: 'The model builds a working question from the seeded topic (eight words is the target, ten the ceiling) plus three search queries. The last twelve queries it wrote are shown back to it with instructions not to reuse them.' },
@@ -382,84 +386,11 @@ const PROJECTS: Record<string, Project> = {
         }],
       },
       {
-        type: 'image',
-        src: '/learningetal-card.png',
-        alt: 'A single source card: title, byline, TL;DR, and findings beside a takeaway',
-        aspect: '750/602',
-        caption: 'One source, one card. No expand control, no modal behind it.',
-      },
-      {
-        type: 'tiles',
-        items: [
-          {
-            title: 'The Card',
-            rows: [{
-              body: 'Everything about a source lives on its card. The findings and takeaway used to hide behind a \u201cSee more\u201d toggle, which existed because the copy behind it was 13px inside a bordered tile inside a bordered card. Setting both columns at 15px on a 26px line made the toggle unnecessary, so it went. Emphasis inside a finding is an ink underline rather than bold, because half of every generated finding came back bold and emphasis covering half a sentence marks nothing. The takeaway\u2019s claim wears a highlight in the card\u2019s own hue, the one place color lands on type.',
-            }],
-          },
-          {
-            title: 'Reading and the Vault',
-            rows: [{
-              body: 'Saving a paper is intent to read, so it triggers background work: a walkthrough generated from the full PDF, and a list of recent papers citing it, which answers \u201cwhat has happened since?\u201d. The vault is one page with two tabs, digests and saved papers. It used to be a room with no door: the bookmark lived on a card that only rendered in a legacy view, so for weeks nothing could be saved at all.',
-            }],
-          },
-        ],
-      },
-      {
-        type: 'subheader',
-        text: 'Designing It',
-      },
-      {
-        type: 'image',
-        src: '/learningetal-candidates.png',
-        alt: 'A prototype page comparing paper card layouts against the real component',
-        aspect: '1440/1760',
-        caption: 'Card candidates rendered against the real component, with controls for sample length and bullet style.',
-      },
-      {
-        type: 'tiles',
-        items: [
-          {
-            title: 'Prototyping Inside the Product',
-            rows: [{
-              body: 'Card layouts, headline animations and loaders were all built as real pages in the app, rendering real digest content with controls for the variable in question. Ten card candidates came down to two shapes, then to one. Judging a card by a mock is judging it on the sample you picked; running every candidate against a short digest, a long one and a news item is what surfaced the layout that broke, a findings band hard-coded to three columns when a news source only had two.',
-            }],
-          },
-          {
-            title: 'The Short Menu',
-            rows: [{
-              body: 'The system had grown to 91 decisions. I cut it to 28: 62 colors to 19, 16 type styles to 5, 4 borders to 2, 7 shadows to 1, 2 radii to 1. Color became one ten-slot spectrum ordered by hue, with three indexes that never mix: a fixed slot per field, a slot by hash for keyword tags, and a slot by position for card washes. The wash is **wayfinding, not identity**, which is what lets a highlighted source name in the prose resolve to its card. Two Biology papers in one digest would have collided under a field-derived wash.',
-            }],
-          },
-          {
-            title: 'Motion Without a Library',
-            rows: [{
-              body: 'Framer Motion costs around 120 KB and Lottie around 250 KB, both more than the thing they animate, so every animation is CSS. The loader is a hard square turning in 90 degree steps with its shadow cycling the spectrum. The headline arrives as hollow outline type and fills with ink one word at a time, with the stroke animating to zero so the resting headline is byte for byte the one you read every other morning. Both respect prefers-reduced-motion.',
-            }],
-          },
-        ],
-      },
-      {
-        type: 'image',
-        src: '/learningetal-share.png',
-        alt: 'The Learning Et Al. share card: the wordmark boxed and tipped, with a spectrum shadow',
-        aspect: '1200/630',
-        caption: 'The share card. One object, an ink border, the spectrum running round its shadow.',
-      },
-      {
-        type: 'tiles',
-        items: [{
-          title: 'The Share Card',
-          rows: [{
-            body: 'The first version was designed at 1200 by 630 and never checked at the 260 point width iMessage actually renders. At bubble size the paragraph was a grey smear and the gradient bars turned to dust, and iMessage prints the description under the image anyway, so the card was saying the same thing twice. The rebuild is one object: the wordmark, boxed and tipped, with the ten spectrum slots running round its shadow.',
-          }],
-        }],
-      },
-      {
         type: 'tiles',
         items: [
           {
             title: 'Staying Interesting',
+            palette: true,
             rows: [
               {
                 label: 'Topic and theme novelty',
@@ -481,6 +412,7 @@ const PROJECTS: Record<string, Project> = {
           },
           {
             title: 'Things I Reworked',
+            palette: true,
             rows: [
               {
                 label: 'Theme generation',
@@ -1012,7 +944,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
           </div>
 
-          {/* Right: meta spec sheet */}
+          {/* Right: optional aside image + meta spec sheet */}
+          <div>
+          {project.heroAside && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.25rem' }}>
+              <Image
+                src={project.heroAside.src}
+                alt={project.heroAside.alt}
+                width={project.heroAside.width ?? 240}
+                height={Math.round((project.heroAside.width ?? 240) * 0.525)}
+                style={{ width: project.heroAside.width ?? 240, height: 'auto', display: 'block' }}
+              />
+            </div>
+          )}
           <div style={{ borderTop: `1px solid ${HL}` }}>
             {[
               { label: 'Year', value: project.year },
@@ -1031,6 +975,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 </div>
               </div>
             ))}
+          </div>
           </div>
           </div>
 
@@ -1258,7 +1203,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
       return (
         <div style={{ display: 'grid', gridTemplateColumns: section.items.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
           {section.items.map((item, i) => (
-            <ExpandableTile key={i} title={item.title} rows={item.rows} accent={accent} featured={item.featured} />
+            <ExpandableTile key={i} title={item.title} rows={item.rows} accent={accent} featured={item.featured} palette={item.palette} />
           ))}
         </div>
       )
