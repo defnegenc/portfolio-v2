@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
+import ThemeToggle from '@/components/ThemeToggle'
 
 // ─── Ditherform Logo ──────────────────────────────────────────────────────────
 // Bayer-ordered dithering producing a halftone D — ported from Claude Design
@@ -103,50 +104,6 @@ const PUBLICATIONS = [
 ]
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function SunIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-      <circle cx="12" cy="12" r="5"/>
-      <line x1="12" y1="1" x2="12" y2="3"/>
-      <line x1="12" y1="21" x2="12" y2="23"/>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-      <line x1="1" y1="12" x2="3" y2="12"/>
-      <line x1="21" y1="12" x2="23" y2="12"/>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-    </svg>
-  )
-}
-
-function MoonIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-    </svg>
-  )
-}
-
-// ─── Theme Toggle ─────────────────────────────────────────────────────────────
-
-function ThemeToggle({ theme, setTheme }: { theme: 'dark' | 'light'; setTheme: (t: 'dark' | 'light') => void }) {
-  const btn = (active: boolean): React.CSSProperties => ({
-    padding: '0.42rem 0.6rem', cursor: 'pointer', userSelect: 'none' as const,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'transparent', color: 'var(--ink)',
-    opacity: active ? 1 : 0.3,
-    transition: 'opacity 0.15s',
-  })
-  return (
-    <div style={{ display: 'flex', border: '1px solid var(--hairline)', borderRadius: 3, overflow: 'hidden' }}>
-      <span onClick={() => setTheme('light')} style={btn(theme === 'light')}><SunIcon /></span>
-      <span onClick={() => setTheme('dark')} style={btn(theme === 'dark')}><MoonIcon /></span>
-    </div>
-  )
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -277,8 +234,8 @@ export default function Home() {
               )
             )}
             <button onClick={() => setNavOpen(false)}
-              style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink-dim)', background: 'none', border: 'none', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '1.25rem' }}>
-              Close [ESC]
+              style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.7, background: 'none', border: 'none', cursor: 'pointer', marginTop: '1.25rem' }}>
+              Close
             </button>
           </nav>
         </div>
@@ -292,7 +249,7 @@ export default function Home() {
             <h1 style={{ fontSize: 'clamp(1.4rem,4vw,2.8rem)', fontWeight: 400, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
               <TypewriterName text="DEFNE GENÇ" />
             </h1>
-            <div className="ns-sub" style={{ ...mono, fontSize: '0.62rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+            <div className="ns-sub" style={{ fontSize: '0.92rem', color: 'var(--ink)', opacity: 0.75 }}>
               Stanford CS · Product @ Coinbase · NYC
             </div>
           </div>
@@ -305,9 +262,9 @@ export default function Home() {
               { label: 'Résumé', href: '/resume' },
             ]).map(({ label, href }) => (
               <a key={label} href={href}
-                style={{ ...mono, fontSize: '0.68rem', color: 'var(--ink)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.4rem 0.75rem', transition: 'color 0.15s', opacity: 0.65 }}
+                style={{ fontSize: '0.95rem', color: 'var(--ink)', textDecoration: 'none', padding: '0.4rem 0.75rem', transition: 'opacity 0.15s', opacity: 0.8 }}
                 onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
-                onMouseLeave={e => { e.currentTarget.style.opacity = '0.65' }}>
+                onMouseLeave={e => { e.currentTarget.style.opacity = '0.8' }}>
                 {label}
               </a>
             ))}
@@ -317,11 +274,12 @@ export default function Home() {
           {/* Hamburger */}
           <button
             onClick={() => setNavOpen(true)}
-            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', padding: '0.4rem 0.2rem', width: 32, height: 32 }}
+            aria-label="Open menu"
+            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', gap: 5, background: 'none', border: 'none', cursor: 'pointer', padding: '0.4rem 0.2rem', width: 34, height: 34 }}
           >
-            <span style={{ display: 'block', width: 18, height: 1, background: 'var(--ink-dim)' }} />
-            <span style={{ display: 'block', width: 12, height: 1, background: 'var(--ink-dim)' }} />
-            <span style={{ display: 'block', width: 18, height: 1, background: 'var(--ink-dim)' }} />
+            <span style={{ display: 'block', width: 22, height: 3, borderRadius: 999, background: 'var(--ink)' }} />
+            <span style={{ display: 'block', width: 14, height: 3, borderRadius: 999, background: 'var(--ink)' }} />
+            <span style={{ display: 'block', width: 22, height: 3, borderRadius: 999, background: 'var(--ink)' }} />
           </button>
         </div>
       </div>
@@ -352,7 +310,7 @@ export default function Home() {
               <div style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)' }}>NYC {clock}</div>
             </div>
             <div style={{ borderTop: '1px solid var(--hairline)', paddingTop: '0.9rem', marginTop: '0.1rem' }}>
-              <div style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '0.75rem' }}>Publications</div>
+              <div style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--ink)', marginBottom: '0.75rem' }}>Publications</div>
               {PUBLICATIONS.map(pub => (
                 <a key={pub.href} href={pub.href} target="_blank" rel="noreferrer"
                   style={{ display: 'block', textDecoration: 'none', marginBottom: '0.6rem' }}>
@@ -363,7 +321,7 @@ export default function Home() {
             </div>
           </div>
           <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--hairline)' }}>
-            <div style={{ ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '0.75rem' }}>Network</div>
+            <div style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--ink)', marginBottom: '0.75rem' }}>Network</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
               {([
                 { label: 'Email',    action: () => setContact(true) },
@@ -379,8 +337,8 @@ export default function Home() {
                 )
               )}
             </div>
-            <button className="btn-inv" onClick={() => setContact(true)}
-              style={{ width: '100%', ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', background: 'none', border: '1px solid var(--hairline)', padding: '0.55rem', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+            <button onClick={() => setContact(true)}
+              style={{ width: '100%', fontSize: '0.95rem', fontWeight: 500, color: 'var(--bg)', background: 'var(--ink)', border: 'none', borderRadius: 999, padding: '0.7rem 1rem', cursor: 'pointer' }}>
               Get in touch
             </button>
           </div>
@@ -414,7 +372,7 @@ export default function Home() {
 
                 <div className="pl-tags" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                   {p.tags.map((t, i) => (
-                    <span key={t} style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <span key={t} style={{ fontSize: '0.85rem', color: 'var(--ink)', opacity: 0.65 }}>
                       {t}{i < p.tags.length - 1 ? '\u00a0·\u00a0' : ''}
                     </span>
                   ))}
@@ -439,10 +397,10 @@ export default function Home() {
         >
           <div style={{ width: 'min(480px,90vw)', padding: '2.5rem', background: 'var(--bg)', border: '1px solid var(--hairline)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <div style={{ ...mono, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Get in Touch</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--ink)' }}>Get in touch</div>
               <button onClick={() => setContact(false)}
-                style={{ background: 'none', border: 'none', ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase' }}>
-                Close [ESC]
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.7 }}>
+                Close
               </button>
             </div>
             {formSent ? (
@@ -451,18 +409,18 @@ export default function Home() {
               <form onSubmit={handleSubmit}>
                 {([{ label: 'Name', name: 'name', type: 'text', placeholder: 'Full name' }, { label: 'Email', name: 'email', type: 'email', placeholder: 'Your email' }]).map(f => (
                   <div key={f.name} style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{f.label}</label>
+                    <label style={{ display: 'block', fontSize: '0.9rem', color: 'var(--ink)', opacity: 0.75, marginBottom: '0.5rem' }}>{f.label}</label>
                     <input name={f.name} type={f.type} placeholder={f.placeholder} required
                       style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--hairline)', padding: '0.7rem 0', color: 'var(--ink)', fontFamily: 'var(--font-mono)', fontSize: '0.9rem' }} />
                   </div>
                 ))}
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', ...mono, fontSize: '0.65rem', color: 'var(--ink-dim)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Message</label>
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: 'var(--ink)', opacity: 0.75, marginBottom: '0.5rem' }}>Message</label>
                   <textarea name="message" placeholder="What's on your mind?" required rows={4}
                     style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--hairline)', padding: '0.7rem 0', color: 'var(--ink)', fontFamily: 'var(--font-mono)', fontSize: '0.9rem', resize: 'none' }} />
                 </div>
                 <button type="submit"
-                  style={{ width: '100%', background: 'var(--ink)', color: 'var(--bg)', border: 'none', padding: '1rem', ...mono, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700 }}>
+                  style={{ width: '100%', background: 'var(--ink)', color: 'var(--bg)', border: 'none', borderRadius: 999, padding: '0.85rem 1rem', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer' }}>
                   Send
                 </button>
               </form>

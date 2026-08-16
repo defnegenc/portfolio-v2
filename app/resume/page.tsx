@@ -85,7 +85,7 @@ function SectionHeader({
         cursor: 'pointer',
       }}
     >
-      <span style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+      <span style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--ink)' }}>
         {label}
       </span>
       <span style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', transition: 'transform 0.2s', display: 'inline-block', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
@@ -156,15 +156,15 @@ export default function Resume() {
 
         {/* Nav */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3.5rem' }}>
-          <Link href="/" style={{ ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <Link href="/" style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
             ← Back
           </Link>
           <button
             onClick={() => window.print()}
             style={{
-              ...mono, fontSize: '0.75rem', color: 'var(--ink-dim)',
-              background: 'none', border: '1px solid var(--hairline)',
-              padding: '0.4rem 0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer',
+              fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)',
+              background: 'none', border: '2px solid var(--ink-dim)', borderRadius: 999,
+              padding: '0.45rem 1.1rem', cursor: 'pointer',
             }}
           >
             Print / Save PDF
@@ -222,7 +222,7 @@ export default function Resume() {
                 className="resume-tab"
                 onClick={() => setActiveTab(tab)}
                 style={{
-                  ...mono, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em',
+                  fontSize: '0.95rem', fontWeight: 500,
                   background: 'none', border: 'none', padding: '0.5rem 1rem 0.6rem',
                   color: activeTab === tab ? 'var(--ink)' : 'var(--ink-dim)',
                   borderBottom: `2px solid ${activeTab === tab ? 'var(--ink)' : 'transparent'}`,
@@ -281,7 +281,7 @@ export default function Resume() {
               ['PM', 'PRDs, Roadmapping, BI Dashboards'],
             ].map(([cat, items]) => (
               <div key={cat}>
-                <div style={{ ...mono, fontSize: '0.72rem', ...dim, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.3rem' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>
                   {cat}
                 </div>
                 <div style={{ fontSize: '0.95rem', ...dim, lineHeight: 1.6 }}>{items}</div>

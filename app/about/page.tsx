@@ -3,9 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import AsciiCanvas from '@/components/AsciiCanvas'
+import ThemeToggle from '@/components/ThemeToggle'
 import { SectionRow, pageContainer, heroTitle, eyebrow, bodyText, TEXT_MAX } from '@/components/layout'
-
-const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
 export default function About() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
@@ -38,20 +37,10 @@ export default function About() {
 
       {/* Nav */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 2rem', borderBottom: '1px solid var(--hairline)', background: isLight ? 'rgba(244,242,236,0.92)' : 'rgba(10,10,10,0.92)', backdropFilter: 'blur(12px)' }}>
-        <Link href="/" style={{ ...mono, fontSize: '0.72rem', color: 'var(--ink-dim)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+        <Link href="/" style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
           ← Work
         </Link>
-        <div style={{ display: 'flex', border: '1px solid var(--hairline)', borderRadius: 3, overflow: 'hidden' }}>
-          {(['light', 'dark'] as const).map(t => (
-            <span key={t} onClick={() => setTheme(t)} style={{
-              ...mono, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em',
-              padding: '0.4rem 0.7rem', cursor: 'pointer', userSelect: 'none',
-              background: theme === t ? 'var(--ink)' : 'transparent',
-              color: theme === t ? 'var(--bg)' : 'var(--ink-dim)',
-              transition: 'background 0.15s, color 0.15s',
-            }}>{t}</span>
-          ))}
-        </div>
+        <ThemeToggle theme={theme} setTheme={setTheme} />
       </nav>
 
       <div style={pageContainer()}>
@@ -67,7 +56,7 @@ export default function About() {
           </div>
           <div className="fade-up fade-up-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div>
-              <div style={{ ...eyebrow, fontSize: '0.62rem', marginBottom: '1rem' }}>
+              <div style={{ ...eyebrow, fontSize: '0.9rem', marginBottom: '1rem' }}>
                 Istanbul · Stanford · New York
               </div>
               <h1 className="fade-up fade-up-3" style={{ ...heroTitle, lineHeight: 0.88 }}>
@@ -111,7 +100,7 @@ export default function About() {
             {[
               {
                 title: 'Recommendation systems using LLMs',
-                body: 'I\u2019m building two systems right now that approach this question from different angles. <a href="/project/menuto" class="about-link">Menuto</a> uses an LLM agent as the final reasoning layer over 8 traditional scoring signals (embeddings, popularity, behavioral history) to recommend restaurant dishes, with Bayesian weight learning that adapts per user over time. <a href="/project/learningetal" class="about-link">Learning Et Al.</a> uses hybrid ranking (BM25 + semantic embeddings via Reciprocal Rank Fusion) to find academic papers, then a 15-call synthesis pipeline to make them readable. The interesting question across both: <strong>what\u2019s the right balance of agentic reasoning and rule-based scoring?</strong> When should the LLM override traditional signals, and when should it defer? What makes an LLM-powered system actually good at ranking, not just good at generating text about rankings?',
+                body: 'I\u2019m building two systems right now that approach this question from different angles. <a href="/project/menuto" class="about-link">Menuto</a> uses an LLM agent as the final reasoning layer over 8 traditional scoring signals (embeddings, popularity, behavioral history) to recommend restaurant dishes, with Bayesian weight learning that adapts per user over time. <a href="/project/learningetal" class="about-link">Learning Et Al.</a> seeds each day from a real topic in the OpenAlex taxonomy, ranks candidates with BM25 and semantic embeddings fused by Reciprocal Rank Fusion, and then writes the headline last, from the sources it actually kept. The synthesis argues with the papers instead of summarizing them. The interesting question across both: <strong>what\u2019s the right balance of agentic reasoning and rule-based scoring?</strong> When should the LLM override traditional signals, and when should it defer? What makes an LLM-powered system actually good at ranking, not just good at generating text about rankings?',
               },
               {
                 title: 'Interfaces that surface strengths',
@@ -145,15 +134,15 @@ export default function About() {
               ['Languages', 'Turkish (native), English (fluent), French (conversational), Arabic (elementary), Spanish (elementary)'],
             ] as [string, string][]).map(([label, value]) => (
               <div key={label}>
-                <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>
                   {label}
                 </div>
-                <div style={{ fontSize: '1rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>{value}</div>
+                <div style={{ fontSize: '1rem', color: 'var(--ink)', opacity: 0.9, lineHeight: 1.5 }}>{value}</div>
               </div>
             ))}
             <div>
-              <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>Research</div>
-              <div style={{ fontSize: '1rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>Research</div>
+              <div style={{ fontSize: '1rem', color: 'var(--ink)', opacity: 0.9, lineHeight: 1.5 }}>
                 <a href="https://hci.stanford.edu/" target="_blank" rel="noreferrer" className="about-link">Landay Lab (Computer Science)</a>
                 {' · Kuo Lab (Stanford Medicine)'}
               </div>
@@ -170,7 +159,7 @@ export default function About() {
             { label: 'Résumé', href: '/resume', text: 'View résumé' },
           ].map(({ label, href, text }) => (
             <div key={label}>
-              <div style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem', opacity: 0.6 }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>
                 {label}
               </div>
               <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className="about-link"

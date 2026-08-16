@@ -34,13 +34,13 @@ export const sectionHeading: CSSProperties = {
   color: 'var(--ink)',
 }
 
-// Mono eyebrow / row label.
+// Row label. Sentence case in the body face: the small tracked-out uppercase
+// mono version read as faint decoration rather than as a label.
 export const eyebrow: CSSProperties = {
-  ...mono,
-  fontSize: '0.7rem',
-  color: 'var(--ink-dim)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.14em',
+  fontSize: '0.95rem',
+  fontWeight: 500,
+  color: 'var(--ink)',
+  opacity: 0.75,
 }
 
 // Default body copy. Lighter and wider-set than the old 1.2rem / 1.85 lh.
