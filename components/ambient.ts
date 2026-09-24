@@ -104,9 +104,9 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
   night: {
     clear: { color: '#7FA8F5', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
     cloud: { color: '#B9A6F5', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
-    rain:  { color: '#6FD7E8', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
+    rain:  { color: '#7EE38A', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
     snow:  { color: null,      accent: '#7FA8F5', render: 'tiles', motion: 'trickle', hover: 'mono' },
-    fog:   { color: '#7EE38A', render: 'cipher', motion: 'brush',     hover: 'mono' },
+    fog:   { color: '#F26A4B', render: 'cipher', motion: 'brush',     hover: 'mono' },
     storm: { color: '#F08AA8', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
     wind:  { color: '#F2B26B', render: 'tiles',  motion: 'brush',     hover: 'mono' },
   },
