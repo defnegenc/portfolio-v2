@@ -555,11 +555,17 @@ export default function Home() {
             background: var(--bg); color: var(--ink); cursor: pointer;
           }
           /* full screen: the field leaves the flow and covers everything */
+          /* Full screen has to clear the name strip, which sits at 310, and
+             the page has to stop scrolling underneath or the copy streaks
+             past behind it. */
+          .root-frame[data-full="1"] { overflow: hidden !important; }
           .root-frame[data-full="1"] .field-main {
             position: fixed !important; inset: 0 !important;
-            height: 100dvh !important; max-height: none !important; z-index: 200;
+            height: 100dvh !important; max-height: none !important; z-index: 500;
           }
-          .root-frame[data-full="1"] .drag-hint { display: none; }
+          .root-frame[data-full="1"] .name-strip,
+          .root-frame[data-full="1"] .panel,
+          .root-frame[data-full="1"] .drag-hint { opacity: 0; pointer-events: none; }
 
           .drag-hint {
             display: block; position: absolute; left: 50%; top: 19vh; top: 19dvh;
