@@ -538,6 +538,9 @@ export default function Home() {
           }
           /* the sticky field sits behind, so the copy needs its own ground */
           .panel { position: relative !important; z-index: 1; background: var(--bg) !important; }
+          /* --wall collapses as the canvas opens, and the windows are display:
+             contents here, so the control pins to the field's own corner */
+          .no-open.wx-anchor { top: 0.6rem !important; right: 0.6rem !important; }
           .drag-hint {
             display: block; position: absolute; left: 50%; top: 19vh; top: 19dvh;
             transform: translate(-50%, -50%); z-index: 2; pointer-events: none;
@@ -616,8 +619,8 @@ export default function Home() {
         </div>
 
         {/* field controls belong to the animation, not the nav */}
-        <div className="no-open" style={{
-          position: 'absolute', top: 'calc(var(--wall) + 0.45rem)', right: 'calc(var(--wall) + 0.45rem)',
+        <div className="no-open wx-anchor" style={{
+          position: 'absolute', top: 'calc(var(--wall) + 0.5rem)', right: 'calc(var(--wall) + 0.5rem)',
           zIndex: 70, display: 'flex', alignItems: 'center', gap: '0.6rem',
           // waits its turn: the scroll cue leads, this follows once it retires
           opacity: cueGone ? 1 : 0, pointerEvents: cueGone ? 'auto' : 'none',

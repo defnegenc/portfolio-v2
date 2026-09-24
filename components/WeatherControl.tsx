@@ -56,17 +56,17 @@ export default function WeatherControl({
       <style>{`
         /* Pure white in dark mode, pure black in light. No accent anywhere: it
            has to survive whatever colour the field happens to be. */
+        /* Follows the theme rather than inverting it: page background, page
+           ink, hairline edge. The mark is the site face, not an icon set. */
         .wx-btn {
-          display: block; width: 26px; height: 26px; padding: 0;
-          border: none; border-radius: 999px;
-          background: #FFFFFF; color: #0A0A0A;
+          display: block; width: 28px; height: 28px; padding: 0;
+          border: 1px solid var(--hairline); border-radius: 999px;
+          background: var(--bg); color: var(--ink);
           cursor: pointer; line-height: 0;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.28);
-          transition: opacity .2s;
+          transition: border-color .2s, color .2s;
         }
-        .wx-btn:hover, .wx[data-open="1"] .wx-btn { opacity: 0.85; }
-        [data-theme="light"] .wx-btn { background: #0A0A0A; color: #FFFFFF; }
-        @media (max-width: 620px) { .wx-btn { width: 22px; height: 22px; } }
+        .wx-btn:hover, .wx[data-open="1"] .wx-btn { border-color: var(--award); color: var(--award); }
+        @media (max-width: 620px) { .wx-btn { width: 26px; height: 26px; } }
 
         .wx-tip {
           position: absolute; top: calc(100% + 0.35rem); right: 0; z-index: 401;
@@ -123,7 +123,8 @@ export default function WeatherControl({
             flex box cannot do because it centres the line box, not the ink. */}
         <svg width="100%" height="100%" viewBox="0 0 24 24" aria-hidden>
           <text x="12" y="12" textAnchor="middle" dominantBaseline="central"
-            fontFamily="var(--font-main)" fontSize="16" fontWeight="700" fill="currentColor">?</text>
+            fontFamily="var(--font-main)" fontSize="15" fontWeight="500"
+            letterSpacing="0" fill="currentColor">?</text>
         </svg>
       </button>
       <span className="wx-tip" role="tooltip">What is this?</span>
