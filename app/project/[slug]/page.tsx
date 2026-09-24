@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import PageShell from '@/components/PageShell'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import CopyBlock from './CopyBlock'
@@ -38,6 +39,10 @@ interface Project {
   tags: string[]
   icon?: string
   heroAside?: { src: string; alt: string; width?: number }
+  /** A wide figure runs full width under the hero instead of in the aside. */
+  heroWide?: { src: string; alt: string; ratio: number }
+  /** A row of app screens across the bottom of the page. */
+  heroRow?: { src: string; alt: string }[]
   externalLink?: { href: string; label: string }
   secondaryLink?: { href: string; label: string }
   jumpTo?: { anchor: string; label: string }
@@ -48,9 +53,10 @@ interface Project {
 const PROJECTS: Record<string, Project> = {
   bloom: {
     slug: 'bloom',
+    heroWide: { src: '/bloom-figure.png', alt: 'Bloom: the LLM coach, the Today home screen, the weekly summary, a push notification, and the ambient lockscreen display', ratio: 4860 / 2374 },
     no: '01',
     name: 'Bloom',
-    tagline: 'At Stanford with Prof. Landay, I co-designed and evaluated Bloom, an LLM-based physical activity coaching intervention. My contributions spanned early-stage design through full-stack implementation.',
+    tagline: 'At Stanford with Prof. Landay, I co-designed and evaluated Bloom, an LLM-based physical activity coaching intervention.',
     year: '2025',
     role: 'UI/UX Design · Safety Engineering · Frontend · Second Author',
     citation: 'Jörke, J., Genç, D., Teutschbein, M., Sapkota, S., Chung, J., Schmiedmayer, H.-B., Campero, A., King, A. C., Brunskill, E., & Landay, J. A. (2026). Bloom: Designing for LLM-Augmented Behavior Change Interactions. CHI \'26. ACM. https://arxiv.org/abs/2510.05449',
@@ -58,24 +64,10 @@ const PROJECTS: Record<string, Project> = {
     tools: 'Figma · React Native · TypeScript · Swift/HealthKit · Python/FastAPI · Firebase · OpenAI · LLM red-teaming · Qualitative coding',
     accentColor: '#266C31',
     tags: ['CHI 2026', 'Best Paper', 'Top 1%'],
-    awards: 'Best Paper Award · Top 1% of submissions',
+    awards: 'ACM SIGCHI Best Paper Award',
     externalLink: { href: 'https://stanfordhci.github.io/Bloom/', label: 'View the Bloom website ↗' },
     secondaryLink: { href: '/bloom-app-guide.pdf', label: 'App Guide PDF ↗' },
     sections: [
-      {
-        type: 'text',
-        label: 'What it is',
-        body: 'Bloom is an LLM-augmented physical activity coaching app built on Stanford\'s validated Active Choices Program. It integrates a conversational AI coach ("Beebo") with evidence-based behavior change UI, including an ambient garden display that grows as you complete your weekly exercise goals. The central question: can LLM coaching complement, not replace, established digital health interaction patterns? We ran a 4-week randomized field study with 54 participants to find out.',
-      },
-      {
-        type: 'stats',
-        items: [
-          { value: '5×', label: 'Longer app engagement in LLM condition' },
-          { value: '+1.2', label: 'Mindset shift vs +0.8 in control' },
-          { value: '600', label: 'Example safety benchmark' },
-          { value: '>96%', label: 'Recall across harm categories' },
-        ],
-      },
       {
         type: 'subheader',
         text: 'The App',
@@ -136,6 +128,12 @@ const PROJECTS: Record<string, Project> = {
 
   menuto: {
     slug: 'menuto',
+    heroRow: [
+      { src: '/choosedish2.png', alt: 'Menuto: choosing a dish' },
+      { src: '/dishesloading.png', alt: 'Menuto: dishes loading' },
+      { src: '/chosendishes.png', alt: 'Menuto: chosen dishes' },
+      { src: '/Your-Restaurants.png', alt: 'Menuto: your restaurants' },
+    ],
     no: '03',
     name: 'Menuto',
     tagline: 'Personalized restaurant dish recommendations powered by an LLM agent that learns your taste over time, using your favorites from other restaurants to inform what you\'ll love at new ones. Solo-built end to end: product, design, React Native frontend, FastAPI backend, and deployment.',
@@ -152,24 +150,6 @@ const PROJECTS: Record<string, Project> = {
       {
         type: 'pullquote',
         text: 'I\u2019m always indecisive at restaurants, and when I do decide, it\u2019s always the wrong thing.',
-      },
-      {
-        type: 'tiles',
-        items: [{
-          title: 'Why Not Just Ask an LLM?',
-          rows: [{
-            body: 'You could send a model a photo of the menu and ask \u201cwhat should I order?\u201d You\u2019d get a generic answer: no memory of what you\u2019ve liked, no awareness of what reviewers say about this restaurant, no way to learn that you loved the cacio e pepe but hated the carbonara. Every conversation starts from zero. I wanted a system with state: one that tracks your favorites across restaurants, extracts taste signals from your ratings, and runs an 8-component scoring algorithm with Bayesian weight learning that adapts to how you decide.',
-          }],
-        }],
-      },
-      {
-        type: 'stats',
-        items: [
-          { value: '~50', label: 'Dishes scored per request across 8 signal sources' },
-          { value: '3', label: 'Menu input modes: photo, URL, paste' },
-          { value: '4', label: 'LLM calls per recommendation (embeddings + agent reasoning)' },
-          { value: '6', label: 'LLM-analyzed dietary flags per dish (catches hidden ingredients)' },
-        ],
       },
       {
         type: 'subheader',
@@ -291,7 +271,6 @@ const PROJECTS: Record<string, Project> = {
     accentColor: '#1a1a1a',
     tags: ['Solo Project', 'RecSys', 'LLM Agents'],
     icon: '/learningetal-icon.png',
-    heroAside: { src: '/learningetal-share.png', alt: 'Learning Et Al. share card', width: 260 },
     externalLink: { href: 'https://learningetal.com', label: 'Visit learningetal.com ↗' },
     sections: [
       {
@@ -304,15 +283,6 @@ const PROJECTS: Record<string, Project> = {
         items: [
           { src: '/learningetal-digest.png', alt: 'Today\u2019s digest on learningetal.com: the central question, a one-line answer, and the first source card' },
           { src: '/learningetal-card.png', alt: 'A single source card: title, byline, TL;DR, and findings beside a takeaway' },
-        ],
-      },
-      {
-        type: 'stats',
-        items: [
-          { value: '10\u201312', label: 'LLM calls per digest' },
-          { value: '~$0.015', label: 'Cost per digest' },
-          { value: '91 \u2192 28', label: 'Design tokens after the system pass' },
-          { value: '769 KB', label: 'First-load JS, down from 932' },
         ],
       },
       {
@@ -447,6 +417,7 @@ const PROJECTS: Record<string, Project> = {
 
   dishcovery: {
     slug: 'dishcovery',
+    heroWide: { src: '/dishcovery-hero.png', alt: 'Dishcovery', ratio: 3200 / 2515 },
     no: '04',
     name: 'Dishcovery',
     tagline: 'An image-recognition app that helps you recognise, learn about, and cook with ingredients from cultures around the world.',
@@ -464,21 +435,6 @@ const PROJECTS: Record<string, Project> = {
         type: 'text',
         label: 'Overview',
         body: 'Dishcovery is a consumer app that uses image recognition to help you recognise, learn about, and cook with foods from around the world. Scan an unfamiliar ingredient to see its cultural and culinary context, explore recipes by cuisine or ingredient, and save what you want to try.',
-      },
-      {
-        type: 'image',
-        src: '/dishcovery-hero.png',
-        alt: 'Dishcovery App Overview',
-        aspect: '16/9',
-      },
-      {
-        type: 'stats',
-        items: [
-          { value: '60', label: 'Ideas generated in brainstorming' },
-          { value: '20wks', label: 'Across two class iterations' },
-          { value: '6', label: 'Personas from Bay Area needfinding' },
-          { value: '3×', label: 'Awards at CS 147 showcase' },
-        ],
       },
       {
         type: 'subheader',
@@ -698,20 +654,6 @@ const PROJECTS: Record<string, Project> = {
       },
       {
         type: 'text',
-        label: 'What I Did',
-        body: 'I contributed to both the design and development of Flock, creating a user-friendly interface for key features like the event feed, adding friends, and scheduling plans. I also worked on the backend, ensuring smooth functionality for features like creating events and RSVP-ing to hangouts.',
-      },
-      {
-        type: 'stats',
-        items: [
-          { value: '100%', label: 'Task completion in pilot study' },
-          { value: '5×', label: 'More likely to join with social proof' },
-          { value: '0', label: 'Hardcoded data — fully live' },
-          { value: '4/6', label: 'Went to Profile to add friends in minute one' },
-        ],
-      },
-      {
-        type: 'text',
         label: 'Theory → Implementation',
         body: 'Every design decision maps to a CS 278 social computing concept. Feed as first screen enforces social translucence. Participant limits set strong-tie norms. Event details showing who\'s going leverages social proof. Adding friends from Event Details reduces friction in natural context.',
       },
@@ -820,21 +762,6 @@ const PROJECTS: Record<string, Project> = {
         body: 'Life expectancy has increased by three decades since the mid-twentieth century. Parallel "healthspan" expansion, however, has not followed. In the myriad of possible pathologies that could manifest in the "healthspan-lifespan gap", we\'re tackling a universal issue — loss of mobility.',
       },
       {
-        type: 'image',
-        src: '/hercules-cover.png',
-        alt: 'Hercules app overview',
-        aspect: '16/9',
-      },
-      {
-        type: 'stats',
-        items: [
-          { value: '30yr', label: 'Growth in life expectancy since mid-20th century' },
-          { value: '2', label: 'Input modalities: voice + image' },
-          { value: '2', label: 'Modes: follow-up or new symptom' },
-          { value: '24h', label: 'Build time at TreeHacks' },
-        ],
-      },
-      {
         type: 'text',
         label: 'The Solution',
         body: 'Hercules is a fully functional AI agent built to guide you through a customized journey to tracking and understanding your mobility. Hercules can successfully understand and log your pain based on speech recognition and images alone. Users can tell Hercules they want to either (1) follow up on a previous pain/discomfort or (2) report a new one by pointing to where they\'re experiencing pain or describing it verbally — Hercules will ask follow-up questions and reflect your symptoms in your log.',
@@ -885,29 +812,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const currentIdx = ALL_SLUGS.indexOf(slug)
   const prevSlug = currentIdx > 0 ? ALL_SLUGS[currentIdx - 1] : null
   const nextSlug = currentIdx < ALL_SLUGS.length - 1 ? ALL_SLUGS[currentIdx + 1] : null
+  // one paragraph, lifted verbatim from the first thing written about the project
+  const summary = (project.sections.find(x => x.type === 'text') as { body?: string } | undefined)?.body
 
   return (
-    <main data-theme="light" style={{ background: 'var(--bg)', color: 'var(--ink)', height: '100vh', fontFamily: 'var(--font-main)', overflowY: 'auto' }}>
+    <PageShell here="project" field="none" accent={project.accentColor}>
+      {/* one screen, no scroll: the detail lives at the other end of the link */}
+      <div style={{ padding: '0 0 1rem' }}>
 
-      {/* Nav */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(244,242,236,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${HL}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 2rem' }}>
-        <Link href="/" style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
-          ← Work
-        </Link>
-        <span style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.45 }}>
-          {project.name}
-        </span>
-        <Link href="/resume" style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
-          Résumé →
-        </Link>
-      </nav>
-
-      <div style={{ maxWidth: PAGE_MAX, margin: '0 auto', padding: '0 2.5rem 6rem' }}>
-
-        {/* Hero */}
-        <div style={{ padding: '3rem 0 2.5rem', borderBottom: `1px solid ${HL}` }}>
+        <div style={{ padding: '0 0 1.5rem' }}>
           {/* Eyebrow tags (full width, above both columns) */}
-          <div style={{ fontSize: '0.95rem', fontWeight: 500, color: project.accentColor, marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--award)', marginBottom: '1.5rem' }}>
             {project.tags.join(' · ')}
           </div>
 
@@ -918,14 +833,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <h1 style={{ ...heroTitle, marginBottom: '1.25rem' }}>
             {project.name}
           </h1>
-          <p style={{ fontSize: 'clamp(0.95rem, 1.3vw, 1.08rem)', fontWeight: 300, lineHeight: 1.6, color: 'var(--ink-dim)', marginBottom: '2rem' }}>
+          <p style={{ fontSize: '1.02rem', lineHeight: 1.65, color: 'var(--ink)', marginBottom: '1.5rem', maxWidth: 680 }}>
             {project.tagline}
           </p>
+          {summary && (
+            <p style={{ fontSize: '0.98rem', lineHeight: 1.7, color: 'var(--ink-dim)', marginBottom: '1.75rem', maxWidth: 680 }}>
+              {summary}
+            </p>
+          )}
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {project.externalLink && (
               <a href={project.externalLink.href} target="_blank" rel="noreferrer"
-                style={{ display: 'inline-block', fontSize: '0.95rem', color: '#fff', textDecoration: 'none', background: project.accentColor, borderRadius: 999, padding: '0.65rem 1.5rem', fontWeight: 500 }}>
+                style={{ display: 'inline-block', fontSize: '0.95rem', color: 'var(--bg)', textDecoration: 'none', background: 'var(--award)', borderRadius: 999, padding: '0.65rem 1.5rem', fontWeight: 500 }}>
                 {project.externalLink.label}
               </a>
             )}
@@ -947,27 +867,25 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           {/* Right: optional aside image + meta spec sheet */}
           <div>
           {project.heroAside && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.25rem' }}>
-              <Image
-                src={project.heroAside.src}
-                alt={project.heroAside.alt}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.1rem' }}>
+              <Image src={project.heroAside.src} alt={project.heroAside.alt}
                 width={project.heroAside.width ?? 240}
-                height={Math.round((project.heroAside.width ?? 240) * 0.525)}
-                style={{ width: project.heroAside.width ?? 240, height: 'auto', display: 'block' }}
-              />
+                height={Math.round((project.heroAside.width ?? 240) * 0.9)}
+                style={{ width: project.heroAside.width ?? 240, height: 'auto', display: 'block' }} />
             </div>
           )}
           <div style={{ borderTop: `1px solid ${HL}` }}>
             {[
-              { label: 'Year', value: project.year },
+              { label: 'Year', value: project.year as React.ReactNode },
               { label: 'Role', value: project.role },
               project.team ? { label: 'Team', value: project.team } : null,
               project.duration ? { label: 'Context', value: project.duration } : null,
               project.tools ? { label: 'Tools', value: project.tools } : null,
               project.awards ? { label: 'Awards', value: project.awards } : null,
+              project.citation ? { label: 'Citation', value: <CopyBlock text={project.citation} /> } : null,
             ].filter(Boolean).map(item => item && (
               <div key={item.label} style={{ display: 'grid', gridTemplateColumns: '4.75rem 1fr', gap: '1rem', padding: '0.7rem 0', borderBottom: `1px solid ${HL}`, alignItems: 'baseline' }}>
-                <div style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.62 }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--ink)' }}>
                   {item.label}
                 </div>
                 <div style={{ fontSize: '0.85rem', lineHeight: 1.45, color: 'var(--ink)' }}>
@@ -979,40 +897,41 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
           </div>
 
-          {/* Citation (full-width, copyable) */}
-          {project.citation && (
-            <div style={{ marginTop: '1.75rem' }}>
-              <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.4rem' }}>
-                Citation
-              </div>
-              <CopyBlock text={project.citation} />
-            </div>
-          )}
-        </div>
-
-        {/* Sections */}
-        <div style={{ paddingTop: '3rem', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-          {project.sections.map((section, i) => (
-            <SectionBlock key={i} section={section} accent={project.accentColor} />
-          ))}
         </div>
 
         {/* Prev / Next */}
-        <div style={{ borderTop: `1px solid ${HL}`, marginTop: '4rem', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between' }}>
+        {project.heroRow && (
+          <div className="pj-row" style={{ marginTop: '1.75rem', display: 'grid', gridTemplateColumns: `repeat(${project.heroRow.length}, minmax(0, 1fr))`, gap: '1rem' }}>
+            {project.heroRow.map(img => (
+              <Image key={img.src} src={img.src} alt={img.alt} width={420} height={910}
+                style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 10 }} />
+            ))}
+          </div>
+        )}
+
+        {project.heroWide && (
+          <div style={{ marginTop: '1.75rem', maxWidth: project.heroWide.ratio < 1.6 ? 760 : undefined }}>
+            <Image src={project.heroWide.src} alt={project.heroWide.alt}
+              width={1600} height={Math.round(1600 / project.heroWide.ratio)}
+              style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 8 }} />
+          </div>
+        )}
+
+        <div style={{ borderTop: `1px solid ${HL}`, marginTop: '2rem', paddingTop: '1.25rem', display: 'flex', justifyContent: 'space-between' }}>
           {prevSlug ? (
-            <Link href={`/project/${prevSlug}`} style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
+            <Link href={`/project/${prevSlug}`} style={{ fontSize: '0.95rem', color: 'var(--ink)', textDecoration: 'none' }}>
               ← {PROJECTS[prevSlug].name}
             </Link>
           ) : <div />}
           {nextSlug ? (
-            <Link href={`/project/${nextSlug}`} style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
+            <Link href={`/project/${nextSlug}`} style={{ fontSize: '0.95rem', color: 'var(--ink)', textDecoration: 'none' }}>
               {PROJECTS[nextSlug].name} →
             </Link>
           ) : <div />}
         </div>
 
       </div>
-    </main>
+    </PageShell>
   )
 }
 
@@ -1045,7 +964,7 @@ function ListItem({ text, accent, index }: { text: string; accent: string; index
   const sep = emMatch ? ' — ' : ': '
   return (
     <li style={{ display: 'flex', gap: '1rem', fontSize: '0.95rem', lineHeight: 1.7, color: 'var(--ink-dim)', borderBottom: '1px solid var(--hairline)', paddingBottom: '0.65rem' }}>
-      <span style={{ ...mono, fontSize: '0.7rem', color: accent, flexShrink: 0, paddingTop: '0.2rem', minWidth: index !== undefined ? '1.2rem' : 'auto' }}>{index !== undefined ? `${index + 1}.` : '—'}</span>
+      <span style={{ ...mono, fontSize: '0.85rem', color: accent, flexShrink: 0, paddingTop: '0.2rem', minWidth: index !== undefined ? '1.2rem' : 'auto' }}>{index !== undefined ? `${index + 1}.` : '—'}</span>
       <span>
         {match
           ? <><strong style={{ color: 'var(--ink)', fontWeight: 600 }}>{match[1]}</strong>{sep}{match[2]}</>
@@ -1078,7 +997,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
               {section.label}
             </h3>
           )}
-          <p style={{ fontSize: '1rem', lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 760 }}>
+          <p style={{ fontSize: '1.0rem', lineHeight: 1.85, color: 'var(--ink-dim)', maxWidth: 760 }}>
             {renderBody(section.body)}
           </p>
         </div>
@@ -1104,7 +1023,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
               <div style={{ fontSize: 'clamp(2rem, 3.5vw, 2.8rem)', fontWeight: 300, letterSpacing: '-0.05em', color: accent, lineHeight: 1, marginBottom: '0.5rem' }}>
                 {item.value}
               </div>
-              <div style={{ fontSize: '0.88rem', color: 'var(--ink)', opacity: 0.72, lineHeight: 1.45 }}>
+              <div style={{ fontSize: '0.88rem', color: 'var(--ink)', lineHeight: 1.45 }}>
                 {item.label}
               </div>
             </div>
@@ -1131,7 +1050,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
         <div style={{ margin: '0 -2rem' }}>
           <ExternalOrLocalImage src={section.src} alt={section.alt} aspect={section.aspect} />
           {section.caption && (
-            <div style={{ fontSize: '0.88rem', color: 'var(--ink)', opacity: 0.65, marginTop: '0.6rem', paddingLeft: '2rem' }}>
+            <div style={{ fontSize: '0.88rem', color: 'var(--ink)', marginTop: '0.6rem', paddingLeft: '2rem' }}>
               {section.caption}
             </div>
           )}
@@ -1147,7 +1066,7 @@ function SectionBlock({ section, accent }: { section: Section; accent: string })
               <div key={i}>
                 <ExternalOrLocalImage src={item.src} alt={item.alt} aspect={section.aspect} />
                 {item.caption && (
-                  <div style={{ fontSize: '0.88rem', color: 'var(--ink)', opacity: 0.65, marginTop: '0.4rem', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.88rem', color: 'var(--ink)', marginTop: '0.4rem', textAlign: 'center' }}>
                     {item.caption}
                   </div>
                 )}

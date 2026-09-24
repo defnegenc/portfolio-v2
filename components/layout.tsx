@@ -1,7 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
 
-const mono: CSSProperties = { fontFamily: 'var(--font-mono)' }
-
 /* ── Shared layout tokens ──────────────────────────────────────────────
    One source of truth for page width and the type scale, so the About
    page and project pages read at the same density as the homepage.
@@ -20,42 +18,45 @@ export const pageContainer = (maxWidth: number = PAGE_MAX): CSSProperties => ({
 
 // Big page title. Smaller and tighter than before so it stops dominating.
 export const heroTitle: CSSProperties = {
-  fontSize: 'clamp(2.4rem, 4.5vw, 4.25rem)',
-  fontWeight: 400,
-  letterSpacing: '-0.04em',
-  lineHeight: 0.92,
+  fontFamily: 'var(--font-display)',
+  fontSize: 'clamp(1.6rem, 2.6vw, 2.2rem)',
+  fontWeight: 600,
+  letterSpacing: '-0.02em',
+  lineHeight: 1,
 }
 
 // Section heading (e.g. project section <h2>). Dialed down from the old 2.4rem cap.
 export const sectionHeading: CSSProperties = {
-  fontSize: 'clamp(1.35rem, 2.6vw, 1.9rem)',
-  fontWeight: 700,
-  letterSpacing: '-0.03em',
+  fontFamily: 'var(--font-display)',
+  fontSize: '1rem',
+  fontWeight: 600,
+  letterSpacing: '-0.01em',
   color: 'var(--ink)',
 }
 
-// Row label. Sentence case in the body face: the small tracked-out uppercase
-// mono version read as faint decoration rather than as a label.
+/* Row label. A proper heading in the display face: the small mono version read
+   as faint decoration rather than as a label, and tiny dim text is banned. */
 export const eyebrow: CSSProperties = {
-  fontSize: '0.95rem',
-  fontWeight: 500,
+  fontFamily: 'var(--font-display)',
+  fontSize: 'clamp(1.05rem, 1.5vw, 1.3rem)',
+  fontWeight: 600,
+  letterSpacing: '-0.01em',
   color: 'var(--ink)',
-  opacity: 0.75,
 }
 
 // Default body copy. Lighter and wider-set than the old 1.2rem / 1.85 lh.
 export const bodyText: CSSProperties = {
-  fontSize: '1.02rem',
-  fontWeight: 300,
-  lineHeight: 1.7,
+  fontSize: '0.88rem',
+  fontWeight: 400,
+  lineHeight: 1.6,
   color: 'var(--ink-dim)',
 }
 
 // Comfortable reading measure for body columns.
-export const TEXT_MAX = 760
+export const TEXT_MAX = 720
 
 /* ── SectionRow ────────────────────────────────────────────────────────
-   Two-column row: a mono label on the left, content on the right.
+   Two-column row: a heading on the left, content on the right.
    Tighter left column than before (0.55fr vs 1fr) so the content column
    gets noticeably wider. Collapses to a single column on mobile via the
    .section-row rule in globals.css. */
@@ -74,13 +75,13 @@ export function SectionRow({
       className="section-row"
       style={{
         display: 'grid',
-        gridTemplateColumns: '0.55fr 2fr',
-        gap: '3rem',
-        padding: '2.75rem 0',
+        gridTemplateColumns: '0.45fr 2fr',
+        gap: '2rem',
+        padding: '1.35rem 0',
         borderBottom: last ? 'none' : '1px solid var(--hairline)',
       }}
     >
-      <div style={{ ...eyebrow, paddingTop: '0.35rem', lineHeight: 1.4 }}>{label}</div>
+      <div style={{ ...eyebrow, paddingTop: '0.2rem', lineHeight: 1.4 }}>{label}</div>
       <div>{children}</div>
     </div>
   )

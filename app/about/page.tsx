@@ -1,176 +1,101 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import AsciiCanvas from '@/components/AsciiCanvas'
-import ThemeToggle from '@/components/ThemeToggle'
-import { SectionRow, pageContainer, heroTitle, eyebrow, bodyText, TEXT_MAX } from '@/components/layout'
+import PageShell from '@/components/PageShell'
+import { SectionRow, bodyText } from '@/components/layout'
+
+// About runs at full ink and a step up in size: this page is mostly prose, so
+// the site-wide dim body colour reads as too faint here.
+const copy: React.CSSProperties = { ...bodyText, fontSize: '0.95rem', lineHeight: 1.65, color: 'var(--ink)' }
+
+const THINKING: { claim: string; body: string }[] = [
+  {
+    claim: 'The next interface for computing with AI.',
+    body: 'The last interface revolution we had was the touchscreen, and agentic capability and presence have only grown since. How will we keep track of agentic progress and find the right input and output modality?',
+  },
+  {
+    claim: 'Personal information spaces.',
+    body: 'Given the wealth of information available now that we’re letting agents work on our behalf, how do we represent and navigate our own knowledge? Normies call this context engineering, after the knowledge we give our agents.',
+  },
+  {
+    claim: 'Can AI have taste, or is it all slop?',
+    body: 'A lot of taste is built in the physical world, through things you touch, spaces you move through, what people wear on the street.',
+  },
+]
+
+const FACTS: [string, string][] = [
+  ['Based', 'New York City'],
+  ['Education', 'Stanford CS PhD (deferred) · MS CS (HCI) · BS SymSys'],
+  ['Languages', 'Turkish (native), English (fluent), French (conversational), Arabic (elementary), Spanish (elementary)'],
+]
+
 
 export default function About() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const isLight = theme === 'light'
-
   return (
-    <div
-      data-theme={theme}
-      style={{ height: '100vh', overflowY: 'auto', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-main)', position: 'relative' }}
-    >
+    <PageShell here="about" field="right" motion="trickle" hover="mono" render="glyphs" fieldColor="#7FA8F5">
       <style>{`
-        [data-theme="light"] { --bg: #F4F2EC; --ink: #1A1918; --ink-dim: #5A5955; --hairline: rgba(26,25,24,0.15); }
-        [data-theme="dark"]  { --bg: #0A0A0A; --ink: #E8E6E0; --ink-dim: #AEADA6; --hairline: rgba(232,230,224,0.1); }
         .about-link { color: var(--ink-dim); text-decoration: none; position: relative; transition: color 0.2s; }
         .about-link::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform 0.3s cubic-bezier(.19,1,.22,1); }
         .about-link:hover::after { transform: scaleX(1); transform-origin: left; }
-        .about-link:hover { color: var(--ink) !important; }
+        .about-link:hover { color: var(--award) !important; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.6s cubic-bezier(.16,1,.3,1) both; }
         .fade-up-1 { animation-delay: 0.05s; } .fade-up-2 { animation-delay: 0.12s; }
-        .fade-up-3 { animation-delay: 0.2s; }  .fade-up-4 { animation-delay: 0.28s; }
-        .fade-up-5 { animation-delay: 0.36s; }
-        @media (max-width: 700px) {
-          .hero-inner { flex-direction: column !important; gap: 1.5rem !important; }
-          .hero-strips { height: 140px !important; }
-          .content-grid { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
-          .fact-grid { grid-template-columns: 1fr !important; }
-        }
+        .fade-up-3 { animation-delay: 0.2s; }
+        /* the copy lives in a narrower column now, so the label rail tightens up */
+        .about .section-row { grid-template-columns: 0.4fr 2fr; gap: 1.5rem; padding: 1.15rem 0; }
+        @media (max-width: 1100px) { .about .section-row { grid-template-columns: 1fr !important; gap: 0.5rem !important; } }
+        @media (max-width: 700px) { .fact-grid { grid-template-columns: 1fr !important; } }
       `}</style>
 
-      {/* Nav */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 2rem', borderBottom: '1px solid var(--hairline)', background: isLight ? 'rgba(244,242,236,0.92)' : 'rgba(10,10,10,0.92)', backdropFilter: 'blur(12px)' }}>
-        <Link href="/" style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
-          ← Work
-        </Link>
-        <ThemeToggle theme={theme} setTheme={setTheme} />
-      </nav>
+      <div className="about">
 
-      <div style={pageContainer()}>
-
-        {/* Hero */}
-        <div className="fade-up fade-up-1 content-grid hero-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '3.5rem', padding: '3rem 0 3.25rem', borderBottom: '1px solid var(--hairline)', alignItems: 'end' }}>
-          <div className="hero-strips" style={{ display: 'flex', gap: 6, height: 220 }}>
-            {[0.45, 0.65, 0.82, 1].map((opacity, i) => (
-              <div key={i} style={{ flex: 1, minWidth: 0, height: '100%', overflow: 'hidden', opacity }}>
-                <AsciiCanvas breathe lightMode={isLight} />
-              </div>
-            ))}
-          </div>
-          <div className="fade-up fade-up-2" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div>
-              <div style={{ ...eyebrow, fontSize: '0.9rem', marginBottom: '1rem' }}>
-                Istanbul · Stanford · New York
-              </div>
-              <h1 className="fade-up fade-up-3" style={{ ...heroTitle, lineHeight: 0.88 }}>
-                Defne<br />Genç
-              </h1>
-            </div>
-            <p className="fade-up fade-up-4" style={{ ...bodyText, fontSize: '1.1rem', lineHeight: 1.7, maxWidth: 720 }}>
-              What I think about most as a technologist is systems that are context-aware, human-centered, and so well fitted to a person's life that they stop feeling like technology at all.
-            </p>
-          </div>
-        </div>
-
-        {/* Background */}
-        <div className="fade-up fade-up-5">
+        <div className="fade-up fade-up-2">
           <SectionRow label="Background">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <p style={{ ...bodyText, maxWidth: TEXT_MAX }}>
-                I grew up in Istanbul, Turkey, and came to Stanford for undergrad, where I studied Symbolic Systems. I stayed another year for an MS in CS, spending most of it on{' '}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <p style={copy}>
+                I grew up in <strong>Istanbul, Turkey</strong> and attended <strong>Stanford University</strong>, where I obtained my BS and MS specialising in Human-Computer Interaction. While at Stanford, I did academic research around AI for behavior change. I was second author on{' '}
                 <a href="/project/bloom" className="about-link">Bloom</a>
-                , an LLM-augmented physical activity coaching app we built in Prof. James Landay{'\u2019'}s Interaction Design Lab. I was second author on the paper, which won Best Paper at CHI 2026 (top 1% of submissions). I also took Arabic that year because I have a goal of speaking six languages before I turn 30.
+                , an LLM-augmented physical activity coaching app built in Prof. James Landay{'’'}s Interaction Design Lab. I was admitted to the Stanford Computer Science PhD with a fall 2026 start, but I have deferred to remain in industry for the time being.
               </p>
-              <p style={{ ...bodyText, maxWidth: TEXT_MAX }}>
-                I spent a lot of time teaching too. I was a course assistant for Stanford{'\u2019'}s core HCI sequence ({' '}
-                <a href="https://hci.stanford.edu/courses/cs147/2024/au/" target="_blank" rel="noreferrer" className="about-link">CS 147</a>
-                ,{' '}
-                <a href="https://web.stanford.edu/class/cs278/" target="_blank" rel="noreferrer" className="about-link">CS 278</a>
-                , and{' '}
-                <a href="https://stanfordhci.github.io/cs347-winter-2025/index" target="_blank" rel="noreferrer" className="about-link">CS 347</a>
-                ), and it was arguably my favorite thing about being at Stanford. My students taught me just as much as my classes did. I led design studios taking student projects from early interviews to working prototypes and ran weekly seminar sections on HCI research. Someday I{'\u2019'}d like to use what I know about HCI to think more seriously about education itself.
-              </p>
-              <p style={{ ...bodyText, maxWidth: TEXT_MAX }}>
-                Now I{'\u2019'}m a <strong>product manager at Coinbase</strong> on the institutional derivatives team, working on <strong>perpetual futures, dated futures, and options</strong> on one of the largest regulated crypto derivatives venues in the world.
+              <p style={copy}>
+                Since then, I{'’'}ve been thinking about how AI fits into the everyday lives of non-engineers: creatives, deep domain experts, the population it{'’'}s poorly designed for. What{'’'}s more, I think a lot about how modern interfaces fail to meet our needs with exponentially growing AI capabilities.
               </p>
             </div>
           </SectionRow>
         </div>
 
-        {/* What I'm thinking about */}
-        <SectionRow label={<>What I{'’'}m<br />thinking about</>}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            {[
-              {
-                title: 'Recommendation systems using LLMs',
-                body: 'I\u2019m building two systems right now that approach this question from different angles. <a href="/project/menuto" class="about-link">Menuto</a> uses an LLM agent as the final reasoning layer over 8 traditional scoring signals (embeddings, popularity, behavioral history) to recommend restaurant dishes, with Bayesian weight learning that adapts per user over time. <a href="/project/learningetal" class="about-link">Learning Et Al.</a> seeds each day from a real topic in the OpenAlex taxonomy, ranks candidates with BM25 and semantic embeddings fused by Reciprocal Rank Fusion, and then writes the headline last, from the sources it actually kept. The synthesis argues with the papers instead of summarizing them. The interesting question across both: <strong>what\u2019s the right balance of agentic reasoning and rule-based scoring?</strong> When should the LLM override traditional signals, and when should it defer? What makes an LLM-powered system actually good at ranking, not just good at generating text about rankings?',
-              },
-              {
-                title: 'Interfaces that surface strengths',
-                body: 'Current behavior change systems have two problems: <strong>rigid interfaces</strong> that fail diverse populations, and <strong>negative feedback loops</strong> that undermine the outcomes they\u2019re designed to support. With <a href="/project/bloom" class="about-link">Bloom</a>, we found that the LLM coach\u2019s primary value was psychological, not behavioral: surfacing behaviors people already do so they realize they\u2019re doing more than they\u2019ve given themselves credit for. I want to build adaptive systems that learn from ambient patterns and surface positive behaviors, through contextual interventions, editable ambient widgets, and tangible objects that carry personal meaning.',
-              },
-              {
-                title: 'Can AI have taste, or is it all slop?',
-                body: 'Technology that learns from human output tends, by design, to <strong>regress toward the mean.</strong> The most represented wins. But taste is the opposite: it\u2019s about having strong preferences, specific references, a point of view. I want to think about how to give AI <strong>genuine spikes</strong>, the way humans have them. A lot of taste is built in the physical world, through things you touch, spaces you move through, what people wear on the street. I see potential in ubiquitous computing to ground AI taste in real-world experience, rather than just what has been written about it.',
-              },
-            ].map(({ title, body }) => (
-              <div key={title}>
-                <div style={{ fontSize: '1.08rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', marginBottom: '0.5rem' }}>
-                  {title}
+        <div className="fade-up fade-up-3">
+          <SectionRow label={<>What I{'’'}m<br />thinking about</>}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {THINKING.map(({ claim, body }) => (
+                <div key={claim}>
+                  <p style={{ ...copy, fontWeight: 600 }}>{claim}</p>
+                  <p style={{ ...copy, marginTop: '0.25rem', color: 'var(--ink-dim)' }}>{body}</p>
                 </div>
-                <p style={{ ...bodyText, maxWidth: TEXT_MAX }}
-                  dangerouslySetInnerHTML={{ __html: body }} />
-              </div>
-            ))}
-          </div>
-        </SectionRow>
+              ))}
+            </div>
+          </SectionRow>
+        </div>
 
-        {/* Otherwise */}
         <SectionRow label="Otherwise" last>
-          <div className="fact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem 3rem' }}>
-            {([
-              ['Origin', 'Istanbul, Turkey'],
-              ['Based', 'New York City'],
-              ['Education', 'Stanford MS CS (HCI) · BS SymSys'],
-              ['Current role', 'Product manager @ Coinbase'],
-              ['Teaching', 'CS 147 · CS 278 · CS 347'],
-              ['Languages', 'Turkish (native), English (fluent), French (conversational), Arabic (elementary), Spanish (elementary)'],
-            ] as [string, string][]).map(([label, value]) => (
+          <div className="fact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem 2rem' }}>
+            {FACTS.map(([label, value]) => (
               <div key={label}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>
-                  {label}
-                </div>
-                <div style={{ fontSize: '1rem', color: 'var(--ink)', opacity: 0.9, lineHeight: 1.5 }}>{value}</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '0.25rem' }}>{label}</div>
+                <div style={{ fontSize: '0.92rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>{value}</div>
               </div>
             ))}
             <div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>Research</div>
-              <div style={{ fontSize: '1rem', color: 'var(--ink)', opacity: 0.9, lineHeight: 1.5 }}>
-                <a href="https://hci.stanford.edu/" target="_blank" rel="noreferrer" className="about-link">Landay Lab (Computer Science)</a>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '0.25rem' }}>Research</div>
+              <div style={{ fontSize: '0.92rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+                <a href="https://hci.stanford.edu/" target="_blank" rel="noreferrer" className="about-link">Landay Lab</a>
                 {' · Kuo Lab (Stanford Medicine)'}
               </div>
             </div>
           </div>
         </SectionRow>
 
-        {/* Contact */}
-        <div style={{ display: 'flex', gap: '2.5rem', padding: '3.5rem 0', flexWrap: 'wrap' }}>
-          {[
-            { label: 'Email', href: 'mailto:defneg@stanford.edu', text: 'defneg@stanford.edu' },
-            { label: 'LinkedIn', href: 'https://linkedin.com/in/-defne', text: 'linkedin.com/in/-defne' },
-            { label: 'GitHub', href: 'https://github.com/defnegenc', text: 'github.com/defnegenc' },
-            { label: 'Résumé', href: '/resume', text: 'View résumé' },
-          ].map(({ label, href, text }) => (
-            <div key={label}>
-              <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>
-                {label}
-              </div>
-              <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className="about-link"
-                style={{ fontSize: '1rem' }}>
-                {text}
-              </a>
-            </div>
-          ))}
-        </div>
-
       </div>
-    </div>
+    </PageShell>
   )
 }

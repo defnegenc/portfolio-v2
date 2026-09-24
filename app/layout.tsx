@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Fragment_Mono } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
 import './globals.css'
 
 const fragmentMono = Fragment_Mono({
@@ -15,11 +16,11 @@ const base = process.env.VERCEL_PROJECT_PRODUCTION_URL
 export const metadata: Metadata = {
   metadataBase: base,
   title: 'Defne Genç',
-  description: 'Stanford HCI · APM @ Coinbase · Designer',
+  description: 'Stanford HCI · AI Platform @ Coinbase · Designer',
   icons: { icon: '/favicon.svg' },
   openGraph: {
     title: 'Defne Genç',
-    description: 'Stanford HCI · APM @ Coinbase · Designer',
+    description: 'Stanford HCI · AI Platform @ Coinbase · Designer',
     type: 'website',
   },
 }
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={fragmentMono.variable}>{children}</body>
+      <body className={`${fragmentMono.variable} ${GeistSans.variable}`}>{children}</body>
     </html>
   )
 }

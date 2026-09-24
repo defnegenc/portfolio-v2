@@ -36,33 +36,47 @@ export default function ThemeToggle({
   theme: 'dark' | 'light'
   setTheme: (t: 'dark' | 'light') => void
 }) {
+  // Deliberately monochrome: this control is not part of the weather palette,
+  // so it never takes --award. Selected is full ink, the other sits back.
   const btn = (active: boolean): React.CSSProperties => ({
-    padding: '0.38rem 0.62rem',
+    width: 24,
+    height: 24,
     cursor: 'pointer',
     userSelect: 'none',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 999,
     background: 'transparent',
-    color: 'var(--ink)',
-    opacity: active ? 1 : 0.32,
-    transition: 'opacity 0.15s',
+    color: active ? 'var(--ink)' : 'var(--ink-dim)',
+    opacity: active ? 1 : 0.55,
+    transition: 'opacity .15s, color .15s',
   })
+
+  // Clicking anywhere on the pill flips the theme, including the gap between icons
+  const flip = () => setTheme(theme === 'dark' ? 'light' : 'dark')
+
   return (
     <div
+      className="theme-toggle"
+      onClick={flip}
+      role="button"
+      aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 2,
+        gap: 4,
         border: '2px solid var(--ink-dim)',
         borderRadius: 999,
-        padding: 2,
+        padding: 3,
+        // sits over the animation, so it needs to carry its own background
+        background: 'var(--bg)',
+        height: 30,
         lineHeight: 0,
+        cursor: 'pointer',
       }}
     >
-      <span onClick={() => setTheme('light')} style={btn(theme === 'light')} aria-label="Light theme"><SunIcon /></span>
-      <span onClick={() => setTheme('dark')} style={btn(theme === 'dark')} aria-label="Dark theme"><MoonIcon /></span>
+      <span style={btn(theme === 'light')} aria-hidden><SunIcon /></span>
+      <span style={btn(theme === 'dark')} aria-hidden><MoonIcon /></span>
     </div>
   )
 }

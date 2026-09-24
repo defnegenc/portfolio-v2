@@ -28,16 +28,23 @@
 :root {
   --bg: #0A0A0A;
   --ink: #E8E6E0;
-  --ink-dim: #BFBDB7;
+  --ink-dim: #D2D0CA;
   --hairline: rgba(232, 230, 224, 0.1);
-  --font-main: 'Apercu Pro', -apple-system, sans-serif;
   --font-mono: var(--font-mono), monospace;
+}
+
+/* Geist throughout: body and headings are the same family, hierarchy comes from
+   weight and size. Declared on body, not :root, because next/font puts
+   --font-geist-sans on the body element. Apercu Pro is the fallback. */
+body {
+  --font-main: var(--font-geist-sans), 'Apercu Pro', -apple-system, sans-serif;
+  --font-display: var(--font-geist-sans), 'Apercu Pro', -apple-system, sans-serif;
 }
 
 [data-theme="light"] {
   --bg: #F4F2EC;
   --ink: #1A1918;
-  --ink-dim: #5A5955;
+  --ink-dim: #2E2D2A;
   --hairline: rgba(26, 25, 24, 0.15);
 }
 
@@ -48,9 +55,9 @@ html, body {
   font-size: 17px;
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
 }
+body { font-family: var(--font-main); }
 
 * { cursor: crosshair; }
 a { cursor: crosshair; }

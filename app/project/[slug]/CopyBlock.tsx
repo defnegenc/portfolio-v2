@@ -17,7 +17,7 @@ export default function CopyBlock({ text }: { text: string }) {
   return (
     <div style={{ position: 'relative', marginTop: '0.25rem' }}>
       <div style={{
-        ...mono, fontSize: '0.78rem', lineHeight: 1.7, color: 'var(--ink-dim)',
+        ...mono, fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--ink-dim)',
         background: 'rgba(26,25,24,0.05)', border: '1px solid var(--hairline)',
         padding: '0.75rem 2.5rem 0.75rem 0.9rem', borderRadius: 2,
         userSelect: 'text',
@@ -28,9 +28,9 @@ export default function CopyBlock({ text }: { text: string }) {
         onClick={handleCopy}
         title="Copy citation"
         style={{
-          ...mono, position: 'absolute', top: '0.55rem', right: '0.55rem',
-          fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.08em',
-          color: copied ? 'var(--ink)' : 'var(--ink-dim)',
+          position: 'absolute', top: '0.55rem', right: '0.55rem',
+          fontFamily: 'inherit', fontSize: '0.85rem',
+          color: copied ? 'var(--award)' : 'var(--ink)',
           background: 'none', border: 'none', cursor: 'pointer',
           transition: 'color 0.2s',
         }}

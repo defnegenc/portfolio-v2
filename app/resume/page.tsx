@@ -1,296 +1,68 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
+/* Résumé: the two-column sheet. Left rail carries education, publications,
+   projects and skills; experience gets the wider column. The printable version
+   is the PDF in public/, which the single action here downloads. No field on
+   this page: it is a document, and the animation only competed with it. */
 
-const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
-const dim: React.CSSProperties = { color: 'var(--ink-dim)' }
+import PageShell from '@/components/PageShell'
+import ResumeSheet from '@/components/ResumeSheet'
 
-// ─── Data ──────────────────────────────────────────────────────────────────
+const PDF = '/defne-genc-resume.pdf'
 
-const ROLES = [
-  {
-    category: 'Work',
-    title: 'Associate Product Manager',
-    org: 'Coinbase',
-    period: 'Aug 2025 – Present',
-    bullets: [
-      'PM for institutional derivatives on Coinbase International Exchange — one of the largest regulated crypto derivatives venues globally.',
-      'Shipped market data infrastructure, platform settings, and cross-functional internal tooling across UI/UX, marketing, and regulatory compliance.',
-      'Works with engineers, designers, and risk/legal to scope and land launches affecting the exchange at scale.',
-      'Owns the team\'s business intelligence dashboards.',
-    ],
-  },
-  {
-    category: 'Research',
-    title: 'Graduate Researcher',
-    org: 'Stanford HCI Group (GPTCoach / Bloom)',
-    period: 'Sep 2024 – Present',
-    bullets: [
-      'Core researcher on Bloom, an LLM-augmented physical activity coaching app — CHI 2026, 2nd author, accepted.',
-      'Led UI/UX design across the app, including a novel ambient activity display (garden metaphor) on homescreen and lockscreen.',
-      'Owned React Native frontend implementation; built Streamlit + Firestore dashboard for live field monitoring.',
-      'Led safety red-teaming: designed harm taxonomy, validated on a 600-example benchmark with >96% recall across risk categories.',
-      'Co-led 54-participant 4-week randomized field deployment — recruitment, onboarding, data pipelines, and qualitative coding.',
-    ],
-  },
-  {
-    category: 'Work',
-    title: 'Associate Product Manager Intern',
-    org: 'Coinbase',
-    period: 'Jun – Sep 2024',
-    bullets: [
-      'Built 0→1 charting tool and notifications engine for the International Exchange platform.',
-      'Authored PRDs for 3 features, including a promotional-tab A/B test projected to increase international perpetual trader onboarding by 20%.',
-      'Synthesized 1,000+ user feedback datapoints into prioritized roadmap direction.',
-    ],
-  },
-  {
-    category: 'Work',
-    title: 'Product Strategy Intern',
-    org: 'BrewBird',
-    period: 'Jun 2023 – Jun 2024',
-    bullets: [
-      'Sole UX designer for a Sequoia-backed IoT coffee platform — owned end-to-end product design and the public landing page.',
-      'Drove data-informed marketing strategy that increased digital engagement 9× and generated 600+ qualified sales leads.',
-    ],
-  },
-  {
-    category: 'Teaching',
-    title: 'Course Assistant — CS 147, CS 278, CS 347',
-    org: 'Stanford Computer Science',
-    period: 'Sep 2024 – Present',
-    bullets: [
-      'Teaching assistant across Stanford\'s core HCI sequence: HCI Design (CS 147), Social Computing (CS 278), and HCI Foundations & Frontiers graduate seminar (CS 347).',
-      'Led studio sections on AI-supported language learning and building sociotechnical systems.',
-    ],
-  },
-]
+const DownloadIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+)
 
-const TABS = ['All', 'Work', 'Research', 'Teaching'] as const
-type Tab = typeof TABS[number]
+const LinkedInIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <path d="M6.94 5.5a1.94 1.94 0 1 1-3.88 0 1.94 1.94 0 0 1 3.88 0ZM3.3 8.98h3.4V21H3.3V8.98Zm5.72 0h3.26v1.64h.05c.45-.86 1.56-1.77 3.22-1.77 3.44 0 4.08 2.27 4.08 5.22V21h-3.4v-5.33c0-1.27-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.81V21H9.02V8.98Z" />
+  </svg>
+)
 
-// ─── Components ────────────────────────────────────────────────────────────
-
-function SectionHeader({
-  label, open, onToggle,
-}: { label: string; open: boolean; onToggle: () => void }) {
-  return (
-    <button
-      onClick={onToggle}
-      style={{
-        width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: 'none', border: 'none', padding: 0,
-        borderTop: '1px solid var(--hairline)', paddingTop: '1.75rem', marginBottom: open ? '1.5rem' : '1.75rem',
-        cursor: 'pointer',
-      }}
-    >
-      <span style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--ink)' }}>
-        {label}
-      </span>
-      <span style={{ ...mono, fontSize: '0.7rem', color: 'var(--ink-dim)', transition: 'transform 0.2s', display: 'inline-block', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
-        ↓
-      </span>
-    </button>
-  )
-}
-
-function Role({ title, org, period, bullets }: {
-  title: string; org: string; period: string; bullets: string[]
-}) {
-  return (
-    <div style={{ marginBottom: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-        <div>
-          <span style={{ fontWeight: 600, fontSize: '1.05rem' }}>{title}</span>
-          <span style={{ ...dim, fontSize: '1rem' }}> — {org}</span>
-        </div>
-        <div style={{ ...mono, fontSize: '0.72rem', ...dim, whiteSpace: 'nowrap' }}>{period}</div>
-      </div>
-      <ul style={{ paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.55rem' }}>
-        {bullets.map((b, i) => (
-          <li key={i} style={{ fontSize: '1rem', lineHeight: 1.65, ...dim }}>{b}</li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-// ─── Page ──────────────────────────────────────────────────────────────────
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <path d="M17.53 3h3.14l-6.86 7.84L21.88 21h-6.3l-4.94-6.45L4.98 21H1.84l7.34-8.39L1.5 3h6.46l4.47 5.9L17.53 3Zm-1.1 16.13h1.74L7.64 4.78H5.78l10.65 14.35Z" />
+  </svg>
+)
 
 export default function Resume() {
-  const [activeTab, setActiveTab] = useState<Tab>('All')
-  const [open, setOpen] = useState({ education: true, experience: true, publications: true, skills: true })
-
-  const toggle = (s: keyof typeof open) => setOpen(prev => ({ ...prev, [s]: !prev[s] }))
-
-  const visibleRoles = activeTab === 'All' ? ROLES : ROLES.filter(r => r.category === activeTab)
-
   return (
-    <main data-theme="light" style={{
-      background: 'var(--bg)', color: 'var(--ink)',
-      height: '100vh', fontFamily: 'var(--font-main)',
-      overflowY: 'auto',
-    }}>
+    <PageShell here="resume" field="none">
       <style>{`
-        .resume-tab { transition: color 0.15s, border-color 0.15s; cursor: pointer; }
-        .resume-tab:hover { color: var(--ink) !important; }
-        .section-collapse { overflow: hidden; transition: opacity 0.2s; }
-        .section-collapse.closed { opacity: 0; height: 0; pointer-events: none; }
-        .section-collapse.open { opacity: 1; }
-        @page { size: letter; margin: 0.55in 0.65in; }
+        .act { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; font-weight: 500; padding: 0.5rem 1.05rem; border-radius: 999px; cursor: pointer; border: 1px solid var(--hairline); background: transparent; color: var(--ink); font-family: inherit; text-decoration: none; transition: border-color .2s, color .2s, background .2s; }
+        .act-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+        .act-primary:hover { background: var(--award); border-color: var(--award); }
+        .act:hover { border-color: var(--award); color: var(--award); }
+        .act-primary:hover { color: var(--bg); }
+        .ico { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 999px; color: var(--ink); border: 1px solid var(--hairline); transition: color .2s, border-color .2s; }
+        .ico:hover { color: var(--award); border-color: var(--award); }
+        @page { size: letter; margin: 0.5in; }
         @media print {
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          html, body { background: #fff !important; color: #000 !important; overflow: visible !important; height: auto !important; }
-          [data-theme="light"] { --bg: #fff !important; --ink: #111 !important; --ink-dim: #555 !important; --hairline: rgba(0,0,0,0.12) !important; }
-          main { height: auto !important; overflow: visible !important; background: #fff !important; min-height: 0 !important; }
-          div, section, nav, header, footer { background-color: transparent !important; }
-          button { display: none !important; }
-          .section-collapse.closed { opacity: 1 !important; height: auto !important; pointer-events: auto !important; }
-          nav[data-tabbar] { display: none !important; }
-          canvas { display: none !important; }
+          html, body, .shell { position: static !important; height: auto !important; overflow: visible !important; background: #fff !important; }
+          [data-theme] { --bg: #fff !important; --ink: #111 !important; --ink-dim: #333 !important; --hairline: rgba(0,0,0,0.2) !important; --award: #013698 !important; }
+          canvas, .no-print { display: none !important; }
+          .shell > div:first-of-type { display: none !important; }
+          .sheet { padding: 0 !important; max-width: none !important; }
         }
       `}</style>
 
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '3.5rem 2rem 6rem' }}>
-
-        {/* Nav */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3.5rem' }}>
-          <Link href="/" style={{ fontSize: '0.95rem', color: 'var(--ink)', opacity: 0.8, textDecoration: 'none' }}>
-            ← Back
-          </Link>
-          <button
-            onClick={() => window.print()}
-            style={{
-              fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)',
-              background: 'none', border: '2px solid var(--ink-dim)', borderRadius: 999,
-              padding: '0.45rem 1.1rem', cursor: 'pointer',
-            }}
-          >
-            Print / Save PDF
-          </button>
+      <div className="sheet" style={{ maxWidth: 1180, margin: '0 auto' }}>
+        {/* socials sit left of the actions; the sheet itself carries no contact line */}
+        <div className="no-print" style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '1.6rem' }}>
+          <a className="ico" href="https://linkedin.com/in/-defne" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn"><LinkedInIcon /></a>
+          <a className="ico" href="https://x.com/defnozi" target="_blank" rel="noreferrer" aria-label="X" title="@defnozi"><XIcon /></a>
+          <a className="act act-primary" href={PDF} download><DownloadIcon />Download résumé</a>
         </div>
 
-        {/* Header */}
-        <div style={{ marginBottom: '3rem' }}>
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 300, letterSpacing: '-0.04em', lineHeight: 0.9, marginBottom: '1.25rem' }}>
-            Defne Genç
-          </h1>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', ...mono, fontSize: '0.85rem', ...dim }}>
-            {[
-              { label: 'defneg@stanford.edu', href: 'mailto:defneg@stanford.edu' },
-              { label: 'defne.io', href: 'https://defne.io' },
-              { label: 'linkedin.com/in/-defne', href: 'https://linkedin.com/in/-defne' },
-              { label: 'github.com/defnegenc', href: 'https://github.com/defnegenc' },
-            ].map(({ label, href }) => (
-              <a key={label} href={href} target="_blank" rel="noreferrer"
-                style={{ color: 'var(--ink-dim)', textDecoration: 'none' }}>
-                {label}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Education */}
-        <SectionHeader label="Education" open={open.education} onToggle={() => toggle('education')} />
-        <div className={`section-collapse ${open.education ? 'open' : 'closed'}`}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '0.75rem' }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.2rem' }}>M.S. Computer Science — HCI</div>
-              <div style={{ fontSize: '1rem', ...dim }}>Stanford University</div>
-              <div style={{ ...mono, fontSize: '0.72rem', ...dim, marginTop: '0.25rem' }}>2024 – 2025 · GPA 3.93 / 4.0</div>
-            </div>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.2rem' }}>B.S. Symbolic Systems</div>
-              <div style={{ fontSize: '1rem', ...dim }}>Stanford University</div>
-              <div style={{ ...mono, fontSize: '0.72rem', ...dim, marginTop: '0.25rem' }}>2020 – 2024</div>
-            </div>
-          </div>
-          <div style={{ ...mono, fontSize: '0.8rem', ...dim, lineHeight: 1.8, marginBottom: '1.75rem' }}>
-            Algorithms · Big Data · Probability · HCI · AI · Applied Stats (R/SQL) · Operating Systems · Computational Logic
-          </div>
-        </div>
-
-        {/* Experience */}
-        <SectionHeader label="Experience" open={open.experience} onToggle={() => toggle('experience')} />
-        <div className={`section-collapse ${open.experience ? 'open' : 'closed'}`}>
-          {/* Tab bar */}
-          <nav data-tabbar style={{ display: 'flex', gap: '0', marginBottom: '2rem', borderBottom: '1px solid var(--hairline)' }}>
-            {TABS.map(tab => (
-              <button
-                key={tab}
-                className="resume-tab"
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  fontSize: '0.95rem', fontWeight: 500,
-                  background: 'none', border: 'none', padding: '0.5rem 1rem 0.6rem',
-                  color: activeTab === tab ? 'var(--ink)' : 'var(--ink-dim)',
-                  borderBottom: `2px solid ${activeTab === tab ? 'var(--ink)' : 'transparent'}`,
-                  marginBottom: '-1px',
-                }}
-              >
-                {tab}
-              </button>
-            ))}
-          </nav>
-          {visibleRoles.map((r, i) => (
-            <Role key={i} title={r.title} org={r.org} period={r.period} bullets={r.bullets} />
-          ))}
-        </div>
-
-        {/* Publications */}
-        <SectionHeader label="Research & Publications" open={open.publications} onToggle={() => toggle('publications')} />
-        <div className={`section-collapse ${open.publications ? 'open' : 'closed'}`}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontSize: '1.05rem', lineHeight: 1.5, marginBottom: '0.3rem' }}>
-              <span style={{ fontWeight: 600 }}>Bloom: Designing for LLM-Augmented Behavior Change Interactions</span>
-            </div>
-            <div style={{ fontSize: '0.98rem', ...dim, marginBottom: '0.3rem' }}>
-              Jörke, <span style={{ color: 'var(--ink)' }}>Genç</span>, Teutschbein, Sapkota, Chung, Schmiedmayer, Campero, King, Brunskill, Landay
-            </div>
-            <div style={{ ...mono, fontSize: '0.75rem', ...dim, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <span>CHI 2026 · 2nd author · Accepted</span>
-              <a href="https://arxiv.org/abs/2510.05449" target="_blank" rel="noreferrer"
-                style={{ color: 'var(--ink-dim)', textDecoration: 'none' }}>
-                arXiv:2510.05449
-              </a>
-            </div>
-          </div>
-          <div style={{ marginBottom: '1.75rem' }}>
-            <div style={{ fontSize: '1.05rem', marginBottom: '0.2rem' }}>
-              Kuo Lab — Ovarian Cancer Organoids
-            </div>
-            <div style={{ fontSize: '0.98rem', ...dim, marginBottom: '0.2rem' }}>
-              Stanford School of Medicine · Wet Lab Researcher
-            </div>
-            <div style={{ ...mono, fontSize: '0.75rem', ...dim }}>Jan 2021 – Jan 2022</div>
-          </div>
-        </div>
-
-        {/* Skills */}
-        <SectionHeader label="Skills" open={open.skills} onToggle={() => toggle('skills')} />
-        <div className={`section-collapse ${open.skills ? 'open' : 'closed'}`}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.75rem 1.5rem', marginBottom: '2rem' }}>
-            {[
-              ['Languages', 'Python, TypeScript, SQL, C/C++'],
-              ['Frontend', 'React Native, Streamlit'],
-              ['Backend / Data', 'Supabase, Firebase, FastAPI'],
-              ['Design', 'Figma, UI/UX Systems, Prototyping'],
-              ['Research', 'User Research, A/B Testing, Qualitative Coding'],
-              ['AI / Safety', 'Red Teaming, AI Safety, LLM Integration'],
-              ['PM', 'PRDs, Roadmapping, BI Dashboards'],
-            ].map(([cat, items]) => (
-              <div key={cat}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--ink)', opacity: 0.7, marginBottom: '0.3rem' }}>
-                  {cat}
-                </div>
-                <div style={{ fontSize: '0.95rem', ...dim, lineHeight: 1.6 }}>{items}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
+        <ResumeSheet />
       </div>
-    </main>
+
+    </PageShell>
   )
 }
