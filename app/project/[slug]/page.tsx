@@ -40,9 +40,11 @@ interface Project {
   icon?: string
   heroAside?: { src: string; alt: string; width?: number }
   /** A wide figure runs full width under the hero instead of in the aside. */
-  heroWide?: { src: string; alt: string; ratio: number }
+  heroWide?: { src: string; alt: string; ratio: number; plate?: boolean }
   /** A row of app screens across the bottom of the page. */
   heroRow?: { src: string; alt: string }[]
+  /** Full-width screens stacked down the page, scrolled rather than fitted. */
+  heroStack?: { src: string; alt: string; ratio: number }[]
   externalLink?: { href: string; label: string }
   secondaryLink?: { href: string; label: string }
   jumpTo?: { anchor: string; label: string }
@@ -53,7 +55,7 @@ interface Project {
 const PROJECTS: Record<string, Project> = {
   bloom: {
     slug: 'bloom',
-    heroWide: { src: '/bloom-figure.png', alt: 'Bloom: the LLM coach, the Today home screen, the weekly summary, a push notification, and the ambient lockscreen display', ratio: 4860 / 2374 },
+    heroWide: { src: '/bloom-figure.png', alt: 'Bloom: the LLM coach, the Today home screen, the weekly summary, a push notification, and the ambient lockscreen display', ratio: 4860 / 2374, plate: true },
     no: '01',
     name: 'Bloom',
     tagline: 'At Stanford with Prof. Landay, I co-designed and evaluated Bloom, an LLM-based physical activity coaching intervention.',
@@ -261,6 +263,10 @@ const PROJECTS: Record<string, Project> = {
 
   learningetal: {
     slug: 'learningetal',
+    heroRow: [
+      { src: '/learningetal-digest.png', alt: 'Today’s digest: the central question, a one-line answer, and the first source card' },
+      { src: '/learningetal-card.png', alt: 'A single source card: title, byline, TL;DR, and findings beside a takeaway' },
+    ],
     no: '02',
     name: 'Learning Et Al.',
     tagline: 'Learning Et Al. (\u201clearning it all\u201d). A daily research digest that finds, synthesizes, and contrasts academic papers and news articles based on your interests.',
@@ -418,6 +424,14 @@ const PROJECTS: Record<string, Project> = {
   dishcovery: {
     slug: 'dishcovery',
     heroWide: { src: '/dishcovery-hero.png', alt: 'Dishcovery', ratio: 3200 / 2515 },
+    heroStack: [
+      { src: '/dishcovery-onboarding.png', alt: 'Dishcovery: onboarding', ratio: 2000 / 904 },
+      { src: '/dishcovery-scan.png', alt: 'Dishcovery: scanning ingredients', ratio: 2000 / 971 },
+      { src: '/dishcovery-explore.png', alt: 'Dishcovery: exploring dishes', ratio: 2000 / 1015 },
+      { src: '/dishcovery-recipe.png', alt: 'Dishcovery: a recipe', ratio: 2000 / 834 },
+      { src: '/dishcovery-saved.png', alt: 'Dishcovery: saved dishes', ratio: 2000 / 971 },
+      { src: '/dishcovery-grocery.png', alt: 'Dishcovery: the grocery list', ratio: 1600 / 622 },
+    ],
     no: '04',
     name: 'Dishcovery',
     tagline: 'An image-recognition app that helps you recognise, learn about, and cook with ingredients from cultures around the world.',
@@ -794,20 +808,25 @@ const PROJECTS: Record<string, Project> = {
   },
 }
 
+/* The four projects the homepage lists, and the only ones that get a page.
+   Flock, Tailor and Hercules still have data below but are not routed: the
+   prev/next chain was walking visitors into them from Dishcovery. */
+const ALL_SLUGS = ['bloom', 'learningetal', 'menuto', 'dishcovery']
+
 export function generateStaticParams() {
-  return Object.keys(PROJECTS).map(slug => ({ slug }))
+  return ALL_SLUGS.map(slug => ({ slug }))
 }
 
 // ─── Nav helper ───────────────────────────────────────────────────────────────
 
-const ALL_SLUGS = ['bloom', 'learningetal', 'menuto', 'dishcovery', 'flock', 'tailor', 'hercules']
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const project = PROJECTS[slug]
-  if (!project) notFound()
+  // unlisted projects keep their data but are not reachable
+  if (!project || !ALL_SLUGS.includes(slug)) notFound()
 
   const currentIdx = ALL_SLUGS.indexOf(slug)
   const prevSlug = currentIdx > 0 ? ALL_SLUGS[currentIdx - 1] : null
@@ -913,7 +932,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <div style={{ marginTop: '1.75rem', maxWidth: project.heroWide.ratio < 1.6 ? 760 : undefined }}>
             <Image src={project.heroWide.src} alt={project.heroWide.alt}
               width={1600} height={Math.round(1600 / project.heroWide.ratio)}
-              style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 8 }} />
+              style={{
+                width: '100%', height: 'auto', display: 'block', borderRadius: 8,
+                // the figure is drawn on white, so it needs white under it in dark mode
+                background: project.heroWide.plate ? '#FFFFFF' : undefined,
+                padding: project.heroWide.plate ? '1.25rem' : undefined,
+              }} />
+          </div>
+        )}
+
+        {project.heroStack && (
+          <div style={{ marginTop: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {project.heroStack.map(img => (
+              <Image key={img.src} src={img.src} alt={img.alt}
+                width={1600} height={Math.round(1600 / img.ratio)}
+                style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 8 }} />
+            ))}
           </div>
         )}
 

@@ -60,7 +60,7 @@ const PROJECTS = [
   { name: 'Dishcovery',      kind: 'iOS app',       year: '2024', href: '/project/dishcovery',   sub: 'Recognise and cook with ingredients from anywhere' },
 ]
 
-const BIO = 'I think about how modern interfaces fail to meet our needs with exponentially growing agentic capabilities. BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction. Now AI @ Coinbase, where I own the agent creation experience.'
+const BIO = 'I think about how modern interfaces should (and fail to) meet our needs with exponentially growing agentic capabilities. BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction. Now AI @ Coinbase, where I own the agent creation experience.'
 
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
@@ -69,7 +69,7 @@ const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
    Lengths rather than text matching, so the groups stay exact; the last group
    absorbs any drift if the copy is edited without updating this. */
 const BIO_WORDS = BIO.split(' ')
-const PHRASE_LENGTHS = [3, 3, 5, 5, 7, 3, 6, 4, 4, 3]
+const PHRASE_LENGTHS = [3, 3, 4, 3, 5, 7, 3, 6, 4, 4, 3]
 const PHRASES: [number, number][] = (() => {
   const out: [number, number][] = []
   let i = 0
@@ -566,7 +566,6 @@ export default function Home() {
             { label: 'About', href: '/about' },
             { label: 'Résumé', href: '/resume' },
             { label: 'Research', href: 'https://arxiv.org/abs/2510.05449' },
-            { label: 'Contact', action: () => { setNavOpen(false); setContact(true) } },
           ]} />
         </div>
       </div>
