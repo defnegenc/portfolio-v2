@@ -74,12 +74,14 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
      · overcast is tiles + breathe like clear, told apart by colour alone
      · glyphs + trickle stays mono; tiles + trickle may go rainbow
      · fog is cipher + brush; geometric belongs to wind, at dusk and late
-     · snow paints in theme ink and carries a blue accent for the UI */
+     · snow is theme ink by day and late, when white snow reads best; early
+       takes pale rose, evening lavender and night ice blue, so the column is
+       not five identical whites */
   dawn: {
     clear: { color: '#F08AA8', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
     cloud: { color: '#B9A6F5', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
     rain:  { color: '#6FD7E8', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
-    snow:  { color: null,      accent: '#7FA8F5', render: 'tiles', motion: 'trickle', hover: 'mono' },
+    snow:  { color: '#F7B9CE', render: 'tiles',  motion: 'trickle',   hover: 'mono' },
     fog:   { color: '#7FA8F5', render: 'cipher', motion: 'brush',     hover: 'mono' },
     storm: { color: '#F26A4B', render: 'tiles',  motion: 'lightning', hover: 'mono'    },
     wind:  { color: '#F2B26B', render: 'tiles',  motion: 'brush',     hover: 'rainbow' },
@@ -106,7 +108,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     clear: { color: '#7FA8F5', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
     cloud: { color: '#B9A6F5', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
     rain:  { color: '#7EE38A', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
-    snow:  { color: null,      accent: '#7FA8F5', render: 'tiles', motion: 'trickle', hover: 'mono' },
+    snow:  { color: '#A8D8F0', render: 'tiles',  motion: 'trickle',   hover: 'mono' },
     fog:   { color: '#F26A4B', render: 'cipher', motion: 'brush',     hover: 'mono' },
     storm: { color: '#F08AA8', render: 'tiles',  motion: 'lightning', hover: 'mono'    },
     wind:  { color: '#F2B26B', render: 'tiles',  motion: 'brush',     hover: 'mono' },
