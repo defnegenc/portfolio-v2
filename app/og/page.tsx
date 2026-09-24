@@ -75,10 +75,14 @@ function Field({ accent, holes = [], dim = 1, bloom }: { accent: string; holes?:
         const wob = 1 + 0.35 * Math.sin(ang * 3) + 0.2 * Math.sin(ang * 5)
         const inf = Math.max(0, 1 - Math.hypot(dx, dy) / (bloom.r * wob))
         if (inf > 0) {
-          a = Math.min(1, a + inf * 0.85)
-          const phase = ang / (Math.PI * 2) * 0.45 + inf * 0.25 + hash(x, y) * 0.06
-          fill = rotate(accent, Math.sin(phase * Math.PI * 2) * 0.17, 0.1 + Math.cos(phase * Math.PI * 2) * 0.05)
-          size = 0.76 + inf * 0.2
+          /* Brightness rises a little, not to white: the live pool is a hue
+             shift, and the tiles barely change size. The phase mixes angle with
+             position so the colour moves in broad lobes across the pool rather
+             than spinning around its centre like a pinwheel. */
+          a = Math.min(0.92, a + inf * 0.42)
+          const phase = ang / (Math.PI * 2) * 0.4 + inf * 0.55 + nx * 0.2 + ny * 0.35
+          fill = rotate(accent, Math.sin(phase * Math.PI * 2) * 0.3, 0.04 + Math.cos(phase * Math.PI * 2) * 0.06)
+          size = 0.76 + inf * 0.06
           off = (1 - size) / 2
         }
       }
@@ -98,7 +102,7 @@ const CARDS: Card[] = [
     id: 'bloom-white', name: 'Bloom, white name', note: 'The hover pool frozen behind the name: tiles brighten, grow and pull toward white, exactly as they do under the cursor. The name sits on the hot spot in white.',
     render: a => (
       <div style={shell}>
-        <Field accent={a} bloom={{ cx: 17, cy: 25, r: 15 }} />
+        <Field accent={a} bloom={{ cx: 16, cy: 24, r: 10 }} />
         <div style={{ position: 'absolute', left: 76, bottom: 72, color: '#FFFFFF', fontSize: 82, textShadow: '0 0 34px rgba(10,10,10,.85)', ...NAME }}>Defne Genç</div>
       </div>
     ),
@@ -107,7 +111,7 @@ const CARDS: Card[] = [
     id: 'bloom-knock', name: 'Bloom, knocked out', note: 'The same pool, but the letters are cut to the page background so the bloom reads as the thing behind the name rather than around it.',
     render: a => (
       <div style={shell}>
-        <Field accent={a} bloom={{ cx: 17, cy: 25, r: 16 }} />
+        <Field accent={a} bloom={{ cx: 16, cy: 24, r: 11 }} />
         <div style={{ position: 'absolute', left: 76, bottom: 72, color: '#0A0A0A', fontSize: 82, ...NAME }}>Defne Genç</div>
       </div>
     ),
@@ -116,7 +120,7 @@ const CARDS: Card[] = [
     id: 'bloom-centre', name: 'Bloom, centred', note: 'Pool in the middle of the card with the name across it. The field is darkest at the corners, which frames the type without a plate.',
     render: a => (
       <div style={shell}>
-        <Field accent={a} dim={0.75} bloom={{ cx: 30, cy: 16, r: 19 }} />
+        <Field accent={a} dim={0.75} bloom={{ cx: 30, cy: 16, r: 13 }} />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
           <div style={{ color: '#0A0A0A', fontSize: 92, ...NAME }}>Defne Genç</div>
           <div style={{ color: '#0A0A0A', fontSize: 32, opacity: 0.75 }}>defne.io</div>

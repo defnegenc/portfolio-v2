@@ -5,83 +5,73 @@ export const alt = 'Defne Genç — Portfolio'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// Bayer 8×8 ordered dither — same algorithm as the inline DitherformLogo
-const BAYER_8 = [
-  [ 0,32, 8,40, 2,34,10,42],
-  [48,16,56,24,50,18,58,26],
-  [12,44, 4,36,14,46, 6,38],
-  [60,28,52,20,62,30,54,22],
-  [ 3,35,11,43, 1,33, 9,41],
-  [51,19,59,27,49,17,57,25],
-  [15,47, 7,39,13,45, 5,37],
-  [63,31,55,23,61,29,53,21],
-].map(r => r.map(v => (v + 0.5) / 64))
+/* The link preview: the tile field at rest with the name set plain and white
+   over it, taking its contrast from the dark background showing through the
+   gaps between tiles.
 
-function computeDitherCells(grid: number): [number, number][] {
-  const cx = grid * 0.32, cy = grid * 0.5
-  const rOuter = grid * 0.55, rInner = rOuter * 0.45
-  const cells: [number, number][] = []
-  for (let y = 0; y < grid; y++) {
-    for (let x = 0; x < grid; x++) {
-      const dx = x - cx, dy = y - cy
-      const d = Math.sqrt(dx * dx + dy * dy)
-      let v: number
-      if (d < rInner) v = 1
-      else if (d > rOuter) v = 0
-      else v = 1 - (d - rInner) / (rOuter - rInner)
-      if (x < grid * 0.18 && y > grid * 0.08 && y < grid * 0.92) v = Math.max(v, 1)
-      if (v > BAYER_8[y % 8][x % 8]) cells.push([x, y])
-    }
-  }
-  return cells
+   Satori renders this, and it supports only a flexbox subset: no SVG grids, no
+   CSS grid. The field is therefore emitted as absolutely positioned divs, one
+   per visible tile, which is why the cell count is kept modest. */
+
+const COLS = 60
+const ROWS = 32
+const ACCENT = '#F2B26B'
+const BG = '#0A0A0A'
+
+const hash = (x: number, y: number) => {
+  const h = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453
+  return h - Math.floor(h)
 }
 
 export default function OGImage() {
-  const grid = 56
-  const cell = 8   // px per cell at 56-grid — total logo ~448×448px
-  const cells = computeDitherCells(grid)
-  const logoSize = grid * cell
+  const cellW = size.width / COLS
+  const cellH = size.height / ROWS
+  const tiles: React.ReactElement[] = []
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const nx = x / COLS, ny = y / ROWS
+      // the same standing field the canvas breathes, frozen at t = 0
+      const spatial = Math.sin(nx * 7) * Math.cos(ny * 5) + Math.sin(nx * 13 + ny * 9) * 0.5
+      const a = Math.max(0, Math.min(1, (spatial + 2) / 4 + (hash(x, y) - 0.5) * 0.22))
+      if (a <= 0.04) continue
+      tiles.push(
+        <div
+          key={`${x}-${y}`}
+          style={{
+            position: 'absolute',
+            left: x * cellW + cellW * 0.12,
+            top: y * cellH + cellH * 0.12,
+            width: cellW * 0.76,
+            height: cellH * 0.76,
+            background: ACCENT,
+            opacity: a,
+          }}
+        />
+      )
+    }
+  }
 
   return new ImageResponse(
     (
-      <div
-        style={{
-          width: '100%', height: '100%',
-          background: '#070707',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          gap: 48,
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-        }}
-      >
-        {/* Ditherform mark */}
-        <div style={{ position: 'relative', width: logoSize, height: logoSize, display: 'flex' }}>
-          {cells.map(([x, y]) => (
-            <div
-              key={`${x}-${y}`}
-              style={{
-                position: 'absolute',
-                left: x * cell,
-                top: y * cell,
-                width: cell,
-                height: cell,
-                background: '#e8e8e3',
-              }}
-            />
-          ))}
-        </div>
-
-        {/* name + subtitle */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
-          <div style={{ color: '#e8e8e3', fontSize: 84, fontWeight: 400, letterSpacing: '-3px', lineHeight: 1 }}>
-            DEFNE GENÇ
-          </div>
-          <div style={{ color: '#666662', fontSize: 26, letterSpacing: '3px' }}>
-            STANFORD CS HCI · APM @ COINBASE
-          </div>
+      <div style={{ width: size.width, height: size.height, display: 'flex', position: 'relative', background: BG }}>
+        {tiles}
+        <div
+          style={{
+            position: 'absolute',
+            left: 76,
+            bottom: 64,
+            display: 'flex',
+            color: '#FFFFFF',
+            fontSize: 86,
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+          }}
+        >
+          Defne Genç
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    { ...size }
   )
 }
