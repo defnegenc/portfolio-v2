@@ -233,8 +233,10 @@ export function useAmbient(mode: AmbientMode) {
   if (mode === 'clock') ambient = fromClock()
   else if (mode === 'weather') {
     const p = periodOf()
+    /* Null until the sky is actually known. Guessing with the clear column
+       meant every load painted one colour and then snapped to another as the
+       fetch returned; the caller shows the last remembered cell instead. */
     if (sky) ambient = { ...LOOKS[p][sky.sky], caption: `${SKY_LABEL[sky.sky]}, ${PERIOD_LABEL[p]}${sky.place ? ` in ${sky.place}` : ''}` }
-    else ambient = { ...fromClock(), caption: `${PERIOD_LABEL[p]} · checking the sky` }
   }
 
   // e.g. "partly cloudy in Brooklyn"

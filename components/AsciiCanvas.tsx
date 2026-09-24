@@ -159,6 +159,9 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     // Brush: previous cursor position in cell space
     const prev = { x: -1, y: -1 }
 
+    /* Cursor pool radii are in pixels, which on a phone covers most of a short
+       band and hides the shape of the effect. Scale them with the canvas. */
+    let reach = 1
     let width: number, height: number, rows: number, cols: number
     let cellW: number, cellH: number
     let time = 0
@@ -247,6 +250,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       cellW = width / cols
       cellH = tiles ? cellW : cellW * ((trailMode || soft) ? 1.5 : 1.4)
       rows = Math.ceil(height / cellH)
+      reach = Math.max(0.45, Math.min(1, Math.min(width, height * 1.6) / 760))
       const n = cols * rows
       grain = new Float32Array(n)
       cidx  = new Uint8Array(n)
@@ -500,7 +504,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             let val: number, hot: number
             if (water) { val = Math.max(0, field[i] + flash); hot = hotf[i] }
             else {
-              const influence = Math.max(0, 1 - dist / 220)
+              const influence = Math.max(0, 1 - dist / (220 * reach))
               val = Math.max(0, Math.min(1, (breatheNoise(nx, ny) + influence * 3 + 1.2) / 4.2))
               hot = influence
             }
@@ -518,7 +522,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
               val = Math.max(restLevel + grain[i] * restLevel * 0.6, field[i] + flash)
               hot = hotf[i]
             } else {
-              const influence = Math.max(0, 1 - dist / 130)
+              const influence = Math.max(0, 1 - dist / (130 * reach))
               val = Math.max(0, Math.min(1, cipherPattern(c, r) + influence * 0.9))
               hot = influence
             }
@@ -565,7 +569,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             // Cursor glow with a wobbling outline
             const ang = Math.atan2(dy, dx)
             const wob = 1 + 0.35 * Math.sin(ang * 3 + time * 2.4) + 0.2 * Math.sin(ang * 5 - time * 3.3)
-            const influence = Math.max(0, 1 - dist / (190 * wob))
+            const influence = Math.max(0, 1 - dist / (190 * wob * reach))
             noise += influence * 3
             const g = grain[i]
             const val = Math.max(0, Math.min(1, (noise + 2) / 4 + g * 0.22))
@@ -580,7 +584,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
           } else if (trailMode || breathe) {
             // Kept verbatim from what is live on defne.io: plain circular pool,
             // hard swap to the highlight tone, no wobble and no extra contrast.
-            const influence = Math.max(0, 1 - dist / 200)
+            const influence = Math.max(0, 1 - dist / (200 * reach))
             noise += influence * 3
             const val = (noise + 2) / 4
             const charIdx = Math.floor(Math.abs(val * chars.length * 2) % chars.length)
@@ -592,7 +596,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
               glyph(charIdx, opacity, 0, px, py)
             }
           } else {
-            const influence = Math.exp(-dist / 150)
+            const influence = Math.exp(-dist / (150 * reach))
             noise += influence * 4 * Math.sin(time * 5)
             const val = (noise + 2) / 4
             const charIdx = Math.floor(Math.min(chars.length - 1, Math.max(0, val * chars.length)))

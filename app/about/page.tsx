@@ -1,7 +1,9 @@
 'use client'
 
 import PageShell from '@/components/PageShell'
+import FieldRule from '@/components/FieldRule'
 import { SectionRow, bodyText } from '@/components/layout'
+import { useTheme } from '@/components/useTheme'
 
 // About runs at full ink and a step up in size: this page is mostly prose, so
 // the site-wide dim body colour reads as too faint here.
@@ -30,6 +32,8 @@ const FACTS: [string, string][] = [
 
 
 export default function About() {
+  const [theme] = useTheme('dark')
+  const rule = <FieldRule render="glyphs" motion="trickle" hover="mono" color="#7FA8F5" lightMode={theme === 'light'} />
   return (
     <PageShell here="about" field="right" motion="trickle" hover="mono" render="glyphs" fieldColor="#7FA8F5">
       <style>{`
@@ -45,6 +49,7 @@ export default function About() {
         .about .section-row { grid-template-columns: 0.4fr 2fr; gap: 1.5rem; padding: 1.15rem 0; }
         @media (max-width: 1100px) { .about .section-row { grid-template-columns: 1fr !important; gap: 0.5rem !important; } }
         @media (max-width: 700px) { .fact-grid { grid-template-columns: 1fr !important; } }
+        @media (max-width: 860px) { .about .section-row { border-bottom: none !important; padding-bottom: 0.3rem; } }
       `}</style>
 
       <div className="about">
@@ -64,6 +69,8 @@ export default function About() {
           </SectionRow>
         </div>
 
+        {rule}
+
         <div className="fade-up fade-up-3">
           <SectionRow label={<>What I{'’'}m<br />thinking about</>}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -76,6 +83,8 @@ export default function About() {
             </div>
           </SectionRow>
         </div>
+
+        {rule}
 
         <SectionRow label="Otherwise" last>
           <div className="fact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem 2rem' }}>

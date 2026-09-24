@@ -57,16 +57,25 @@ export default function WeatherControl({
         /* Pure white in dark mode, pure black in light. No accent anywhere: it
            has to survive whatever colour the field happens to be. */
         .wx-btn {
-          display: inline-flex; align-items: center; justify-content: center;
-          padding: 0.55rem 1rem; border-radius: 999px;
-          background: #FFFFFF; color: #0A0A0A; border: none;
-          font-family: var(--font-main); font-size: 0.9rem; font-weight: 600; line-height: 1.1;
-          cursor: pointer; white-space: nowrap;
-          box-shadow: 0 2px 14px rgba(0,0,0,0.3);
+          display: block; width: 26px; height: 26px; padding: 0;
+          border: none; border-radius: 999px;
+          background: #FFFFFF; color: #0A0A0A;
+          cursor: pointer; line-height: 0;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.28);
           transition: opacity .2s;
         }
         .wx-btn:hover, .wx[data-open="1"] .wx-btn { opacity: 0.85; }
         [data-theme="light"] .wx-btn { background: #0A0A0A; color: #FFFFFF; }
+        @media (max-width: 620px) { .wx-btn { width: 22px; height: 22px; } }
+
+        .wx-tip {
+          position: absolute; top: calc(100% + 0.35rem); right: 0; z-index: 401;
+          white-space: nowrap; background: var(--ink); color: var(--bg);
+          border-radius: 6px; padding: 0.28rem 0.5rem; font-size: 0.8rem; line-height: 1.3;
+          opacity: 0; pointer-events: none; transition: opacity .16s ease;
+        }
+        .wx:hover .wx-tip, .wx-btn:focus-visible ~ .wx-tip { opacity: 1; }
+        .wx[data-open="1"] .wx-tip { opacity: 0; }
 
 
         .wx-pop {
@@ -109,8 +118,15 @@ export default function WeatherControl({
 
       <button className="wx-btn" data-on={open ? 1 : 0} onClick={() => setOpen(!open)}
         aria-expanded={open} aria-label="About this canvas">
-        What is this?
+        {/* SVG text rather than a character in a box: textAnchor and
+            dominantBaseline centre against the real glyph metrics, which a
+            flex box cannot do because it centres the line box, not the ink. */}
+        <svg width="100%" height="100%" viewBox="0 0 24 24" aria-hidden>
+          <text x="12" y="12" textAnchor="middle" dominantBaseline="central"
+            fontFamily="var(--font-main)" fontSize="16" fontWeight="700" fill="currentColor">?</text>
+        </svg>
       </button>
+      <span className="wx-tip" role="tooltip">What is this?</span>
 
       {open && (
         <div className="wx-pop">

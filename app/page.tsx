@@ -360,6 +360,7 @@ export default function Home() {
   const [wxOpen, setWxOpen] = useState(false)
   // the scroll cue retires after ten seconds, or on first scroll, and never returns
   const [cueGone, setCueGone] = useState(false)
+  const [touched, setTouched] = useState(false)
   // the canvas controls stay out of the way until the bio has finished reading
   const [bioDone, setBioDone] = useState(false)   // gates the scroll cue
   const onBioDone = useCallback(() => setBioDone(true), [])
@@ -439,6 +440,7 @@ export default function Home() {
     <div
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
+      data-touched={touched ? 1 : 0}
       className="root-frame"
       style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
         ...({ '--wall': `${1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
@@ -519,6 +521,11 @@ export default function Home() {
         .root-frame[data-open="1"] .panel { pointer-events: none !important; }
         .weather-tip { animation: fadeIn .18s ease both; }
 
+        /* There is no cursor on a phone, so the field needs telling. Sits in
+           the middle of the top band and fades once it has been touched. */
+        .drag-hint { display: none; }
+        @keyframes drag-breathe { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
+
         /* Small screens: canvas on top, panel flows below */
         /* Mobile: the animation is a tall sticky panel the copy scrolls over.
            No scroll-open gesture here, the page scrolls the way it should. */
@@ -529,7 +536,17 @@ export default function Home() {
             height: 38vh !important; height: 38dvh !important; max-height: 340px; flex: none;
             position: sticky; top: 0; z-index: 0;
           }
-          .panel { position: relative !important; z-index: 1; }
+          /* the sticky field sits behind, so the copy needs its own ground */
+          .panel { position: relative !important; z-index: 1; background: var(--bg) !important; }
+          .drag-hint {
+            display: block; position: absolute; left: 50%; top: 19vh; top: 19dvh;
+            transform: translate(-50%, -50%); z-index: 2; pointer-events: none;
+            font-size: 0.85rem; color: var(--ink); background: var(--bg);
+            border-radius: 999px; padding: 0.3rem 0.7rem;
+            animation: drag-breathe 2.6s ease-in-out infinite;
+          }
+          .root-frame[data-touched="1"] .drag-hint { opacity: 0; animation: none; transition: opacity .4s; }
+
           .pl-list a { font-size: 1.15rem !important; }
           .panel p   { font-size: 1.05rem !important; }
           .panel .ul { font-size: 0.9rem !important; }
@@ -550,9 +567,7 @@ export default function Home() {
           .nav-links   { display: none !important; }
         }
 
-        @media (max-height: 560px) and (max-width: 860px) {
-          .canvas-zone > div:first-child { height: 30vh !important; height: 30dvh !important; }
-        }
+
 
         @media (max-width: 420px) {
           .name-strip  { padding: 0.4rem 1rem !important; gap: 0.5rem !important; }
@@ -592,14 +607,17 @@ export default function Home() {
           setWxOpen(!wxOpen)
         }}
         onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`); e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`) }}
+        onTouchStart={() => setTouched(true)}
         onTouchMove={e => { const r = e.currentTarget.getBoundingClientRect(); const t = e.touches[0]; e.currentTarget.style.setProperty('--mx', `${t.clientX - r.left}px`); e.currentTarget.style.setProperty('--my', `${t.clientY - r.top}px`) }}
         onMouseLeave={e => { e.currentTarget.style.setProperty('--mx', '-999px'); e.currentTarget.style.setProperty('--my', '-999px') }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: look ? 1 : 0, transition: 'opacity .6s ease' }}>
         <AsciiCanvas breathe={motion === 'breathe'} motion={motion} render={render} hover={hover} lightMode={isLight} chars='▓▒░' color={color ?? undefined}
           message={`Defne Genç. ${BIO} Work: ${PROJECTS.map(p => p.name + (p.award ? ` (${p.award}, ${p.awardNote.replace(/[()]/g, '')})` : '')).join(', ')}.`} />
+        </div>
 
         {/* field controls belong to the animation, not the nav */}
         <div className="no-open" style={{
-          position: 'absolute', top: 'calc(var(--wall) + 0.7rem)', right: 'calc(var(--wall) + 0.7rem)',
+          position: 'absolute', top: 'calc(var(--wall) + 0.45rem)', right: 'calc(var(--wall) + 0.45rem)',
           zIndex: 70, display: 'flex', alignItems: 'center', gap: '0.6rem',
           // waits its turn: the scroll cue leads, this follows once it retires
           opacity: cueGone ? 1 : 0, pointerEvents: cueGone ? 'auto' : 'none',
@@ -617,6 +635,8 @@ export default function Home() {
             <line x1="12" y1="4" x2="12" y2="19" /><polyline points="6 13 12 19 18 13" />
           </svg>
         </button>
+
+        <div className="drag-hint" aria-hidden>drag here</div>
 
         {/* the layout: 2×2 windows with the copy in the bottom-left cell */}
           <Windows cols={2} rows={2} content={{ '0,1': (

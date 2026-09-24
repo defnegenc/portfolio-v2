@@ -63,6 +63,14 @@ export default function PageShell({
         .shell .award { color: var(--award); }
         .shell .ul { transition: color .2s; }
         .shell .ul:hover { color: var(--award) !important; }
+        /* On a phone the field replaces the hairline between sections: a short
+           band reads as the same object as the one above, where a rule is just
+           a line. Desktop keeps the hairline. */
+        .shell-rule { display: none; }
+        @media (max-width: 860px) {
+          .shell-rule { display: block; position: relative; height: 72px; margin: 0.4rem 0 1rem; }
+          .about .section-row { border-bottom: none !important; }
+        }
         .shell .ns-seg .theme-toggle { transition: opacity .25s ease; }
         .shell .ns-seg[data-navopen="1"] .theme-toggle { opacity: 0; pointer-events: none; }
         @media (max-width: 420px) { .shell .ns-sub { display: none; } }
@@ -70,7 +78,7 @@ export default function PageShell({
           .shell-split { grid-template-columns: 1fr !important; }
           .shell-split > div:first-child { order: 2; }
           .shell-field { position: static !important; order: 1; }
-          .shell-field > div:first-child { height: 110px !important; min-height: 0 !important; }
+          .shell-field > div:first-child { height: 30vh !important; height: 30dvh !important; min-height: 190px !important; }
         }
         @media (max-width: 700px) {
           .shell { --wall: 1.25rem; }
