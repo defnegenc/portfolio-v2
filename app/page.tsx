@@ -544,8 +544,8 @@ export default function Home() {
           .drag-hint {
             display: block; position: absolute; left: 50%; top: 19vh; top: 19dvh;
             transform: translate(-50%, -50%); z-index: 2; pointer-events: none;
-            font-size: 0.85rem; color: var(--ink); background: var(--bg);
-            border-radius: 999px; padding: 0.3rem 0.7rem;
+            font-size: 0.85rem; color: var(--ink);
+            text-shadow: 0 1px 6px var(--bg), 0 0 10px var(--bg);
             animation: drag-breathe 2.6s ease-in-out infinite;
           }
           .root-frame[data-touched="1"] .drag-hint { opacity: 0; animation: none; transition: opacity .4s; }
@@ -622,8 +622,8 @@ export default function Home() {
         <div className="no-open wx-anchor" style={{
           position: 'absolute', top: 'calc(var(--wall) + 0.5rem)', right: 'calc(var(--wall) + 0.5rem)',
           zIndex: 70, display: 'flex', alignItems: 'center', gap: '0.6rem',
-          // waits its turn: the scroll cue leads, this follows once it retires
-          opacity: cueGone ? 1 : 0, pointerEvents: cueGone ? 'auto' : 'none',
+          // appears once the bio has finished reading itself
+          opacity: bioDone ? 1 : 0, pointerEvents: bioDone ? 'auto' : 'none',
           transition: 'opacity .5s ease',
         }}>
           <WeatherControl override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} />
