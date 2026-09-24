@@ -532,9 +532,9 @@ export default function Home() {
         @media (max-width: 860px) {
           .root-frame  { overflow-y: auto !important; }
           .canvas-zone { flex: none !important; display: flex; flex-direction: column; }
-          .canvas-zone > div:first-child {
+          .canvas-zone > .field-main {
             height: 38vh !important; height: 38dvh !important; max-height: 340px; flex: none;
-            position: sticky; top: 0; z-index: 0;
+            position: sticky !important; top: 0; z-index: 0;
           }
           /* the sticky field sits behind, so the copy needs its own ground */
           .panel { position: relative !important; z-index: 1; background: var(--bg) !important; }
@@ -563,7 +563,7 @@ export default function Home() {
         }
 
         @media (max-width: 600px) {
-          .canvas-zone > div:first-child { height: 32vh !important; height: 32dvh !important; max-height: 260px; }
+          .canvas-zone > .field-main { height: 32vh !important; height: 32dvh !important; max-height: 260px; }
           .nav-links   { display: none !important; }
         }
 
@@ -610,7 +610,7 @@ export default function Home() {
         onTouchStart={() => setTouched(true)}
         onTouchMove={e => { const r = e.currentTarget.getBoundingClientRect(); const t = e.touches[0]; e.currentTarget.style.setProperty('--mx', `${t.clientX - r.left}px`); e.currentTarget.style.setProperty('--my', `${t.clientY - r.top}px`) }}
         onMouseLeave={e => { e.currentTarget.style.setProperty('--mx', '-999px'); e.currentTarget.style.setProperty('--my', '-999px') }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: look ? 1 : 0, transition: 'opacity .6s ease' }}>
+        <div className="field-main" style={{ width: '100%', height: '100%', opacity: look ? 1 : 0, transition: 'opacity .6s ease' }}>
         <AsciiCanvas breathe={motion === 'breathe'} motion={motion} render={render} hover={hover} lightMode={isLight} chars='▓▒░' color={color ?? undefined}
           message={`Defne Genç. ${BIO} Work: ${PROJECTS.map(p => p.name + (p.award ? ` (${p.award}, ${p.awardNote.replace(/[()]/g, '')})` : '')).join(', ')}.`} />
         </div>
