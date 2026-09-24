@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const dynamic = 'force-static'
-export const alt = 'Defne Genç — Portfolio'
+export const alt = "Defne's Portfolio"
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -63,12 +63,12 @@ export default function OGImage() {
             bottom: 64,
             display: 'flex',
             color: '#FFFFFF',
-            fontSize: 86,
+            fontSize: 78,
             fontWeight: 700,
             letterSpacing: '-0.03em',
           }}
         >
-          Defne Genç
+          Defne{'\u2019'}s Portfolio
         </div>
       </div>
     ),

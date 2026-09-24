@@ -15,11 +15,11 @@ const base = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 export const metadata: Metadata = {
   metadataBase: base,
-  title: 'Defne Genç',
+  title: "Defne's Portfolio",
   description: 'Stanford HCI · AI Platform @ Coinbase · Designer',
   icons: { icon: '/favicon.svg' },
   openGraph: {
-    title: 'Defne Genç',
+    title: "Defne's Portfolio",
     description: 'Stanford HCI · AI Platform @ Coinbase · Designer',
     type: 'website',
   },
