@@ -78,6 +78,9 @@ export default function PageShell({
           .shell-split { grid-template-columns: 1fr !important; }
           .shell-split > div:first-child { order: 2; }
           .shell-field { position: static !important; order: 1; }
+          /* full bleed, so it matches the homepage band rather than sitting
+             inside the wall padding */
+          .shell-field { margin: 0 calc(var(--wall) * -1); }
           .shell-field > div:first-child { height: 30vh !important; height: 30dvh !important; min-height: 190px !important; }
         }
         @media (max-width: 700px) {

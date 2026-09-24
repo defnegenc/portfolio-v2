@@ -361,6 +361,7 @@ export default function Home() {
   // the scroll cue retires after ten seconds, or on first scroll, and never returns
   const [cueGone, setCueGone] = useState(false)
   const [touched, setTouched] = useState(false)
+  const [full, setFull] = useState(false)
   // the canvas controls stay out of the way until the bio has finished reading
   const [bioDone, setBioDone] = useState(false)   // gates the scroll cue
   const onBioDone = useCallback(() => setBioDone(true), [])
@@ -441,6 +442,7 @@ export default function Home() {
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
       data-touched={touched ? 1 : 0}
+      data-full={full ? 1 : 0}
       className="root-frame"
       style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
         ...({ '--wall': `${1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
@@ -521,6 +523,10 @@ export default function Home() {
         .root-frame[data-open="1"] .panel { pointer-events: none !important; }
         .weather-tip { animation: fadeIn .18s ease both; }
 
+        /* the wrapper anchors the corner controls inside the field */
+        .field-main { position: relative; }
+        .full-btn { display: none; }
+
         /* There is no cursor on a phone, so the field needs telling. Sits in
            the middle of the top band and fades once it has been touched. */
         .drag-hint { display: none; }
@@ -541,6 +547,20 @@ export default function Home() {
           /* --wall collapses as the canvas opens, and the windows are display:
              contents here, so the control pins to the field's own corner */
           .no-open.wx-anchor { top: 0.6rem !important; right: 0.6rem !important; }
+          .full-btn {
+            display: flex; align-items: center; justify-content: center;
+            position: absolute; right: 0.6rem; bottom: 0.6rem; z-index: 3;
+            width: 26px; height: 26px; padding: 0; line-height: 0;
+            border: 1px solid var(--hairline); border-radius: 999px;
+            background: var(--bg); color: var(--ink); cursor: pointer;
+          }
+          /* full screen: the field leaves the flow and covers everything */
+          .root-frame[data-full="1"] .field-main {
+            position: fixed !important; inset: 0 !important;
+            height: 100dvh !important; max-height: none !important; z-index: 200;
+          }
+          .root-frame[data-full="1"] .drag-hint { display: none; }
+
           .drag-hint {
             display: block; position: absolute; left: 50%; top: 19vh; top: 19dvh;
             transform: translate(-50%, -50%); z-index: 2; pointer-events: none;
@@ -616,6 +636,16 @@ export default function Home() {
         <div className="field-main" style={{ width: '100%', height: '100%', opacity: look ? 1 : 0, transition: 'opacity .6s ease' }}>
         <AsciiCanvas breathe={motion === 'breathe'} motion={motion} render={render} hover={hover} lightMode={isLight} chars='▓▒░' color={color ?? undefined}
           message={`Defne Genç. ${BIO} Work: ${PROJECTS.map(p => p.name + (p.award ? ` (${p.award}, ${p.awardNote.replace(/[()]/g, '')})` : '')).join(', ')}.`} />
+
+          <button className="full-btn no-open" onClick={() => setFull(v => !v)}
+            aria-label={full ? 'Exit full screen' : 'Full screen'}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              {full
+                ? <><polyline points="9 3 9 9 3 9" /><polyline points="15 21 15 15 21 15" /></>
+                : <><polyline points="3 9 3 3 9 3" /><polyline points="21 15 21 21 15 21" /></>}
+            </svg>
+          </button>
         </div>
 
         {/* field controls belong to the animation, not the nav */}
