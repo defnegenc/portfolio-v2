@@ -72,7 +72,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
      · tiles + breathe always hovers rainbow
      · overcast is tiles + breathe like clear, told apart by colour alone
      · glyphs + trickle stays mono; tiles + trickle may go rainbow
-     · fog is cipher + brush; geometric is not in the matrix at present
+     · fog is cipher + brush; geometric belongs to wind, at dusk and late
      · snow paints in theme ink and carries a blue accent for the UI */
   dawn: {
     clear: { color: '#F08AA8', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
@@ -99,7 +99,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     snow:  { color: '#B9A6F5', render: 'tiles',  motion: 'trickle',   hover: 'mono' },
     fog:   { color: '#F2B26B', render: 'cipher', motion: 'brush',     hover: 'mono' },
     storm: { color: '#6FD7E8', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
-    wind:  { color: '#7EE38A', render: 'tiles',  motion: 'brush',     hover: 'mono' },
+    wind:  { color: '#7EE38A', render: 'tiles',  motion: 'geometric', hover: 'mono' },
   },
   night: {
     clear: { color: '#7FA8F5', render: 'tiles',  motion: 'breathe',   hover: 'rainbow' },
@@ -117,7 +117,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     snow:  { color: null,      accent: '#7FA8F5', render: 'cipher', motion: 'trickle', hover: 'mono' },
     fog:   { color: '#B9A6F5', render: 'cipher', motion: 'brush',     hover: 'mono' },
     storm: { color: '#F08AA8', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
-    wind:  { color: '#7FA8F5', render: 'cipher', motion: 'brush',     hover: 'mono' },
+    wind:  { color: '#7FA8F5', render: 'cipher', motion: 'geometric', hover: 'mono' },
   },
 }
 
