@@ -68,7 +68,8 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
      · every colour is distinct within its row, so no two conditions in the
        same hour ever look alike
      · cipher never breathes and never strikes — it gets brush or geometric
-     · lightning only ever lands on tiles
+     · lightning only ever lands on tiles, and stays mono: the bolt is the
+       event, so hue-cycling on top of it is one thing too many
      · tiles + breathe always hovers rainbow
      · overcast is tiles + breathe like clear, told apart by colour alone
      · glyphs + trickle stays mono; tiles + trickle may go rainbow
@@ -80,7 +81,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     rain:  { color: '#6FD7E8', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
     snow:  { color: null,      accent: '#7FA8F5', render: 'tiles', motion: 'trickle', hover: 'mono' },
     fog:   { color: '#7FA8F5', render: 'cipher', motion: 'brush',     hover: 'mono' },
-    storm: { color: '#F26A4B', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
+    storm: { color: '#F26A4B', render: 'tiles',  motion: 'lightning', hover: 'mono'    },
     wind:  { color: '#F2B26B', render: 'tiles',  motion: 'brush',     hover: 'rainbow' },
   },
   day: {
@@ -89,7 +90,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     rain:  { color: '#6FD7E8', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
     snow:  { color: null,      accent: '#7FA8F5', render: 'tiles', motion: 'trickle', hover: 'mono' },
     fog:   { color: '#7FA8F5', render: 'cipher', motion: 'brush',     hover: 'mono' },
-    storm: { color: '#F26A4B', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
+    storm: { color: '#F26A4B', render: 'tiles',  motion: 'lightning', hover: 'mono'    },
     wind:  { color: '#7EE38A', render: 'tiles',  motion: 'brush',     hover: 'rainbow' },
   },
   dusk: {
@@ -98,7 +99,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     rain:  { color: '#7FA8F5', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
     snow:  { color: '#B9A6F5', render: 'tiles',  motion: 'trickle',   hover: 'mono' },
     fog:   { color: '#F2B26B', render: 'cipher', motion: 'brush',     hover: 'mono' },
-    storm: { color: '#6FD7E8', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
+    storm: { color: '#6FD7E8', render: 'tiles',  motion: 'lightning', hover: 'mono'    },
     wind:  { color: '#7EE38A', render: 'tiles',  motion: 'geometric', hover: 'mono' },
   },
   night: {
@@ -107,7 +108,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     rain:  { color: '#7EE38A', render: 'glyphs', motion: 'trickle',   hover: 'mono' },
     snow:  { color: null,      accent: '#7FA8F5', render: 'tiles', motion: 'trickle', hover: 'mono' },
     fog:   { color: '#F26A4B', render: 'cipher', motion: 'brush',     hover: 'mono' },
-    storm: { color: '#F08AA8', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
+    storm: { color: '#F08AA8', render: 'tiles',  motion: 'lightning', hover: 'mono'    },
     wind:  { color: '#F2B26B', render: 'tiles',  motion: 'brush',     hover: 'mono' },
   },
   late: {
@@ -116,7 +117,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
     rain:  { color: '#6FD7E8', render: 'cipher', motion: 'trickle',   hover: 'mono' },
     snow:  { color: null,      accent: '#7FA8F5', render: 'cipher', motion: 'trickle', hover: 'mono' },
     fog:   { color: '#B9A6F5', render: 'cipher', motion: 'brush',     hover: 'mono' },
-    storm: { color: '#F08AA8', render: 'tiles',  motion: 'lightning', hover: 'rainbow' },
+    storm: { color: '#F08AA8', render: 'tiles',  motion: 'lightning', hover: 'mono'    },
     wind:  { color: '#7FA8F5', render: 'cipher', motion: 'geometric', hover: 'mono' },
   },
 }
