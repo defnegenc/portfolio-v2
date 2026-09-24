@@ -70,8 +70,10 @@ export default function WeatherControl({
 
         .wx-tip {
           position: absolute; top: calc(100% + 0.35rem); right: 0; z-index: 401;
-          white-space: nowrap; background: var(--ink); color: var(--bg);
-          border-radius: 6px; padding: 0.28rem 0.5rem; font-size: 0.8rem; line-height: 1.3;
+          /* same plate as the button it belongs to, rather than inverting */
+          white-space: nowrap; background: var(--bg); color: var(--ink);
+          border: 1px solid var(--hairline); border-radius: 6px;
+          padding: 0.3rem 0.55rem; font-size: 0.82rem; line-height: 1.3;
           opacity: 0; pointer-events: none; transition: opacity .16s ease;
         }
         .wx:hover .wx-tip, .wx-btn:focus-visible ~ .wx-tip { opacity: 1; }
