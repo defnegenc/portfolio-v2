@@ -168,16 +168,38 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
 
     // Glyph atlas: every variant pre-rendered at LEVELS opacities per tone, so
     // the hot loop is drawImage, not fillText.
-    const LEVELS = 48
-    const dpr = window.devicePixelRatio || 1
+    /* Atlas budget. Safari on iOS refuses canvases past a few thousand pixels a
+       side and charges the full backing store against the tab's memory, so this
+       has to stay small: stacking tones down the Y axis at devicePixelRatio 3
+       produced a 16,000px-tall surface and killed the tab.
+
+       Tones now run along X beside the variants, and both axes are clamped by
+       dropping the opacity resolution and then the pixel ratio until they fit. */
+    const MAX_SIDE = 4096
+    let LEVELS = 48
+    let dpr = Math.min(window.devicePixelRatio || 1, 2)
     const atlas = document.createElement('canvas')
     let spriteW = 0, spriteH = 0
 
+    function fitAtlas() {
+      LEVELS = 48
+      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      for (;;) {
+        const w = Math.ceil(cellW * dpr) * nVariants * tones.length
+        const h = Math.ceil(cellH * dpr) * LEVELS
+        if (w <= MAX_SIDE && h <= MAX_SIDE) return
+        if (LEVELS > 12) LEVELS = Math.floor(LEVELS / 2)
+        else if (dpr > 1) dpr = 1
+        else return          // nothing left to give; the clamp below caps it
+      }
+    }
+
     function buildAtlas() {
+      fitAtlas()
       spriteW = Math.ceil(cellW * dpr)
       spriteH = Math.ceil(cellH * dpr)
-      atlas.width = spriteW * nVariants
-      atlas.height = spriteH * LEVELS * tones.length
+      atlas.width = Math.min(MAX_SIDE, spriteW * nVariants * tones.length)
+      atlas.height = Math.min(MAX_SIDE, spriteH * LEVELS)
       const a = atlas.getContext('2d')!
       const fontSize = Math.max(8, cellH * ((trailMode || soft) ? 0.9 : 0.8)) * dpr
       a.font = `${fontSize}px "Fragment Mono", monospace`
@@ -189,9 +211,9 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
         const [mr, mg, mb] = tones[1]
         for (let l = 0; l < LEVELS; l++) {
           const alpha = (l + 1) / LEVELS
-          const y0 = (tone * LEVELS + l) * spriteH
+          const y0 = l * spriteH
           for (let c = 0; c < nVariants; c++) {
-            const x0 = c * spriteW
+            const x0 = (tone * nVariants + c) * spriteW
             if (tiles) {
               // Soft square: size grows with variant, 1px gutter keeps the grid visible
               a.fillStyle = rgba(alpha)
@@ -209,16 +231,17 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
 
     function glyph(charIdx: number, opacity: number, tone: number, px: number, py: number) {
       const l = Math.min(LEVELS - 1, Math.max(0, Math.round(opacity * LEVELS) - 1))
-      const sy = (tone * LEVELS + l) * spriteH
-      ctx!.drawImage(atlas, charIdx * spriteW, sy, spriteW, spriteH, px - cellW / 2, py - cellH / 2, cellW, cellH)
+      const sx = (tone * nVariants + charIdx) * spriteW
+      ctx!.drawImage(atlas, sx, l * spriteH, spriteW, spriteH, px - cellW / 2, py - cellH / 2, cellW, cellH)
     }
 
     function resize() {
       width = container!.offsetWidth
       height = container!.offsetHeight
-      canvas!.width = width * window.devicePixelRatio
-      canvas!.height = height * window.devicePixelRatio
-      ctx!.scale(window.devicePixelRatio, window.devicePixelRatio)
+      const ratio = Math.min(window.devicePixelRatio || 1, 2)
+      canvas!.width = width * ratio
+      canvas!.height = height * ratio
+      ctx!.scale(ratio, ratio)
       const targetCW = (cipher || letters) ? 8 : tiles ? 9 : trailMode ? 9 : 7
       cols = Math.round(width / targetCW)
       cellW = width / cols
@@ -596,7 +619,10 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
 
     const onMouseMove = (e: MouseEvent) => setMouse(e.clientX, e.clientY)
     const onMouseLeave = clearMouse
-    const onTouchMove = (e: TouchEvent) => { e.preventDefault(); setMouse(e.touches[0].clientX, e.touches[0].clientY) }
+    /* Never preventDefault here. On mobile the field is something you scroll
+       past, not a drawing surface, and swallowing touchmove left the page
+       unscrollable anywhere the canvas was under your thumb. */
+    const onTouchMove = (e: TouchEvent) => setMouse(e.touches[0].clientX, e.touches[0].clientY)
     const onTouchStart = (e: TouchEvent) => setMouse(e.touches[0].clientX, e.touches[0].clientY)
     const onTouchEnd = clearMouse
 
@@ -610,7 +636,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     container.addEventListener('mousemove', onMouseMove)
     container.addEventListener('mouseleave', onMouseLeave)
     container.addEventListener('touchstart', onTouchStart, { passive: true })
-    container.addEventListener('touchmove', onTouchMove, { passive: false })
+    container.addEventListener('touchmove', onTouchMove, { passive: true })
     container.addEventListener('touchend', onTouchEnd)
     resize()
     if (apiRef) apiRef.current = {

@@ -365,7 +365,20 @@ export default function Home() {
   const onBioDone = useCallback(() => setBioDone(true), [])
   const live = sky ? { p: periodOf(), s: sky.sky } : null
   const pinned = wx ? LOOKS[wx.p][wx.s] : null
-  const look = pinned ?? ambient
+
+  /* The weather round-trip takes a moment, so a cold load used to paint the
+     default field and then swap. Remember the last resolved cell and start
+     from it: on a reload the colours only change if the sky actually did. */
+  const [remembered, setRemembered] = useState<Override>(null)
+  useEffect(() => {
+    const v = window.localStorage.getItem('look')
+    if (v) { try { setRemembered(JSON.parse(v)) } catch {} }
+  }, [])
+  useEffect(() => {
+    if (live) window.localStorage.setItem('look', JSON.stringify(live))
+  }, [live?.p, live?.s])   // eslint-disable-line react-hooks/exhaustive-deps
+
+  const look = pinned ?? ambient ?? (remembered ? LOOKS[remembered.p][remembered.s] : null)
 
   const color  = look?.color  ?? null
   const render = look?.render ?? 'tiles'

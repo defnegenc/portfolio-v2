@@ -57,10 +57,10 @@ export default function WeatherControl({
         /* Pure white in dark mode, pure black in light. No accent anywhere: it
            has to survive whatever colour the field happens to be. */
         .wx-btn {
-          display: flex; align-items: center;
-          height: 32px; padding: 0 1rem; border-radius: 999px;
+          display: inline-flex; align-items: center; justify-content: center;
+          padding: 0.55rem 1rem; border-radius: 999px;
           background: #FFFFFF; color: #0A0A0A; border: none;
-          font-family: var(--font-main); font-size: 0.9rem; font-weight: 600; line-height: 1;
+          font-family: var(--font-main); font-size: 0.9rem; font-weight: 600; line-height: 1.1;
           cursor: pointer; white-space: nowrap;
           box-shadow: 0 2px 14px rgba(0,0,0,0.3);
           transition: opacity .2s;
@@ -85,6 +85,10 @@ export default function WeatherControl({
           transition: transform .3s cubic-bezier(.19,1,.22,1);
         }
         .wx-place:hover::after { transform: scaleX(1); transform-origin: left; }
+        /* hovering swaps the phrase for the place the IP actually resolved to */
+        .wx-real { display: none; }
+        .wx-place:hover .wx-generic { display: none; }
+        .wx-place:hover .wx-real { display: inline; }
         .wx-label { font-size: 0.88rem; line-height: 1.4; color: var(--ink); }
         .wx-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; }
         .wx-opt {
@@ -117,7 +121,10 @@ export default function WeatherControl({
           </p>
           <p className="wx-intro" style={{ marginTop: '0.8rem' }}>
             This is my visual interpretation of the weather in{' '}
-            <span className="wx-place" title={place ? `Reading the sky over ${place}` : undefined}>your area</span>.
+            <span className="wx-place">
+              <span className="wx-generic">your area</span>
+              <span className="wx-real">{place || 'your area'}</span>
+            </span>.
             With that being said, you{'’'}re more than welcome to play with every configuration.
           </p>
 
