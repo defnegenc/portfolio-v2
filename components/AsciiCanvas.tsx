@@ -123,7 +123,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
 
     // Tone palette: 0 = base, 1 = mono highlight (same family, brighter and a
     // touch more saturated), 2.. = HUE_TONES hue-rotated tones for rainbow hover.
-    const HUE_TONES = 10
+    const HUE_TONES = 28
     const mono: [number, number, number] = tint
       ? hslToRgb(hue, Math.min(1, satBase * 1.15), lightMode ? litBase * 0.5 : litBase + (1 - litBase) * 0.55)
       : lightMode ? [0, 0, 0] : [255, 255, 255]
@@ -131,7 +131,13 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     if (rainbow) {
       const sat = Math.max(0.65, satBase)
       const lit = lightMode ? Math.min(litBase, 0.45) : Math.max(litBase, 0.7)
-      for (let i = 0; i < HUE_TONES; i++) tones.push(hslToRgb(hue + (i / HUE_TONES) * 0.6 - 0.3, sat, lit))
+      /* A closed loop, so the last tone meets the first and the cycle never
+         jumps. Narrower arc than before: the hue drifts around the swatch
+         rather than touring the whole wheel. */
+      for (let i = 0; i < HUE_TONES; i++) {
+        const t = (i / HUE_TONES) * Math.PI * 2
+        tones.push(hslToRgb(hue + Math.sin(t) * 0.17, sat, lit + Math.cos(t) * 0.05))
+      }
     }
 
     // Variants per render: tiles are pre-rendered at TILE_VARIANTS sizes. Four
@@ -447,8 +453,13 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       prev.x = x; prev.y = y
     }
 
+    /* The phase is eased before it is quantised, so tones linger near the ends
+       of each sweep instead of ticking past at a constant rate. With the tones
+       on a closed loop this reads as breathing rather than cycling. */
     function rainbowTone(phase: number) {
-      return 2 + (((Math.floor(phase * HUE_TONES) % HUE_TONES) + HUE_TONES) % HUE_TONES)
+      const t = ((phase % 1) + 1) % 1
+      const eased = t - Math.sin(t * Math.PI * 2) / (Math.PI * 2)
+      return 2 + (Math.floor(eased * HUE_TONES) % HUE_TONES + HUE_TONES) % HUE_TONES
     }
 
     // Cipher breathe: data rain. Each column runs its own packet down the grid at
@@ -510,7 +521,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             }
             const opacity = Math.max(0.06, Math.min(1, 0.06 + val * val * 1.1))
             glyph(cidx[i], opacity, 0, px, py)
-            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(ny * 0.8 + nx * 0.3 + time * 0.4 + hot * 0.4) : 1, px, py)
+            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(ny * 0.35 + nx * 0.14 + time * 0.16 + hot * 0.18) : 1, px, py)
             continue
           }
 
@@ -530,7 +541,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             if (Math.random() < rate * dt) cidx[i] = Math.floor(Math.random() * chars.length)
             const opacity = Math.max(lightMode ? 0.12 : 0.05, Math.min(0.95, (lightMode ? 0.2 : 0.12) + val * (lightMode ? 0.95 : 0.8)))
             glyph(cidx[i], opacity, 0, px, py)
-            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(ny * 0.8 + nx * 0.3 + time * 0.4 + hot * 0.4) : 1, px, py)
+            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(ny * 0.35 + nx * 0.14 + time * 0.16 + hot * 0.18) : 1, px, py)
             continue
           }
 
@@ -544,7 +555,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
               : Math.floor(Math.abs(val * chars.length * 2) % chars.length)
             const opacity = Math.max(0.03, Math.min(0.95, val * 0.9))
             if (hot > 0.05) {
-              const tone = rainbow ? rainbowTone(ny * 0.8 + nx * 0.3 + time * 0.4 + hot * 0.4) : 1
+              const tone = rainbow ? rainbowTone(ny * 0.35 + nx * 0.14 + time * 0.16 + hot * 0.18) : 1
               glyph(charIdx, Math.min(1, opacity + hot * 0.25), tone, px, py)
             } else {
               glyph(charIdx, opacity, 0, px, py)
@@ -576,7 +587,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             const charIdx = Math.min(TILE_VARIANTS - 1, Math.floor(val * TILE_VARIANTS))
             const opacity = Math.max(lightMode ? 0.1 : 0.03, Math.min(lightMode ? 1 : 0.9, val * (lightMode ? 0.95 : 0.7) + g * 0.1))
             if (influence > 0) {
-              const tone = rainbow ? rainbowTone(ang / (Math.PI * 2) + time * 0.35 + influence * 0.6 + g * 0.15) : 1
+              const tone = rainbow ? rainbowTone(ang / (Math.PI * 2) * 0.45 + time * 0.14 + influence * 0.25 + g * 0.06) : 1
               glyph(charIdx, Math.min(1, opacity + influence * 0.7), tone, px, py)
             } else {
               glyph(charIdx, opacity, 0, px, py)
