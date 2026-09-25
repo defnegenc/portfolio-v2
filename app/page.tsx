@@ -1196,7 +1196,9 @@ export default function Home() {
         /* There is no cursor on a phone, so the field needs telling. Sits in
            the middle of the top band and fades once it has been touched. */
         .drag-hint { display: none; }
-        @keyframes drag-breathe { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
+        /* a fingertip sweeping a short track: shows the gesture instead of
+           pulsing faint text */
+        @keyframes drag-tip { 0%, 100% { transform: translateX(-7px) } 50% { transform: translateX(7px) } }
 
         /* Stacked (phones, touch tablets): field on top, copy below. The field
            takes whatever height the copy leaves, so on most phones the page
@@ -1234,14 +1236,25 @@ export default function Home() {
           .root-frame[data-full="1"] .panel,
           .root-frame[data-full="1"] .drag-hint { opacity: 0; pointer-events: none; }
 
+          /* a frosted chip over the field, not a white glow around the words */
           .drag-hint {
-            display: block; position: absolute; left: 50%; top: 50%;
+            display: flex; align-items: center; gap: 0.55rem;
+            position: absolute; left: 50%; top: 50%;
             transform: translate(-50%, -50%); z-index: 2; pointer-events: none;
-            font-size: 0.85rem; color: var(--ink);
-            text-shadow: 0 1px 6px var(--bg), 0 0 10px var(--bg);
-            animation: drag-breathe 2.6s ease-in-out infinite;
+            padding: 0.4rem 0.8rem 0.4rem 0.65rem;
+            font-size: 0.9rem; font-weight: 500; color: var(--ink); white-space: nowrap;
+            background: color-mix(in srgb, var(--bg) 62%, transparent);
+            -webkit-backdrop-filter: blur(8px) saturate(1.2); backdrop-filter: blur(8px) saturate(1.2);
+            border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+            transition: opacity .4s;
           }
-          .root-frame[data-touched="1"] .drag-hint { opacity: 0; animation: none; transition: opacity .4s; }
+          .drag-track { position: relative; width: 22px; height: 10px; flex-shrink: 0; }
+          .drag-track::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px;
+            background: color-mix(in srgb, var(--ink) 35%, transparent); }
+          .drag-tip { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px;
+            background: var(--award); animation: drag-tip 1.6s cubic-bezier(.45,0,.25,1) infinite; }
+          @media (prefers-reduced-motion: reduce) { .drag-tip { animation: none; } }
+          .root-frame[data-touched="1"] .drag-hint { opacity: 0; }
 
           .pl-list a { font-size: 1.15rem !important; }
           .px-name { font-size: 1.75rem; }
@@ -1320,7 +1333,7 @@ export default function Home() {
                 : <><polyline points="3 9 3 3 9 3" /><polyline points="21 15 21 21 15 21" /></>}
             </svg>
           </button>
-          <div className="drag-hint" aria-hidden>drag here</div>
+          <div className="drag-hint" aria-hidden><span className="drag-track"><span className="drag-tip" /></span>Drag here</div>
         </div>
 
         {/* field controls belong to the animation, not the nav */}
