@@ -198,8 +198,10 @@ const GLYPHS = '░▒▓#%&*+=/<>'
 const scramble = (len: number) => Array.from({ length: len }, () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]).join('')
 
 function DecodeBio({ style, onDone }: BioProps) {
-  const [r, setR] = useState(-3)   // words fully resolved
   const BAND = 4
+  // starts a full band before the first word, so the server render (and the
+  // first client render) has no random glyphs in it to disagree about
+  const [r, setR] = useState(-BAND)   // words fully resolved
   useEffect(() => {
     if (r >= BIO_WORDS.length) { onDone?.(); return }
     const id = setTimeout(() => setR(v => v + 1), r < 0 ? 160 : 115)
@@ -1109,6 +1111,19 @@ export default function Home() {
 
         .sec-label { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.85rem;
           font-family: var(--font-display); font-size: 1rem; font-weight: 400; color: var(--award); }
+        /* laptop-height screens: tighter spacing so the copy fits its window */
+        @media (max-height: 880px) and (min-width: 861px) {
+          .copy-cell { padding-top: 0.6rem !important; padding-bottom: 0.4rem !important; gap: 1.05rem !important; }
+          .ptab-row { padding-top: 0.22rem; padding-bottom: 0.22rem; }
+        }
+        @media (max-height: 760px) and (min-width: 861px) {
+          .copy-cell { gap: 0.8rem !important; }
+          .copy-cell p { line-height: 1.5 !important; }
+          .ptab-row { padding-top: 0.12rem; padding-bottom: 0.12rem; }
+          .ptab-name { font-size: 1.1rem; }
+        }
+        .v-switch { max-width: calc(100vw - 1.2rem); }
+        .v-row { flex-wrap: wrap; }
         .copy-side { display: grid !important; grid-template-columns: 1.3fr 1fr; gap: 2.2rem !important; align-items: start; }
         @media (max-width: 860px), (hover: none) and (pointer: coarse) { .copy-side { display: flex !important; } }
         .foot { position: relative; z-index: 310; flex-shrink: 0; display: flex; align-items: center;
@@ -1353,7 +1368,7 @@ export default function Home() {
               ),
               // the live copy block, in whichever cell holds it
               copy: (
-                <div className={variant === 'side' ? 'copy-side' : undefined} style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem', padding: '1.25rem 1.25rem 1.25rem 0', maxWidth: variant === 'side' ? 'none' : 640 }}>
+                <div className={variant === 'side' ? 'copy-cell copy-side' : 'copy-cell'} style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem', padding: '1.25rem 1.25rem 1.25rem 0', maxWidth: variant === 'side' ? 'none' : 640 }}>
                   <About onDone={onBioDone} mode={bioMode} />
                   <Projects mode={projMode} terminal={bioMode === 'terminal'} start={bioDone} />
                 </div>
