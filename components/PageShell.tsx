@@ -4,19 +4,22 @@
 
    Same slim name strip, same weather-driven field, same margins: the content
    sits inside the wall inset, so its edges line up with the canvas band above
-   it. No windows here, and the field is cursor-only — the weather picks the
+   it. No windows here, and the field is cursor-only; the weather picks the
    pattern and the colour, but nothing moves until you move. */
 
 import Link from 'next/link'
 import AsciiCanvas, { type Motion, type Hover, type Render } from '@/components/AsciiCanvas'
 import ThemeToggle from '@/components/ThemeToggle'
 import NavMenu from '@/components/NavMenu'
-import { useEffect, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import { useTheme } from '@/components/useTheme'
 import { useAmbient } from '@/components/ambient'
 import { forTheme } from '@/components/color'
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+
+/* Lets page content that draws its own field match the shell's theme. */
+export const ShellCtx = createContext<{ isLight: boolean }>({ isLight: false })
 
 export default function PageShell({
   here, band = 132, field = 'band', accent, motion = 'brush', hover = 'mono', render = 'tiles', fieldColor, children,
@@ -89,7 +92,7 @@ export default function PageShell({
         }
       `}</style>
 
-      {/* name strip: identical to the homepage — same padding, same order,
+      {/* name strip: identical to the homepage: same padding, same order,
           same items, same baseline alignment */}
       <div className="name-strip" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '0.45rem 1.75rem', borderBottom: '1px solid var(--hairline)', position: 'sticky', top: 0, zIndex: 310, background: 'var(--bg)' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.85rem', minWidth: 0 }}>
@@ -113,7 +116,7 @@ export default function PageShell({
 
       {field === 'none' ? (
         /* the résumé desk owns the whole viewport, so no field here */
-        <div style={{ padding: 'var(--wall)' }}>{children}</div>
+        <div style={{ padding: 'var(--wall)' }}><ShellCtx.Provider value={{ isLight }}>{children}</ShellCtx.Provider></div>
       ) : field === 'right' ? (
         /* the field stands as a full-height column on the right, the copy runs
            down the left. On narrow screens it drops back to a band on top. */

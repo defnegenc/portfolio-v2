@@ -587,7 +587,10 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             const charIdx = Math.min(TILE_VARIANTS - 1, Math.floor(val * TILE_VARIANTS))
             const opacity = Math.max(lightMode ? 0.1 : 0.03, Math.min(lightMode ? 1 : 0.9, val * (lightMode ? 0.95 : 0.7) + g * 0.1))
             if (influence > 0) {
-              const tone = rainbow ? rainbowTone(ang / (Math.PI * 2) * 0.45 + time * 0.14 + influence * 0.25 + g * 0.06) : 1
+              /* sin(ang), not ang: atan2 jumps from +π to −π on the left of the
+                 cursor, which cut a hard seam through the glow that the colours
+                 then swept past like a clock hand. */
+              const tone = rainbow ? rainbowTone(Math.sin(ang) * 0.22 + time * 0.14 + influence * 0.25 + g * 0.06) : 1
               glyph(charIdx, Math.min(1, opacity + influence * 0.7), tone, px, py)
             } else {
               glyph(charIdx, opacity, 0, px, py)

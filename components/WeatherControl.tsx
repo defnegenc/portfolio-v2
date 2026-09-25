@@ -12,9 +12,15 @@
    picked from a row of labelled icons rather than a dropdown. Picking either
    overrides the live reading; Reset returns it. */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PERIOD_LABEL, SKY_LABEL, type Period, type Sky } from '@/components/ambient'
 import { HOUR_ICON, SKY_ICON } from '@/components/weatherIcons'
+import { PanelA, Trigger, SHARED_CSS, TRIGGER_CSS, useIsLight } from '@/components/WeatherVariants'
+
+/* 'live' is the original ? and panel. a, b and c all open the matrix picker
+   and differ only in the trigger: a "?" pill, an "i" pill, "What is this?". */
+export type WxVariant = 'live' | 'a' | 'b' | 'c'
+export const WX_VARIANTS: WxVariant[] = ['live', 'a', 'b', 'c']
 
 /* 'late' (midnight–5am) is deliberately absent: the label read as nonsense in a
    picker. The live field can still land there; the picker just shows night. */
@@ -24,8 +30,10 @@ const SKIES: Sky[] = ['clear', 'cloud', 'rain', 'snow', 'fog', 'storm', 'wind']
 export type Override = { p: Period; s: Sky } | null
 
 export default function WeatherControl({
-  override, setOverride, live, place, open, setOpen,
+  override, setOverride, live, place, open, setOpen, variant: variantProp,
 }: {
+  /** design variant of the tip and panel; defaults to ?w= in the URL, then 'live' */
+  variant?: WxVariant
   override: Override
   setOverride: (v: Override) => void
   live: { p: Period; s: Sky } | null
@@ -36,6 +44,15 @@ export default function WeatherControl({
   setOpen: (v: boolean) => void
 }) {
   const box = useRef<HTMLDivElement>(null)
+  // ?w= in the URL fills in when the caller passes no variant
+  const [urlVariant, setUrlVariant] = useState<WxVariant>('live')
+  useEffect(() => {
+    if (variantProp) return
+    const w = new URLSearchParams(window.location.search).get('w') as WxVariant | null
+    if (w && WX_VARIANTS.includes(w)) setUrlVariant(w)
+  }, [variantProp])
+  const variant: WxVariant = variantProp ?? urlVariant
+  const light = useIsLight(box)
   useEffect(() => {
     if (!open) return
     const away = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false) }
@@ -76,7 +93,7 @@ export default function WeatherControl({
           padding: 0.3rem 0.55rem; font-size: 0.82rem; line-height: 1.3;
           opacity: 0; pointer-events: none; transition: opacity .16s ease;
         }
-        .wx:hover .wx-tip, .wx-btn:focus-visible ~ .wx-tip { opacity: 1; }
+        .wx:hover .wx-tip, .wx-btn:focus-visible ~ .wx-tip, .wx-trig:focus-visible ~ .wx-tip { opacity: 1; }
         .wx[data-open="1"] .wx-tip { opacity: 0; }
 
 
@@ -118,6 +135,12 @@ export default function WeatherControl({
         .wx-foot:hover { color: var(--award); }
       `}</style>
 
+      {variant !== 'live' ? (
+        <button className="wx-trig" data-v={variant} onClick={() => setOpen(!open)}
+          aria-expanded={open} aria-label="About this canvas">
+          <Trigger kind={variant} />
+        </button>
+      ) : (
       <button className="wx-btn" data-on={open ? 1 : 0} onClick={() => setOpen(!open)}
         aria-expanded={open} aria-label="About this canvas">
         {/* SVG text rather than a character in a box: textAnchor and
@@ -129,9 +152,14 @@ export default function WeatherControl({
             letterSpacing="0" fill="currentColor">?</text>
         </svg>
       </button>
-      <span className="wx-tip" role="tooltip">What is this?</span>
+      )}
+      {/* the worded pill already asks the question, so it goes without */}
+      {variant !== 'c' && <span className="wx-tip" role="tooltip">What is this?</span>}
 
-      {open && (
+      {variant !== 'live' && <style>{SHARED_CSS + TRIGGER_CSS}</style>}
+      {open && variant !== 'live' && <PanelA override={override} setOverride={setOverride} live={live} place={place} light={light} />}
+
+      {open && variant === 'live' && (
         <div className="wx-pop">
           <p className="wx-intro">
             As a chronic weather checker and lover of ambient technology, I wanted this interactive canvas

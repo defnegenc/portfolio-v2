@@ -182,7 +182,7 @@ export default function MemoryMap({ activeProject }: Props) {
           const px = x * CELL, py = y * CELL
 
           if (isTarget) {
-            // Pixel font cell — gradually materialize
+            // Pixel font cell: gradually materialize
             if (s.grid[y][x] !== 3) {
               if (Math.random() < 0.04) s.grid[y][x] = 3
             }

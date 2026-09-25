@@ -2,8 +2,8 @@
 
 /* Ambient modes: let the field choose itself.
 
-   'clock'   — the visitor's local time of day picks the combination.
-   'weather' — time of day *and* current conditions pick it, so morning sun,
+   'clock'    the visitor's local time of day picks the combination.
+   'weather'  time of day *and* current conditions pick it, so morning sun,
                morning cloud and morning rain are three different fields.
 
    Weather comes from Open-Meteo: no key, CORS-friendly, works on a static
@@ -67,7 +67,7 @@ export const LOOKS: Record<Period, Record<Sky, Look>> = {
   /* Rules the matrix follows:
      · every colour is distinct within its row, so no two conditions in the
        same hour ever look alike
-     · cipher never breathes and never strikes — it gets brush or geometric
+     · cipher never breathes and never strikes; it gets brush or geometric
      · lightning only ever lands on tiles, and stays mono: the bolt is the
        event, so hue-cycling on top of it is one thing too many
      · tiles + breathe always hovers rainbow
@@ -163,7 +163,8 @@ type Place = { lat: number; lon: number; place: string }
    still exists for anyone who wants the field to match their actual block. */
 async function lookupIp(): Promise<Place | null> {
   try {
-    const j = await fetch('https://ipwho.is/').then(r => r.json())
+    // a slow lookup shouldn't hold the weather hostage: give up and use NYC
+    const j = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(2500) }).then(r => r.json())
     if (!j?.success || typeof j.latitude !== 'number') return null
     // "Brooklyn, New York" rather than just "Brooklyn"
     const place = [j.city, j.region].filter(Boolean).join(', ')
@@ -217,7 +218,7 @@ export function useAmbient(mode: AmbientMode) {
     const { lat, lon } = origin
     let cancelled = false
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code,wind_speed_10m&timezone=auto`
-    fetch(url)
+    fetch(url, { signal: AbortSignal.timeout(6000) })
       .then(r => r.json())
       .then(j => {
         if (cancelled || !j?.current) return
