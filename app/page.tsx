@@ -204,7 +204,7 @@ function DecodeBio({ style, onDone }: BioProps) {
   const [r, setR] = useState(-BAND)   // words fully resolved
   useEffect(() => {
     if (r >= BIO_WORDS.length) { onDone?.(); return }
-    const id = setTimeout(() => setR(v => v + 1), r < 0 ? 160 : 115)
+    const id = setTimeout(() => setR(v => v + 1), r < 0 ? 90 : 60)
     return () => clearTimeout(id)
   }, [r, onDone])
   // re-roll the glyphs between steps too, so the band shimmers
