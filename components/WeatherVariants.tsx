@@ -371,7 +371,7 @@ export function Trigger({ kind }: { kind: TriggerKind }) {
 export const TRIGGER_CSS = `
   .wx-trig {
     display: inline-flex; align-items: center; justify-content: center; height: 30px;
-    padding: 0 0.85rem; border: 1px solid var(--hairline); border-radius: 999px;
+    padding: 0 0.85rem; border: none; border-radius: 0;
     background: var(--bg); color: var(--ink); cursor: pointer; white-space: nowrap;
     font-family: inherit; font-size: 0.92rem; font-weight: 500; line-height: 1;
     transition: border-color .2s, color .2s;

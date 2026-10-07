@@ -168,6 +168,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     /* Cursor pool radii are in pixels, which on a phone covers most of a short
        band and hides the shape of the effect. Scale them with the canvas. */
     let reach = 1
+    let cursorScale = 1
     let width: number, height: number, rows: number, cols: number
     let cellW: number, cellH: number
     let time = 0
@@ -252,11 +253,15 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       canvas!.height = height * ratio
       ctx!.scale(ratio, ratio)
       const targetCW = (cipher || letters) ? 8 : tiles ? 9 : trailMode ? 9 : 7
-      cols = Math.round(width / targetCW)
+      // Keep large monitors from multiplying per-frame sprite work without limit.
+      const baseCellH = tiles ? targetCW : targetCW * ((trailMode || soft) ? 1.5 : 1.4)
+      const densityScale = Math.max(1, Math.sqrt((width * height) / (targetCW * baseCellH * 6000)))
+      cols = Math.max(1, Math.round(width / (targetCW * densityScale)))
       cellW = width / cols
       cellH = tiles ? cellW : cellW * ((trailMode || soft) ? 1.5 : 1.4)
       rows = Math.ceil(height / cellH)
-      reach = Math.max(0.45, Math.min(1, Math.min(width, height * 1.6) / 760))
+      cursorScale = window.matchMedia('(max-width: 860px)').matches ? 0.55 : 1
+      reach = Math.max(0.45, Math.min(1, Math.min(width, height * 1.6) / 760)) * cursorScale
       const n = cols * rows
       grain = new Float32Array(n)
       cidx  = new Uint8Array(n)
@@ -306,7 +311,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       const sec = dt / 60
       // The cursor is the only source; drops keep running after it moves on
       if (mouseCell.c >= 0) for (let k = 0; k < 2; k++) if (Math.random() < 0.7) {
-        spawnTrickle(mouseCell.c + (Math.random() - 0.5) * 5, mouseCell.r + (Math.random() - 0.5) * 2, 0.75 + Math.random() * 0.25, 1)
+        spawnTrickle(mouseCell.c + (Math.random() - 0.5) * 5 * cursorScale, mouseCell.r + (Math.random() - 0.5) * 2 * cursorScale, 0.75 + Math.random() * 0.25, 1)
       }
       const k = Math.pow(0.9, dt), kh = Math.pow(0.93, dt)
       for (let i = 0; i < field.length; i++) { field[i] *= k; hotf[i] *= kh }
@@ -334,7 +339,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
         lastNode.x = mouseCell.c; lastNode.y = mouseCell.r
         const idx = nodes.push({ x: mouseCell.c, y: mouseCell.r }) - 1
         const near = nodes.slice(0, idx).map((n, j) => ({ j, d: Math.hypot(n.x - mouseCell.c, n.y - mouseCell.r) }))
-          .filter(o => o.d < 45).sort((p, q) => p.d - q.d).slice(0, 3)
+          .filter(o => o.d < 45 * cursorScale).sort((p, q) => p.d - q.d).slice(0, 3)
         if (idx > 0 && !near.some(o => o.j === idx - 1)) near.push({ j: idx - 1, d: 0 })
         for (const o of near) threads.push({ a: o.j, b: idx, born: time, ph: Math.random() * Math.PI * 2 })
         if (nodes.length > 260) {
@@ -366,7 +371,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
         const c = Math.round(ax + (bx - ax) * f), r = Math.round(ay + (by - ay) * f)
         if (c < 0 || c >= cols || r < 0 || r >= rows) continue
         const surge = 0.5 + 0.5 * Math.sin(f * 9 - time * 6 + ph)
-        const near = mouseCell.c >= 0 ? Math.max(0, 1 - Math.hypot(c - mouseCell.c, r - mouseCell.r) / 16) : 0
+        const near = mouseCell.c >= 0 ? Math.max(0, 1 - Math.hypot(c - mouseCell.c, r - mouseCell.r) / (16 * cursorScale)) : 0
         deposit(r * cols + c, (0.22 + surge * 0.32 + breatheP * 0.14 + near * 0.45) * strength, 1)
       }
     }
@@ -416,7 +421,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
           const side = Math.random()
           const tx = side < 0.6 ? mouseCell.c + (Math.random() - 0.5) * cols * 0.8 : Math.random() < 0.5 ? -2 : cols + 2
           const ty = side < 0.6 ? rows + 2 : Math.random() * rows
-          bolt(mouseCell.c, mouseCell.r, tx, ty, 1, 0)
+          bolt(mouseCell.c, mouseCell.r, mouseCell.c + (tx - mouseCell.c) * cursorScale, mouseCell.r + (ty - mouseCell.r) * cursorScale, 1, 0)
         }
         flash = Math.min(0.35, flash + 0.18)
       }
@@ -434,7 +439,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       if (len < 0.01) return
       {
         // Slow = fat and wet, fast = thin and dry. Bristles are parallel lines with their own weight.
-        const w = Math.max(1.5, 9 / (1 + len / 1.2))
+        const w = Math.max(1.5, 9 / (1 + len / 1.2)) * cursorScale
         const nx = -ddy / len, ny = ddx / len
         const bristles = Math.max(3, Math.round(w * 1.4))
         const steps = Math.max(1, Math.ceil(len * 1.5))
@@ -481,6 +486,11 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     }
 
     function draw() {
+      if (document.hidden || !width || !height || !container!.getClientRects().length) {
+        last = performance.now()
+        animId = requestAnimationFrame(draw)
+        return
+      }
       const alpha = soft ? 0.08 : (trailMode ? 0.2 : 1)
       ctx!.fillStyle = `rgba(${bgR}, ${bgG}, ${bgB}, ${water ? 0.2 : alpha})`
       ctx!.fillRect(0, 0, width, height)

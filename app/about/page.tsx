@@ -2,27 +2,12 @@
 
 import PageShell from '@/components/PageShell'
 import FieldRule from '@/components/FieldRule'
-import { SectionRow, bodyText } from '@/components/layout'
+import { SectionRow, bodyText, heroTitle } from '@/components/layout'
 import { useTheme } from '@/components/useTheme'
 
 // About runs at full ink and a step up in size: this page is mostly prose, so
 // the site-wide dim body colour reads as too faint here.
 const copy: React.CSSProperties = { ...bodyText, fontSize: '0.95rem', lineHeight: 1.65, color: 'var(--ink)' }
-
-const THINKING: { claim: string; body: string }[] = [
-  {
-    claim: 'The next interface for computing with AI.',
-    body: 'The last interface revolution we had was the touchscreen, and agentic capability and presence have only grown since. How will we keep track of agentic progress and find the right input and output modality?',
-  },
-  {
-    claim: 'Personal information spaces.',
-    body: 'Given the wealth of information available now that we’re letting agents work on our behalf, how do we represent and navigate our own knowledge? Normies call this context engineering, after the knowledge we give our agents.',
-  },
-  {
-    claim: 'Can AI have taste, or is it all slop?',
-    body: 'A lot of taste is built in the physical world, through things you touch, spaces you move through, what people wear on the street.',
-  },
-]
 
 const FACTS: [string, string][] = [
   ['Based', 'New York City'],
@@ -55,7 +40,7 @@ export default function About() {
       <div className="about">
 
         <div className="fade-up fade-up-2">
-          <SectionRow label="Background">
+          <SectionRow label={<h1 style={{ ...heroTitle, margin: 0 }}>About Me</h1>}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <p style={copy}>
                 At my day job, I’m a product manager. I have a computer science degree + research experience, which would make me an engineer. People want to call me a designer because I have good taste and can make things look pretty. I am all and none of those things. And today, I would argue, those distinctions don’t matter.
@@ -64,26 +49,11 @@ export default function About() {
                 What does matter is an eye for what the next technological revolution will bring us. For that, you need product vision, design taste, and engineering knowledge (and a ton of initiative).
               </p>
               <p style={copy}>
-                I’m a humanist obsessed with AI interfaces. I grew up in Istanbul, Turkey. I’m about to obtain my third computer science degree from Stanford University and have decided to devote it solely to thinking about the next interface revolution.
-              </p>
-              <p style={copy}>
                 There are too many smart people thinking about what AI models can do and not enough smart people thinking about how we use them. So I will gladly give up the engineer title to find what we are missing.
               </p>
-            </div>
-          </SectionRow>
-        </div>
-
-        {rule}
-
-        <div className="fade-up fade-up-3">
-          <SectionRow label={<>What I{'’'}m<br />thinking about</>}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {THINKING.map(({ claim, body }) => (
-                <div key={claim}>
-                  <p style={{ ...copy, fontWeight: 600 }}>{claim}</p>
-                  <p style={{ ...copy, marginTop: '0.25rem', color: 'var(--ink-dim)' }}>{body}</p>
-                </div>
-              ))}
+              <p style={copy}>
+                I’m a humanist obsessed with AI interfaces. I grew up in Istanbul, Turkey. I’m about to obtain my third computer science degree from Stanford University and have decided to devote it solely to thinking about the next interface revolution.
+              </p>
             </div>
           </SectionRow>
         </div>

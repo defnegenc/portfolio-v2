@@ -58,12 +58,13 @@ export default function NavMenu({ items, open, setOpen }: { items: NavItem[]; op
         .nav-menu[data-open="1"] .nav-bars span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
         @media (max-width: 620px) {
+          .nav-mark, .nav-bars span { border-radius: 0; }
           .nav-row {
             right: 0; top: 100%; z-index: 60;
             flex-direction: column; align-items: flex-end; gap: 0.5rem;
             width: max-content; margin-right: 0; margin-top: 0.4rem;
             transform: none;
-            background: var(--bg); border: 1px solid var(--hairline); border-radius: 10px;
+            background: var(--bg); border: 1px solid var(--hairline); border-radius: 0;
             padding: 0.75rem 0.9rem;
             opacity: 0; transition: opacity .25s ease;
           }

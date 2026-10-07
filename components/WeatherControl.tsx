@@ -106,7 +106,7 @@ export default function WeatherControl({
         .wx-intro { font-size: 0.92rem; line-height: 1.55; color: var(--ink); }
         /* the resolved place: underlines in the accent on hover so it reads as
            a real value rather than filler copy */
-        .wx-place { color: var(--award); position: relative; }
+        .wx-place { color: var(--award); position: relative; display: inline-block; white-space: nowrap; }
         .wx-place::after {
           content: ''; position: absolute; left: 0; bottom: -2px; width: 100%; height: 1px;
           background: var(--award); transform: scaleX(0); transform-origin: right;
