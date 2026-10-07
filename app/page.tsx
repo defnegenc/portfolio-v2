@@ -496,6 +496,7 @@ function About({ big = false, xl = false, onDone, mode }: { big?: boolean; xl?: 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
       <Bio key={mode} mode={mode} onDone={onDone} style={{ fontSize: size, lineHeight: strong ? 1.75 : 1.65, color: 'var(--ink)', fontWeight: strong ? 300 : 400, letterSpacing: xl ? '-0.01em' : 0 }} />
+      <a href="/about" style={{ fontSize: size, color: 'var(--award)', textDecoration: 'underline', textUnderlineOffset: '0.2em', alignSelf: 'flex-start' }}>About me -&gt;</a>
     </div>
   )
 }
@@ -1479,4 +1480,4 @@ export default function Home() {
 
     </div>
   )
-}
+            }
