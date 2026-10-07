@@ -190,13 +190,20 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     let dpr = Math.min(window.devicePixelRatio || 1, 2)
     const atlas = document.createElement('canvas')
     let spriteW = 0, spriteH = 0
+    // Tones wrap onto extra bands when one row would pass MAX_SIDE; clamping
+    // instead cut off the last tones and left transparent holes in the hover colour.
+    let perRow = tones.length
+    const layout = () => {
+      perRow = Math.max(1, Math.min(tones.length, Math.floor(MAX_SIDE / (Math.ceil(cellW * dpr) * nVariants))))
+    }
 
     function fitAtlas() {
       LEVELS = 48
       dpr = Math.min(window.devicePixelRatio || 1, 2)
       for (;;) {
-        const w = Math.ceil(cellW * dpr) * nVariants * tones.length
-        const h = Math.ceil(cellH * dpr) * LEVELS
+        layout()
+        const w = Math.ceil(cellW * dpr) * nVariants * perRow
+        const h = Math.ceil(cellH * dpr) * LEVELS * Math.ceil(tones.length / perRow)
         if (w <= MAX_SIDE && h <= MAX_SIDE) return
         if (LEVELS > 12) LEVELS = Math.floor(LEVELS / 2)
         else if (dpr > 1) dpr = 1
@@ -208,8 +215,10 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       fitAtlas()
       spriteW = Math.ceil(cellW * dpr)
       spriteH = Math.ceil(cellH * dpr)
-      atlas.width = Math.min(MAX_SIDE, spriteW * nVariants * tones.length)
-      atlas.height = Math.min(MAX_SIDE, spriteH * LEVELS)
+      layout()
+      const bands = Math.ceil(tones.length / perRow)
+      atlas.width = Math.min(MAX_SIDE, spriteW * nVariants * perRow)
+      atlas.height = Math.min(MAX_SIDE, spriteH * LEVELS * bands)
       const a = atlas.getContext('2d')!
       const fontSize = Math.max(8, cellH * ((trailMode || soft) ? 0.9 : 0.8)) * dpr
       a.font = `${fontSize}px "Fragment Mono", monospace`
@@ -221,9 +230,9 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
         const [mr, mg, mb] = tones[1]
         for (let l = 0; l < LEVELS; l++) {
           const alpha = (l + 1) / LEVELS
-          const y0 = l * spriteH
+          const y0 = (Math.floor(tone / perRow) * LEVELS + l) * spriteH
           for (let c = 0; c < nVariants; c++) {
-            const x0 = (tone * nVariants + c) * spriteW
+            const x0 = ((tone % perRow) * nVariants + c) * spriteW
             if (tiles) {
               // Soft square: size grows with variant, 1px gutter keeps the grid visible
               a.fillStyle = rgba(alpha)
@@ -241,8 +250,9 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
 
     function glyph(charIdx: number, opacity: number, tone: number, px: number, py: number) {
       const l = Math.min(LEVELS - 1, Math.max(0, Math.round(opacity * LEVELS) - 1))
-      const sx = (tone * nVariants + charIdx) * spriteW
-      ctx!.drawImage(atlas, sx, l * spriteH, spriteW, spriteH, px - cellW / 2, py - cellH / 2, cellW, cellH)
+      const sx = ((tone % perRow) * nVariants + charIdx) * spriteW
+      const sy = (Math.floor(tone / perRow) * LEVELS + l) * spriteH
+      ctx!.drawImage(atlas, sx, sy, spriteW, spriteH, px - cellW / 2, py - cellH / 2, cellW, cellH)
     }
 
     function resize() {
@@ -704,4 +714,4 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
     </div>
   )
-}
+        }
