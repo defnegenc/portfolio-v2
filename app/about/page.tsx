@@ -58,12 +58,16 @@ export default function About() {
           <SectionRow label="Background">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <p style={copy}>
-                I grew up in <strong>Istanbul, Turkey</strong> and attended <strong>Stanford University</strong>, where I obtained my BS and MS specialising in Human-Computer Interaction. While at Stanford, I did academic research around AI for behavior change. I was second author on{' '}
-                <a href="/project/bloom" className="about-link">Bloom</a>
-                , an LLM-augmented physical activity coaching app built in Prof. James Landay{'’'}s Interaction Design Lab. I was admitted to the Stanford Computer Science PhD with a fall 2026 start, but I have deferred to remain in industry for the time being.
+                At my day job, I’m a product manager. I have a computer science degree + research experience, which would make me an engineer. People want to call me a designer because I have good taste and can make things look pretty. I am all and none of those things. And today, I would argue, those distinctions don’t matter.
               </p>
               <p style={copy}>
-                Since then, I{'’'}ve been thinking about how AI fits into the everyday lives of non-engineers: creatives, deep domain experts, the population it{'’'}s poorly designed for. What{'’'}s more, I think a lot about how modern interfaces fail to meet our needs with exponentially growing AI capabilities.
+                What does matter is an eye for what the next technological revolution will bring us. For that, you need product vision, design taste, and engineering knowledge (and a ton of initiative).
+              </p>
+              <p style={copy}>
+                I’m a humanist obsessed with AI interfaces. I grew up in Istanbul, Turkey. I’m about to obtain my third computer science degree from Stanford University and have decided to devote it solely to thinking about the next interface revolution.
+              </p>
+              <p style={copy}>
+                There are too many smart people thinking about what AI models can do and not enough smart people thinking about how we use them. So I will gladly give up the engineer title to find what we are missing.
               </p>
             </div>
           </SectionRow>
