@@ -43,16 +43,16 @@ export default function About() {
           <SectionRow label={<h1 style={{ ...heroTitle, margin: 0 }}>About Me</h1>}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <p style={copy}>
-                At my day job, I’m a product manager. I have a computer science degree + research experience, which would make me an engineer. People want to call me a designer because I have good taste and can make things look pretty. I am all and none of those things. And today, I would argue, those distinctions don’t matter.
+                At my day job, I'm a product manager. I have a computer science degree + research experience, which would make me an engineer. People want to call me a designer because I have good taste and can make things look pretty. I am all and none of those things. And today, I would argue, those distinctions don't matter.
               </p>
               <p style={copy}>
-                What does matter is an eye for what the next technological revolution will bring us. For that, you need product vision, design taste, and engineering knowledge (and a ton of initiative).
+                What does matter is how we turn new technology into something useful. That takes product vision, design taste, and engineering knowledge. There are too many smart people thinking about AI model capabilities and not enough people thinking about their affordances.
               </p>
               <p style={copy}>
-                There are too many smart people thinking about what AI models can do and not enough smart people thinking about how we use them. So I will gladly give up the engineer title to find what we are missing.
+                The chat interface is to LLMs what the CLI was to personal computers. Still useful, but not the final interface. We need to make the leap to find AI's GUI.
               </p>
               <p style={copy}>
-                I’m a humanist obsessed with AI interfaces. I grew up in Istanbul, Turkey. I’m about to obtain my third computer science degree from Stanford University and have decided to devote it solely to thinking about the next interface revolution.
+                I'm a humanist obsessed with AI interfaces. I grew up in Istanbul, Turkey. I'm about to obtain my third computer science degree from Stanford University and have decided to devote it solely to thinking about the next interface revolution.
               </p>
             </div>
           </SectionRow>
