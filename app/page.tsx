@@ -1276,6 +1276,8 @@ export default function Home() {
 
         .home-about-link { color: var(--ink); text-decoration: none; font-size: 0.95rem; }
         .home-about-link:hover { color: var(--award); }
+        .home-about-link { transition: opacity .2s ease, color .2s; }
+        .ns-seg[data-navopen="1"] .home-about-link { opacity: 0; pointer-events: none; }
         @media (max-width: 860px) { .home-about-link { display: none; } }
 
         @media (max-width: 600px) {
