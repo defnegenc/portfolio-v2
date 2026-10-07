@@ -253,7 +253,10 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       canvas!.height = height * ratio
       ctx!.scale(ratio, ratio)
       const targetCW = (cipher || letters) ? 8 : tiles ? 9 : trailMode ? 9 : 7
-      cols = Math.round(width / targetCW)
+      // Keep large monitors from multiplying per-frame sprite work without limit.
+      const baseCellH = tiles ? targetCW : targetCW * ((trailMode || soft) ? 1.5 : 1.4)
+      const densityScale = Math.max(1, Math.sqrt((width * height) / (targetCW * baseCellH * 6000)))
+      cols = Math.max(1, Math.round(width / (targetCW * densityScale)))
       cellW = width / cols
       cellH = tiles ? cellW : cellW * ((trailMode || soft) ? 1.5 : 1.4)
       rows = Math.ceil(height / cellH)
@@ -483,6 +486,11 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     }
 
     function draw() {
+      if (document.hidden || !width || !height || !container!.getClientRects().length) {
+        last = performance.now()
+        animId = requestAnimationFrame(draw)
+        return
+      }
       const alpha = soft ? 0.08 : (trailMode ? 0.2 : 1)
       ctx!.fillStyle = `rgba(${bgR}, ${bgG}, ${bgB}, ${water ? 0.2 : alpha})`
       ctx!.fillRect(0, 0, width, height)
