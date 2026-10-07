@@ -1273,6 +1273,10 @@ export default function Home() {
           .panel .two-col { gap: 2rem !important; }
         }
 
+        .home-about-link { color: var(--ink); text-decoration: none; font-size: 0.95rem; }
+        .home-about-link:hover { color: var(--award); }
+        @media (max-width: 860px) { .home-about-link { display: none; } }
+
         @media (max-width: 600px) {
           .nav-links   { display: none !important; }
         }
@@ -1298,6 +1302,7 @@ export default function Home() {
         {/* mark sits left of the toggle so the open row unfolds into empty strip
             rather than over the controls */}
         <div className="ns-seg" data-navopen={navOpen ? 1 : 0} style={{ display: 'flex', gap: '0.7rem', alignItems: 'center', flexShrink: 0 }}>
+          <a className="home-about-link" href="/about">About</a>
           <ThemeToggle theme={theme} setTheme={setTheme} />
           <NavMenu open={navOpen} setOpen={setNavOpen} items={[
             { label: 'Home', href: '/' },
