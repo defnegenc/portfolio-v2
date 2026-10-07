@@ -186,6 +186,9 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
        Tones now run along X beside the variants, and both axes are clamped by
        dropping the opacity resolution and then the pixel ratio until they fit. */
     const MAX_SIDE = 4096
+    // Total pixels too: three of these sit on the page, and a 4096x3744 atlas each
+    // (60MB) is what slowed whole browsers on retina screens.
+    const MAX_AREA = 2_600_000
     let LEVELS = 48
     let dpr = Math.min(window.devicePixelRatio || 1, 2)
     const atlas = document.createElement('canvas')
@@ -204,7 +207,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
         layout()
         const w = Math.ceil(cellW * dpr) * nVariants * perRow
         const h = Math.ceil(cellH * dpr) * LEVELS * Math.ceil(tones.length / perRow)
-        if (w <= MAX_SIDE && h <= MAX_SIDE) return
+        if (w <= MAX_SIDE && h <= MAX_SIDE && w * h <= MAX_AREA) return
         if (LEVELS > 12) LEVELS = Math.floor(LEVELS / 2)
         else if (dpr > 1) dpr = 1
         else return          // nothing left to give; the clamp below caps it
@@ -714,4 +717,4 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
     </div>
   )
-        }
+}
