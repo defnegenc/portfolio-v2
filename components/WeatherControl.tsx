@@ -212,9 +212,6 @@ export default function WeatherControl({
             </button>
           </div>
 
-          <div style={{ marginTop: '1.4rem', paddingTop: '1.1rem', borderTop: '1px solid var(--hairline)', fontSize: '0.9rem', lineHeight: 1.5, color: 'var(--ink)' }}>
-            Scroll down to make the entire canvas yours.
-          </div>
         </div>
       )}
     </div>
