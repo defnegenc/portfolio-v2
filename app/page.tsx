@@ -65,28 +65,12 @@ const BIO = 'I think about how modern interfaces should (and fail to) meet our n
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
-/* Phones, and tablets with no cursor, get the stacked layout. The windows and
-   the scroll-open gesture only make sense with a mouse and a wheel. Kept in
-   step with the media query in the page styles. */
-/* How the scroll gesture is advertised, picked with ?s= while we compare.
-   pill   the old one: a pill at the top of the canvas
-   cross  the same pill where the four windows meet, which is where the
-          walls part when you scroll
-   part   the walls themselves breathe apart a little, a preview of opening
-   peek   the canvas opens a crack once and settles back
-   mouse  a mouse with its wheel turning, at the crossing */
-type CueMode = 'pill' | 'cross' | 'part' | 'peek' | 'mouse'
-const CUE_MODES: { key: CueMode; label: string }[] = [
-  { key: 'pill', label: 'Top pill' },
-  { key: 'cross', label: 'Cross' },
-  { key: 'part', label: 'Walls part' },
-  { key: 'peek', label: 'Peek' },
-  { key: 'mouse', label: 'Mouse' },
-]
-
 const WX_VARIANTS = ['live', 'a', 'b', 'c'] as const
 type WxVariant = typeof WX_VARIANTS[number]
 
+/* Phones, and tablets with no cursor, get the stacked layout. The windows and
+   the scroll-open gesture only make sense with a mouse and a wheel. Kept in
+   step with the media query in the page styles. */
 const STACKED = '(max-width: 860px), (hover: none) and (pointer: coarse)'
 const isStacked = () => window.matchMedia(STACKED).matches
 
@@ -846,9 +830,6 @@ export default function Home() {
   // and the hand picker is the fallback when ambient mode is off.
   const [wx, setWx] = useState<Override>(null)
   const [wxOpen, setWxOpen] = useState(false)
-  // the scroll cue retires after ten seconds, or on first scroll, and never returns
-  const [cueGone, setCueGone] = useState(false)
-  const [touched, setTouched] = useState(false)
   const [full, setFull] = useState(false)
   // defaults are the picks: live, decode, table, no heading, C, top pill
   const [variant, setVariant] = useState<Variant>('live')
@@ -856,7 +837,6 @@ export default function Home() {
   const [projMode, setProjMode] = useState<ProjMode>('table')
   const [headMode, setHeadMode] = useState<HeadMode>('none')
   const [wxVariant, setWxVariant] = useState<WxVariant>('c')
-  const [cueMode, setCueMode] = useState<CueMode>('pill')
   const [isLocal, setIsLocal] = useState(false)
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get('v') as Variant | null
@@ -865,8 +845,6 @@ export default function Home() {
     if (t && BIO_MODES.some(x => x.key === t)) setBioMode(t)
     const pm = new URLSearchParams(window.location.search).get('p') as ProjMode | null
     if (pm && PROJ_MODES.some(x => x.key === pm)) setProjMode(pm)
-    const sc = new URLSearchParams(window.location.search).get('s') as CueMode | null
-    if (sc && CUE_MODES.some(x => x.key === sc)) setCueMode(sc)
     const hm = new URLSearchParams(window.location.search).get('h') as HeadMode | null
     if (hm && HEAD_MODES.some(x => x.key === hm)) setHeadMode(hm)
     const w = new URLSearchParams(window.location.search).get('w') as WxVariant | null
@@ -883,10 +861,9 @@ export default function Home() {
   const pickBio = (t: BioMode) => { setBioDone(false); setBioMode(t); setParam('t', t, 'decode') }
   const pickWx = (w: WxVariant) => { setWxVariant(w); setParam('w', w, 'c') }
   const pickProj = (m: ProjMode) => { setProjMode(m); setParam('p', m, 'table') }
-  const pickCue = (m: CueMode) => { setCueMode(m); setCueGone(false); setParam('s', m, 'pill') }
   const pickHead = (m: HeadMode) => { setHeadMode(m); setParam('h', m, 'none') }
   // the canvas controls stay out of the way until the bio has finished reading
-  const [bioDone, setBioDone] = useState(false)   // gates the scroll cue
+  const [bioDone, setBioDone] = useState(false)
   const onBioDone = useCallback(() => setBioDone(true), [])
   const live = sky ? { p: periodOf(), s: sky.sky } : null
   const pinned = wx ? LOOKS[wx.p][wx.s] : null
@@ -938,7 +915,6 @@ export default function Home() {
         const more = panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1
         if ((e.deltaY > 0 && more) || (e.deltaY < 0 && panel.scrollTop > 0)) return
       }
-      setCueGone(true)
       setOpen(v => Math.min(1, Math.max(0, v + e.deltaY / 900)))
     }
     const onResize = () => { if (isStacked()) setOpen(0) }
@@ -946,28 +922,6 @@ export default function Home() {
     window.addEventListener('wheel', fn, { passive: true })
     return () => { window.removeEventListener('wheel', fn); window.removeEventListener('resize', onResize) }
   }, [])
-
-  useEffect(() => {
-    if (!bioDone) return
-    const t = setTimeout(() => setCueGone(true), 10000)
-    return () => clearTimeout(t)
-  }, [bioDone])
-
-  // peek: once the cue is up, the canvas opens a crack and settles back
-  useEffect(() => {
-    if (cueMode !== 'peek' || !bioDone || cueGone || isStacked()) return
-    let id = 0, t0 = 0
-    const start = setTimeout(() => {
-      const tick = (now: number) => {
-        if (!t0) t0 = now
-        const k = Math.min(1, (now - t0) / 1600)
-        setOpen(0.14 * Math.sin(k * Math.PI))   // below the 0.15 that hands the cursor over
-        if (k < 1) id = requestAnimationFrame(tick)
-      }
-      id = requestAnimationFrame(tick)
-    }, 700)
-    return () => { clearTimeout(start); cancelAnimationFrame(id) }
-  }, [cueMode, bioDone, cueGone])
 
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
@@ -1000,10 +954,7 @@ export default function Home() {
     <div
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
-      data-touched={touched ? 1 : 0}
       data-full={full ? 1 : 0}
-      data-cue={cueMode}
-      data-cueon={bioDone && !cueGone ? 1 : 0}
       className="root-frame"
       style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
         ...({ '--wall': `${1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
@@ -1021,30 +972,6 @@ export default function Home() {
           --hairline: rgba(26, 25, 24, 0.15);
         }
 
-
-        /* Scroll cue: page ink on the page background, so it is a black disc in
-           dark mode and a white one in light. */
-        .scroll-cue {
-          position: absolute; left: 50%; transform: translateX(-50%);
-          top: calc(var(--wall) + 0.7rem); z-index: 70;
-          height: 30px; padding: 0 0.8rem; border-radius: 999px;
-          display: flex; align-items: center; gap: 0.4rem;
-          background: var(--bg); color: var(--ink);
-          border: 1px solid var(--hairline); cursor: pointer;
-          font-family: inherit; font-size: 0.88rem; font-weight: 600; line-height: 1;
-          transition: opacity .35s ease, color .2s, border-color .2s;
-        }
-        .scroll-cue:hover { color: var(--award); border-color: var(--award); }
-        .scroll-cue[data-at="cross"] { top: 50%; transform: translate(-50%, -50%); }
-        .cue-mouse { display: block; }
-        .cue-mouse .wheel { animation: wheel 1.4s cubic-bezier(.5,0,.3,1) infinite; }
-        @keyframes wheel { 0% { transform: translateY(-2px); opacity: 1 } 70% { transform: translateY(4px); opacity: 0 } 100% { transform: translateY(4px); opacity: 0 } }
-
-        /* part: the walls thin and come back, twice, like the frame taking a breath */
-        @property --wall { syntax: '<length>'; inherits: true; initial-value: 1.75rem; }
-        @keyframes wall-part { 0%, 100% { --wall: 1.75rem } 45%, 55% { --wall: 0.7rem } }
-        .root-frame[data-cue="part"][data-cueon="1"][data-open="0"] { animation: wall-part 2.4s cubic-bezier(.6,0,.3,1) .6s 2; }
-        @media (max-width: 860px), (hover: none) and (pointer: coarse) { .scroll-cue { display: none; } }
 
         /* The bio's phrase walk: block in the accent, words inverted to the page */
         .bio-w { display: inline-block; padding: 0.06em 0.16em; margin-right: 0.1em; border-radius: 3px; transition: background .18s ease, color .18s ease; }
@@ -1194,13 +1121,6 @@ export default function Home() {
         .field-main { position: relative; }
         .full-btn { display: none; }
 
-        /* There is no cursor on a phone, so the field needs telling. Sits in
-           the middle of the top band and fades once it has been touched. */
-        .drag-hint { display: none; }
-        /* a fingertip sweeping a short track: shows the gesture instead of
-           pulsing faint text */
-        @keyframes drag-tip { 0%, 100% { transform: translateX(-7px) } 50% { transform: translateX(7px) } }
-
         /* Stacked (phones, touch tablets): field on top, copy below. The field
            takes whatever height the copy leaves, so on most phones the page
            fits without scrolling. When it can't, field and copy scroll away
@@ -1234,28 +1154,8 @@ export default function Home() {
             height: 100dvh !important; max-height: none !important; z-index: 500;
           }
           .root-frame[data-full="1"] .name-strip,
-          .root-frame[data-full="1"] .panel,
-          .root-frame[data-full="1"] .drag-hint { opacity: 0; pointer-events: none; }
+          .root-frame[data-full="1"] .panel { opacity: 0; pointer-events: none; }
 
-          /* a frosted chip over the field, not a white glow around the words */
-          .drag-hint {
-            display: flex; align-items: center; gap: 0.55rem;
-            position: absolute; left: 50%; top: 50%;
-            transform: translate(-50%, -50%); z-index: 2; pointer-events: none;
-            padding: 0.4rem 0.8rem 0.4rem 0.65rem;
-            font-size: 0.9rem; font-weight: 500; color: var(--ink); white-space: nowrap;
-            background: color-mix(in srgb, var(--bg) 62%, transparent);
-            -webkit-backdrop-filter: blur(8px) saturate(1.2); backdrop-filter: blur(8px) saturate(1.2);
-            border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
-            transition: opacity .4s;
-          }
-          .drag-track { position: relative; width: 22px; height: 10px; flex-shrink: 0; }
-          .drag-track::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px;
-            background: color-mix(in srgb, var(--ink) 35%, transparent); }
-          .drag-tip { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px;
-            background: var(--award); animation: drag-tip 1.6s cubic-bezier(.45,0,.25,1) infinite; }
-          @media (prefers-reduced-motion: reduce) { .drag-tip { animation: none; } }
-          .root-frame[data-touched="1"] .drag-hint { opacity: 0; }
 
           .pl-list a { font-size: 1.15rem !important; }
           .px-name { font-size: 1.75rem; }
@@ -1325,7 +1225,6 @@ export default function Home() {
           setWxOpen(!wxOpen)
         }}
         onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`); e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`) }}
-        onTouchStart={() => setTouched(true)}
         onTouchMove={e => { const r = e.currentTarget.getBoundingClientRect(); const t = e.touches[0]; e.currentTarget.style.setProperty('--mx', `${t.clientX - r.left}px`); e.currentTarget.style.setProperty('--my', `${t.clientY - r.top}px`) }}
         onMouseLeave={e => { e.currentTarget.style.setProperty('--mx', '-999px'); e.currentTarget.style.setProperty('--my', '-999px') }}>
         <div className="field-main" style={{ width: '100%', height: '100%', opacity: look ? 1 : 0, transition: 'opacity .6s ease' }}>
@@ -1341,7 +1240,6 @@ export default function Home() {
                 : <><polyline points="3 9 3 3 9 3" /><polyline points="21 15 21 21 15 21" /></>}
             </svg>
           </button>
-          <div className="drag-hint" aria-hidden><span className="drag-track"><span className="drag-tip" /></span>Drag here</div>
         </div>
 
         {/* field controls belong to the animation, not the nav */}
@@ -1354,24 +1252,6 @@ export default function Home() {
         }}>
           <WeatherControl override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} variant={wxVariant} />
         </div>
-
-        {/* scroll cue: a small disc in the page ink, gone once the canvas opens */}
-        <button className="scroll-cue no-open" aria-label="Scroll down" data-at={cueMode === 'pill' ? 'top' : 'cross'}
-          onClick={() => { setCueGone(true); setOpen(1) }}
-          style={{ opacity: bioDone && !cueGone ? 1 : 0, pointerEvents: bioDone && !cueGone ? 'auto' : 'none' }}>
-          {cueMode === 'mouse' ? (
-            <svg className="cue-mouse" width="14" height="20" viewBox="0 0 14 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-              <rect x="1" y="1" width="12" height="18" rx="6" />
-              <line className="wheel" x1="7" y1="5" x2="7" y2="8" strokeLinecap="round" strokeWidth="1.8" />
-            </svg>
-          ) : null}
-          Scroll
-          {cueMode !== 'mouse' && (
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <line x1="12" y1="4" x2="12" y2="19" /><polyline points="6 13 12 19 18 13" />
-            </svg>
-          )}
-        </button>
 
         {/* the layout: 2×2 windows with the copy in the bottom-left cell */}
           {(
@@ -1420,11 +1300,6 @@ export default function Home() {
           <div className="v-row"><span>Heading</span>
             {HEAD_MODES.map(v => (
               <button key={v.key} data-on={headMode === v.key ? 1 : 0} onClick={() => pickHead(v.key)}>{v.label}</button>
-            ))}
-          </div>
-          <div className="v-row"><span>Scroll</span>
-            {CUE_MODES.map(v => (
-              <button key={v.key} data-on={cueMode === v.key ? 1 : 0} onClick={() => pickCue(v.key)}>{v.label}</button>
             ))}
           </div>
           <div className="v-row"><span>Bio</span>
