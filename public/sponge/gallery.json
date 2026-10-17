@@ -651,9 +651,9 @@
   {
     "name": "Cursor",
     "category": "apps",
-    "file": "assets/apps/cursor-v13.png",
-    "preview": "assets/apps/cursor-v13-preview.png",
-    "icns": "assets/apps/cursor-v13.icns",
+    "file": "assets/apps/cursor-v14.png",
+    "preview": "assets/apps/cursor-v14-preview.png",
+    "icns": "assets/apps/cursor-v14.icns",
     "subject": "Patrick’s rock house",
     "inspiration": "Patrick’s rock house",
     "references": []
@@ -700,9 +700,9 @@
   {
     "name": "Phone",
     "category": "apps",
-    "file": "assets/apps/phone-v13.png",
-    "preview": "assets/apps/phone-v13-preview.png",
-    "icns": "assets/apps/phone-v13.icns",
+    "file": "assets/apps/phone-v14.png",
+    "preview": "assets/apps/phone-v14-preview.png",
+    "icns": "assets/apps/phone-v14.icns",
     "subject": "the Magic Conch shell",
     "inspiration": "the Magic Conch shell",
     "references": [
