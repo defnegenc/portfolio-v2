@@ -22,7 +22,7 @@
     "icns": "assets/apps/chrome-current-v4.icns",
     "inspiration": "A painted submarine porthole in Chrome colors.",
     "references": [],
-    "subject": ""
+    "subject": "a submarine porthole"
   },
   {
     "name": "Claude",
@@ -32,7 +32,7 @@
     "icns": "assets/apps/claude-sized-v5.icns",
     "inspiration": "The flower shapes in the Bikini Bottom sky.",
     "references": [],
-    "subject": ""
+    "subject": "the flowers in the Bikini Bottom sky"
   },
   {
     "name": "Conductor",
@@ -106,7 +106,7 @@
     "icns": "assets/apps/notes-sized-v5.icns",
     "inspiration": "A hand-drawn Bikini Bottom notepad and pencil.",
     "references": [],
-    "subject": ""
+    "subject": "a Bikini Bottom notepad"
   },
   {
     "name": "Obsidian",
@@ -165,7 +165,7 @@
     "icns": "assets/apps/settings-sized-v5.icns",
     "inspiration": "A submarine porthole and mechanical gears.",
     "references": [],
-    "subject": ""
+    "subject": "nautical gears"
   },
   {
     "name": "Spotify",
@@ -190,7 +190,7 @@
     "icns": "assets/apps/terminal-sized-v5.icns",
     "inspiration": "A retro underwater computer monitor.",
     "references": [],
-    "subject": ""
+    "subject": "an underwater computer monitor"
   },
   {
     "name": "Jellyfish Net Trash",
@@ -200,7 +200,7 @@
     "icns": "assets/apps/trash-jellyfish-net-sized-v5.icns",
     "inspiration": "A jellyfishing net.",
     "references": [],
-    "subject": ""
+    "subject": "a jellyfishing net"
   },
   {
     "name": "Rustic Trash",
@@ -210,7 +210,7 @@
     "icns": "assets/apps/trash-rustic-bin-current-v4.icns",
     "inspiration": "The blue, rope-handled underwater trash can. Exact episode for the supplied reference shot is not yet confirmed.",
     "references": [],
-    "subject": ""
+    "subject": "the underwater trash can"
   },
   {
     "name": "Wispr Flow",
@@ -220,7 +220,7 @@
     "icns": "assets/apps/wispr-flow-current-v4.icns",
     "inspiration": "Underwater kelp and little sea plants.",
     "references": [],
-    "subject": ""
+    "subject": "underwater kelp"
   },
   {
     "name": "Bold And Brash Green",
@@ -260,7 +260,7 @@
     "icns": null,
     "inspiration": "Warm-colored underwater coral.",
     "references": [],
-    "subject": ""
+    "subject": "coral"
   },
   {
     "name": "Flower",
@@ -270,7 +270,7 @@
     "icns": null,
     "inspiration": "The flower silhouettes in the Bikini Bottom sky.",
     "references": [],
-    "subject": ""
+    "subject": "the flowers in the Bikini Bottom sky"
   },
   {
     "name": "Halloween Pumpkin",
@@ -280,7 +280,7 @@
     "icns": null,
     "inspiration": "Halloween pumpkins and underwater spookiness.",
     "references": [],
-    "subject": ""
+    "subject": "Halloween pumpkins"
   },
   {
     "name": "Jellyfish Pink",
@@ -290,7 +290,7 @@
     "icns": null,
     "inspiration": "Pink jellyfish from Jellyfish Fields.",
     "references": [],
-    "subject": ""
+    "subject": "the jellyfish"
   },
   {
     "name": "Porthole",
@@ -300,7 +300,7 @@
     "icns": null,
     "inspiration": "A round nautical porthole.",
     "references": [],
-    "subject": ""
+    "subject": "a nautical porthole"
   },
   {
     "name": "Sea Urchin Purple",
@@ -310,7 +310,7 @@
     "icns": null,
     "inspiration": "Purple sea urchins.",
     "references": [],
-    "subject": ""
+    "subject": "sea urchins"
   },
   {
     "name": "Seashell",
@@ -320,7 +320,7 @@
     "icns": null,
     "inspiration": "A pearly underwater seashell.",
     "references": [],
-    "subject": ""
+    "subject": "seashells"
   },
   {
     "name": "Morning Dew",
@@ -332,7 +332,7 @@
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in morning light.",
     "references": [],
-    "subject": ""
+    "subject": "Bikini Bottom"
   },
   {
     "name": "Sb129 Painted",
@@ -344,7 +344,7 @@
     "season": "everyday",
     "inspiration": "The chrome future in SB-129, reimagined in day light.",
     "references": [],
-    "subject": ""
+    "subject": "the chrome future in SB-129"
   },
   {
     "name": "Town Night",
@@ -356,7 +356,7 @@
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in night light.",
     "references": [],
-    "subject": ""
+    "subject": "Bikini Bottom"
   },
   {
     "name": "Day",
@@ -368,7 +368,7 @@
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in day light.",
     "references": [],
-    "subject": ""
+    "subject": "Bikini Bottom"
   },
   {
     "name": "Goo Lagoon Guava Sunset",
@@ -380,7 +380,7 @@
     "season": "everyday",
     "inspiration": "Goo Lagoon, reimagined in sunset light.",
     "references": [],
-    "subject": ""
+    "subject": "Goo Lagoon"
   },
   {
     "name": "Halloween Conch Street",
@@ -392,7 +392,7 @@
     "season": "halloween",
     "inspiration": "Conch Street with Halloween decorations.",
     "references": [],
-    "subject": ""
+    "subject": "Conch Street"
   },
   {
     "name": "Halloween Conch Street Scenic",
@@ -404,7 +404,7 @@
     "season": "halloween",
     "inspiration": "Conch Street with Halloween decorations.",
     "references": [],
-    "subject": ""
+    "subject": "Conch Street"
   },
   {
     "name": "Halloween Goo Lagoon",
@@ -416,7 +416,7 @@
     "season": "halloween",
     "inspiration": "Goo Lagoon with Halloween decorations.",
     "references": [],
-    "subject": ""
+    "subject": "Goo Lagoon"
   },
   {
     "name": "Halloween Jellyfish Fields",
@@ -428,7 +428,7 @@
     "season": "halloween",
     "inspiration": "Jellyfish Fields with Halloween decorations.",
     "references": [],
-    "subject": ""
+    "subject": "Jellyfish Fields"
   },
   {
     "name": "Halloween Krusty Krab",
@@ -440,7 +440,7 @@
     "season": "halloween",
     "inspiration": "The Krusty Krab with Halloween decorations.",
     "references": [],
-    "subject": ""
+    "subject": "the Krusty Krab"
   },
   {
     "name": "Jellyfish Fields Blue Hour",
@@ -452,7 +452,7 @@
     "season": "everyday",
     "inspiration": "Jellyfish Fields, reimagined in night light.",
     "references": [],
-    "subject": ""
+    "subject": "Jellyfish Fields"
   },
   {
     "name": "Jellyfish Fields Sunset",
@@ -464,7 +464,7 @@
     "season": "everyday",
     "inspiration": "Jellyfish Fields, reimagined in sunset light.",
     "references": [],
-    "subject": ""
+    "subject": "Jellyfish Fields"
   },
   {
     "name": "Krusty Krab Twilight",
@@ -476,7 +476,7 @@
     "season": "everyday",
     "inspiration": "The Krusty Krab, reimagined in sunset light.",
     "references": [],
-    "subject": ""
+    "subject": "the Krusty Krab"
   },
   {
     "name": "Morning",
@@ -488,7 +488,7 @@
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in morning light.",
     "references": [],
-    "subject": ""
+    "subject": "Bikini Bottom"
   },
   {
     "name": "Night",
@@ -500,7 +500,7 @@
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in night light.",
     "references": [],
-    "subject": ""
+    "subject": "Bikini Bottom"
   },
   {
     "name": "Sunset",
@@ -512,7 +512,7 @@
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in sunset light.",
     "references": [],
-    "subject": ""
+    "subject": "Bikini Bottom"
   },
   {
     "name": "Painted Portholes · Day",
@@ -524,7 +524,7 @@
     "season": "everyday",
     "inspiration": "A shared underwater view through portholes, reimagined in day light.",
     "references": [],
-    "subject": ""
+    "subject": "underwater portholes"
   },
   {
     "name": "Music",
@@ -534,7 +534,7 @@
     "icns": "assets/apps/music-current-v4.icns",
     "inspiration": "Glowing jellyfish shaped into a music note.",
     "references": [],
-    "subject": ""
+    "subject": "the jellyfish"
   },
   {
     "name": "Photos",
@@ -544,7 +544,7 @@
     "icns": "assets/apps/photos-sized-v5.icns",
     "inspiration": "Bikini Bottom sky flowers in the Photos rainbow.",
     "references": [],
-    "subject": ""
+    "subject": "the flowers in the Bikini Bottom sky"
   },
   {
     "name": "Mail",
@@ -626,6 +626,6 @@
     "icns": "assets/apps/app-store-final-v7.icns",
     "inspiration": "The App Store A built from three bamboo poles, inspired by Bikini Bottom interiors.",
     "references": [],
-    "subject": ""
+    "subject": "Bikini Bottom bamboo"
   }
 ]
