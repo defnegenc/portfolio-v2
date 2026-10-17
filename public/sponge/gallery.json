@@ -1,1 +1,565 @@
-[{"name": "ChatGPT", "category": "apps", "file": "assets/apps/chatgpt-current-v4.png", "preview": "assets/apps/chatgpt-current-v4-preview.png", "icns": "assets/apps/chatgpt-current-v4.icns"}, {"name": "Chrome", "category": "apps", "file": "assets/apps/chrome-current-v4.png", "preview": "assets/apps/chrome-current-v4-preview.png", "icns": "assets/apps/chrome-current-v4.icns"}, {"name": "Claude", "category": "apps", "file": "assets/apps/claude-current-v4.png", "preview": "assets/apps/claude-current-v4-preview.png", "icns": "assets/apps/claude-current-v4.icns"}, {"name": "Conductor", "category": "apps", "file": "assets/apps/conductor-current-v4.png", "preview": "assets/apps/conductor-current-v4-preview.png", "icns": "assets/apps/conductor-current-v4.icns"}, {"name": "Figma", "category": "apps", "file": "assets/apps/figma-current-v4.png", "preview": "assets/apps/figma-current-v4-preview.png", "icns": "assets/apps/figma-current-v4.icns"}, {"name": "Finder", "category": "apps", "file": "assets/apps/finder-current-v4.png", "preview": "assets/apps/finder-current-v4-preview.png", "icns": "assets/apps/finder-current-v4.icns"}, {"name": "Messages", "category": "apps", "file": "assets/apps/messages-current-v4.png", "preview": "assets/apps/messages-current-v4-preview.png", "icns": "assets/apps/messages-current-v4.icns"}, {"name": "Notes", "category": "apps", "file": "assets/apps/notes-current-v4.png", "preview": "assets/apps/notes-current-v4-preview.png", "icns": "assets/apps/notes-current-v4.icns"}, {"name": "Obsidian", "category": "apps", "file": "assets/apps/obsidian-current-v4.png", "preview": "assets/apps/obsidian-current-v4-preview.png", "icns": "assets/apps/obsidian-current-v4.icns"}, {"name": "Paper", "category": "apps", "file": "assets/apps/paper-current-v4.png", "preview": "assets/apps/paper-current-v4-preview.png", "icns": "assets/apps/paper-current-v4.icns"}, {"name": "Safari", "category": "apps", "file": "assets/apps/safari-current-v4.png", "preview": "assets/apps/safari-current-v4-preview.png", "icns": "assets/apps/safari-current-v4.icns"}, {"name": "System Settings", "category": "apps", "file": "assets/apps/settings-current-v4.png", "preview": "assets/apps/settings-current-v4-preview.png", "icns": "assets/apps/settings-current-v4.icns"}, {"name": "Spotify", "category": "apps", "file": "assets/apps/spotify-current-v4.png", "preview": "assets/apps/spotify-current-v4-preview.png", "icns": "assets/apps/spotify-current-v4.icns"}, {"name": "Terminal", "category": "apps", "file": "assets/apps/terminal-current-v4.png", "preview": "assets/apps/terminal-current-v4-preview.png", "icns": "assets/apps/terminal-current-v4.icns"}, {"name": "Jellyfish Net Trash", "category": "apps", "file": "assets/apps/trash-jellyfish-net-current-v4.png", "preview": "assets/apps/trash-jellyfish-net-current-v4-preview.png", "icns": "assets/apps/trash-jellyfish-net-current-v4.icns"}, {"name": "Rustic Trash", "category": "apps", "file": "assets/apps/trash-rustic-bin-current-v4.png", "preview": "assets/apps/trash-rustic-bin-current-v4-preview.png", "icns": "assets/apps/trash-rustic-bin-current-v4.icns"}, {"name": "Wispr Flow", "category": "apps", "file": "assets/apps/wispr-flow-current-v4.png", "preview": "assets/apps/wispr-flow-current-v4-preview.png", "icns": "assets/apps/wispr-flow-current-v4.icns"}, {"name": "Bold And Brash Green", "category": "folders", "file": "assets/folders/bold-and-brash-green.png", "preview": "assets/folders/bold-and-brash-green-preview.png", "icns": null}, {"name": "Bubbles Blue", "category": "folders", "file": "assets/folders/bubbles-blue.png", "preview": "assets/folders/bubbles-blue-preview.png", "icns": null}, {"name": "Coral Salmon", "category": "folders", "file": "assets/folders/coral-salmon.png", "preview": "assets/folders/coral-salmon-preview.png", "icns": null}, {"name": "Flower", "category": "folders", "file": "assets/folders/flower.png", "preview": "assets/folders/flower-preview.png", "icns": null}, {"name": "Halloween Pumpkin", "category": "folders", "file": "assets/folders/halloween-pumpkin.png", "preview": "assets/folders/halloween-pumpkin-preview.png", "icns": null}, {"name": "Jellyfish Pink", "category": "folders", "file": "assets/folders/jellyfish-pink.png", "preview": "assets/folders/jellyfish-pink-preview.png", "icns": null}, {"name": "Porthole", "category": "folders", "file": "assets/folders/porthole.png", "preview": "assets/folders/porthole-preview.png", "icns": null}, {"name": "Sea Urchin Purple", "category": "folders", "file": "assets/folders/sea-urchin-purple.png", "preview": "assets/folders/sea-urchin-purple-preview.png", "icns": null}, {"name": "Seashell", "category": "folders", "file": "assets/folders/seashell.png", "preview": "assets/folders/seashell-preview.png", "icns": null}, {"name": "Morning Dew", "category": "wallpapers", "file": "assets/wallpapers/bikini-bottom-morning-dew-4k.jpg", "preview": "assets/wallpapers/bikini-bottom-morning-dew-4k-preview.jpg", "icns": null, "time": "morning", "season": "everyday"}, {"name": "Sb129 Painted", "category": "wallpapers", "file": "assets/wallpapers/bikini-bottom-sb129-painted-4k.jpg", "preview": "assets/wallpapers/bikini-bottom-sb129-painted-4k-preview.jpg", "icns": null, "time": "day", "season": "everyday"}, {"name": "Town Night", "category": "wallpapers", "file": "assets/wallpapers/bikini-bottom-town-night-4k.jpg", "preview": "assets/wallpapers/bikini-bottom-town-night-4k-preview.jpg", "icns": null, "time": "night", "season": "everyday"}, {"name": "Day", "category": "wallpapers", "file": "assets/wallpapers/day-4k.jpg", "preview": "assets/wallpapers/day-4k-preview.jpg", "icns": null, "time": "day", "season": "everyday"}, {"name": "Goo Lagoon Guava Sunset", "category": "wallpapers", "file": "assets/wallpapers/goo-lagoon-guava-sunset-4k.jpg", "preview": "assets/wallpapers/goo-lagoon-guava-sunset-4k-preview.jpg", "icns": null, "time": "sunset", "season": "everyday"}, {"name": "Halloween Conch Street", "category": "wallpapers", "file": "assets/wallpapers/halloween-conch-street-4k.jpg", "preview": "assets/wallpapers/halloween-conch-street-4k-preview.jpg", "icns": null, "time": "night", "season": "halloween"}, {"name": "Halloween Conch Street Scenic", "category": "wallpapers", "file": "assets/wallpapers/halloween-conch-street-scenic-4k.jpg", "preview": "assets/wallpapers/halloween-conch-street-scenic-4k-preview.jpg", "icns": null, "time": "night", "season": "halloween"}, {"name": "Halloween Goo Lagoon", "category": "wallpapers", "file": "assets/wallpapers/halloween-goo-lagoon-4k.jpg", "preview": "assets/wallpapers/halloween-goo-lagoon-4k-preview.jpg", "icns": null, "time": "night", "season": "halloween"}, {"name": "Halloween Jellyfish Fields", "category": "wallpapers", "file": "assets/wallpapers/halloween-jellyfish-fields-4k.jpg", "preview": "assets/wallpapers/halloween-jellyfish-fields-4k-preview.jpg", "icns": null, "time": "sunset", "season": "halloween"}, {"name": "Halloween Krusty Krab", "category": "wallpapers", "file": "assets/wallpapers/halloween-krusty-krab-4k.jpg", "preview": "assets/wallpapers/halloween-krusty-krab-4k-preview.jpg", "icns": null, "time": "sunset", "season": "halloween"}, {"name": "Jellyfish Fields Blue Hour", "category": "wallpapers", "file": "assets/wallpapers/jellyfish-fields-blue-hour-4k.jpg", "preview": "assets/wallpapers/jellyfish-fields-blue-hour-4k-preview.jpg", "icns": null, "time": "night", "season": "everyday"}, {"name": "Jellyfish Fields Sunset", "category": "wallpapers", "file": "assets/wallpapers/jellyfish-fields-sunset-4k.jpg", "preview": "assets/wallpapers/jellyfish-fields-sunset-4k-preview.jpg", "icns": null, "time": "sunset", "season": "everyday"}, {"name": "Krusty Krab Twilight", "category": "wallpapers", "file": "assets/wallpapers/krusty-krab-twilight-4k.jpg", "preview": "assets/wallpapers/krusty-krab-twilight-4k-preview.jpg", "icns": null, "time": "sunset", "season": "everyday"}, {"name": "Morning", "category": "wallpapers", "file": "assets/wallpapers/morning-4k.jpg", "preview": "assets/wallpapers/morning-4k-preview.jpg", "icns": null, "time": "morning", "season": "everyday"}, {"name": "Night", "category": "wallpapers", "file": "assets/wallpapers/night-4k.jpg", "preview": "assets/wallpapers/night-4k-preview.jpg", "icns": null, "time": "night", "season": "everyday"}, {"name": "Sunset", "category": "wallpapers", "file": "assets/wallpapers/sunset-4k.jpg", "preview": "assets/wallpapers/sunset-4k-preview.jpg", "icns": null, "time": "sunset", "season": "everyday"}, {"name": "Painted Portholes \u00b7 Day", "category": "wallpapers", "file": "assets/wallpapers/portholes-painted-day-4k.jpg", "preview": "assets/wallpapers/portholes-painted-day-preview.jpg", "icns": null, "time": "day", "season": "everyday"}, {"name": "Music", "category": "apps", "file": "assets/apps/music-current-v4.png", "preview": "assets/apps/music-current-v4-preview.png", "icns": "assets/apps/music-current-v4.icns"}, {"name": "Photos", "category": "apps", "file": "assets/apps/photos-current-v4.png", "preview": "assets/apps/photos-current-v4-preview.png", "icns": "assets/apps/photos-current-v4.icns"}, {"name": "Mail", "category": "apps", "file": "assets/apps/mail-current-v4.png", "preview": "assets/apps/mail-current-v4-preview.png", "icns": "assets/apps/mail-current-v4.icns"}, {"name": "Calendar", "category": "apps", "file": "assets/apps/calendar-current-v4.png", "preview": "assets/apps/calendar-current-v4-preview.png", "icns": "assets/apps/calendar-current-v4.icns"}, {"name": "Maps", "category": "apps", "file": "assets/apps/maps-current-v4.png", "preview": "assets/apps/maps-current-v4-preview.png", "icns": "assets/apps/maps-current-v4.icns"}]
+[
+  {
+    "name": "ChatGPT",
+    "category": "apps",
+    "file": "assets/apps/chatgpt-current-v4.png",
+    "preview": "assets/apps/chatgpt-current-v4-preview.png",
+    "icns": "assets/apps/chatgpt-current-v4.icns",
+    "inspiration": "The all-chrome future in SB-129.",
+    "references": [
+      {
+        "label": "SB-129",
+        "url": "https://spongebob.fandom.com/wiki/SB-129"
+      }
+    ]
+  },
+  {
+    "name": "Chrome",
+    "category": "apps",
+    "file": "assets/apps/chrome-current-v4.png",
+    "preview": "assets/apps/chrome-current-v4-preview.png",
+    "icns": "assets/apps/chrome-current-v4.icns",
+    "inspiration": "A painted submarine porthole in Chrome colors.",
+    "references": []
+  },
+  {
+    "name": "Claude",
+    "category": "apps",
+    "file": "assets/apps/claude-sized-v5.png",
+    "preview": "assets/apps/claude-sized-v5-preview.png",
+    "icns": "assets/apps/claude-sized-v5.icns",
+    "inspiration": "The flower shapes in the Bikini Bottom sky.",
+    "references": []
+  },
+  {
+    "name": "Conductor",
+    "category": "apps",
+    "file": "assets/apps/conductor-current-v4.png",
+    "preview": "assets/apps/conductor-current-v4-preview.png",
+    "icns": "assets/apps/conductor-current-v4.icns",
+    "inspiration": "The Krabby Patty secret formula bottle.",
+    "references": [
+      {
+        "label": "Plankton’s Army (bottle variant)",
+        "url": "https://spongebob.fandom.com/wiki/Plankton%27s_Army"
+      },
+      {
+        "label": "Sponge Out of Water (2015)",
+        "url": "https://spongebob.fandom.com/wiki/The_SpongeBob_Movie%3A_Sponge_Out_of_Water/transcript"
+      }
+    ]
+  },
+  {
+    "name": "Figma",
+    "category": "apps",
+    "file": "assets/apps/figma-current-v4.png",
+    "preview": "assets/apps/figma-current-v4-preview.png",
+    "icns": "assets/apps/figma-current-v4.icns",
+    "inspiration": "Iridescent soap bubbles, one for each Figma color.",
+    "references": [
+      {
+        "label": "Bubblestand",
+        "url": "https://spongebob.fandom.com/wiki/Bubblestand"
+      }
+    ]
+  },
+  {
+    "name": "Finder",
+    "category": "apps",
+    "file": "assets/apps/finder-sized-v5.png",
+    "preview": "assets/apps/finder-sized-v5-preview.png",
+    "icns": "assets/apps/finder-sized-v5.icns",
+    "inspiration": "Squidward’s blue stone house.",
+    "references": [
+      {
+        "label": "Bubblestand (house appearance)",
+        "url": "https://spongebob.fandom.com/wiki/Bubblestand"
+      }
+    ]
+  },
+  {
+    "name": "Messages",
+    "category": "apps",
+    "file": "assets/apps/messages-current-v4.png",
+    "preview": "assets/apps/messages-current-v4-preview.png",
+    "icns": "assets/apps/messages-current-v4.icns",
+    "inspiration": "The Flying Dutchman’s weathered ship and ghostly glow.",
+    "references": [
+      {
+        "label": "Shanghaied (style reference)",
+        "url": "https://spongebob.fandom.com/wiki/Shanghaied"
+      }
+    ]
+  },
+  {
+    "name": "Notes",
+    "category": "apps",
+    "file": "assets/apps/notes-sized-v5.png",
+    "preview": "assets/apps/notes-sized-v5-preview.png",
+    "icns": "assets/apps/notes-sized-v5.icns",
+    "inspiration": "A hand-drawn Bikini Bottom notepad and pencil.",
+    "references": []
+  },
+  {
+    "name": "Obsidian",
+    "category": "apps",
+    "file": "assets/apps/obsidian-current-v4.png",
+    "preview": "assets/apps/obsidian-current-v4-preview.png",
+    "icns": "assets/apps/obsidian-current-v4.icns",
+    "inspiration": "The boulder from Pizza Delivery, reinterpreted as an obsidian crystal.",
+    "references": [
+      {
+        "label": "Pizza Delivery",
+        "url": "https://spongebob.fandom.com/wiki/Pizza_Delivery"
+      }
+    ]
+  },
+  {
+    "name": "Paper",
+    "category": "apps",
+    "file": "assets/apps/paper-current-v4.png",
+    "preview": "assets/apps/paper-current-v4-preview.png",
+    "icns": "assets/apps/paper-current-v4.icns",
+    "inspiration": "The Bikini Times newspaper.",
+    "references": [
+      {
+        "label": "Party Pooper Pants / Pranks a Lot",
+        "url": "https://spongebob.fandom.com/wiki/List_of_media_in_SpongeBob_SquarePants"
+      }
+    ]
+  },
+  {
+    "name": "Safari",
+    "category": "apps",
+    "file": "assets/apps/safari-current-v4.png",
+    "preview": "assets/apps/safari-current-v4-preview.png",
+    "icns": "assets/apps/safari-current-v4.icns",
+    "inspiration": "The nautical compass that points “Weast.”",
+    "references": [
+      {
+        "label": "Arrgh!",
+        "url": "https://spongebob.fandom.com/wiki/Arrgh%21/transcript"
+      }
+    ]
+  },
+  {
+    "name": "System Settings",
+    "category": "apps",
+    "file": "assets/apps/settings-sized-v5.png",
+    "preview": "assets/apps/settings-sized-v5-preview.png",
+    "icns": "assets/apps/settings-sized-v5.icns",
+    "inspiration": "A submarine porthole and mechanical gears.",
+    "references": []
+  },
+  {
+    "name": "Spotify",
+    "category": "apps",
+    "file": "assets/apps/spotify-current-v4.png",
+    "preview": "assets/apps/spotify-current-v4-preview.png",
+    "icns": "assets/apps/spotify-current-v4.icns",
+    "inspiration": "The Flying Dutchman’s green glow and wooden ship.",
+    "references": [
+      {
+        "label": "Shanghaied",
+        "url": "https://spongebob.fandom.com/wiki/Shanghaied"
+      }
+    ]
+  },
+  {
+    "name": "Terminal",
+    "category": "apps",
+    "file": "assets/apps/terminal-sized-v5.png",
+    "preview": "assets/apps/terminal-sized-v5-preview.png",
+    "icns": "assets/apps/terminal-sized-v5.icns",
+    "inspiration": "A retro underwater computer monitor.",
+    "references": []
+  },
+  {
+    "name": "Jellyfish Net Trash",
+    "category": "apps",
+    "file": "assets/apps/trash-jellyfish-net-sized-v5.png",
+    "preview": "assets/apps/trash-jellyfish-net-sized-v5-preview.png",
+    "icns": "assets/apps/trash-jellyfish-net-sized-v5.icns",
+    "inspiration": "A jellyfishing net.",
+    "references": []
+  },
+  {
+    "name": "Rustic Trash",
+    "category": "apps",
+    "file": "assets/apps/trash-rustic-bin-current-v4.png",
+    "preview": "assets/apps/trash-rustic-bin-current-v4-preview.png",
+    "icns": "assets/apps/trash-rustic-bin-current-v4.icns",
+    "inspiration": "The blue, rope-handled underwater trash can. Exact episode for the supplied reference shot is not yet confirmed.",
+    "references": []
+  },
+  {
+    "name": "Wispr Flow",
+    "category": "apps",
+    "file": "assets/apps/wispr-flow-current-v4.png",
+    "preview": "assets/apps/wispr-flow-current-v4-preview.png",
+    "icns": "assets/apps/wispr-flow-current-v4.icns",
+    "inspiration": "Underwater kelp and little sea plants.",
+    "references": []
+  },
+  {
+    "name": "Bold And Brash Green",
+    "category": "folders",
+    "file": "assets/folders/bold-and-brash-green.png",
+    "preview": "assets/folders/bold-and-brash-green-preview.png",
+    "icns": null,
+    "inspiration": "Squidward’s Bold and Brash painting.",
+    "references": [
+      {
+        "label": "Artist Unknown",
+        "url": "https://spongebob.fandom.com/wiki/Bold_and_Brash"
+      }
+    ]
+  },
+  {
+    "name": "Bubbles Blue",
+    "category": "folders",
+    "file": "assets/folders/bubbles-blue.png",
+    "preview": "assets/folders/bubbles-blue-preview.png",
+    "icns": null,
+    "inspiration": "Floating soap bubbles.",
+    "references": [
+      {
+        "label": "Bubblestand",
+        "url": "https://spongebob.fandom.com/wiki/Bubblestand"
+      }
+    ]
+  },
+  {
+    "name": "Coral Salmon",
+    "category": "folders",
+    "file": "assets/folders/coral-salmon.png",
+    "preview": "assets/folders/coral-salmon-preview.png",
+    "icns": null,
+    "inspiration": "Warm-colored underwater coral.",
+    "references": []
+  },
+  {
+    "name": "Flower",
+    "category": "folders",
+    "file": "assets/folders/flower.png",
+    "preview": "assets/folders/flower-preview.png",
+    "icns": null,
+    "inspiration": "The flower silhouettes in the Bikini Bottom sky.",
+    "references": []
+  },
+  {
+    "name": "Halloween Pumpkin",
+    "category": "folders",
+    "file": "assets/folders/halloween-pumpkin.png",
+    "preview": "assets/folders/halloween-pumpkin-preview.png",
+    "icns": null,
+    "inspiration": "Halloween pumpkins and underwater spookiness.",
+    "references": []
+  },
+  {
+    "name": "Jellyfish Pink",
+    "category": "folders",
+    "file": "assets/folders/jellyfish-pink.png",
+    "preview": "assets/folders/jellyfish-pink-preview.png",
+    "icns": null,
+    "inspiration": "Pink jellyfish from Jellyfish Fields.",
+    "references": []
+  },
+  {
+    "name": "Porthole",
+    "category": "folders",
+    "file": "assets/folders/porthole.png",
+    "preview": "assets/folders/porthole-preview.png",
+    "icns": null,
+    "inspiration": "A round nautical porthole.",
+    "references": []
+  },
+  {
+    "name": "Sea Urchin Purple",
+    "category": "folders",
+    "file": "assets/folders/sea-urchin-purple.png",
+    "preview": "assets/folders/sea-urchin-purple-preview.png",
+    "icns": null,
+    "inspiration": "Purple sea urchins.",
+    "references": []
+  },
+  {
+    "name": "Seashell",
+    "category": "folders",
+    "file": "assets/folders/seashell.png",
+    "preview": "assets/folders/seashell-preview.png",
+    "icns": null,
+    "inspiration": "A pearly underwater seashell.",
+    "references": []
+  },
+  {
+    "name": "Morning Dew",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/bikini-bottom-morning-dew-4k.jpg",
+    "preview": "assets/wallpapers/bikini-bottom-morning-dew-4k-preview.jpg",
+    "icns": null,
+    "time": "morning",
+    "season": "everyday",
+    "inspiration": "The painted world of Bikini Bottom, reimagined in morning light.",
+    "references": []
+  },
+  {
+    "name": "Sb129 Painted",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/bikini-bottom-sb129-painted-4k.jpg",
+    "preview": "assets/wallpapers/bikini-bottom-sb129-painted-4k-preview.jpg",
+    "icns": null,
+    "time": "day",
+    "season": "everyday",
+    "inspiration": "The chrome future in SB-129, reimagined in day light.",
+    "references": []
+  },
+  {
+    "name": "Town Night",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/bikini-bottom-town-night-4k.jpg",
+    "preview": "assets/wallpapers/bikini-bottom-town-night-4k-preview.jpg",
+    "icns": null,
+    "time": "night",
+    "season": "everyday",
+    "inspiration": "The painted world of Bikini Bottom, reimagined in night light.",
+    "references": []
+  },
+  {
+    "name": "Day",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/day-4k.jpg",
+    "preview": "assets/wallpapers/day-4k-preview.jpg",
+    "icns": null,
+    "time": "day",
+    "season": "everyday",
+    "inspiration": "The painted world of Bikini Bottom, reimagined in day light.",
+    "references": []
+  },
+  {
+    "name": "Goo Lagoon Guava Sunset",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/goo-lagoon-guava-sunset-4k.jpg",
+    "preview": "assets/wallpapers/goo-lagoon-guava-sunset-4k-preview.jpg",
+    "icns": null,
+    "time": "sunset",
+    "season": "everyday",
+    "inspiration": "Goo Lagoon, reimagined in sunset light.",
+    "references": []
+  },
+  {
+    "name": "Halloween Conch Street",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/halloween-conch-street-4k.jpg",
+    "preview": "assets/wallpapers/halloween-conch-street-4k-preview.jpg",
+    "icns": null,
+    "time": "night",
+    "season": "halloween",
+    "inspiration": "Conch Street with Halloween decorations.",
+    "references": []
+  },
+  {
+    "name": "Halloween Conch Street Scenic",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/halloween-conch-street-scenic-4k.jpg",
+    "preview": "assets/wallpapers/halloween-conch-street-scenic-4k-preview.jpg",
+    "icns": null,
+    "time": "night",
+    "season": "halloween",
+    "inspiration": "Conch Street with Halloween decorations.",
+    "references": []
+  },
+  {
+    "name": "Halloween Goo Lagoon",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/halloween-goo-lagoon-4k.jpg",
+    "preview": "assets/wallpapers/halloween-goo-lagoon-4k-preview.jpg",
+    "icns": null,
+    "time": "night",
+    "season": "halloween",
+    "inspiration": "Goo Lagoon with Halloween decorations.",
+    "references": []
+  },
+  {
+    "name": "Halloween Jellyfish Fields",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/halloween-jellyfish-fields-4k.jpg",
+    "preview": "assets/wallpapers/halloween-jellyfish-fields-4k-preview.jpg",
+    "icns": null,
+    "time": "sunset",
+    "season": "halloween",
+    "inspiration": "Jellyfish Fields with Halloween decorations.",
+    "references": []
+  },
+  {
+    "name": "Halloween Krusty Krab",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/halloween-krusty-krab-4k.jpg",
+    "preview": "assets/wallpapers/halloween-krusty-krab-4k-preview.jpg",
+    "icns": null,
+    "time": "sunset",
+    "season": "halloween",
+    "inspiration": "The Krusty Krab with Halloween decorations.",
+    "references": []
+  },
+  {
+    "name": "Jellyfish Fields Blue Hour",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/jellyfish-fields-blue-hour-4k.jpg",
+    "preview": "assets/wallpapers/jellyfish-fields-blue-hour-4k-preview.jpg",
+    "icns": null,
+    "time": "night",
+    "season": "everyday",
+    "inspiration": "Jellyfish Fields, reimagined in night light.",
+    "references": []
+  },
+  {
+    "name": "Jellyfish Fields Sunset",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/jellyfish-fields-sunset-4k.jpg",
+    "preview": "assets/wallpapers/jellyfish-fields-sunset-4k-preview.jpg",
+    "icns": null,
+    "time": "sunset",
+    "season": "everyday",
+    "inspiration": "Jellyfish Fields, reimagined in sunset light.",
+    "references": []
+  },
+  {
+    "name": "Krusty Krab Twilight",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/krusty-krab-twilight-4k.jpg",
+    "preview": "assets/wallpapers/krusty-krab-twilight-4k-preview.jpg",
+    "icns": null,
+    "time": "sunset",
+    "season": "everyday",
+    "inspiration": "The Krusty Krab, reimagined in sunset light.",
+    "references": []
+  },
+  {
+    "name": "Morning",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/morning-4k.jpg",
+    "preview": "assets/wallpapers/morning-4k-preview.jpg",
+    "icns": null,
+    "time": "morning",
+    "season": "everyday",
+    "inspiration": "The painted world of Bikini Bottom, reimagined in morning light.",
+    "references": []
+  },
+  {
+    "name": "Night",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/night-4k.jpg",
+    "preview": "assets/wallpapers/night-4k-preview.jpg",
+    "icns": null,
+    "time": "night",
+    "season": "everyday",
+    "inspiration": "The painted world of Bikini Bottom, reimagined in night light.",
+    "references": []
+  },
+  {
+    "name": "Sunset",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/sunset-4k.jpg",
+    "preview": "assets/wallpapers/sunset-4k-preview.jpg",
+    "icns": null,
+    "time": "sunset",
+    "season": "everyday",
+    "inspiration": "The painted world of Bikini Bottom, reimagined in sunset light.",
+    "references": []
+  },
+  {
+    "name": "Painted Portholes · Day",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/portholes-painted-day-4k.jpg",
+    "preview": "assets/wallpapers/portholes-painted-day-preview.jpg",
+    "icns": null,
+    "time": "day",
+    "season": "everyday",
+    "inspiration": "A shared underwater view through portholes, reimagined in day light.",
+    "references": []
+  },
+  {
+    "name": "Music",
+    "category": "apps",
+    "file": "assets/apps/music-current-v4.png",
+    "preview": "assets/apps/music-current-v4-preview.png",
+    "icns": "assets/apps/music-current-v4.icns",
+    "inspiration": "Glowing jellyfish shaped into a music note.",
+    "references": []
+  },
+  {
+    "name": "Photos",
+    "category": "apps",
+    "file": "assets/apps/photos-sized-v5.png",
+    "preview": "assets/apps/photos-sized-v5-preview.png",
+    "icns": "assets/apps/photos-sized-v5.icns",
+    "inspiration": "Bikini Bottom sky flowers in the Photos rainbow.",
+    "references": []
+  },
+  {
+    "name": "Mail",
+    "category": "apps",
+    "file": "assets/apps/mail-current-v4.png",
+    "preview": "assets/apps/mail-current-v4-preview.png",
+    "icns": "assets/apps/mail-current-v4.icns",
+    "inspiration": "SpongeBob’s mailbox and a sealed letter.",
+    "references": [
+      {
+        "label": "Chocolate with Nuts",
+        "url": "https://spongebob.fandom.com/wiki/Chocolate_with_Nuts/transcript"
+      }
+    ]
+  },
+  {
+    "name": "Calendar",
+    "category": "apps",
+    "file": "assets/apps/calendar-current-v4.png",
+    "preview": "assets/apps/calendar-current-v4-preview.png",
+    "icns": "assets/apps/calendar-current-v4.icns",
+    "inspiration": "The March 7 calendar marking the grand opening of the Krusty Krab 2 in the 2004 movie.",
+    "references": [
+      {
+        "label": "The SpongeBob SquarePants Movie (2004)",
+        "url": "https://spongebob.fandom.com/wiki/The_SpongeBob_SquarePants_Movie/transcript"
+      }
+    ]
+  },
+  {
+    "name": "Maps",
+    "category": "apps",
+    "file": "assets/apps/maps-episode-v6.png",
+    "preview": "assets/apps/maps-episode-v6-preview.png",
+    "icns": "assets/apps/maps-episode-v6.icns",
+    "inspiration": "The Flying Dutchman treasure-hunt board from Arrgh!, with black paths, a blue border and raised landmarks.",
+    "references": [
+      {
+        "label": "Arrgh!",
+        "url": "https://spongebob.fandom.com/wiki/Arrgh%21/transcript"
+      }
+    ]
+  },
+  {
+    "name": "News",
+    "category": "apps",
+    "file": "assets/apps/news-final-v7.png",
+    "preview": "assets/apps/news-final-v7-preview.png",
+    "icns": "assets/apps/news-final-v7.icns",
+    "references": [
+      {
+        "label": "No Free Rides / The Smoking Peanut / Procrastination / Nasty Patty",
+        "url": "https://spongebob.fandom.com/wiki/Bikini_Bottom_News"
+      }
+    ],
+    "inspiration": "The Realistic Fish Head reporting Bikini Bottom News on an old television. These are confirmed news appearances, not an identification of the exact reference frame."
+  },
+  {
+    "name": "App Store",
+    "category": "apps",
+    "file": "assets/apps/app-store-final-v7.png",
+    "preview": "assets/apps/app-store-final-v7-preview.png",
+    "icns": "assets/apps/app-store-final-v7.icns",
+    "inspiration": "The App Store A built from three bamboo poles, inspired by Bikini Bottom interiors.",
+    "references": []
+  }
+]
