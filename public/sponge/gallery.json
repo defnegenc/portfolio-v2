@@ -105,7 +105,12 @@
     "preview": "assets/apps/notes-reference-v11-preview.png",
     "icns": "assets/apps/notes-reference-v11.icns",
     "inspiration": "SpongeBob’s spiral notepad and pencil.",
-    "references": [],
+    "references": [
+      {
+        "label": "Ripped Pants",
+        "url": "https://spongebob.fandom.com/wiki/Ripped_Pants"
+      }
+    ],
     "subject": "SpongeBob’s spiral notepad and pencil"
   },
   {
