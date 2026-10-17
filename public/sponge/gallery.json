@@ -86,17 +86,17 @@
   {
     "name": "Messages",
     "category": "apps",
-    "file": "assets/apps/messages-current-v4.png",
-    "preview": "assets/apps/messages-current-v4-preview.png",
-    "icns": "assets/apps/messages-current-v4.icns",
-    "inspiration": "The Flying Dutchman’s weathered ship and ghostly glow.",
+    "file": "assets/apps/messages-dollar-v9.png",
+    "preview": "assets/apps/messages-dollar-v9-preview.png",
+    "icns": "assets/apps/messages-dollar-v9.icns",
+    "inspiration": "Mr. Krabs’ framed first dollar.",
     "references": [
       {
-        "label": "Shanghaied",
-        "url": "https://spongebob.fandom.com/wiki/Shanghaied"
+        "label": "Wet Painters",
+        "url": "https://spongebob.fandom.com/wiki/Wet_Painters"
       }
     ],
-    "subject": "the Flying Dutchman’s ship"
+    "subject": "Mr. Krabs’ framed first dollar"
   },
   {
     "name": "Notes",
