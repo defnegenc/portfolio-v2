@@ -86,9 +86,9 @@
   {
     "name": "Messages",
     "category": "apps",
-    "file": "assets/apps/messages-dollar-v9.png",
-    "preview": "assets/apps/messages-dollar-v9-preview.png",
-    "icns": "assets/apps/messages-dollar-v9.icns",
+    "file": "assets/apps/messages-reference-v11.png",
+    "preview": "assets/apps/messages-reference-v11-preview.png",
+    "icns": "assets/apps/messages-reference-v11.icns",
     "inspiration": "Mr. Krabs’ framed first dollar.",
     "references": [
       {
@@ -101,12 +101,12 @@
   {
     "name": "Notes",
     "category": "apps",
-    "file": "assets/apps/notes-sized-v5.png",
-    "preview": "assets/apps/notes-sized-v5-preview.png",
-    "icns": "assets/apps/notes-sized-v5.icns",
-    "inspiration": "A hand-drawn Bikini Bottom notepad and pencil.",
+    "file": "assets/apps/notes-reference-v11.png",
+    "preview": "assets/apps/notes-reference-v11-preview.png",
+    "icns": "assets/apps/notes-reference-v11.icns",
+    "inspiration": "SpongeBob’s spiral notepad and pencil.",
     "references": [],
-    "subject": "a Bikini Bottom notepad"
+    "subject": "SpongeBob’s spiral notepad and pencil"
   },
   {
     "name": "Obsidian",
