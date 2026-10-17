@@ -30,9 +30,9 @@
     "file": "assets/apps/claude-sized-v5.png",
     "preview": "assets/apps/claude-sized-v5-preview.png",
     "icns": "assets/apps/claude-sized-v5.icns",
-    "inspiration": "The flower shapes in the Bikini Bottom sky.",
+    "inspiration": "coral",
     "references": [],
-    "subject": "the flowers in the Bikini Bottom sky"
+    "subject": "coral"
   },
   {
     "name": "Conductor",
@@ -64,9 +64,13 @@
       {
         "label": "Bubblestand",
         "url": "https://spongebob.fandom.com/wiki/Bubblestand"
+      },
+      {
+        "label": "Bubble Buddy",
+        "url": "https://spongebob.fandom.com/wiki/Bubble_Buddy"
       }
     ],
-    "subject": "soap bubbles"
+    "subject": "the bubbles"
   },
   {
     "name": "Finder",
@@ -74,13 +78,8 @@
     "file": "assets/apps/finder-sized-v5.png",
     "preview": "assets/apps/finder-sized-v5-preview.png",
     "icns": "assets/apps/finder-sized-v5.icns",
-    "inspiration": "Squidward’s blue stone house.",
-    "references": [
-      {
-        "label": "Bubblestand",
-        "url": "https://spongebob.fandom.com/wiki/Bubblestand"
-      }
-    ],
+    "inspiration": "Squidward’s house",
+    "references": [],
     "subject": "Squidward’s house"
   },
   {
@@ -193,9 +192,9 @@
     "file": "assets/apps/terminal-sized-v5.png",
     "preview": "assets/apps/terminal-sized-v5-preview.png",
     "icns": "assets/apps/terminal-sized-v5.icns",
-    "inspiration": "A retro underwater computer monitor.",
+    "inspiration": "Karen",
     "references": [],
-    "subject": "an underwater computer monitor"
+    "subject": "Karen"
   },
   {
     "name": "Jellyfish Net Trash",
@@ -208,14 +207,19 @@
     "subject": "a jellyfishing net"
   },
   {
-    "name": "Rustic Trash",
+    "name": "Trash",
     "category": "apps",
-    "file": "assets/apps/trash-rustic-bin-current-v4.png",
-    "preview": "assets/apps/trash-rustic-bin-current-v4-preview.png",
-    "icns": "assets/apps/trash-rustic-bin-current-v4.icns",
-    "inspiration": "The blue, rope-handled underwater trash can. Exact episode for the supplied reference shot is not yet confirmed.",
-    "references": [],
-    "subject": "the underwater trash can"
+    "file": "assets/apps/trash-chum-bucket-v13.png",
+    "preview": "assets/apps/trash-chum-bucket-v13-preview.png",
+    "icns": "assets/apps/trash-chum-bucket-v13.icns",
+    "inspiration": "the Chum Bucket",
+    "references": [
+      {
+        "label": "Welcome to the Chum Bucket",
+        "url": "https://spongebob.fandom.com/wiki/Welcome_to_the_Chum_Bucket"
+      }
+    ],
+    "subject": "the Chum Bucket"
   },
   {
     "name": "Wispr Flow",
@@ -537,9 +541,9 @@
     "file": "assets/apps/music-current-v4.png",
     "preview": "assets/apps/music-current-v4-preview.png",
     "icns": "assets/apps/music-current-v4.icns",
-    "inspiration": "Glowing jellyfish shaped into a music note.",
+    "inspiration": "Jellyfish Fields",
     "references": [],
-    "subject": "the jellyfish"
+    "subject": "Jellyfish Fields"
   },
   {
     "name": "Photos",
@@ -630,8 +634,82 @@
     "file": "assets/apps/app-store-final-v7.png",
     "preview": "assets/apps/app-store-final-v7-preview.png",
     "icns": "assets/apps/app-store-final-v7.icns",
-    "inspiration": "The App Store A built from three bamboo poles, inspired by Bikini Bottom interiors.",
+    "inspiration": "the bamboo furniture in Squidward’s home",
     "references": [],
-    "subject": "Bikini Bottom bamboo"
+    "subject": "the bamboo furniture in Squidward’s home"
+  },
+  {
+    "name": "Docker",
+    "category": "apps",
+    "file": "assets/apps/docker-v13.png",
+    "preview": "assets/apps/docker-v13-preview.png",
+    "icns": "assets/apps/docker-v13.icns",
+    "subject": "Pearl",
+    "inspiration": "Pearl",
+    "references": []
+  },
+  {
+    "name": "Cursor",
+    "category": "apps",
+    "file": "assets/apps/cursor-v13.png",
+    "preview": "assets/apps/cursor-v13-preview.png",
+    "icns": "assets/apps/cursor-v13.icns",
+    "subject": "Patrick’s rock house",
+    "inspiration": "Patrick’s rock house",
+    "references": []
+  },
+  {
+    "name": "Weather",
+    "category": "apps",
+    "file": "assets/apps/weather-v13.png",
+    "preview": "assets/apps/weather-v13-preview.png",
+    "icns": "assets/apps/weather-v13.icns",
+    "subject": "the Bikini Bottom sky",
+    "inspiration": "the Bikini Bottom sky",
+    "references": []
+  },
+  {
+    "name": "Clock",
+    "category": "apps",
+    "file": "assets/apps/clock-v13.png",
+    "preview": "assets/apps/clock-v13-preview.png",
+    "icns": "assets/apps/clock-v13.icns",
+    "subject": "the Krusty Krab clock",
+    "inspiration": "the Krusty Krab clock",
+    "references": [
+      {
+        "label": "Krusty Krab Training Video",
+        "url": "https://spongebob.fandom.com/wiki/Krusty_Krab_Training_Video"
+      },
+      {
+        "label": "Tentacle-Vision",
+        "url": "https://spongebob.fandom.com/wiki/Tentacle-Vision"
+      }
+    ]
+  },
+  {
+    "name": "Mission Control",
+    "category": "apps",
+    "file": "assets/apps/mission-control-v13.png",
+    "preview": "assets/apps/mission-control-v13-preview.png",
+    "icns": "assets/apps/mission-control-v13.icns",
+    "subject": "Mr. Krabs’ house",
+    "inspiration": "Mr. Krabs’ house",
+    "references": []
+  },
+  {
+    "name": "Phone",
+    "category": "apps",
+    "file": "assets/apps/phone-v13.png",
+    "preview": "assets/apps/phone-v13-preview.png",
+    "icns": "assets/apps/phone-v13.icns",
+    "subject": "the Magic Conch shell",
+    "inspiration": "the Magic Conch shell",
+    "references": [
+      {
+        "label": "Club SpongeBob",
+        "url": "https://spongebob.fandom.com/wiki/Club_SpongeBob"
+      }
+    ]
   }
 ]
