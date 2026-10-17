@@ -572,14 +572,15 @@
     "file": "assets/apps/calendar-current-v4.png",
     "preview": "assets/apps/calendar-current-v4-preview.png",
     "icns": "assets/apps/calendar-current-v4.icns",
-    "inspiration": "The March 7 calendar marking the grand opening of the Krusty Krab 2 in the 2004 movie.",
+    "inspiration": "For the grand opening of the Krusty Krab 2 in SpongeBob SquarePants: The Movie",
     "references": [
       {
-        "label": "The SpongeBob SquarePants Movie (2004)",
+        "label": "SpongeBob SquarePants: The Movie",
         "url": "https://spongebob.fandom.com/wiki/The_SpongeBob_SquarePants_Movie/transcript"
       }
     ],
-    "subject": "the March 7 calendar"
+    "subject": "the March 7 calendar",
+    "captionPrefix": "For the grand opening of the Krusty Krab 2 in "
   },
   {
     "name": "Maps",
