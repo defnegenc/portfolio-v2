@@ -11,7 +11,8 @@
         "label": "SB-129",
         "url": "https://spongebob.fandom.com/wiki/SB-129"
       }
-    ]
+    ],
+    "subject": "the chrome future"
   },
   {
     "name": "Chrome",
@@ -20,7 +21,8 @@
     "preview": "assets/apps/chrome-current-v4-preview.png",
     "icns": "assets/apps/chrome-current-v4.icns",
     "inspiration": "A painted submarine porthole in Chrome colors.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Claude",
@@ -29,25 +31,27 @@
     "preview": "assets/apps/claude-sized-v5-preview.png",
     "icns": "assets/apps/claude-sized-v5.icns",
     "inspiration": "The flower shapes in the Bikini Bottom sky.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Conductor",
     "category": "apps",
-    "file": "assets/apps/conductor-current-v4.png",
-    "preview": "assets/apps/conductor-current-v4-preview.png",
-    "icns": "assets/apps/conductor-current-v4.icns",
+    "file": "assets/apps/conductor-sized-v8.png",
+    "preview": "assets/apps/conductor-sized-v8-preview.png",
+    "icns": "assets/apps/conductor-sized-v8.icns",
     "inspiration": "The Krabby Patty secret formula bottle.",
     "references": [
       {
-        "label": "Plankton’s Army (bottle variant)",
+        "label": "Plankton’s Army",
         "url": "https://spongebob.fandom.com/wiki/Plankton%27s_Army"
       },
       {
         "label": "Sponge Out of Water (2015)",
         "url": "https://spongebob.fandom.com/wiki/The_SpongeBob_Movie%3A_Sponge_Out_of_Water/transcript"
       }
-    ]
+    ],
+    "subject": "the Krabby Patty secret formula bottle"
   },
   {
     "name": "Figma",
@@ -61,7 +65,8 @@
         "label": "Bubblestand",
         "url": "https://spongebob.fandom.com/wiki/Bubblestand"
       }
-    ]
+    ],
+    "subject": "soap bubbles"
   },
   {
     "name": "Finder",
@@ -72,10 +77,11 @@
     "inspiration": "Squidward’s blue stone house.",
     "references": [
       {
-        "label": "Bubblestand (house appearance)",
+        "label": "Bubblestand",
         "url": "https://spongebob.fandom.com/wiki/Bubblestand"
       }
-    ]
+    ],
+    "subject": "Squidward’s house"
   },
   {
     "name": "Messages",
@@ -86,10 +92,11 @@
     "inspiration": "The Flying Dutchman’s weathered ship and ghostly glow.",
     "references": [
       {
-        "label": "Shanghaied (style reference)",
+        "label": "Shanghaied",
         "url": "https://spongebob.fandom.com/wiki/Shanghaied"
       }
-    ]
+    ],
+    "subject": "the Flying Dutchman’s ship"
   },
   {
     "name": "Notes",
@@ -98,7 +105,8 @@
     "preview": "assets/apps/notes-sized-v5-preview.png",
     "icns": "assets/apps/notes-sized-v5.icns",
     "inspiration": "A hand-drawn Bikini Bottom notepad and pencil.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Obsidian",
@@ -112,7 +120,8 @@
         "label": "Pizza Delivery",
         "url": "https://spongebob.fandom.com/wiki/Pizza_Delivery"
       }
-    ]
+    ],
+    "subject": "the boulder"
   },
   {
     "name": "Paper",
@@ -123,10 +132,15 @@
     "inspiration": "The Bikini Times newspaper.",
     "references": [
       {
-        "label": "Party Pooper Pants / Pranks a Lot",
-        "url": "https://spongebob.fandom.com/wiki/List_of_media_in_SpongeBob_SquarePants"
+        "label": "Party Pooper Pants",
+        "url": "https://spongebob.fandom.com/wiki/Party_Pooper_Pants"
+      },
+      {
+        "label": "Pranks a Lot",
+        "url": "https://spongebob.fandom.com/wiki/Pranks_a_Lot"
       }
-    ]
+    ],
+    "subject": "the Bikini Times newspaper"
   },
   {
     "name": "Safari",
@@ -140,7 +154,8 @@
         "label": "Arrgh!",
         "url": "https://spongebob.fandom.com/wiki/Arrgh%21/transcript"
       }
-    ]
+    ],
+    "subject": "the Weast compass"
   },
   {
     "name": "System Settings",
@@ -149,7 +164,8 @@
     "preview": "assets/apps/settings-sized-v5-preview.png",
     "icns": "assets/apps/settings-sized-v5.icns",
     "inspiration": "A submarine porthole and mechanical gears.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Spotify",
@@ -163,7 +179,8 @@
         "label": "Shanghaied",
         "url": "https://spongebob.fandom.com/wiki/Shanghaied"
       }
-    ]
+    ],
+    "subject": "the Flying Dutchman’s ship"
   },
   {
     "name": "Terminal",
@@ -172,7 +189,8 @@
     "preview": "assets/apps/terminal-sized-v5-preview.png",
     "icns": "assets/apps/terminal-sized-v5.icns",
     "inspiration": "A retro underwater computer monitor.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Jellyfish Net Trash",
@@ -181,7 +199,8 @@
     "preview": "assets/apps/trash-jellyfish-net-sized-v5-preview.png",
     "icns": "assets/apps/trash-jellyfish-net-sized-v5.icns",
     "inspiration": "A jellyfishing net.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Rustic Trash",
@@ -190,7 +209,8 @@
     "preview": "assets/apps/trash-rustic-bin-current-v4-preview.png",
     "icns": "assets/apps/trash-rustic-bin-current-v4.icns",
     "inspiration": "The blue, rope-handled underwater trash can. Exact episode for the supplied reference shot is not yet confirmed.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Wispr Flow",
@@ -199,7 +219,8 @@
     "preview": "assets/apps/wispr-flow-current-v4-preview.png",
     "icns": "assets/apps/wispr-flow-current-v4.icns",
     "inspiration": "Underwater kelp and little sea plants.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Bold And Brash Green",
@@ -213,7 +234,8 @@
         "label": "Artist Unknown",
         "url": "https://spongebob.fandom.com/wiki/Bold_and_Brash"
       }
-    ]
+    ],
+    "subject": "Bold and Brash"
   },
   {
     "name": "Bubbles Blue",
@@ -227,7 +249,8 @@
         "label": "Bubblestand",
         "url": "https://spongebob.fandom.com/wiki/Bubblestand"
       }
-    ]
+    ],
+    "subject": "soap bubbles"
   },
   {
     "name": "Coral Salmon",
@@ -236,7 +259,8 @@
     "preview": "assets/folders/coral-salmon-preview.png",
     "icns": null,
     "inspiration": "Warm-colored underwater coral.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Flower",
@@ -245,7 +269,8 @@
     "preview": "assets/folders/flower-preview.png",
     "icns": null,
     "inspiration": "The flower silhouettes in the Bikini Bottom sky.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Halloween Pumpkin",
@@ -254,7 +279,8 @@
     "preview": "assets/folders/halloween-pumpkin-preview.png",
     "icns": null,
     "inspiration": "Halloween pumpkins and underwater spookiness.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Jellyfish Pink",
@@ -263,7 +289,8 @@
     "preview": "assets/folders/jellyfish-pink-preview.png",
     "icns": null,
     "inspiration": "Pink jellyfish from Jellyfish Fields.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Porthole",
@@ -272,7 +299,8 @@
     "preview": "assets/folders/porthole-preview.png",
     "icns": null,
     "inspiration": "A round nautical porthole.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Sea Urchin Purple",
@@ -281,7 +309,8 @@
     "preview": "assets/folders/sea-urchin-purple-preview.png",
     "icns": null,
     "inspiration": "Purple sea urchins.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Seashell",
@@ -290,7 +319,8 @@
     "preview": "assets/folders/seashell-preview.png",
     "icns": null,
     "inspiration": "A pearly underwater seashell.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Morning Dew",
@@ -301,7 +331,8 @@
     "time": "morning",
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in morning light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Sb129 Painted",
@@ -312,7 +343,8 @@
     "time": "day",
     "season": "everyday",
     "inspiration": "The chrome future in SB-129, reimagined in day light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Town Night",
@@ -323,7 +355,8 @@
     "time": "night",
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in night light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Day",
@@ -334,7 +367,8 @@
     "time": "day",
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in day light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Goo Lagoon Guava Sunset",
@@ -345,7 +379,8 @@
     "time": "sunset",
     "season": "everyday",
     "inspiration": "Goo Lagoon, reimagined in sunset light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Halloween Conch Street",
@@ -356,7 +391,8 @@
     "time": "night",
     "season": "halloween",
     "inspiration": "Conch Street with Halloween decorations.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Halloween Conch Street Scenic",
@@ -367,7 +403,8 @@
     "time": "night",
     "season": "halloween",
     "inspiration": "Conch Street with Halloween decorations.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Halloween Goo Lagoon",
@@ -378,7 +415,8 @@
     "time": "night",
     "season": "halloween",
     "inspiration": "Goo Lagoon with Halloween decorations.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Halloween Jellyfish Fields",
@@ -389,7 +427,8 @@
     "time": "sunset",
     "season": "halloween",
     "inspiration": "Jellyfish Fields with Halloween decorations.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Halloween Krusty Krab",
@@ -400,7 +439,8 @@
     "time": "sunset",
     "season": "halloween",
     "inspiration": "The Krusty Krab with Halloween decorations.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Jellyfish Fields Blue Hour",
@@ -411,7 +451,8 @@
     "time": "night",
     "season": "everyday",
     "inspiration": "Jellyfish Fields, reimagined in night light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Jellyfish Fields Sunset",
@@ -422,7 +463,8 @@
     "time": "sunset",
     "season": "everyday",
     "inspiration": "Jellyfish Fields, reimagined in sunset light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Krusty Krab Twilight",
@@ -433,7 +475,8 @@
     "time": "sunset",
     "season": "everyday",
     "inspiration": "The Krusty Krab, reimagined in sunset light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Morning",
@@ -444,7 +487,8 @@
     "time": "morning",
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in morning light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Night",
@@ -455,7 +499,8 @@
     "time": "night",
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in night light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Sunset",
@@ -466,7 +511,8 @@
     "time": "sunset",
     "season": "everyday",
     "inspiration": "The painted world of Bikini Bottom, reimagined in sunset light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Painted Portholes · Day",
@@ -477,7 +523,8 @@
     "time": "day",
     "season": "everyday",
     "inspiration": "A shared underwater view through portholes, reimagined in day light.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Music",
@@ -486,7 +533,8 @@
     "preview": "assets/apps/music-current-v4-preview.png",
     "icns": "assets/apps/music-current-v4.icns",
     "inspiration": "Glowing jellyfish shaped into a music note.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Photos",
@@ -495,7 +543,8 @@
     "preview": "assets/apps/photos-sized-v5-preview.png",
     "icns": "assets/apps/photos-sized-v5.icns",
     "inspiration": "Bikini Bottom sky flowers in the Photos rainbow.",
-    "references": []
+    "references": [],
+    "subject": ""
   },
   {
     "name": "Mail",
@@ -509,7 +558,8 @@
         "label": "Chocolate with Nuts",
         "url": "https://spongebob.fandom.com/wiki/Chocolate_with_Nuts/transcript"
       }
-    ]
+    ],
+    "subject": "SpongeBob’s mailbox"
   },
   {
     "name": "Calendar",
@@ -523,7 +573,8 @@
         "label": "The SpongeBob SquarePants Movie (2004)",
         "url": "https://spongebob.fandom.com/wiki/The_SpongeBob_SquarePants_Movie/transcript"
       }
-    ]
+    ],
+    "subject": "the March 7 calendar"
   },
   {
     "name": "Maps",
@@ -537,7 +588,8 @@
         "label": "Arrgh!",
         "url": "https://spongebob.fandom.com/wiki/Arrgh%21/transcript"
       }
-    ]
+    ],
+    "subject": "the treasure-hunt board"
   },
   {
     "name": "News",
@@ -547,11 +599,24 @@
     "icns": "assets/apps/news-final-v7.icns",
     "references": [
       {
-        "label": "No Free Rides / The Smoking Peanut / Procrastination / Nasty Patty",
-        "url": "https://spongebob.fandom.com/wiki/Bikini_Bottom_News"
+        "label": "No Free Rides",
+        "url": "https://spongebob.fandom.com/wiki/No_Free_Rides"
+      },
+      {
+        "label": "The Smoking Peanut",
+        "url": "https://spongebob.fandom.com/wiki/The_Smoking_Peanut"
+      },
+      {
+        "label": "Procrastination",
+        "url": "https://spongebob.fandom.com/wiki/Procrastination"
+      },
+      {
+        "label": "Nasty Patty",
+        "url": "https://spongebob.fandom.com/wiki/Nasty_Patty"
       }
     ],
-    "inspiration": "The Realistic Fish Head reporting Bikini Bottom News on an old television. These are confirmed news appearances, not an identification of the exact reference frame."
+    "inspiration": "The Realistic Fish Head reporting Bikini Bottom News on an old television. These are confirmed news appearances, not an identification of the exact reference frame.",
+    "subject": "the Realistic Fish Head news anchor"
   },
   {
     "name": "App Store",
@@ -560,6 +625,7 @@
     "preview": "assets/apps/app-store-final-v7-preview.png",
     "icns": "assets/apps/app-store-final-v7.icns",
     "inspiration": "The App Store A built from three bamboo poles, inspired by Bikini Bottom interiors.",
-    "references": []
+    "references": [],
+    "subject": ""
   }
 ]
