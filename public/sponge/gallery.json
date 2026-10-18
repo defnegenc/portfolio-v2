@@ -672,9 +672,9 @@
   {
     "name": "Docker",
     "category": "apps",
-    "file": "assets/apps/docker-approved-v15.png",
-    "preview": "assets/apps/docker-approved-v15-preview.png",
-    "icns": "assets/apps/docker-approved-v15.icns",
+    "file": "assets/apps/docker-v13.png",
+    "preview": "assets/apps/docker-v13-preview.png",
+    "icns": "assets/apps/docker-v13.icns",
     "subject": "Pearl",
     "inspiration": "Pearl",
     "references": []
