@@ -198,16 +198,6 @@
     "subject": "Karen"
   },
   {
-    "name": "Jellyfish Net Trash",
-    "category": "apps",
-    "file": "assets/apps/trash-jellyfish-net-sized-v5.png",
-    "preview": "assets/apps/trash-jellyfish-net-sized-v5-preview.png",
-    "icns": "assets/apps/trash-jellyfish-net-sized-v5.icns",
-    "inspiration": "A jellyfishing net.",
-    "references": [],
-    "subject": "a jellyfishing net"
-  },
-  {
     "name": "Trash",
     "category": "apps",
     "file": "assets/apps/trash-chum-bucket-v13.png",
