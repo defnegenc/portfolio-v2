@@ -150,9 +150,9 @@
   {
     "name": "Safari",
     "category": "apps",
-    "file": "assets/apps/safari-weast-v5.png",
-    "preview": "assets/apps/safari-weast-v5-preview.png",
-    "icns": "assets/apps/safari-weast-v5.icns",
+    "file": "assets/apps/safari-weast-v6.png",
+    "preview": "assets/apps/safari-weast-v6-preview.png",
+    "icns": "assets/apps/safari-weast-v6.icns",
     "inspiration": "The nautical compass that points “Weast.”",
     "references": [
       {
