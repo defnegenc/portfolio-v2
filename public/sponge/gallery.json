@@ -2,10 +2,10 @@
   {
     "name": "ChatGPT",
     "category": "apps",
-    "file": "assets/apps/chatgpt-current-v4.png",
-    "preview": "assets/apps/chatgpt-current-v4-preview.png",
-    "icns": "assets/apps/chatgpt-current-v4.icns",
-    "inspiration": "The all-chrome future in SB-129.",
+    "file": "assets/apps/chatgpt-approved-v15.png",
+    "preview": "assets/apps/chatgpt-approved-v15-preview.png",
+    "icns": "assets/apps/chatgpt-approved-v15.icns",
+    "inspiration": "the chrome future",
     "references": [
       {
         "label": "SB-129",
@@ -75,9 +75,9 @@
   {
     "name": "Finder",
     "category": "apps",
-    "file": "assets/apps/finder-sized-v5.png",
-    "preview": "assets/apps/finder-sized-v5-preview.png",
-    "icns": "assets/apps/finder-sized-v5.icns",
+    "file": "assets/apps/finder-approved-v15.png",
+    "preview": "assets/apps/finder-approved-v15-preview.png",
+    "icns": "assets/apps/finder-approved-v15.icns",
     "inspiration": "Squidward’s house",
     "references": [],
     "subject": "Squidward’s house"
@@ -125,7 +125,8 @@
         "url": "https://spongebob.fandom.com/wiki/Pizza_Delivery"
       }
     ],
-    "subject": "the boulder"
+    "subject": "the boulder",
+    "quote": "It's not just a boulder... it's a rock!"
   },
   {
     "name": "Paper",
@@ -174,17 +175,17 @@
   {
     "name": "Spotify",
     "category": "apps",
-    "file": "assets/apps/spotify-current-v4.png",
-    "preview": "assets/apps/spotify-current-v4-preview.png",
-    "icns": "assets/apps/spotify-current-v4.icns",
-    "inspiration": "The Flying Dutchman’s green glow and wooden ship.",
+    "file": "assets/apps/spotify-approved-v15.png",
+    "preview": "assets/apps/spotify-approved-v15-preview.png",
+    "icns": "assets/apps/spotify-approved-v15.icns",
+    "inspiration": "Jellyfish Jam",
     "references": [
       {
-        "label": "Shanghaied",
-        "url": "https://spongebob.fandom.com/wiki/Shanghaied"
+        "label": "Jellyfish Jam",
+        "url": "https://spongebob.fandom.com/wiki/Jellyfish_Jam"
       }
     ],
-    "subject": "the Flying Dutchman’s ship"
+    "subject": "Jellyfish Jam"
   },
   {
     "name": "Terminal",
@@ -230,6 +231,36 @@
     "inspiration": "Underwater kelp and little sea plants.",
     "references": [],
     "subject": "underwater kelp"
+  },
+  {
+    "name": "Notion",
+    "category": "apps",
+    "references": [
+      {
+        "label": "Idiot Box",
+        "url": "https://spongebob.fandom.com/wiki/Idiot_Box"
+      }
+    ],
+    "file": "assets/apps/notion-approved-v15.png",
+    "preview": "assets/apps/notion-approved-v15-preview.png",
+    "icns": "assets/apps/notion-approved-v15.icns",
+    "subject": "the imagination box",
+    "inspiration": "the imagination box"
+  },
+  {
+    "name": "Slack",
+    "category": "apps",
+    "references": [
+      {
+        "label": "Tea at the Treedome",
+        "url": "https://spongebob.fandom.com/wiki/Tea_at_the_Treedome"
+      }
+    ],
+    "file": "assets/apps/slack-approved-v15.png",
+    "preview": "assets/apps/slack-approved-v15-preview.png",
+    "icns": "assets/apps/slack-approved-v15.icns",
+    "subject": "Sandy’s treedome",
+    "inspiration": "Sandy’s treedome"
   },
   {
     "name": "Bold And Brash Green",
@@ -573,17 +604,17 @@
   {
     "name": "Calendar",
     "category": "apps",
-    "file": "assets/apps/calendar-current-v4.png",
-    "preview": "assets/apps/calendar-current-v4-preview.png",
-    "icns": "assets/apps/calendar-current-v4.icns",
-    "inspiration": "For the grand opening of the Krusty Krab 2 in SpongeBob SquarePants: The Movie",
+    "file": "assets/apps/calendar-approved-v15.png",
+    "preview": "assets/apps/calendar-approved-v15-preview.png",
+    "icns": "assets/apps/calendar-approved-v15.icns",
+    "inspiration": "the Krusty Krab 2",
     "references": [
       {
         "label": "SpongeBob SquarePants: The Movie",
         "url": "https://spongebob.fandom.com/wiki/The_SpongeBob_SquarePants_Movie/transcript"
       }
     ],
-    "subject": "the March 7 calendar",
+    "subject": "the Krusty Krab 2",
     "captionPrefix": "For the grand opening of the Krusty Krab 2 in "
   },
   {
@@ -641,9 +672,9 @@
   {
     "name": "Docker",
     "category": "apps",
-    "file": "assets/apps/docker-v13.png",
-    "preview": "assets/apps/docker-v13-preview.png",
-    "icns": "assets/apps/docker-v13.icns",
+    "file": "assets/apps/docker-approved-v15.png",
+    "preview": "assets/apps/docker-approved-v15-preview.png",
+    "icns": "assets/apps/docker-approved-v15.icns",
     "subject": "Pearl",
     "inspiration": "Pearl",
     "references": []
@@ -700,16 +731,17 @@
   {
     "name": "Phone",
     "category": "apps",
-    "file": "assets/apps/phone-v14.png",
-    "preview": "assets/apps/phone-v14-preview.png",
-    "icns": "assets/apps/phone-v14.icns",
-    "subject": "the Magic Conch shell",
-    "inspiration": "the Magic Conch shell",
+    "file": "assets/apps/phone-approved-v15.png",
+    "preview": "assets/apps/phone-approved-v15-preview.png",
+    "icns": "assets/apps/phone-approved-v15.icns",
+    "subject": "Patrick’s telephone receiver",
+    "inspiration": "Patrick’s telephone receiver",
     "references": [
       {
-        "label": "Club SpongeBob",
-        "url": "https://spongebob.fandom.com/wiki/Club_SpongeBob"
+        "label": "Big Pink Loser",
+        "url": "https://spongebob.fandom.com/wiki/Big_Pink_Loser"
       }
-    ]
+    ],
+    "quote": "No, this is Patrick!"
   }
 ]
