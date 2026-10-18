@@ -150,9 +150,9 @@
   {
     "name": "Safari",
     "category": "apps",
-    "file": "assets/apps/safari-current-v4.png",
-    "preview": "assets/apps/safari-current-v4-preview.png",
-    "icns": "assets/apps/safari-current-v4.icns",
+    "file": "assets/apps/safari-weast-v5.png",
+    "preview": "assets/apps/safari-weast-v5-preview.png",
+    "icns": "assets/apps/safari-weast-v5.icns",
     "inspiration": "The nautical compass that points “Weast.”",
     "references": [
       {
@@ -246,9 +246,9 @@
         "url": "https://spongebob.fandom.com/wiki/Tea_at_the_Treedome"
       }
     ],
-    "file": "assets/apps/slack-approved-v15.png",
-    "preview": "assets/apps/slack-approved-v15-preview.png",
-    "icns": "assets/apps/slack-approved-v15.icns",
+    "file": "assets/apps/slack-tile-v6.png",
+    "preview": "assets/apps/slack-tile-v6-preview.png",
+    "icns": "assets/apps/slack-tile-v6.icns",
     "subject": "Sandy’s treedome",
     "inspiration": "Sandy’s treedome"
   },
@@ -672,9 +672,9 @@
   {
     "name": "Cursor",
     "category": "apps",
-    "file": "assets/apps/cursor-v14.png",
-    "preview": "assets/apps/cursor-v14-preview.png",
-    "icns": "assets/apps/cursor-v14.icns",
+    "file": "assets/apps/cursor-sand-v16.png",
+    "preview": "assets/apps/cursor-sand-v16-preview.png",
+    "icns": "assets/apps/cursor-sand-v16.icns",
     "subject": "Patrick’s rock house",
     "inspiration": "Patrick’s rock house",
     "references": []
@@ -682,12 +682,15 @@
   {
     "name": "Weather",
     "category": "apps",
-    "file": "assets/apps/weather-v13.png",
-    "preview": "assets/apps/weather-v13-preview.png",
-    "icns": "assets/apps/weather-v13.icns",
-    "subject": "the Bikini Bottom sky",
-    "inspiration": "the Bikini Bottom sky",
-    "references": []
+    "file": "assets/apps/weather-bikini-atoll-v2.png",
+    "preview": "assets/apps/weather-bikini-atoll-v2-preview.png",
+    "icns": "assets/apps/weather-bikini-atoll-v2.icns",
+    "subject": "Bikini Atoll",
+    "inspiration": "Bikini Atoll",
+    "references": [],
+    "quote": "Ah, the weather app...",
+    "quoteOnly": true,
+    "captionType": "user-authored adaptation"
   },
   {
     "name": "Clock",
