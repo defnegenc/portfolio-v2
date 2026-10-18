@@ -190,9 +190,9 @@
   {
     "name": "Terminal",
     "category": "apps",
-    "file": "assets/apps/terminal-sized-v5.png",
-    "preview": "assets/apps/terminal-sized-v5-preview.png",
-    "icns": "assets/apps/terminal-sized-v5.icns",
+    "file": "assets/apps/terminal-karen-app-v2.png",
+    "preview": "assets/apps/terminal-karen-app-v2-preview.png",
+    "icns": "assets/apps/terminal-karen-app-v2.icns",
     "inspiration": "Karen",
     "references": [],
     "subject": "Karen"
