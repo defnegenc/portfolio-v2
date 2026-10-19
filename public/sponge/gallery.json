@@ -593,7 +593,7 @@
     "category": "apps",
     "file": "assets/apps/mail-letters-v9.png",
     "preview": "assets/apps/mail-letters-v9-preview.png",
-    "icns": "assets/apps/mail-current-v4.icns",
+    "icns": "assets/apps/mail-letters-v9.icns",
     "inspiration": "SpongeBob’s mailbox and a sealed letter.",
     "references": [
       {
