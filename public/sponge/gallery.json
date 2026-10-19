@@ -131,9 +131,9 @@
   {
     "name": "Paper",
     "category": "apps",
-    "file": "assets/apps/paper-current-v4.png",
-    "preview": "assets/apps/paper-current-v4-preview.png",
-    "icns": "assets/apps/paper-current-v4.icns",
+    "file": "assets/apps/paper-flat-v5.png",
+    "preview": "assets/apps/paper-flat-v5-preview.png",
+    "icns": "assets/apps/paper-flat-v5.icns",
     "inspiration": "The Bikini Times newspaper.",
     "references": [
       {
