@@ -724,9 +724,9 @@
   {
     "name": "Phone",
     "category": "apps",
-    "file": "assets/apps/phone-approved-v15.png",
-    "preview": "assets/apps/phone-approved-v15-preview.png",
-    "icns": "assets/apps/phone-approved-v15.icns",
+    "file": "assets/apps/phone-short-cord-v24.png",
+    "preview": "assets/apps/phone-short-cord-v24-preview.png",
+    "icns": "assets/apps/phone-short-cord-v24.icns",
     "subject": "Patrick’s telephone receiver",
     "inspiration": "Patrick’s telephone receiver",
     "references": [
