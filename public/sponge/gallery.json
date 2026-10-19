@@ -591,8 +591,8 @@
   {
     "name": "Mail",
     "category": "apps",
-    "file": "assets/apps/mail-current-v4.png",
-    "preview": "assets/apps/mail-current-v4-preview.png",
+    "file": "assets/apps/mail-letters-v9.png",
+    "preview": "assets/apps/mail-letters-v9-preview.png",
     "icns": "assets/apps/mail-current-v4.icns",
     "inspiration": "SpongeBob’s mailbox and a sealed letter.",
     "references": [
