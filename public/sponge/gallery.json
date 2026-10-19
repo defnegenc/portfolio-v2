@@ -545,6 +545,18 @@
     "subject": "Bikini Bottom"
   },
   {
+    "name": "Gary's Sunset",
+    "category": "wallpapers",
+    "file": "assets/wallpapers/gary-sunset-v1-upscaled-4k.jpg",
+    "preview": "assets/wallpapers/gary-sunset-v1-preview.jpg",
+    "icns": null,
+    "time": "sunset",
+    "season": "everyday",
+    "inspiration": "Gary at sunset over Bikini Bottom, upscaled from the selected 1672 × 941 original.",
+    "references": [],
+    "subject": "Gary at sunset over Bikini Bottom"
+  },
+  {
     "name": "Painted Portholes · Day",
     "category": "wallpapers",
     "file": "assets/wallpapers/portholes-painted-day-4k.jpg",
