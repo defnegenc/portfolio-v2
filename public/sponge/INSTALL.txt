@@ -6,6 +6,9 @@ Artwork is AI-generated fan art, not an official Nickelodeon product.
 
 Docky: https://www.getdocky.com/download
 
+NO AGENT REQUIRED
+You can follow these steps yourself. This kit uses app-by-app icon selection. Docky supports bulk theme imports, but the artwork ZIP is not a Docky theme file. The copyable installation prompt is optional.
+
 
 1. DOWNLOAD AND KEEP THE ARTWORK
 
