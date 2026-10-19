@@ -1,18 +1,86 @@
-BIKINI BOTTOM DESKTOP KIT
+SPONGE OS: COMPLETE MAC SETUP
 
-Rustic SpongeBob-inspired desktop artwork, curated by Defne.
-AI-generated fan art, not an official Nickelodeon product.
+Current guide: https://defne.io/sponge/#install
 
-CONTENTS
-App icons: transparent PNG and macOS ICNS.
-Folder designs: transparent PNG.
-Wallpapers: 3840 x 2160 JPEG exports, plus a dynamic HEIC.
-The wallpaper exports are upscaled from generated originals.
+Artwork is AI-generated fan art, not an official Nickelodeon product.
 
-INSTALL ICONS ON MAC
-Open a PNG in Preview, select all, then copy. In Finder select the app or folder and choose File > Get Info. Click the small icon at the top left and paste. Some system apps and the Dock Trash are protected and may not accept custom icons. Updates can reset app icons. These files do not install automatically.
-To restore an icon, select the small icon in Get Info and press Delete.
+Docky: https://www.getdocky.com/download
 
-WALLPAPERS
-Add an image in System Settings > Wallpaper.
-The dynamic HEIC contains morning (6 AM), day (10 AM), sunset (5 PM), and night (8 PM) frames. Choose Dynamic if available. New scenic wallpapers are separate static alternatives.
+
+1. DOWNLOAD AND KEEP THE ARTWORK
+
+Download the kit above, unzip it, and keep the files somewhere permanent, such as Pictures/Sponge OS. Use the ICNS files for Docky and the full-size PNG files for folder icons. The small gallery previews are only for browsing. Keep the artwork in place after setup: Docky stores a reference to the image file.
+
+
+2. SET UP A SEPARATE THEMED DOCK
+
+Install Docky from its official website. This is the free app I used for the finished setup. It draws its own Dock, so Finder, Messages, Safari and other Apple apps can have custom icons there without changing protected system files. These overrides apply inside Docky, not everywhere in macOS.
+
+Open Docky Settings with Command + comma while Docky is active.
+
+Under System → System Dock, enable Hide System Dock. This hides Apple's Dock while Docky runs.
+
+Under Behavior → Visibility, turn Autohide Window off to keep Docky visible. Its visibility is separate from Apple's Dock.
+
+Optionally enable Open at Login under System → Launch.
+
+Start with the basic launcher. Only grant extra permissions if you want the particular feature that requests them.
+
+
+3. APPLY THE ICONS TO THE REAL APPS
+
+Go to Settings → Appearance → App Icons. Find an app, click Choose Image..., and select its matching .icns file. Other Apps lets you set an icon before pinning an app.
+Use the actual installed app, including the real Finder, Calendar, Messages, Notes and Safari. If you previously made themed shortcut apps, remove those shortcut entries from Docky and pin the real apps instead. This prevents separate shortcut and running-app tiles. Keep any shortcuts that you still use on the desktop.
+
+Choose the current artwork you prefer from the gallery. An icon change does not install the corresponding app.
+
+
+
+4. PIN, UNPIN AND ARRANGE
+
+Right-click an app in Docky, open Options, and toggle Keep in Dock. Pinned apps stay in the main row even when closed. Unpinned running apps appear after the divider and disappear when quit. Drag tiles to change their order.
+For an app that is not visible yet, open it normally, then pin its running tile. I added Clock this way and applied its ship-wheel ICNS. A folder stack is optional: remove its tile from Docky if you do not want it. Removing a tile does not delete the folder or app.
+
+
+
+5. THEME FINDER AND TRASH
+
+Set Finder's icon in App Icons just like any other app. No need to quit Finder.
+At the top of App Icons, set both Trash (Empty) and Trash (Full). I used the Chum Bucket ICNS for both. Trash still works as Trash, but using one picture for both states means the artwork does not tell you whether it contains files.
+
+This replaces the appearance of Docky's Trash tile. Apple's protected Trash and Finder icons are not modified.
+
+
+
+6. FIX PIXELATION AND UNEVEN SIZES
+
+Use the provided ICNS files first. In my setup, they looked smoother at Dock size than loading the large PNGs directly. ICNS files contain multiple image sizes. Avoid screenshots and gallery thumbnails.
+Under Appearance → Tile Layout, keep Tile Clip Shape set to Rounded to preserve these designs rather than clipping them into circles. Set the overall Tile Size to taste. Magnification is optional and was labeled an alpha feature in the version I tested.
+
+Each custom icon also has a Padding control in App Icons. I used a small nonzero value, about 1%, to avoid Docky's automatic transparent-edge adjustment. Then compare the visible artwork, not just the square image canvas. More padding makes an icon smaller; less padding makes it larger.
+
+For my Chum Bucket, I made a separate copy with less transparent margin and rebuilt its ICNS sizes, making it about 11% larger. Keep the original. If padding cannot get a design large enough, crop only the empty margin in a copy and regenerate the ICNS, without stretching or clipping the artwork.
+
+
+
+7. FOLDERS, DESKTOP SHORTCUTS AND WALLPAPER
+
+For a Finder folder icon, open the full-size PNG in Preview, press Command + A and Command + C, select the folder in Finder, and press Command + I. Click the small icon at the top left of Get Info and paste. This changes its icon without moving or renaming it.
+For a desktop launcher, make an alias to the app in Finder and move the alias to the desktop. You can apply the same Get Info method to the alias. Removing its Dock tile does not remove the desktop alias.
+
+For wallpaper, add your image in System Settings → Wallpaper. The dynamic HEIC includes morning, day, sunset and night; choose Dynamic where supported. The scenic and Halloween wallpapers are separate static alternatives. The 3840 × 2160 wallpaper exports are upscaled from generated originals.
+
+
+
+TROUBLESHOOTING AND UNDO
+
+An app changes back after restarting: use its Docky override. Some apps, including Paper in my setup, reset their own native Dock icon on launch. A Finder custom icon and a Docky override are different settings.
+Two icons for one app: remove the old shortcut tile and pin the real running app. Do not delete the application.
+
+Apple's Dock reappears: confirm Docky is running and Hide System Dock is enabled. Docky is designed to restore Apple's Dock when it quits. Use Open at Login if you want the themed Dock after signing in.
+
+Undo Docky: choose Clear beside an icon override to restore that app's default in Docky. Turn off Hide System Dock or use Restore System Dock before quitting. Disable Open at Login if you no longer want Docky to start automatically.
+
+Undo a Finder icon: select the small icon in Get Info and press Delete to restore the default, or paste your backed-up custom icon. Choose your previous wallpaper in System Settings.
+
+No part of this setup requires disabling System Integrity Protection, changing the sealed system volume, or editing signed app resources. The earlier shortcut approach was a workaround; Docky made it unnecessary for the finished Dock. Menu labels may change with Docky updates.
