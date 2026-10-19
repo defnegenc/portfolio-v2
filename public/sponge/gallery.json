@@ -178,14 +178,14 @@
     "file": "assets/apps/spotify-approved-v15.png",
     "preview": "assets/apps/spotify-approved-v15-preview.png",
     "icns": "assets/apps/spotify-approved-v15.icns",
-    "inspiration": "Inspired by the rave, seen in Jellyfish Jam.",
+    "inspiration": "Inspired by the vinyl in the rave scene, seen in Jellyfish Jam.",
     "references": [
       {
         "label": "Jellyfish Jam",
         "url": "https://spongebob.fandom.com/wiki/Jellyfish_Jam"
       }
     ],
-    "subject": "Jellyfish Jam"
+    "subject": "the vinyl in the rave scene"
   },
   {
     "name": "Terminal",
