@@ -12,7 +12,7 @@ You can follow these steps yourself. This kit uses app-by-app icon selection. Do
 
 1. DOWNLOAD AND KEEP THE ARTWORK
 
-Download the kit above, unzip it, and keep the files somewhere permanent, such as Pictures/Sponge OS. Use the ICNS files for Docky and the full-size PNG files for folder icons. The small gallery previews are only for browsing. Keep the artwork in place after setup: Docky stores a reference to the image file.
+Download the kit above, unzip it, and keep the files somewhere permanent, such as Pictures/Sponge OS. Use the ICNS files for Docky and full-size PNG files for folder icons. Published app PNG downloads are 4096 × 4096 upscaled exports from their smaller approved masters; transparent padding preserves each artwork’s proportions and does not add source detail. ICNS files retain standard Mac icon sizes. The small gallery previews are only for browsing. Keep the artwork in place after setup: Docky stores a reference to the image file.
 
 
 2. SET UP A SEPARATE THEMED DOCK

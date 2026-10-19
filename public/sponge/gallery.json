@@ -2,7 +2,7 @@
   {
     "name": "ChatGPT",
     "category": "apps",
-    "file": "assets/apps/chatgpt-approved-v15.png",
+    "file": "assets/apps/chatgpt-approved-v15-4096-upscaled.png",
     "preview": "assets/apps/chatgpt-approved-v15-preview.png",
     "icns": "assets/apps/chatgpt-approved-v15.icns",
     "inspiration": "the chrome future",
@@ -17,7 +17,7 @@
   {
     "name": "Chrome",
     "category": "apps",
-    "file": "assets/apps/chrome-current-v4.png",
+    "file": "assets/apps/chrome-current-v4-4096-upscaled.png",
     "preview": "assets/apps/chrome-current-v4-preview.png",
     "icns": "assets/apps/chrome-current-v4.icns",
     "inspiration": "A painted submarine porthole in Chrome colors.",
@@ -27,7 +27,7 @@
   {
     "name": "Claude",
     "category": "apps",
-    "file": "assets/apps/claude-sized-v5.png",
+    "file": "assets/apps/claude-sized-v5-4096-upscaled.png",
     "preview": "assets/apps/claude-sized-v5-preview.png",
     "icns": "assets/apps/claude-sized-v5.icns",
     "inspiration": "coral",
@@ -37,7 +37,7 @@
   {
     "name": "Conductor",
     "category": "apps",
-    "file": "assets/apps/conductor-sized-v8.png",
+    "file": "assets/apps/conductor-sized-v8-4096-upscaled.png",
     "preview": "assets/apps/conductor-sized-v8-preview.png",
     "icns": "assets/apps/conductor-sized-v8.icns",
     "inspiration": "The Krabby Patty secret formula bottle.",
@@ -56,7 +56,7 @@
   {
     "name": "Figma",
     "category": "apps",
-    "file": "assets/apps/figma-current-v4.png",
+    "file": "assets/apps/figma-current-v4-4096-upscaled.png",
     "preview": "assets/apps/figma-current-v4-preview.png",
     "icns": "assets/apps/figma-current-v4.icns",
     "inspiration": "Iridescent soap bubbles, one for each Figma color.",
@@ -75,7 +75,7 @@
   {
     "name": "Finder",
     "category": "apps",
-    "file": "assets/apps/finder-approved-v15.png",
+    "file": "assets/apps/finder-approved-v15-4096-upscaled.png",
     "preview": "assets/apps/finder-approved-v15-preview.png",
     "icns": "assets/apps/finder-approved-v15.icns",
     "inspiration": "Squidward’s house",
@@ -85,7 +85,7 @@
   {
     "name": "Messages",
     "category": "apps",
-    "file": "assets/apps/messages-reference-v11.png",
+    "file": "assets/apps/messages-reference-v11-4096-upscaled.png",
     "preview": "assets/apps/messages-reference-v11-preview.png",
     "icns": "assets/apps/messages-reference-v11.icns",
     "inspiration": "Mr. Krabs’ framed first dollar.",
@@ -100,7 +100,7 @@
   {
     "name": "Notes",
     "category": "apps",
-    "file": "assets/apps/notes-reference-v11.png",
+    "file": "assets/apps/notes-reference-v11-4096-upscaled.png",
     "preview": "assets/apps/notes-reference-v11-preview.png",
     "icns": "assets/apps/notes-reference-v11.icns",
     "inspiration": "SpongeBob’s spiral notepad and pencil.",
@@ -115,7 +115,7 @@
   {
     "name": "Obsidian",
     "category": "apps",
-    "file": "assets/apps/obsidian-current-v4.png",
+    "file": "assets/apps/obsidian-current-v4-4096-upscaled.png",
     "preview": "assets/apps/obsidian-current-v4-preview.png",
     "icns": "assets/apps/obsidian-current-v4.icns",
     "inspiration": "The boulder from Pizza Delivery, reinterpreted as an obsidian crystal.",
@@ -131,7 +131,7 @@
   {
     "name": "Paper",
     "category": "apps",
-    "file": "assets/apps/paper-flat-v5.png",
+    "file": "assets/apps/paper-flat-v5-4096-upscaled.png",
     "preview": "assets/apps/paper-flat-v5-preview.png",
     "icns": "assets/apps/paper-flat-v5.icns",
     "inspiration": "The Bikini Times newspaper.",
@@ -150,7 +150,7 @@
   {
     "name": "Safari",
     "category": "apps",
-    "file": "assets/apps/safari-weast-v6.png",
+    "file": "assets/apps/safari-weast-v6-4096-upscaled.png",
     "preview": "assets/apps/safari-weast-v6-preview.png",
     "icns": "assets/apps/safari-weast-v6.icns",
     "inspiration": "The nautical compass that points “Weast.”",
@@ -165,7 +165,7 @@
   {
     "name": "System Settings",
     "category": "apps",
-    "file": "assets/apps/settings-sized-v5.png",
+    "file": "assets/apps/settings-sized-v5-4096-upscaled.png",
     "preview": "assets/apps/settings-sized-v5-preview.png",
     "icns": "assets/apps/settings-sized-v5.icns",
     "inspiration": "A submarine porthole and mechanical gears.",
@@ -175,7 +175,7 @@
   {
     "name": "Spotify",
     "category": "apps",
-    "file": "assets/apps/spotify-approved-v15.png",
+    "file": "assets/apps/spotify-approved-v15-4096-upscaled.png",
     "preview": "assets/apps/spotify-approved-v15-preview.png",
     "icns": "assets/apps/spotify-approved-v15.icns",
     "inspiration": "Inspired by the vinyl in the rave scene, seen in Jellyfish Jam.",
@@ -190,7 +190,7 @@
   {
     "name": "Terminal",
     "category": "apps",
-    "file": "assets/apps/terminal-karen-app-v2.png",
+    "file": "assets/apps/terminal-karen-app-v2-4096-upscaled.png",
     "preview": "assets/apps/terminal-karen-app-v2-preview.png",
     "icns": "assets/apps/terminal-karen-app-v2.icns",
     "inspiration": "Karen",
@@ -200,7 +200,7 @@
   {
     "name": "Trash",
     "category": "apps",
-    "file": "assets/apps/trash-chum-bucket-v13.png",
+    "file": "assets/apps/trash-chum-bucket-v13-4096-upscaled.png",
     "preview": "assets/apps/trash-chum-bucket-v13-preview.png",
     "icns": "assets/apps/trash-chum-bucket-v13.icns",
     "inspiration": "the Chum Bucket",
@@ -215,7 +215,7 @@
   {
     "name": "Wispr Flow",
     "category": "apps",
-    "file": "assets/apps/wispr-flow-current-v4.png",
+    "file": "assets/apps/wispr-flow-current-v4-4096-upscaled.png",
     "preview": "assets/apps/wispr-flow-current-v4-preview.png",
     "icns": "assets/apps/wispr-flow-current-v4.icns",
     "inspiration": "Underwater kelp and little sea plants.",
@@ -231,9 +231,9 @@
         "url": "https://spongebob.fandom.com/wiki/Idiot_Box"
       }
     ],
-    "file": "assets/apps/notion-approved-v15.png",
-    "preview": "assets/apps/notion-approved-v15-preview.png",
-    "icns": "assets/apps/notion-approved-v15.icns",
+    "file": "assets/apps/notion-centered-v19-4096-upscaled.png",
+    "preview": "assets/apps/notion-centered-v19-preview.png",
+    "icns": "assets/apps/notion-centered-v19.icns",
     "subject": "the imagination box",
     "inspiration": "the imagination box"
   },
@@ -246,9 +246,9 @@
         "url": "https://spongebob.fandom.com/wiki/Tea_at_the_Treedome"
       }
     ],
-    "file": "assets/apps/slack-tile-v6.png",
-    "preview": "assets/apps/slack-tile-v6-preview.png",
-    "icns": "assets/apps/slack-tile-v6.icns",
+    "file": "assets/apps/slack-outline-v7-4096-upscaled.png",
+    "preview": "assets/apps/slack-outline-v7-preview.png",
+    "icns": "assets/apps/slack-outline-v7.icns",
     "subject": "Sandy’s treedome",
     "inspiration": "Sandy’s treedome"
   },
@@ -571,7 +571,7 @@
   {
     "name": "Music",
     "category": "apps",
-    "file": "assets/apps/music-current-v4.png",
+    "file": "assets/apps/music-current-v4-4096-upscaled.png",
     "preview": "assets/apps/music-current-v4-preview.png",
     "icns": "assets/apps/music-current-v4.icns",
     "inspiration": "Jellyfish Fields",
@@ -581,7 +581,7 @@
   {
     "name": "Photos",
     "category": "apps",
-    "file": "assets/apps/photos-sized-v5.png",
+    "file": "assets/apps/photos-sized-v5-4096-upscaled.png",
     "preview": "assets/apps/photos-sized-v5-preview.png",
     "icns": "assets/apps/photos-sized-v5.icns",
     "inspiration": "Bikini Bottom sky flowers in the Photos rainbow.",
@@ -591,7 +591,7 @@
   {
     "name": "Mail",
     "category": "apps",
-    "file": "assets/apps/mail-letters-v9.png",
+    "file": "assets/apps/mail-letters-v9-4096-upscaled.png",
     "preview": "assets/apps/mail-letters-v9-preview.png",
     "icns": "assets/apps/mail-letters-v9.icns",
     "inspiration": "SpongeBob’s mailbox and a sealed letter.",
@@ -606,7 +606,7 @@
   {
     "name": "Calendar",
     "category": "apps",
-    "file": "assets/apps/calendar-approved-v15.png",
+    "file": "assets/apps/calendar-approved-v15-4096-upscaled.png",
     "preview": "assets/apps/calendar-approved-v15-preview.png",
     "icns": "assets/apps/calendar-approved-v15.icns",
     "inspiration": "the Krusty Krab 2",
@@ -622,7 +622,7 @@
   {
     "name": "Maps",
     "category": "apps",
-    "file": "assets/apps/maps-episode-v6.png",
+    "file": "assets/apps/maps-episode-v6-4096-upscaled.png",
     "preview": "assets/apps/maps-episode-v6-preview.png",
     "icns": "assets/apps/maps-episode-v6.icns",
     "inspiration": "The Flying Dutchman treasure-hunt board from Arrgh!, with black paths, a blue border and raised landmarks.",
@@ -637,7 +637,7 @@
   {
     "name": "News",
     "category": "apps",
-    "file": "assets/apps/news-final-v7.png",
+    "file": "assets/apps/news-final-v7-4096-upscaled.png",
     "preview": "assets/apps/news-final-v7-preview.png",
     "icns": "assets/apps/news-final-v7.icns",
     "references": [
@@ -664,7 +664,7 @@
   {
     "name": "App Store",
     "category": "apps",
-    "file": "assets/apps/app-store-final-v7.png",
+    "file": "assets/apps/app-store-final-v7-4096-upscaled.png",
     "preview": "assets/apps/app-store-final-v7-preview.png",
     "icns": "assets/apps/app-store-final-v7.icns",
     "inspiration": "the bamboo furniture in Squidward’s home",
@@ -674,7 +674,7 @@
   {
     "name": "Docker",
     "category": "apps",
-    "file": "assets/apps/docker-v13.png",
+    "file": "assets/apps/docker-v13-4096-upscaled.png",
     "preview": "assets/apps/docker-v13-preview.png",
     "icns": "assets/apps/docker-v13.icns",
     "subject": "Pearl",
@@ -684,7 +684,7 @@
   {
     "name": "Cursor",
     "category": "apps",
-    "file": "assets/apps/cursor-sand-v16.png",
+    "file": "assets/apps/cursor-sand-v16-4096-upscaled.png",
     "preview": "assets/apps/cursor-sand-v16-preview.png",
     "icns": "assets/apps/cursor-sand-v16.icns",
     "subject": "Patrick’s rock house",
@@ -694,7 +694,7 @@
   {
     "name": "Weather",
     "category": "apps",
-    "file": "assets/apps/weather-bikini-atoll-v2.png",
+    "file": "assets/apps/weather-bikini-atoll-v2-4096-upscaled.png",
     "preview": "assets/apps/weather-bikini-atoll-v2-preview.png",
     "icns": "assets/apps/weather-bikini-atoll-v2.icns",
     "subject": "Bikini Atoll",
@@ -707,7 +707,7 @@
   {
     "name": "Clock",
     "category": "apps",
-    "file": "assets/apps/clock-v13.png",
+    "file": "assets/apps/clock-v13-4096-upscaled.png",
     "preview": "assets/apps/clock-v13-preview.png",
     "icns": "assets/apps/clock-v13.icns",
     "subject": "the Krusty Krab clock",
@@ -726,7 +726,7 @@
   {
     "name": "Mission Control",
     "category": "apps",
-    "file": "assets/apps/mission-control-v13.png",
+    "file": "assets/apps/mission-control-v13-4096-upscaled.png",
     "preview": "assets/apps/mission-control-v13-preview.png",
     "icns": "assets/apps/mission-control-v13.icns",
     "subject": "Mr. Krabs’ house",
@@ -736,7 +736,7 @@
   {
     "name": "Phone",
     "category": "apps",
-    "file": "assets/apps/phone-short-cord-v24.png",
+    "file": "assets/apps/phone-short-cord-v24-4096-upscaled.png",
     "preview": "assets/apps/phone-short-cord-v24-preview.png",
     "icns": "assets/apps/phone-short-cord-v24.icns",
     "subject": "Patrick’s telephone receiver",
