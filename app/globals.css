@@ -1,28 +1,3 @@
-@font-face {
-  font-family: 'Apercu Pro';
-  src: url('/fonts/apercu_regular_pro.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Apercu Pro';
-  src: url('/fonts/apercu_regular_italic_pro.otf') format('opentype');
-  font-weight: 400;
-  font-style: italic;
-}
-@font-face {
-  font-family: 'Apercu Pro';
-  src: url('/fonts/apercu_medium_pro.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Apercu Pro';
-  src: url('/fonts/apercu_bold_pro.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-}
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -35,10 +10,10 @@
 
 /* Geist throughout: body and headings are the same family, hierarchy comes from
    weight and size. Declared on body, not :root, because next/font puts
-   --font-geist-sans on the body element. Apercu Pro is the fallback. */
+   --font-geist-sans on the body element. */
 body {
-  --font-main: var(--font-geist-sans), 'Apercu Pro', -apple-system, sans-serif;
-  --font-display: var(--font-geist-sans), 'Apercu Pro', -apple-system, sans-serif;
+  --font-main: var(--font-geist-sans), -apple-system, sans-serif;
+  --font-display: var(--font-geist-sans), -apple-system, sans-serif;
 }
 
 [data-theme="light"] {

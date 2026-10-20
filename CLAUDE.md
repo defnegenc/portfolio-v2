@@ -21,7 +21,7 @@ Core strengths for the portfolio to convey:
 
 ## Projects
 
-See individual project files for full context. Source portfolio at `/Users/defnegenc/Desktop/defne-portfolio/`.
+Per-project notes (`bloom.md`, `menuto.md`, …), the homepage favourites log and other working files live outside this public repo, in `~/Developer/portfolio-notes/`. Source portfolio at `/Users/defnegenc/Desktop/defne-portfolio/`.
 
 Projects are not split by design vs. dev — most span both. Present as a unified list.
 
@@ -37,7 +37,7 @@ Projects are not split by design vs. dev — most span both. Present as a unifie
 ## Bloom Summary (anchor project)
 
 Second author. MS thesis work with Prof. Landay. LLM-augmented physical activity coaching app. **Won Best Paper at CHI 2026 (top 1% of submissions).**
-- Full details in `bloom.md`
+- Full details in `~/Developer/portfolio-notes/bloom.md`
 - Key stat: 5x longer engagement, +1.2 vs +0.8 mindset shift in LLM condition
 - Safety system: 600-example benchmark, >96% recall across harm categories
 - Contributions: UI design (most influence), safety filters (led red-teaming), frontend (most influence), recruitment, qualitative coding, paper
@@ -75,7 +75,6 @@ When writing copy for this portfolio, match these characteristics:
 - All project data lives in `app/project/[slug]/page.tsx` as a single `PROJECTS` record with typed `Section` union
 - Section types: text, pullquote, image, images, phones (iPhone mockup CSS frames), diagram (inline SVG), stats, list, subheader
 - Homepage project data (order, tags, previews, badge) lives in `app/page.tsx` PROJECTS array
-- Hover previews use alpha PNGs (`*-0alpha.png`) shown at 85% opacity via CSS class `.pt-preview`
 - File casing matters: deploy target is case-sensitive Linux. Always use lowercase extensions (.png not .PNG)
 - `ListItem` component parses both "Key — description" and "Key: description" formats for bold keys
-- Apercu Pro font files in `public/fonts/`, Fragment Mono via next/font
+- Geist and Fragment Mono via next/font. Don't commit licensed font files: this repo is public
