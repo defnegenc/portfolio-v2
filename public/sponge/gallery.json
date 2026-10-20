@@ -17,12 +17,17 @@
   {
     "name": "Chrome",
     "category": "apps",
-    "file": "assets/apps/chrome-current-v4-4096-upscaled.png",
-    "preview": "assets/apps/chrome-current-v4-preview.png",
-    "icns": "assets/apps/chrome-current-v4.icns",
-    "inspiration": "A painted submarine porthole in Chrome colors.",
-    "references": [],
-    "subject": "a submarine porthole"
+    "file": "assets/apps/chrome-face-on-v3-4096.png",
+    "preview": "assets/apps/chrome-face-on-v3-preview.png",
+    "icns": "assets/apps/chrome-face-on-v3.icns",
+    "inspiration": "the tables in the Krusty Krab",
+    "references": [
+      {
+        "label": "Krusty Krab",
+        "url": "https://en.wikipedia.org/wiki/Krusty_Krab"
+      }
+    ],
+    "subject": "the tables in the Krusty Krab"
   },
   {
     "name": "Claude",
