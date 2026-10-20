@@ -5,3 +5,8 @@ node_modules/
 *.log
 .DS_Store
 out/
+
+# local only
+tsconfig.tsbuildinfo
+.claude/settings.local.json
+.context/
