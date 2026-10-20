@@ -134,7 +134,7 @@ export const PROJECTS: Record<string, Project> = {
     sections: [
       {
         type: 'pullquote',
-        text: 'Talking and writing are linear. The landscape of my ideas isn’t.',
+        text: 'Talking and writing are linear, but my thinking isn’t.',
       },
       {
         type: 'text',
