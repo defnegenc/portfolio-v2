@@ -2,9 +2,9 @@
   {
     "name": "ChatGPT",
     "category": "apps",
-    "file": "assets/apps/chatgpt-approved-v15-4096-upscaled.png",
-    "preview": "assets/apps/chatgpt-approved-v15-preview.png",
-    "icns": "assets/apps/chatgpt-approved-v15.icns",
+    "file": "assets/apps/chatgpt-chrome-v16-4096.png",
+    "preview": "assets/apps/chatgpt-chrome-v16-preview.png",
+    "icns": "assets/apps/chatgpt-chrome-v16.icns",
     "inspiration": "the chrome future",
     "references": [
       {
