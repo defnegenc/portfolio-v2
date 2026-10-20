@@ -264,7 +264,7 @@ export default function LabView({ project, listing }: { project: Project; listin
 
         {/* ── the lead figure, full width under the header ── */}
         {hero && !heroNarrow && (
-          <div className="lb-wide">
+          <div className="lb-wide lb-hero">
             <figure className="lb-fig">
               <img src={hero.src} alt={hero.alt} className={hero.plate ? 'lb-plate' : undefined} />
             </figure>
@@ -520,6 +520,8 @@ const CSS = `
   .lb-text { padding: 2.25rem var(--gut) 1.5rem 0; }
   .lb-half { max-width: calc(50% - var(--wall) / 2 - var(--gut)); }
   .lb-wide-text { padding-bottom: 1.5rem; }
+  /* the run below draws its wall up into this padding, so leave the figure clear of it */
+  .lb-hero { padding-bottom: calc(1.25rem + var(--wall)); }
   .lb-wide > .lb-b-subheader { max-width: calc(50% - var(--wall) / 2 - var(--gut)); }
 
   .lb-b + .lb-b { margin-top: 1.9rem; }
