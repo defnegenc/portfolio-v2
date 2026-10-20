@@ -153,7 +153,7 @@ export const PROJECTS: Record<string, Project> = {
         items: [{
           title: 'Features',
           rows: [
-            { label: 'The map', body: 'The current landscape of my thinking. I don’t want to reread everything I said. I want to see the whole landscape, then drill down where it matters. Every topic holds the exact words it came from.' },
+            { label: 'The map', body: 'The current landscape of my thinking. I don’t want to reread everything I said. I want to see the whole landscape, then drill down where things are interesting or underdeveloped. Every topic holds the exact words it came from.' },
             { label: 'Idea lineage', body: 'How my thinking on the same idea changes over time. Some opinions shift, some stay the same, and I forget a lot of what I said. Lineage keeps every version, so a good way of putting something never gets lost. Semantic search across all my maps also surfaces ideas that look unrelated but are the same idea in a different setting, even when I never made the connection myself.' },
             { label: 'Challenges', body: 'When I contradict myself, say something worth expanding, or make a good, unusual take, the map flags it and prompts me to talk about it more.' },
           ],
