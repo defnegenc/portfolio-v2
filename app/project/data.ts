@@ -38,6 +38,8 @@ export interface Project {
   externalLink?: { href: string; label: string }
   secondaryLink?: { href: string; label: string }
   jumpTo?: { anchor: string; label: string }
+  /** Just the title, the tagline and the link: no tags, no Year/Role table. */
+  bare?: boolean
   sections: Section[]
 }
 
@@ -113,6 +115,49 @@ export const PROJECTS: Record<string, Project> = {
           'Highlights of existing behaviors (gardening, walking to work) counted as exercise, enabling participants to discover they were already doing more than they realized.',
           'Safety filtering was essential: participants raised chronic pain, mental health struggles, and grief, which required nuanced, harm-aware responses that the red-teamed guardrails handled correctly.',
         ],
+      },
+    ],
+  },
+
+  mydrift: {
+    slug: 'mydrift',
+    heroWide: { src: '/drift-welcome.png', alt: 'The my drift welcome page: a sample map of three topics, each with the exact quote it came from', ratio: 2 },
+    no: '02',
+    name: 'Catching My Drift',
+    tagline: 'A tool to think with. Speak a messy word dump and see your ideas laid out as a map, in your own words.',
+    year: '2026',
+    role: 'Solo · Product · Design · Full-Stack',
+    accentColor: '#FE00E5',
+    tags: [],
+    bare: true,
+    externalLink: { href: 'https://catchingmydrift.com', label: 'catchingmydrift.com ↗' },
+    sections: [
+      {
+        type: 'pullquote',
+        text: 'Talking and writing are linear. The landscape of my ideas isn’t.',
+      },
+      {
+        type: 'text',
+        body: 'I’ve been thinking a lot about voice, interfaces, and tools to think. I talk back and forth with chatbots all the time now, and I’ve been struck by how much more I get across by speaking. Talking is cheap, so I say a lot more, including the doubts, hesitations and tangents I would have filtered out when writing.',
+      },
+      {
+        type: 'text',
+        body: 'Reading back through my Wispr Flow dumps, I found a lot of nuance and good ideas. Then I watched the AI summaries squash them flat. My raw words were often better than anything rephrased, and every time an AI summarized my own ideas back to me, I lost a lot of the sauce.',
+      },
+      {
+        type: 'text',
+        body: 'I wanted a tool to think with. My messy word dumps and non-linear thoughts, laid out in space, so I can play with them, develop my ideas and see my thinking.',
+      },
+      {
+        type: 'tiles',
+        items: [{
+          title: 'Features',
+          rows: [
+            { label: 'The map', body: 'The current landscape of my thinking. I don’t want to reread everything I said. I want to see the whole landscape, then drill down where it matters. Every topic holds the exact words it came from.' },
+            { label: 'Idea lineage', body: 'How my thinking on the same idea changes over time. Some opinions shift, some stay the same, and I forget a lot of what I said. Lineage keeps every version, so a good way of putting something never gets lost. Semantic search across all my maps also surfaces ideas that look unrelated but are the same idea in a different setting, even when I never made the connection myself.' },
+            { label: 'Challenges', body: 'When I contradict myself, say something worth expanding, or make a good, unusual take, the map flags it and prompts me to talk about it more.' },
+          ],
+        }],
       },
     ],
   },
@@ -195,7 +240,7 @@ export const PROJECTS: Record<string, Project> = {
       { src: '/learningetal-digest.png', alt: 'Today’s digest: the central question, a one-line answer, and the first source card' },
       { src: '/learningetal-card.png', alt: 'A single source card: title, byline, TL;DR, and findings beside a takeaway' },
     ],
-    no: '02',
+    no: '03',
     name: 'Learning Et Al.',
     tagline: 'Learning Et Al. (\u201clearning it all\u201d). A daily research digest around a provocative question, built from the papers and news that match your interests.',
     year: '2026',
@@ -529,15 +574,15 @@ export const PROJECTS: Record<string, Project> = {
 }
 
 /* The four projects the homepage lists, and the only ones that get a page.
-   Flock, Tailor and Hercules still have data below but are not routed: the
-   prev/next chain was walking visitors into them from Dishcovery. */
-export const ALL_SLUGS = ['bloom', 'learningetal', 'menuto', 'dishcovery']
+   Menuto, Flock, Tailor and Hercules still have data below but are not routed:
+   the prev/next chain was walking visitors into them from Dishcovery. */
+export const ALL_SLUGS = ['bloom', 'mydrift', 'learningetal', 'dishcovery']
 
 /* What the homepage table says about each project, for listings outside it. */
 export const KIND: Record<string, string> = {
   bloom: 'Research',
+  mydrift: 'Web app',
   learningetal: 'Website',
-  menuto: 'iOS app',
   dishcovery: 'iOS app',
 }
 

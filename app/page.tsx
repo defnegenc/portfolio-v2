@@ -55,8 +55,8 @@ function TypewriterName({ text }: { text: string }) {
 
 const PROJECTS = [
   { name: 'Bloom',           kind: 'Research',      year: '2025', href: '/project/bloom',        sub: 'LLM-augmented physical activity coaching', award: 'CHI 2026 Best Paper', awardNote: '(Top 1%)' },
+  { name: 'Catching My Drift', kind: 'Web app',     year: '2026', href: '/project/mydrift',      sub: 'Speak a word dump and watch your thoughts fall into place' },
   { name: 'Learning Et Al.', kind: 'Website',       year: '2026', href: '/project/learningetal', sub: 'A daily research digest around a provocative question' },
-  { name: 'Menuto',          kind: 'iOS app',       year: '2026', href: '/project/menuto',       sub: 'Dish recommendations that learn your taste' },
   { name: 'Dishcovery',      kind: 'iOS app',       year: '2024', href: '/project/dishcovery',   sub: 'Recognise and cook with ingredients from anywhere' },
 ]
 
@@ -397,7 +397,7 @@ function Label({ children }: { children: React.ReactNode }) {
 function Num({ i }: { i: number }) {
   const mode = useContext(HeadCtx)
   if (mode !== 'numbers') return null
-  return <span className="sec-num">{String(i + 1).padStart(2, '0')}</span>
+  return <span className="sec-num">{i + 1}</span>
 }
 
 /* In terminal mode the project list is the second command: once the bio has
