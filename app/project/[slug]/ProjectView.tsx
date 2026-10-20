@@ -194,7 +194,7 @@ export default function LabView({ project, listing }: { project: Project; listin
 
   const chunks = useMemo(() => chunk(project.sections), [project])
   const chapterAt = new Map(chapters.map(c => [c.at, c]))
-  const numOf = (id: string) => String(chapters.findIndex(c => c.id === id) + 1).padStart(2, '0')
+  const numOf = (id: string) => String(chapters.findIndex(c => c.id === id) + 1)
 
   const meta = [
     { k: 'Year', v: project.year },
@@ -240,23 +240,26 @@ export default function LabView({ project, listing }: { project: Project; listin
           <div className="lb-win lb-hw2" />
           <div className="lb-panel lb-title">
             <h1 className="lb-h1"><Decode text={project.name} by="char" /></h1>
-            <div className="lb-tags">{project.tags.join(' · ')}</div>
+            {!project.bare && <div className="lb-tags">{project.tags.join(' · ')}</div>}
             <p className="lb-tagline">{project.tagline}</p>
             <div className="lb-links">
               {project.externalLink && <a className="lb-btn lb-btn-on" href={project.externalLink.href} target="_blank" rel="noreferrer">{project.externalLink.label}</a>}
               {project.secondaryLink && <a className="lb-btn" href={project.secondaryLink.href} target="_blank" rel="noreferrer">{project.secondaryLink.label}</a>}
             </div>
           </div>
-          <div className="lb-panel lb-meta">
-            <div className="lb-table">
-              {meta.map(m => (
-                <div key={m.k} className="lb-row">
-                  <span className="lb-k">{m.k}</span>
-                  <span>{m.v}</span>
-                </div>
-              ))}
+          {/* a bare page has no facts, so their panel opens into a window */}
+          {project.bare ? <div className="lb-win lb-hw3" /> : (
+            <div className="lb-panel lb-meta">
+              <div className="lb-table">
+                {meta.map(m => (
+                  <div key={m.k} className="lb-row">
+                    <span className="lb-k">{m.k}</span>
+                    <span>{m.v}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </header>
 
         {/* ── the lead figure, full width under the header ── */}
@@ -315,7 +318,7 @@ export default function LabView({ project, listing }: { project: Project; listin
               const here = p.slug === project.slug
               const inner = (
                 <>
-                  <span className="lb-ptab-name"><span className="lb-num">{String(i + 1).padStart(2, '0')}</span>{p.name}{p.award && <span className="lb-award">{p.award}</span>}</span>
+                  <span className="lb-ptab-name"><span className="lb-num">{i + 1}</span>{p.name}{p.award && <span className="lb-award">{p.award}</span>}</span>
                   <span>{p.kind}</span>
                   <span>{p.year}</span>
                 </>
@@ -356,7 +359,7 @@ function SectionBlock({ s }: { s: Section }) {
               const kv = s.items.every(x => splitKey(x)) ? splitKey(it) : null
               return (
                 <div key={i} className={`lb-li${kv ? '' : ' lb-li-plain'}`}>
-                  <span className="lb-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="lb-num">{i + 1}</span>
                   {kv ? <><span className="lb-li-k">{kv[0]}</span><span>{kv[1]}</span></> : <span>{it}</span>}
                 </div>
               )
@@ -423,7 +426,7 @@ function SectionBlock({ s }: { s: Section }) {
                   <div className="lb-list">
                     {t.rows.map((r, i) => (
                       <div key={i} className="lb-li lb-li-stack">
-                        <span className="lb-num">{String(i + 1).padStart(2, '0')}</span>
+                        <span className="lb-num">{i + 1}</span>
                         <span className="lb-li-k">{r.label}</span>
                         <span>{renderBody(r.body)}</span>
                       </div>
@@ -449,7 +452,7 @@ function SectionBlock({ s }: { s: Section }) {
                   n += 1
                   return (
                     <div key={st.label} className="lb-stage">
-                      <span className="lb-num">{String(n).padStart(2, '0')}</span>
+                      <span className="lb-num">{n}</span>
                       <span className="lb-stage-l">{st.label}</span>
                       <span className="lb-award">{st.sub}</span>
                       <span>{st.detail}</span>
@@ -528,7 +531,7 @@ const CSS = `
   .lb-h2 { font-family: var(--font-display); font-size: clamp(1.55rem, 2.2vw, 1.95rem); font-weight: 500; letter-spacing: -0.02em; line-height: 1.1;
     padding-bottom: 0.7rem; border-bottom: 1px solid var(--hairline); }
   .lb-h2 .lb-num { font-size: 0.8em; }
-  .lb-h3 { font-family: var(--font-display); font-size: 1.18rem; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 0.55rem; }
+  .lb-h3 { color: var(--award); font-family: var(--font-display); font-size: 1.18rem; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 0.55rem; }
   .lb-p { font-size: 1.02rem; line-height: 1.72; color: var(--ink-dim); max-width: 42rem; }
   .lb-strong { color: var(--ink); font-weight: 600; }
 
@@ -542,7 +545,7 @@ const CSS = `
   .lb-li { display: grid; grid-template-columns: 2rem minmax(0, 11rem) minmax(0,1fr); gap: 0.9rem; padding: 0.7rem 0.1rem; border-bottom: 1px solid var(--hairline);
     font-size: 0.98rem; line-height: 1.55; color: var(--ink-dim); align-items: baseline; }
   .lb-li-plain { grid-template-columns: 2rem minmax(0,1fr); }
-  .lb-li-k { color: var(--ink); font-weight: 500; }
+  .lb-li-k { color: var(--award); font-weight: 500; }
   .lb-li-stack { grid-template-columns: 2rem minmax(0,1fr); }
   .lb-li-stack { row-gap: 0.2rem; }
   .lb-li-stack > span:nth-child(3) { grid-column: 2; }
@@ -594,7 +597,7 @@ const CSS = `
      to a short band under its copy, the way the About page does it. */
   @media (max-width: 860px) {
     .lb-head { grid-template-columns: 1fr; grid-template-rows: clamp(150px, 24vh, 240px) auto auto; }
-    .lb-hw2 { display: none; }
+    .lb-hw2, .lb-hw3 { display: none; }
     .lb-title { padding: 1.1rem 0 0.25rem; }
     .lb-meta { padding: 0.5rem 0 1.25rem; }
     .lb-run { grid-template-columns: 1fr; }

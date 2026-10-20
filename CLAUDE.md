@@ -26,8 +26,9 @@ See individual project files for full context. Source portfolio at `/Users/defne
 Projects are not split by design vs. dev — most span both. Present as a unified list.
 
 - **Bloom** (anchor project) — `bloom.md` — Stanford HCI research, second author, LLM coaching app; research + safety + design + frontend
+- **Catching My Drift** (my drift) — saythings.vercel.app, repo `~/Developer/saythings` — Solo project, speak a word dump and get a map of your ideas in your own words (verbatim quotes); page slug `mydrift`
 - **Learning Et Al.** — learningetal.com — Solo project, daily research digest; Next.js 16 + Turso + Drizzle + ONNX embeddings + Vercel; hybrid ranking (BM25+embedding RRF), multi-stage synthesis pipeline, interest decay, theme novelty enforcement
-- **Menuto** — `menuto.md` — Solo project, AI dish recommendation; React Native + Expo + FastAPI + Gemini + Supabase; 8-component composite scoring with Bayesian weight learning, embedding-based taste compatibility
+- **Menuto** (removed from the site Oct 2026, data kept unrouted) — `menuto.md` — Solo project, AI dish recommendation; React Native + Expo + FastAPI + Gemini + Supabase; 8-component composite scoring with Bayesian weight learning, embedding-based taste compatibility
 - **Dishcovery** — `dishcovery.md` — CS 147 + CS 194H, award-winning; food/culture app; UI design + frontend
 - **Flock** — `flock.md` — CS 278 (Social Computing), React Native social app; design + full-stack
 - **Spiritwood** — `spiritwood.md` — CS 247G (Design for Play), Unity puzzle-platformer; narrative + visual + game design
