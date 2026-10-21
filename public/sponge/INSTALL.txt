@@ -60,7 +60,7 @@ This replaces the appearance of Docky's Trash tile. Apple's protected Trash and 
 Use the provided ICNS files first. In my setup, they looked smoother at Dock size than loading the large PNGs directly. ICNS files contain multiple image sizes. Avoid screenshots and gallery thumbnails.
 Under Appearance → Tile Layout, keep Tile Clip Shape set to Rounded to preserve these designs rather than clipping them into circles. Set the overall Tile Size to taste. Magnification is optional and was labeled an alpha feature in the version I tested.
 
-Each custom icon also has a Padding control in App Icons. I used a small nonzero value, about 1%, to avoid Docky's automatic transparent-edge adjustment. Then compare the visible artwork, not just the square image canvas. More padding makes an icon smaller; less padding makes it larger.
+Each custom icon has a Padding control in App Icons. Tune it per app: equal padding does not produce equal visible sizes. Compare opaque artwork bounds and visually check the entire Dock. More padding makes an icon smaller; less padding makes it larger. If small designs need more room, increase Tile Size and compensate with more padding on larger designs. Repeat after every artwork update.
 
 For my Chum Bucket, I made a separate copy with less transparent margin and rebuilt its ICNS sizes, making it about 11% larger. Keep the original. If padding cannot get a design large enough, crop only the empty margin in a copy and regenerate the ICNS, without stretching or clipping the artwork.
 
@@ -87,3 +87,10 @@ Undo Docky: choose Clear beside an icon override to restore that app's default i
 Undo a Finder icon: select the small icon in Get Info and press Delete to restore the default, or paste your backed-up custom icon. Choose your previous wallpaper in System Settings.
 
 No part of this setup requires disabling System Integrity Protection, changing the sealed system volume, or editing signed app resources. The earlier shortcut approach was a workaround; Docky made it unnecessary for the finished Dock. Menu labels may change with Docky updates.
+
+
+VISUAL CONSISTENCY CHECK (repeat after every icon update)
+
+6. Make the icons visually uniform before finishing. Use Rounded tile clipping and full-resolution ICNS files. Equal canvas dimensions or identical padding do not mean equal visible sizes: measure the opaque artwork bounds, then tune padding per app. Match the visible bodies of square icons, including Paper versus Finder, Wispr Flow versus Photos, and Spotify versus ChatGPT. Keep silhouettes proportional and optically balance tall or narrow designs. Check both Trash states separately so the bucket does not look undersized. If the smallest designs need more room, increase the overall tile size and compensate with individual padding for larger designs. Preserve artwork, colors and aspect ratios. Never stretch, clip or redraw icons to force matching dimensions. Compare the entire Dock at normal display size with magnification off, check sharpness and alignment, and verify again after restarting Docky. Repeat this sizing check after every artwork update; do not reset all padding values to 1%.
+
+8. Ask whether I want notification badges on the themed Dock. For a clean Dock, turn off Docky’s Show App Badges setting for all apps and verify the red corner counts disappear. Do not mark conversations read or disable macOS notification delivery. Report what was actually verified and provide reversal steps for Docky, Finder icons and wallpaper.
