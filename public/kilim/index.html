@@ -50,6 +50,9 @@
       }
       .style button { pointer-events: auto; font: 600 16px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 10px 12px; min-height: 36px; }
       .style button:hover { background: #efe8da; }
+      .style button:not(.weave) { background: rgba(249, 246, 240, 0.86); }
+      .style button:not(.weave):hover { background: #efe8da; }
+      body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 
       .card {
         position: fixed; width: 300px; box-sizing: border-box; padding: 22px 24px 24px;
@@ -65,6 +68,13 @@
         font: 600 15px/1.2 "Geist Mono", ui-monospace, Menlo, monospace; background: var(--ink); color: #fffdf8;
       }
       .card .act:hover { background: #5a4434; }
+      .card .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+      .card .acts .act { margin-top: 0; }
+      .card .act.pull { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+      .card .act.pull:hover { background: #efe8da; }
+      .card p.tip { margin-top: 12px; font-size: 13px; opacity: 0.7; }
+      .style .weave { background: var(--ink); color: #fffdf8; }
+      .style .weave:hover { background: #5a4434; }
       .card button[aria-label="Close"] { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; font: 400 22px/1 "Geist Mono", monospace; }
 
       @media (max-width: 760px) {
@@ -75,7 +85,7 @@
       }
       @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-CYBnjrDU.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-CRtP2DaU.js"></script>
   </head>
   <body>
     <aside class="side">
@@ -104,17 +114,22 @@
       </section>
     </aside>
     <button type="button" class="menu">Rugs</button>
-    <canvas aria-label="A kilim. Drag it to shake it, or press Roll up to roll it up and lay out a new one. Click a character to pull it out; click a motif to see what it means."></canvas>
+    <canvas aria-label="A kilim. Drag it to shake it, or press Roll up to roll it up and lay out a new one. Press and hold a motif to tear it out; pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a character to pull it out; click a motif to see what it means."></canvas>
     <div class="style">
       <button type="button" class="name"></button>
       <button type="button" class="roll" title="Roll this rug up and lay out a new one">Roll up</button>
+      <button type="button" class="weave" hidden title="Weave the motifs on the floor into this rug, read left to right">Weave them in</button>
     </div>
     <div class="card" role="dialog" aria-live="polite">
       <button type="button" aria-label="Close">×</button>
       <h2></h2>
       <p></p>
       <p class="with" hidden></p>
-      <button type="button" class="act" hidden>Build a rug around it</button>
+      <div class="acts">
+        <button type="button" class="act" hidden>Build a rug around it</button>
+        <button type="button" class="act pull" hidden>Pull it out</button>
+      </div>
+      <p class="tip" hidden>You can also press and hold a motif to tear it out.</p>
     </div>
   </body>
 </html>
