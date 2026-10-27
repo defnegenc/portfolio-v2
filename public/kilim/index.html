@@ -68,6 +68,9 @@
         font: 600 15px/1.2 "Geist Mono", ui-monospace, Menlo, monospace; background: var(--ink); color: #fffdf8;
       }
       .card .act:hover { background: #5a4434; }
+      /* English by default; hover (or tap) shows the Turkish. */
+      .tr { text-decoration: underline dotted; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: help; white-space: nowrap; }
+      .tr.turkish { text-decoration-style: solid; }
       .card .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
       .card .acts .act { margin-top: 0; }
       .card .act.pull { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
@@ -85,23 +88,23 @@
       }
       @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-Bd-Y7S3N.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-KG0S6FEQ.js"></script>
   </head>
   <body>
     <aside class="side">
       <details class="story">
         <summary>How kilims tell a story</summary>
-        <p>Most Anatolian village and nomad women didn't write books. They wove. A kilim was where a woman could set down her sorrows, joys and stories.</p>
-        <p>Young women were often expected to stay quiet and modest. At the loom they could speak, and the motifs worked like an alphabet.</p>
-        <p>A girl began weaving for her çeyiz, the things she would take into her marriage. The finished kilims were folded into her çeyiz sandığı, the dowry chest. In them she wove her hopes for children, good luck and a good husband.</p>
-        <p>A married woman might weave her annoyance with a difficult mother-in-law, or her longing for a husband far away. After her first child, she often began weaving elibelinde.</p>
-        <p>A motif's meaning could shift with where it sat, its colour, or a small change in its shape, much like tone can change a spoken word.</p>
+        <p>In Anatolian villages and nomad camps, few women ever wrote anything down, but nearly all of them wove. A kilim was where a woman could set down her sorrows, her joys and the stories she couldn’t tell out loud.</p>
+        <p>Young women were expected to be quiet and modest, so the loom was one of the few places they could speak freely, and the motifs became their alphabet.</p>
+        <p>A girl started weaving for her <span class="tr" data-tr="çeyiz" lang="en">dowry</span> long before she married, and the finished kilims were folded away in her <span class="tr" data-tr="çeyiz sandığı" lang="en">dowry chest</span>. Into them she wove what she hoped for: children, good luck and a good husband.</p>
+        <p>Once married, she might weave her irritation with a difficult mother-in-law, or how much she missed a husband who was far away. After her first child, many women began weaving <span class="tr" data-tr="elibelinde" lang="en">hands on hips</span>, the motif for motherhood.</p>
+        <p>The same motif could say different things depending on where it sat, what colour it was or a small change in its shape, the way tone changes what a spoken word means.</p>
         <h3>The chief and the kilim</h3>
-        <p>A Yörük chief once saw a kilim lying on the ground by a tent, and it troubled him. He sent for the weaver's father and asked him: "You want to marry your daughter to a man she doesn't love, don't you?"</p>
-        <p>The father was stunned. It was true. He was poor, a rich man had asked for her, and she loved a poor young man. "How could you know?"</p>
-        <p>The chief pointed at the kilim. He gave the father a horse and a camel, and told him to let her marry the man she loved. "And tell her she wove it well," he said. "But a little less green next to the red. I was almost misled."</p>
-        <p>Retold from Mehmet Önder, "Anadolu'da Kilimler de Konuşur", Kültür ve Sanat, 1999.</p>
-        <p>Many of these meanings were written down by collectors after the 1960s, not by the weavers themselves. One guide says there is "no direct answer or watertight paradigm" for what a kilim means. Read them as likely, not certain.</p>
+        <p>A Yörük chief was passing a tent one day when he noticed a kilim lying on the ground, and something in it troubled him. He sent for the weaver’s father and asked, “You want to marry your daughter to a man she doesn’t love, don’t you?”</p>
+        <p>The father was stunned, because it was true. He was poor, a rich man had asked for her, and she was in love with a poor young man. “How could you know?” he asked.</p>
+        <p>The chief pointed at the kilim. Then he gave the father a horse and a camel and told him to let his daughter marry the man she loved. “And tell her she wove it well,” he said. “A little less green next to the red, though. It almost misled me.”</p>
+        <p>Retold from Mehmet Önder, “Anadolu’da Kilimler de Konuşur”, Kültür ve Sanat, 1999.</p>
+        <p>Most of these meanings were written down by collectors after the 1960s rather than by the weavers themselves, and one guide warns there is “no direct answer or watertight paradigm” for reading a kilim. Take them as likely rather than certain.</p>
       </details>
       <section>
         <h2>Regions</h2>
@@ -119,6 +122,7 @@
       <button type="button" class="name"></button>
       <button type="button" class="roll" title="Roll this rug up and lay out a new one">Roll up</button>
       <button type="button" class="weave" hidden title="Weave the motifs on the floor into this rug, read left to right">Weave them in</button>
+      <button type="button" class="sweep" hidden title="Sweep everything off the floor">Sweep</button>
     </div>
     <div class="card" role="dialog" aria-live="polite">
       <button type="button" aria-label="Close">×</button>
