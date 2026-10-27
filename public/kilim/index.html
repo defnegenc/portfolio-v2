@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>kilim</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root { --side: 264px; --ink: #3a2a20; --page: #f9f6f0; --panel: #f2ece2; --pick: #e6dccb; }
+      html, body { margin: 0; height: 100%; background: var(--page); overflow: hidden; }
+      body { font-family: "Geist Mono", ui-monospace, Menlo, monospace; color: var(--ink); }
+      body > canvas {
+        position: fixed; top: 0; left: var(--side); display: block;
+        width: calc(100vw - var(--side)); height: 100vh; touch-action: none;
+        font-family: "Geist Mono", ui-monospace, Menlo, monospace;
+      }
+      button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+
+      .side {
+        position: fixed; top: 0; left: 0; bottom: 0; width: var(--side); box-sizing: border-box;
+        padding: 28px 16px 40px; overflow-y: auto; background: var(--panel); z-index: 2;
+      }
+      .side h2 { margin: 0 10px 10px; font-size: 15px; font-weight: 600; }
+      .story { margin: 0 0 28px; }
+      .story summary { cursor: pointer; padding: 9px 10px; font-size: 15px; font-weight: 600; list-style: none; }
+      .story summary::-webkit-details-marker { display: none; }
+      .story summary:hover { background: #ebe3d5; }
+      .story[open] summary { background: var(--pick); }
+      .story p { margin: 12px 10px 0; font-size: 15px; line-height: 1.55; }
+      .story h3 { margin: 24px 10px 0; font-size: 15px; font-weight: 600; }
+      .side section + section { margin-top: 32px; }
+      .regions { display: flex; flex-direction: column; }
+      .side canvas.map { display: block; width: calc(100% - 20px); margin: 4px 10px 14px; }
+      .regions button { text-align: left; font-size: 15px; padding: 9px 10px; min-height: 36px; }
+      .regions button:hover, .history button:hover { background: #ebe3d5; }
+      .regions button.current, .history button.current { background: var(--pick); }
+      .history { display: flex; flex-direction: column; gap: 6px; }
+      .history button { display: flex; flex-direction: column; gap: 8px; padding: 10px; text-align: left; font-size: 15px; }
+      .history img { display: block; width: 100%; height: auto; }
+      .menu { display: none; }
+
+      .style {
+        position: fixed; left: var(--side); right: 0; display: flex; justify-content: center; gap: 8px; pointer-events: none;
+      }
+      .style button { pointer-events: auto; font: 600 16px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 10px 12px; min-height: 36px; }
+      .style button:hover { background: #efe8da; }
+
+      .card {
+        position: fixed; width: 300px; box-sizing: border-box; padding: 22px 24px 24px;
+        background: #fffdf8; border: 1px solid #d9ccb4;
+        opacity: 0; transform: translateY(6px); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; z-index: 3;
+      }
+      .card.open { opacity: 1; transform: none; pointer-events: auto; }
+      .card h2 { margin: 0 32px 10px 0; font-size: 20px; font-weight: 600; line-height: 1.25; }
+      .card p { margin: 0; font-size: 15px; font-weight: 400; line-height: 1.55; }
+      .card p.with { margin-top: 12px; }
+      .card .act {
+        position: static; width: auto; height: auto; margin-top: 18px; padding: 10px 14px; min-height: 36px;
+        font: 600 15px/1.2 "Geist Mono", ui-monospace, Menlo, monospace; background: var(--ink); color: #fffdf8;
+      }
+      .card .act:hover { background: #5a4434; }
+      .card button[aria-label="Close"] { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; font: 400 22px/1 "Geist Mono", monospace; }
+
+      @media (max-width: 760px) {
+        :root { --side: 0px; }
+        .side { width: 280px; padding-top: 72px; transform: translateX(-100%); transition: transform 0.3s ease; }
+        .side.open { transform: none; }
+        .menu { display: block; position: fixed; top: 12px; left: 12px; z-index: 3; font-size: 15px; font-weight: 600; padding: 10px 12px; background: var(--panel); }
+      }
+      @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } }
+    </style>
+    <script type="module" crossorigin src="/kilim/assets/index-DcX4oK_l.js"></script>
+  </head>
+  <body>
+    <aside class="side">
+      <details class="story">
+        <summary>How kilims tell a story</summary>
+        <p>Most Anatolian village and nomad women didn't write books. They wove. A kilim was where a woman could set down her sorrows, joys and stories.</p>
+        <p>Young women were often expected to stay quiet and modest. At the loom they could speak, and the motifs worked like an alphabet.</p>
+        <p>A girl began weaving for her çeyiz, the things she would take into her marriage. The finished kilims were folded into her çeyiz sandığı, the dowry chest. In them she wove her hopes for children, good luck and a good husband.</p>
+        <p>A married woman might weave her annoyance with a difficult mother-in-law, or her longing for a husband far away. After her first child, she often began weaving elibelinde.</p>
+        <p>A motif's meaning could shift with where it sat, its colour, or a small change in its shape, much like tone can change a spoken word.</p>
+        <h3>The chief and the kilim</h3>
+        <p>A Yörük chief once saw a kilim lying on the ground by a tent, and it troubled him. He sent for the weaver's father and asked him: "You want to marry your daughter to a man she doesn't love, don't you?"</p>
+        <p>The father was stunned. It was true. He was poor, a rich man had asked for her, and she loved a poor young man. "How could you know?"</p>
+        <p>The chief pointed at the kilim. He gave the father a horse and a camel, and told him to let her marry the man she loved. "And tell her she wove it well," he said. "But a little less green next to the red. I was almost misled."</p>
+        <p>Retold from Mehmet Önder, "Anadolu'da Kilimler de Konuşur", Kültür ve Sanat, 1999.</p>
+        <p>Many of these meanings were written down by collectors after the 1960s, not by the weavers themselves. One guide says there is "no direct answer or watertight paradigm" for what a kilim means. Read them as likely, not certain.</p>
+      </details>
+      <section>
+        <h2>Regions</h2>
+        <canvas class="map" aria-label="Map of Turkey with the regions marked"></canvas>
+        <div class="regions"></div>
+      </section>
+      <section>
+        <h2>History</h2>
+        <div class="history"></div>
+      </section>
+    </aside>
+    <button type="button" class="menu">Rugs</button>
+    <canvas aria-label="A kilim. Drag it or press Silkele to shake it. Click a character to pull it out; click a motif to see what it means."></canvas>
+    <div class="style">
+      <button type="button" class="name"></button>
+      <button type="button" class="shake">Silkele</button>
+    </div>
+    <div class="card" role="dialog" aria-live="polite">
+      <button type="button" aria-label="Close">×</button>
+      <h2></h2>
+      <p></p>
+      <p class="with" hidden></p>
+      <button type="button" class="act" hidden>Build a rug around it</button>
+    </div>
+  </body>
+</html>
