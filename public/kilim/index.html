@@ -7,16 +7,12 @@
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link href="https://api.fontshare.com/v2/css?f[]=neco@400,500,700,401&display=swap" rel="stylesheet" />
     <style>
+      /* Always dark, as on defne.io: near-black page, warm off-white ink. */
       :root {
-        --side: 0px; --ink: #3a2a20; --page: #f7f4ed; --panel: #f0e9de; --pick: #e6dccb; --hover: var(--hover);
-        --card: #fffdf8; --line: #d9ccb4; --on-ink: #fffdf8; --ink-hover: var(--ink-hover); --veil: rgba(247, 244, 237, 0.86);
-        --map-land: #c9b99b; --map-dot: #3a2a20;
-      }
-      /* Dark, as on defne.io: near-black page, warm off-white ink. */
-      [data-theme="dark"] {
-        --ink: #e8e6e0; --page: #0c0b0a; --panel: #141312; --pick: #2a2723; --hover: #201e1b;
+        color-scheme: dark;
+        --side: 0px; --ink: #e8e6e0; --page: #0c0b0a; --panel: #141312; --pick: #2a2723; --hover: #201e1b;
         --card: #161514; --line: #3a352f; --on-ink: #0c0b0a; --ink-hover: #c9c6bf; --veil: rgba(12, 11, 10, 0.8);
-        --map-land: #4a443c; --map-dot: #e8e6e0;
+        --map-land: #5e574d; --map-dot: #e8e6e0;
       }
       html, body { margin: 0; height: 100%; background: var(--page); overflow: hidden; }
       body { font-family: "Neco", Georgia, serif; color: var(--ink); }
@@ -72,11 +68,13 @@
       body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 
       .card {
-        position: fixed; width: 300px; box-sizing: border-box; padding: 22px 24px 24px;
+        position: fixed; width: 300px; max-height: calc(100vh - 32px); overflow-y: auto; box-sizing: border-box; padding: 22px 24px 24px;
         background: var(--card); border: 1px solid var(--line);
         opacity: 0; transform: translateY(6px); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; z-index: 3;
       }
       .card.open { opacity: 1; transform: none; pointer-events: auto; }
+      /* A rug read from several wishes says each one in its own paragraph. */
+      .card p.body { white-space: pre-line; }
       .card h2 { margin: 0 32px 10px 0; font-size: 24px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
       .card p { margin: 0; font-size: 17px; font-weight: 400; line-height: 1.5; }
       .card p.with { margin-top: 14px; font-size: 15px; }
@@ -172,6 +170,40 @@
       .stories p { font-size: 16px; line-height: 1.6; margin: 0 0 12px; }
       .stories .src { font-size: 15px; }
       .stories a { color: inherit; text-underline-offset: 3px; }
+      /* Build your own: a card under the top bar on a computer, the whole screen on a phone. */
+      .picker {
+        position: fixed; top: 68px; right: 16px; width: 460px; max-height: calc(100vh - 84px); overflow-y: auto; box-sizing: border-box;
+        padding: 22px 24px 24px; background: var(--card); border: 1px solid var(--line); z-index: 4;
+      }
+      .picker[hidden], .picker [hidden] { display: none; }
+      .picker h2 { margin: 0 40px 16px 0; font-size: 20px; font-weight: 700; line-height: 1.2; }
+      .picker canvas { display: block; width: 100%; touch-action: manipulation; }
+      .picker p.where { margin: 16px 0 0; font-size: 17px; line-height: 1.5; }
+      .picker .wishes, .picker .size { margin-top: 32px; }
+      .picker .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .picker .row { display: flex; flex-wrap: wrap; gap: 8px; }
+      /* Weave it sits at the end of the last step, apart from the sizes. */
+      .picker .row .go { margin: 0 0 0 auto; }
+      .picker .grid button, .picker .row button[data-size] {
+        text-align: left; padding: 10px 14px; min-height: 44px; font: 400 17px/1.25 "Neco", Georgia, serif;
+        box-shadow: inset 0 0 0 1px var(--line);
+      }
+      .picker .grid button:hover, .picker .row button[data-size]:hover { background: var(--hover); }
+      .picker .grid button[aria-pressed="true"], .picker .row button[aria-pressed="true"] { background: var(--pick); box-shadow: inset 0 0 0 2px var(--ink); }
+      .picker .go {
+        margin-top: 20px; padding: 10px 18px; min-height: 44px; font: 400 17px/1.2 "Neco", Georgia, serif;
+        background: var(--ink); color: var(--on-ink);
+      }
+      .picker .go:hover { background: var(--ink-hover); }
+      .picker .close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; font: 400 22px/1 "Neco", Georgia, serif; }
+      .top .tell[aria-expanded="true"] { background: var(--pick); }
+      @media (max-width: 760px) {
+        /* Like Browse and About on a phone: the top bar's × closes it. */
+        .picker { inset: 0; width: auto; max-height: none; border: 0; background: var(--page); z-index: 3; padding: 72px 20px calc(40px + env(safe-area-inset-bottom)); }
+        .picker .close { display: none; }
+        /* Too narrow to sit beside the sizes, so Weave it goes under them, full width. */
+        .picker .row .go { flex-basis: 100%; margin: 12px 0 0; }
+      }
       .gallery {
         position: fixed; inset: 0; z-index: 3; overflow-y: auto; background: var(--page);
         padding: 72px 48px 64px; box-sizing: border-box;
@@ -188,15 +220,18 @@
       .gallery .grid .shot img, .gallery .grid .shot canvas { max-height: 180px; max-width: 100%; width: auto !important; height: auto !important; }
       @media (max-width: 760px) { .gallery { padding: 72px 16px 48px; } .gallery .grid { grid-template-columns: repeat(2, 1fr); gap: 16px 8px; } .gallery .grid .shot { height: 120px; } .gallery .grid .shot img, .gallery .grid .shot canvas { max-height: 120px; } }
 .bare .top, .bare .style { display: none; }
+      html.desk, html.desk body { background: transparent; }
+      .desk .card, .desk .placemap, .desk .stories, .desk .gallery { display: none !important; }
       @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-ClYRDanP.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-DjDdJ4Xx.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
     <nav class="top">
       <button type="button" class="menu-toggle" aria-expanded="false">Menu</button>
       <div class="items">
+        <button type="button" class="tell" aria-expanded="false">Build your own</button>
         <button type="button" class="all">Browse rugs</button>
         <button type="button" class="read">About kilims</button>
         <button type="button" class="share">Share</button>
@@ -224,6 +259,25 @@
         <p>The chief pointed at the kilim. Then he gave the father a horse and a camel and told him to let his daughter marry the man she loved. “And tell her she wove it well,” he said. “A little less green next to the red, though. It almost misled me.”</p>
       </article>
       <p class="src">Sources: <a href="https://www.halicizade.com/en/blogs/news/kilim-motifs-and-meanings" target="_blank" rel="noopener">Halıcızade</a>, <a href="https://www.kilim.com/kilim-wiki/kilim-motifs" target="_blank" rel="noopener">kilim.com</a>, <a href="https://www.aa.com.tr/tr/yasam/anadolu-kadininin-kilime-isledigi-ask-dili-/1733826" target="_blank" rel="noopener">AA</a>, <a href="https://www.dailysabah.com/turkiye/handmade-carpets-in-antalya-undergo-sun-drying-before-global-export/news" target="_blank" rel="noopener">Daily Sabah</a>; the legend is retold from Mehmet Önder, “Anadolu’da Kilimler de Konuşur”, Kültür ve Sanat, 1999.</p>
+    </section>
+    <section class="picker" hidden aria-label="Build your own">
+      <button type="button" class="close" aria-label="Close">×</button>
+      <h2>Where is it from?</h2>
+      <canvas aria-label="Map of Turkey. Click anywhere on it to pick the nearest place where kilims are woven."></canvas>
+      <p class="where" hidden></p>
+      <div class="wishes" hidden>
+        <h2>What is it for?</h2>
+        <div class="grid"></div>
+      </div>
+      <div class="size" hidden>
+        <h2>How big?</h2>
+        <div class="row">
+          <button type="button" aria-pressed="false" data-size="small">Small</button>
+          <button type="button" aria-pressed="true" data-size="medium">Medium</button>
+          <button type="button" aria-pressed="false" data-size="large">Large</button>
+          <button type="button" class="go">Weave it</button>
+        </div>
+      </div>
     </section>
     <section class="gallery" hidden aria-label="All rugs">
       <h2>Regions</h2>
