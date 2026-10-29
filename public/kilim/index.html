@@ -81,17 +81,22 @@
       .card p { margin: 0; font-size: 15px; font-weight: 400; line-height: 1.55; }
       .card p.with { margin-top: 12px; }
       /* A whole rug's meaning: its motifs arrive one by one, then what they say together. */
-      .card .parts { list-style: none; margin: 4px 0 16px; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+      /* A whole rug: its meaning first, then the motifs that make it, as an aligned list. */
+      .card.whole { width: 440px; }
+      .card.whole > p.body { font-size: 17px; line-height: 1.5; margin-bottom: 20px; }
+      .card .parts { list-style: none; margin: 0 0 18px; padding: 16px 0 0; display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); }
       .card .parts li {
-        display: flex; flex-direction: column; gap: 4px; font-size: 15px; line-height: 1.45;
-        opacity: 0; transform: translateY(4px); animation: part-in 0.5s ease forwards; animation-delay: calc(var(--i) * 0.5s + 0.15s);
+        display: grid; grid-template-columns: 28px 1fr; column-gap: 12px; row-gap: 2px; font-size: 15px; line-height: 1.45;
+        opacity: 0; transform: translateY(4px); animation: part-in 0.5s ease forwards; animation-delay: calc(var(--i) * 0.25s + 0.2s);
       }
-      .card .parts .head { display: flex; align-items: center; gap: 8px; }
+      .card .parts .head { display: contents; }
+      .card .parts .head canvas { grid-row: 1 / span 2; margin-top: 2px; }
+      .card .parts p { grid-column: 2; }
       .card .parts canvas { flex: none; image-rendering: pixelated; outline: 1px solid var(--line); outline-offset: 0; }
       .card .parts b { font-weight: 600; }
       .card .parts p { margin: 0; }
       .card p.with a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-      .card.whole > p.body { opacity: 0; animation: part-in 0.6s ease forwards; animation-delay: calc(var(--n) * 0.5s + 0.35s); }
+
       @keyframes part-in { to { opacity: 1; transform: none; } }
       .card .act {
         position: static; width: auto; height: auto; margin-top: 18px; padding: 10px 14px; min-height: 36px;
@@ -117,6 +122,7 @@
           transform: translateY(100%); transition: transform 0.38s cubic-bezier(0.2, 0.9, 0.25, 1.05), opacity 0.2s ease;
         }
         .card.open { transform: translateY(var(--drag, 0px)); }
+        .card.whole { width: auto; }
         .card.dragging { transition: none; }
         :root { --side: 0px; }
         .side { width: 280px; padding-top: 72px; transform: translateX(-100%); transition: transform 0.3s ease; }
@@ -143,9 +149,9 @@
       .gallery .grid .shot { height: 180px; display: grid; place-items: center; }
       .gallery .grid .shot img, .gallery .grid .shot canvas { max-height: 180px; max-width: 100%; width: auto !important; height: auto !important; }
       @media (max-width: 760px) { .gallery { padding: 72px 16px 48px; } .gallery .grid { grid-template-columns: repeat(2, 1fr); gap: 16px 8px; } .gallery .grid .shot { height: 120px; } .gallery .grid .shot img, .gallery .grid .shot canvas { max-height: 120px; } }
-      @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } .card .parts li, .card.whole > p.body { animation: none; opacity: 1; transform: none; } }
+      @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-Dd1eB5Zj.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-DC-32-jp.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
@@ -165,8 +171,8 @@
       <h2></h2>
       <p class="where" hidden></p>
       <canvas class="map" hidden aria-label="Map of Turkey. The red square is where this style is woven; click another to weave one from there."></canvas>
-      <ol class="parts" hidden></ol>
       <p class="body"></p>
+      <ol class="parts" hidden></ol>
       <p class="with" hidden></p>
       <div class="acts">
         <button type="button" class="act" hidden>Build a rug around it</button>
