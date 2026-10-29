@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>kilim</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link href="https://api.fontshare.com/v2/css?f[]=neco@400,500,700,401&display=swap" rel="stylesheet" />
     <style>
       :root {
         --side: 0px; --ink: #3a2a20; --page: #f7f4ed; --panel: #f0e9de; --pick: #e6dccb; --hover: var(--hover);
@@ -19,7 +19,7 @@
         --map-land: #4a443c; --map-dot: #e8e6e0;
       }
       html, body { margin: 0; height: 100%; background: var(--page); overflow: hidden; }
-      body { font-family: "Geist Mono", ui-monospace, Menlo, monospace; color: var(--ink); }
+      body { font-family: "Neco", Georgia, serif; color: var(--ink); }
       body > canvas {
         position: fixed; top: 0; left: var(--side); display: block;
         width: calc(100vw - var(--side)); height: 100vh; touch-action: none;
@@ -35,14 +35,14 @@
         position: fixed; top: 0; left: 0; bottom: 0; width: var(--side); box-sizing: border-box;
         padding: 28px 16px 40px; overflow-y: auto; background: var(--panel); z-index: 2;
       }
-      .side h2 { margin: 0 10px 10px; font-size: 15px; font-weight: 600; }
+      .side h2 { margin: 0 10px 10px; font-size: 15px; font-weight: 700; }
       .story { margin: 0 0 28px; }
-      .story summary { cursor: pointer; padding: 9px 10px; font-size: 15px; font-weight: 600; list-style: none; }
+      .story summary { cursor: pointer; padding: 9px 10px; font-size: 15px; font-weight: 700; list-style: none; }
       .story summary::-webkit-details-marker { display: none; }
       .story summary:hover { background: var(--hover); }
       .story[open] summary { background: var(--pick); }
       .story p { margin: 12px 10px 0; font-size: 15px; line-height: 1.55; }
-      .story h3 { margin: 24px 10px 0; font-size: 15px; font-weight: 600; }
+      .story h3 { margin: 24px 10px 0; font-size: 15px; font-weight: 700; }
       .side section + section { margin-top: 32px; }
       .regions { display: flex; flex-direction: column; }
       .card canvas.map { display: block; width: 100%; margin: 4px 0 16px; }
@@ -65,7 +65,7 @@
       .style {
         position: fixed; left: var(--side); right: 0; display: flex; justify-content: center; gap: 8px; pointer-events: none; z-index: 2;
       }
-      .style button { pointer-events: auto; font: 600 16px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 10px 12px; min-height: 36px; }
+      .style button { pointer-events: auto; font: 700 17px/1 "Neco", Georgia, serif; padding: 10px 12px; min-height: 36px; }
       .style button:hover { background: var(--hover); }
       .style button:not(.weave) { background: var(--veil); }
       .style button:not(.weave):hover { background: var(--hover); }
@@ -77,30 +77,46 @@
         opacity: 0; transform: translateY(6px); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; z-index: 3;
       }
       .card.open { opacity: 1; transform: none; pointer-events: auto; }
-      .card h2 { margin: 0 32px 10px 0; font-size: 20px; font-weight: 600; line-height: 1.25; }
-      .card p { margin: 0; font-size: 15px; font-weight: 400; line-height: 1.55; }
-      .card p.with { margin-top: 12px; }
+      .card h2 { margin: 0 32px 10px 0; font-size: 24px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+      .card p { margin: 0; font-size: 17px; font-weight: 400; line-height: 1.5; }
+      .card p.with { margin-top: 14px; font-size: 15px; }
+      .card p.with a { color: inherit; }
+      @media (hover: hover) {
+        .card p.with { opacity: 0; transition: opacity 0.25s ease; }
+        .card:hover p.with { opacity: 1; }
+      }
+      .card .send { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+      .card .send[hidden] { display: none; }
+      .card .note {
+        font: 400 15px/1.5 "Neco", Georgia, serif; color: var(--ink); background: var(--page);
+        border: 1px solid var(--line); padding: 10px 12px; resize: none; width: 100%; box-sizing: border-box;
+      }
+      .card .note:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+      .card .send .act { margin-top: 0; }
+      .card .send .acts { margin-top: 0; }
+      .card p.where.note-from { font-size: 17px; line-height: 1.5; font-style: italic; }
       /* A whole rug's meaning: its motifs arrive one by one, then what they say together. */
       /* A whole rug: its meaning first, then the motifs that make it, as an aligned list. */
       .card.whole { width: 440px; }
       .card.whole > p.body { font-size: 17px; line-height: 1.5; margin-bottom: 20px; }
+      .card .parts[hidden] { display: none; }
       .card .parts { list-style: none; margin: 0 0 18px; padding: 16px 0 0; display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); }
       .card .parts li {
-        display: grid; grid-template-columns: 28px 1fr; column-gap: 12px; row-gap: 2px; font-size: 15px; line-height: 1.45;
+        display: grid; grid-template-columns: 28px 1fr; column-gap: 12px; row-gap: 2px; font-size: 16px; line-height: 1.45;
         opacity: 0; transform: translateY(4px); animation: part-in 0.5s ease forwards; animation-delay: calc(var(--i) * 0.25s + 0.2s);
       }
       .card .parts .head { display: contents; }
       .card .parts .head canvas { grid-row: 1 / span 2; margin-top: 2px; }
       .card .parts p { grid-column: 2; }
       .card .parts canvas { flex: none; image-rendering: pixelated; outline: 1px solid var(--line); outline-offset: 0; }
-      .card .parts b { font-weight: 600; }
+      .card .parts b { font-weight: 700; }
       .card .parts p { margin: 0; }
       .card p.with a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
       @keyframes part-in { to { opacity: 1; transform: none; } }
       .card .act {
         position: static; width: auto; height: auto; margin-top: 18px; padding: 10px 14px; min-height: 36px;
-        font: 600 15px/1.2 "Geist Mono", ui-monospace, Menlo, monospace; background: var(--ink); color: var(--on-ink);
+        font: 700 16px/1.2 "Neco", Georgia, serif; background: var(--ink); color: var(--on-ink);
       }
       .card .act:hover { background: var(--ink-hover); }
       /* English by default; hover (or tap) shows the Turkish. */
@@ -112,7 +128,7 @@
       .card .act.pull:hover { background: var(--hover); }
       .style .weave { background: var(--ink); color: var(--on-ink); }
       .style .weave:hover { background: var(--ink-hover); }
-      .card button[aria-label="Close"] { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; font: 400 22px/1 "Geist Mono", monospace; }
+      .card button[aria-label="Close"] { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; font: 400 22px/1 "Neco", Georgia, serif; }
 
       @media (max-width: 760px) {
         /* On phones the card is a sheet that slides up from the bottom; swipe it down to close. */
@@ -127,16 +143,16 @@
         :root { --side: 0px; }
         .side { width: 280px; padding-top: 72px; transform: translateX(-100%); transition: transform 0.3s ease; }
         .side.open { transform: none; }
-        .menu { display: block; position: fixed; top: 12px; left: 12px; z-index: 3; font-size: 15px; font-weight: 600; padding: 10px 12px; background: var(--panel); }
+        .menu { display: block; position: fixed; top: 12px; left: 12px; z-index: 3; font-size: 15px; font-weight: 700; padding: 10px 12px; background: var(--panel); }
       }
       .all {
         position: fixed; top: 16px; right: 16px; z-index: 4; padding: 10px 14px; min-height: 36px;
-        font: 600 15px/1 "Geist Mono", ui-monospace, Menlo, monospace; background: var(--veil);
+        font: 700 16px/1 "Neco", Georgia, serif; background: var(--veil);
       }
       .all:hover { background: var(--hover); }
       .read {
         position: fixed; top: 16px; right: 128px; z-index: 4; padding: 10px 14px; min-height: 36px;
-        font: 600 15px/1 "Geist Mono", ui-monospace, Menlo, monospace; background: var(--veil);
+        font: 700 16px/1 "Neco", Georgia, serif; background: var(--veil);
       }
       .read:hover { background: var(--hover); }
       .stories {
@@ -145,7 +161,7 @@
       }
       .stories[hidden] { display: none; }
       .stories article, .stories .src { max-width: 620px; margin: 0 auto 40px; }
-      .stories h2 { font-size: 20px; font-weight: 600; margin: 0 0 12px; }
+      .stories h2 { font-size: 20px; font-weight: 700; margin: 0 0 12px; }
       .stories p { font-size: 16px; line-height: 1.6; margin: 0 0 12px; }
       .stories .src { font-size: 15px; }
       .stories a { color: inherit; text-underline-offset: 3px; }
@@ -154,7 +170,7 @@
         padding: 72px 48px 64px; box-sizing: border-box;
       }
       .gallery[hidden] { display: none; }
-      .gallery h2 { margin: 0 0 16px; font-size: 15px; font-weight: 600; }
+      .gallery h2 { margin: 0 0 16px; font-size: 15px; font-weight: 700; }
       .gallery h2.mine-title { margin-top: 48px; }
       .gallery .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 32px 24px; }
       .gallery .grid button { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px; font-size: 15px; }
@@ -167,7 +183,7 @@
 .bare .all, .bare .read, .bare .style { display: none; }
       @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-DfKXmIjU.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-CjcbeqdL.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
@@ -201,6 +217,7 @@
     </section>
     <div class="style">
       <button type="button" class="name"></button>
+      <button type="button" class="share">Send</button>
       <button type="button" class="weave" hidden title="Weave the motifs on the floor into this rug, read left to right">Weave them in</button>
     </div>
     <div class="card" role="dialog" aria-live="polite">
@@ -210,9 +227,16 @@
       <canvas class="map" hidden aria-label="Map of Turkey. The red square is where this style is woven; click another to weave one from there."></canvas>
       <p class="body"></p>
       <ol class="parts" hidden></ol>
+      <div class="send" hidden>
+        <textarea class="note" maxlength="140" rows="3" placeholder="Add a note (optional)"></textarea>
+        <div class="acts">
+          <button type="button" class="act copy">Copy link</button>
+          <button type="button" class="act pull wall">Save as wallpaper</button>
+        </div>
+      </div>
       <p class="with" hidden></p>
       <div class="acts">
-        <button type="button" class="act" hidden>Build a rug around it</button>
+        <button type="button" class="act build" hidden>Build a rug around it</button>
       </div>
     </div>
   </body>
