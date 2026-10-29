@@ -65,7 +65,7 @@
       .style {
         position: fixed; left: var(--side); right: 0; display: flex; justify-content: center; gap: 8px; pointer-events: none; z-index: 2;
       }
-      .style button { pointer-events: auto; font: 700 17px/1 "Neco", Georgia, serif; padding: 10px 12px; min-height: 36px; }
+      .style button { pointer-events: auto; font: 400 18px/1 "Neco", Georgia, serif; padding: 10px 12px; min-height: 36px; }
       .style button:hover { background: var(--hover); }
       .style button:not(.weave) { background: var(--veil); }
       .style button:not(.weave):hover { background: var(--hover); }
@@ -145,8 +145,16 @@
         .side.open { transform: none; }
         .menu { display: block; position: fixed; top: 12px; left: 12px; z-index: 3; font-size: 15px; font-weight: 700; padding: 10px 12px; background: var(--panel); }
       }
-      .top { position: fixed; top: 16px; right: 16px; z-index: 4; display: flex; gap: 4px; }
-      .top button { padding: 10px 14px; min-height: 36px; font: 700 16px/1 "Neco", Georgia, serif; background: var(--veil); }
+      .top { position: fixed; top: 16px; right: 16px; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+      .top .items { display: flex; gap: 4px; }
+      .top .menu-toggle { display: none; }
+      @media (max-width: 760px) {
+        .top .menu-toggle { display: block; }
+        .top .items { display: none; flex-direction: column; align-items: stretch; background: var(--card); border: 1px solid var(--line); padding: 6px; }
+        .top.open .items { display: flex; }
+        .top .items button { text-align: left; min-height: 44px; background: none; }
+      }
+      .top button { padding: 10px 14px; min-height: 36px; font: 400 17px/1 "Neco", Georgia, serif; background: var(--veil); }
       .top button:hover { background: var(--hover); }
       .place { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
       .placemap {
@@ -182,14 +190,17 @@
 .bare .top, .bare .style { display: none; }
       @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-6ClEvxoH.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-CFSD60xr.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
     <nav class="top">
-      <button type="button" class="read">Read</button>
-      <button type="button" class="all">All rugs</button>
-      <button type="button" class="share">Share</button>
+      <button type="button" class="menu-toggle" aria-expanded="false">Menu</button>
+      <div class="items">
+        <button type="button" class="all">Browse rugs</button>
+        <button type="button" class="read">About kilims</button>
+        <button type="button" class="share">Share</button>
+      </div>
     </nav>
     <div class="placemap" aria-hidden="true"></div>
     <section class="stories" hidden aria-label="About kilims">
@@ -240,7 +251,8 @@
       </div>
       <p class="with" hidden></p>
       <div class="acts">
-        <button type="button" class="act build" hidden>Build a rug around it</button>
+        <button type="button" class="act swap" hidden>Try another</button>
+        <button type="button" class="act pull build" hidden>Build a rug around it</button>
       </div>
     </div>
   </body>
