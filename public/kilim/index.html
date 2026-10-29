@@ -62,9 +62,12 @@
         position: fixed; left: var(--side); right: 0; display: flex; justify-content: center; gap: 8px; pointer-events: none; z-index: 2;
       }
       .style button { pointer-events: auto; font: 400 18px/1 "Neco", Georgia, serif; padding: 10px 12px; min-height: 36px; }
-      .style button:hover { background: var(--hover); }
-      .style button:not(.weave) { background: var(--veil); }
-      .style button:not(.weave):hover { background: var(--hover); }
+      /* The rug's name sits on the floor under it like a wall label: no box, just type. */
+      .style button:not(.weave) {
+        background: none; color: var(--ink); opacity: 0.72; font-size: 16px; letter-spacing: 0.02em;
+        text-decoration: underline transparent; text-underline-offset: 5px; transition: opacity 0.2s ease, text-decoration-color 0.2s ease;
+      }
+      .style button:not(.weave):hover { opacity: 1; text-decoration-color: currentColor; }
       body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 
       .card {
@@ -152,8 +155,9 @@
         .top.open .items { display: flex; }
         .top .items button { text-align: left; min-height: 44px; background: none; }
       }
-      .top button { padding: 10px 14px; min-height: 36px; font: 400 17px/1 "Neco", Georgia, serif; background: var(--veil); }
-      .top button:hover { background: var(--hover); }
+      .top button { padding: 10px 14px; min-height: 36px; font: 400 17px/1 "Neco", Georgia, serif; background: none; opacity: 0.66; transition: opacity 0.2s ease; }
+      .top button:hover, .top button[aria-expanded="true"] { opacity: 1; background: none; }
+      .top.open .items button { opacity: 0.8; }
       .place { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
       .placemap {
         position: fixed; z-index: 5; padding: 14px; background: var(--card); border: 1px solid var(--line);
@@ -196,7 +200,7 @@
       }
       .picker .go:hover { background: var(--ink-hover); }
       .picker .close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; font: 400 22px/1 "Neco", Georgia, serif; }
-      .top .tell[aria-expanded="true"] { background: var(--pick); }
+      .top .tell[aria-expanded="true"] { opacity: 1; }
       @media (max-width: 760px) {
         /* Like Browse and About on a phone: the top bar's × closes it. */
         .picker { inset: 0; width: auto; max-height: none; border: 0; background: var(--page); z-index: 3; padding: 72px 20px calc(40px + env(safe-area-inset-bottom)); }
@@ -224,7 +228,7 @@
       .desk .card, .desk .placemap, .desk .stories, .desk .gallery { display: none !important; }
       @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-D6iU194U.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-DY05a27t.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
