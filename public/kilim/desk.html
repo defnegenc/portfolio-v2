@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" class="desk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>kilim on the desktop</title>
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link href="https://api.fontshare.com/v2/css?f[]=neco@400,500,700,401&display=swap" rel="stylesheet" />
+    <style>
+      /* The Mac app's page: every rug on the desktop, each on its own small canvas, over nothing. */
+      :root { color-scheme: dark; --ink: #e8e6e0; --card: #161514; --line: #3a352f; --hover: #201e1b; }
+      html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+      body { font-family: "Neco", Georgia, serif; color: var(--ink); -webkit-user-select: none; user-select: none; }
+      button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+      canvas.rug { position: fixed; display: block; touch-action: none; }
+      canvas.fold {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        pointer-events: none; z-index: 10; visibility: hidden;
+      }
+      canvas.fold.on { visibility: visible; }
+      /* What a motif means, by the pointer, and what to do with one you click. */
+      .tip, .choice {
+        position: fixed; z-index: 20; box-sizing: border-box; background: var(--card); border: 1px solid var(--line);
+      }
+      .tip[hidden], .choice[hidden] { display: none; }
+      .tip { width: 280px; padding: 14px 16px 16px; pointer-events: none; }
+      .tip b { display: block; margin-bottom: 6px; font-size: 17px; font-weight: 700; }
+      .tip p { margin: 0; font-size: 15px; line-height: 1.5; }
+      .choice { display: flex; flex-direction: column; padding: 6px; }
+      .choice button { text-align: left; padding: 10px 12px; min-height: 40px; font: 400 16px/1.2 "Neco", Georgia, serif; }
+      .choice button:hover { background: var(--hover); }
+    </style>
+    <script type="module" crossorigin src="/kilim/assets/desk-QiMMxKYw.js"></script>
+    <link rel="modulepreload" crossorigin href="/kilim/assets/loom-CF1BAF3H.js">
+  </head>
+  <body>
+    <div class="tip" hidden><b></b><p></p></div>
+    <div class="choice" hidden>
+      <button type="button" class="around">Build a rug around it</button>
+      <button type="button" class="replace">Replace it</button>
+    </div>
+  </body>
+</html>
