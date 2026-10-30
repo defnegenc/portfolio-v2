@@ -27,36 +27,6 @@
       canvas.fold.on { visibility: visible; }
       button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
 
-      .side {
-        position: fixed; top: 0; left: 0; bottom: 0; width: var(--side); box-sizing: border-box;
-        padding: 28px 16px 40px; overflow-y: auto; background: var(--panel); z-index: 2;
-      }
-      .side h2 { margin: 0 10px 10px; font-size: 15px; font-weight: 700; }
-      .story { margin: 0 0 28px; }
-      .story summary { cursor: pointer; padding: 9px 10px; font-size: 15px; font-weight: 700; list-style: none; }
-      .story summary::-webkit-details-marker { display: none; }
-      .story summary:hover { background: var(--hover); }
-      .story[open] summary { background: var(--pick); }
-      .story p { margin: 12px 10px 0; font-size: 15px; line-height: 1.55; }
-      .story h3 { margin: 24px 10px 0; font-size: 15px; font-weight: 700; }
-      .side section + section { margin-top: 32px; }
-      .regions { display: flex; flex-direction: column; }
-      .card canvas.map { display: block; width: 100%; margin: 4px 0 16px; }
-      .card canvas.map[hidden] { display: none; }
-      .card p.where { margin: 0 0 8px; }
-      .regions button { text-align: left; font-size: 15px; padding: 9px 10px; min-height: 36px; }
-      .regions button:hover, .history button:hover { background: var(--hover); }
-      .regions button.current, .history button.current { background: var(--pick); }
-      .history { display: flex; flex-direction: column; gap: 6px; }
-      .history button { display: flex; flex-direction: column; gap: 8px; padding: 10px; text-align: left; font-size: 15px; }
-      .history img { display: block; width: 100%; height: auto; }
-      .menu { display: none; }
-      .look.rest { margin-top: -20px; }
-      .look { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 28px; align-items: center; padding-right: 40px; position: relative; }
-      .look button { padding: 9px 10px; min-height: 36px; font-size: 15px; }
-      .look button:hover { background: var(--hover); }
-      .look button.current { background: var(--pick); }
-      .look .theme { position: absolute; top: 0; right: 0; width: 36px; display: grid; place-items: center; padding: 0; }
 
       .style {
         position: fixed; left: var(--side); right: 0; display: flex; justify-content: center; gap: 8px; pointer-events: none; z-index: 2;
@@ -64,10 +34,17 @@
       .style button { pointer-events: auto; font: 400 18px/1 "Neco", Georgia, serif; padding: 10px 12px; min-height: 36px; }
       /* The rug's name sits on the floor under it like a wall label: no box, just type. */
       .style button:not(.weave) {
-        background: none; color: var(--ink); opacity: 0.72; font-size: 16px; letter-spacing: 0.02em;
-        text-decoration: underline transparent; text-underline-offset: 5px; transition: opacity 0.2s ease, text-decoration-color 0.2s ease;
+        background: none; color: var(--ink); font-size: 17px;
+        text-decoration: underline transparent; text-underline-offset: 5px; transition: text-decoration-color 0.2s ease;
       }
-      .style button:not(.weave):hover { opacity: 1; text-decoration-color: currentColor; }
+      .style button:not(.weave):hover { text-decoration-color: currentColor; }
+      .style .info {
+        width: 36px; height: 36px; padding: 0; display: grid; place-items: center; text-decoration: none;
+        font: italic 700 16px/1 "Neco", Georgia, serif;
+      }
+      .style .info::before { content: ""; position: absolute; z-index: -1; width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px currentColor; }
+      .style .info { position: relative; isolation: isolate; }
+      .style .info:hover::before { background: var(--hover); }
       body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 
       .card {
@@ -75,6 +52,9 @@
         background: var(--card); border: 1px solid var(--line);
         opacity: 0; transform: translateY(6px); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; z-index: 3;
       }
+      .card canvas.map { display: block; width: 100%; margin: 4px 0 16px; }
+      .card canvas.map[hidden] { display: none; }
+      .card p.where { margin: 0 0 8px; }
       .card.open { opacity: 1; transform: none; pointer-events: auto; }
       /* A rug read from several wishes says each one in its own paragraph. */
       .card p.body { white-space: pre-line; }
@@ -141,10 +121,6 @@
         .card.open { transform: translateY(var(--drag, 0px)); }
         .card.whole { width: auto; }
         .card.dragging { transition: none; }
-        :root { --side: 0px; }
-        .side { width: 280px; padding-top: 72px; transform: translateX(-100%); transition: transform 0.3s ease; }
-        .side.open { transform: none; }
-        .menu { display: block; position: fixed; top: 12px; left: 12px; z-index: 3; font-size: 15px; font-weight: 700; padding: 10px 12px; background: var(--panel); }
       }
       .top { position: fixed; top: 16px; right: 16px; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
       .top .items { display: flex; gap: 4px; }
@@ -155,9 +131,11 @@
         .top.open .items { display: flex; }
         .top .items button { text-align: left; min-height: 44px; background: none; }
       }
-      .top button { padding: 10px 14px; min-height: 36px; font: 400 17px/1 "Neco", Georgia, serif; background: none; opacity: 0.66; transition: opacity 0.2s ease; }
-      .top button:hover, .top button[aria-expanded="true"] { opacity: 1; background: none; }
-      .top.open .items button { opacity: 0.8; }
+      .top button {
+        padding: 10px 14px; min-height: 36px; font: 400 17px/1 "Neco", Georgia, serif; background: none;
+        text-decoration: underline transparent; text-underline-offset: 6px; transition: text-decoration-color 0.2s ease;
+      }
+      .top .items button:hover, .top .items button[aria-expanded="true"] { text-decoration-color: currentColor; }
       .place { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
       .placemap {
         position: fixed; z-index: 5; padding: 14px; background: var(--card); border: 1px solid var(--line);
@@ -200,7 +178,6 @@
       }
       .picker .go:hover { background: var(--ink-hover); }
       .picker .close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; font: 400 22px/1 "Neco", Georgia, serif; }
-      .top .tell[aria-expanded="true"] { opacity: 1; }
       @media (max-width: 760px) {
         /* Like Browse and About on a phone: the top bar's × closes it. */
         .picker { inset: 0; width: auto; max-height: none; border: 0; background: var(--page); z-index: 3; padding: 72px 20px calc(40px + env(safe-area-inset-bottom)); }
@@ -210,25 +187,37 @@
       }
       .gallery {
         position: fixed; inset: 0; z-index: 3; overflow-y: auto; background: var(--page);
-        padding: 72px 48px 64px; box-sizing: border-box;
+        padding: 96px 48px 80px; box-sizing: border-box;
       }
       .gallery[hidden] { display: none; }
-      .gallery h2 { margin: 0 0 16px; font-size: 15px; font-weight: 700; }
-      .gallery h2.mine-title { margin-top: 48px; }
-      .gallery .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 32px 24px; }
-      .gallery .grid button { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px; font-size: 15px; }
+      .gallery h2, .gallery .grid { max-width: 1200px; margin-left: auto; margin-right: auto; }
+      .gallery h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
+      .gallery h2.mine-title { margin-top: 72px; }
+      .gallery .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+      .gallery .grid button { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 20px 16px 18px; font-size: 17px; }
       .gallery .grid button:hover { background: var(--hover); }
       .gallery .grid button.current { background: var(--pick); }
       .gallery .grid canvas, .gallery .grid img { display: block; max-width: 100%; height: auto; }
-      .gallery .grid .shot { height: 180px; display: grid; place-items: center; }
-      .gallery .grid .shot img, .gallery .grid .shot canvas { max-height: 180px; max-width: 100%; width: auto !important; height: auto !important; }
+      .gallery .grid .shot { width: 100%; height: 170px; display: grid; place-items: center; }
+      .gallery .grid .shot img, .gallery .grid .shot canvas { max-height: 170px; max-width: 100%; width: auto !important; height: auto !important; }
       @media (max-width: 760px) { .gallery { padding: 72px 16px 48px; } .gallery .grid { grid-template-columns: repeat(2, 1fr); gap: 16px 8px; } .gallery .grid .shot { height: 120px; } .gallery .grid .shot img, .gallery .grid .shot canvas { max-height: 120px; } }
 .bare .top, .bare .style { display: none; }
       html.desk, html.desk body { background: transparent; }
       .desk .card, .desk .placemap, .desk .stories, .desk .gallery { display: none !important; }
-      @media (prefers-reduced-motion: reduce) { .card, .side { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
+      /* On the desktop: what a motif means, by the pointer, and what to do with one you click. */
+      .tip, .choice {
+        position: fixed; z-index: 5; box-sizing: border-box; background: var(--card); border: 1px solid var(--line);
+      }
+      .tip[hidden], .choice[hidden] { display: none; }
+      .tip { width: 280px; padding: 14px 16px 16px; pointer-events: none; }
+      .tip b { display: block; margin-bottom: 6px; font-size: 17px; font-weight: 700; }
+      .tip p { margin: 0; font-size: 15px; line-height: 1.5; }
+      .choice { display: flex; flex-direction: column; padding: 6px; }
+      .choice button { text-align: left; padding: 10px 12px; min-height: 40px; font: 400 16px/1.2 "Neco", Georgia, serif; }
+      .choice button:hover { background: var(--hover); }
+      @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-CDwlEZuq.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-DveLNH0_.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
@@ -236,8 +225,8 @@
       <button type="button" class="menu-toggle" aria-expanded="false">Menu</button>
       <div class="items">
         <button type="button" class="tell" aria-expanded="false">Build your own</button>
-        <button type="button" class="all">Browse rugs</button>
-        <button type="button" class="read">About kilims</button>
+        <button type="button" class="all" aria-expanded="false">Browse rugs</button>
+        <button type="button" class="read" aria-expanded="false">About kilims</button>
         <button type="button" class="share">Share</button>
       </div>
     </nav>
@@ -291,7 +280,13 @@
     </section>
     <div class="style">
       <button type="button" class="name"></button>
+      <button type="button" class="info" aria-label="What this rug means">i</button>
       <button type="button" class="weave" hidden title="Weave the motifs on the floor into this rug, read left to right">Weave them in</button>
+    </div>
+    <div class="tip" hidden><b></b><p></p></div>
+    <div class="choice" hidden>
+      <button type="button" class="around">Build a rug around it</button>
+      <button type="button" class="replace">Replace it</button>
     </div>
     <div class="card" role="dialog" aria-live="polite">
       <button type="button" aria-label="Close">×</button>
