@@ -56,13 +56,14 @@
       .card canvas.map[hidden] { display: none; }
       .card p.where { margin: 0 0 8px; }
       @media (min-width: 761px) {
-        /* The card is a panel down the left side of the screen. */
-        .card {
+        /* What the whole rug means is a panel down the left side of the screen; a motif's
+           meaning stays a small card on the rug, beside the motif. */
+        .card.docked {
           left: 0 !important; top: 0 !important; bottom: 0; width: 380px; max-height: none; padding: 32px 28px;
           border-width: 0 1px 0 0; transform: none; transition: opacity 0.15s ease;
         }
-        .card.open { transform: none; }
-        .card.whole { width: 420px; }
+        .card.docked.open { transform: none; }
+        .card.docked.whole { width: 420px; }
       }
       .card.open { opacity: 1; transform: none; pointer-events: auto; }
       /* A rug read from several wishes says each one in its own paragraph. */
@@ -231,7 +232,7 @@
       .choice button:hover { background: var(--hover); }
       @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-B0pXv90I.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-xfSnduDV.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
