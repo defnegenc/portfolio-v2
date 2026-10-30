@@ -55,6 +55,15 @@
       .card canvas.map { display: block; width: 100%; margin: 4px 0 16px; }
       .card canvas.map[hidden] { display: none; }
       .card p.where { margin: 0 0 8px; }
+      @media (min-width: 761px) {
+        /* The card is a panel down the left side of the screen. */
+        .card {
+          left: 0 !important; top: 0 !important; bottom: 0; width: 380px; max-height: none; padding: 32px 28px;
+          border-width: 0 1px 0 0; transform: none; transition: opacity 0.15s ease;
+        }
+        .card.open { transform: none; }
+        .card.whole { width: 420px; }
+      }
       .card.open { opacity: 1; transform: none; pointer-events: auto; }
       /* A rug read from several wishes says each one in its own paragraph. */
       .card p.body { white-space: pre-line; }
@@ -122,14 +131,18 @@
         .card.whole { width: auto; }
         .card.dragging { transition: none; }
       }
+      /* One Menu button, top right; it opens a panel down the right side of the screen. */
       .top { position: fixed; top: 16px; right: 16px; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-      .top .items { display: flex; gap: 4px; }
-      .top .menu-toggle { display: none; }
-      @media (max-width: 760px) {
-        .top .menu-toggle { display: block; }
-        .top .items { display: none; flex-direction: column; align-items: stretch; background: var(--card); border: 1px solid var(--line); padding: 6px; }
-        .top.open .items { display: flex; }
-        .top .items button { text-align: left; min-height: 44px; background: none; }
+      .top .items { display: none; flex-direction: column; align-items: stretch; background: var(--card); border: 1px solid var(--line); padding: 8px; }
+      .top.open .items { display: flex; }
+      .top .items button { text-align: left; min-height: 44px; background: none; }
+      @media (min-width: 761px) {
+        .top .items {
+          position: fixed; right: 0; top: 0; bottom: 0; z-index: -1; width: 340px; box-sizing: border-box;
+          padding: 72px 16px 24px; border-width: 0 0 0 1px;
+        }
+        .top .items button { font-size: 20px; min-height: 56px; padding: 12px 16px; }
+        .top .items button:hover { background: var(--hover); }
       }
       .top button {
         padding: 10px 14px; min-height: 36px; font: 400 17px/1 "Neco", Georgia, serif; background: none;
@@ -154,8 +167,8 @@
       .stories a { color: inherit; text-underline-offset: 3px; }
       /* Build your own: a card under the top bar on a computer, the whole screen on a phone. */
       .picker {
-        position: fixed; top: 68px; right: 16px; width: 460px; max-height: calc(100vh - 84px); overflow-y: auto; box-sizing: border-box;
-        padding: 22px 24px 24px; background: var(--card); border: 1px solid var(--line); z-index: 4;
+        position: fixed; top: 0; bottom: 0; right: 0; width: 420px; overflow-y: auto; box-sizing: border-box;
+        padding: 72px 28px 28px; background: var(--card); border: 0; border-left: 1px solid var(--line); z-index: 3;
       }
       .picker[hidden], .picker [hidden] { display: none; }
       .picker h2 { margin: 0 40px 16px 0; font-size: 20px; font-weight: 700; line-height: 1.2; }
@@ -177,10 +190,11 @@
         background: var(--ink); color: var(--on-ink);
       }
       .picker .go:hover { background: var(--ink-hover); }
-      .picker .close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; font: 400 22px/1 "Neco", Georgia, serif; }
+      /* The Menu button, now ×, closes it. */
+      .picker .close { display: none; }
       @media (max-width: 760px) {
         /* Like Browse and About on a phone: the top bar's × closes it. */
-        .picker { inset: 0; width: auto; max-height: none; border: 0; background: var(--page); z-index: 3; padding: 72px 20px calc(40px + env(safe-area-inset-bottom)); }
+        .picker { inset: 0; width: auto; border-left: 0; max-height: none; border: 0; background: var(--page); z-index: 3; padding: 72px 20px calc(40px + env(safe-area-inset-bottom)); }
         .picker .close { display: none; }
         /* Too narrow to sit beside the sizes, so Weave it goes under them, full width. */
         .picker .row .go { flex-basis: 100%; margin: 12px 0 0; }
@@ -217,7 +231,7 @@
       .choice button:hover { background: var(--hover); }
       @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card .parts li { animation: none; opacity: 1; transform: none; } }
     </style>
-    <script type="module" crossorigin src="/kilim/assets/index-kP74jcC0.js"></script>
+    <script type="module" crossorigin src="/kilim/assets/index-B0pXv90I.js"></script>
   </head>
   <body>
     <canvas aria-label="A kilim. Drag it to pick it up. Pieces on the floor can be thrown, dropped back on the rug, or woven in together. Click a motif to see what it means."></canvas>
