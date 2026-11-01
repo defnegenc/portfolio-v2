@@ -80,7 +80,7 @@ const PG = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.4 }
 const PICTS: Record<string, React.ReactNode> = {
   field: <svg width="22" height="18" viewBox="0 0 22 18" {...PG}><path d="M1 1h20v16H1z" /><path d="M5 5h2v2H5zM10 5h2v2h-2zM15 9h2v2h-2zM5 11h2v2H5zM10 9h2v2h-2zM15 13h2v2h-2z" fill="currentColor" stroke="none" /></svg>,
   main: <svg width="20" height="16" viewBox="0 0 20 16" {...PG}><path d="M2 3h16M2 7h16M2 11h16M2 15h10" /></svg>,
-  about: <svg width="18" height="18" viewBox="0 0 18 18" {...PG}><circle cx="9" cy="6" r="3.6" /><path d="M2 17c.8-4 3.6-6 7-6s6.2 2 7 6" /></svg>,
+  about: <svg width="18" height="18" viewBox="0 0 18 18" {...PG}><circle cx="9" cy="6" r="3.6" /><path d="M2 17c.8-4 3.6-6 7-6s6.2 2 7 6z" /></svg>,
   history: <svg width="22" height="18" viewBox="0 0 22 18" {...PG}><path d="M3 2h16v11H3z" /><path d="M8 17h6M11 13v4" /><path d="M6 5h5v3H6z" /></svg>,
   site: <svg width="22" height="16" viewBox="0 0 22 16" {...PG}><path d="M9 2L2 8l7 6" /><path d="M2 8h18" /></svg>,
 }
@@ -447,7 +447,6 @@ export default function Star() {
       <div className="desk">
         {[
           ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: PICTS.field, go: () => open('field') }]),
-          { id: 'main', shape: 'doc' as Shape, label: 'My spiel', pict: PICTS.main, go: () => open('main', 640, 200) },
           { id: 'about', shape: 'doc' as Shape, label: 'About me', pict: PICTS.about, go: () => open('about', 680, 400) },
           ...ITEMS.map(it => ({
             id: it.kind === 'folder' ? `folder:${it.id}` : it.id, shape: (it.kind === 'folder' ? 'folder' : 'doc') as Shape,
@@ -545,6 +544,9 @@ const CSS = `
   .sicon-pict { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
   .sicon-pict svg { width: 52px; height: 52px; overflow: visible; }
   .sicon-pict svg * { vector-effect: non-scaling-stroke; stroke-width: 1.8; }
+  /* closed shapes are filled with paper, so each icon reads as a solid
+     object on the grey desk, the way Star icons did */
+  .sicon-pict svg :is(rect, circle, path[d$="z"], path[d$="Z"]) { fill: var(--paper); }
   .sicon-label { font-size: 12px; line-height: 1.15; text-align: center; padding: 1px 4px; background: var(--paper); }
   .sicon:hover .sicon-label { outline: 1.5px solid var(--ink); }
   .sicon[aria-pressed="true"] .sicon-label { background: var(--ink); color: var(--paper); }
