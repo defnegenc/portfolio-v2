@@ -1,19 +1,14 @@
 'use client'
 
-/* The weather picker (the matrix Defne chose) and three triggers to compare,
-   picked with the WeatherControl `variant` prop or ?w=a|b|c.
+/* The weather picker (the matrix Defne chose) and its trigger.
 
    The swatch is the label: every cell of the LOOKS matrix is drawn as a tiny
    live field in its own colour, render and motion, so choosing a combination
-   means choosing what you can already see.
+   means choosing what you can already see. */
 
-   a  a "?" pill
-   b  an information "i" pill
-   c  a pill that reads "What is this?" */
-
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useContext, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { LOOKS, type Period, type Sky } from '@/components/ambient'
-import { SKY_ICON } from '@/components/weatherIcons'
+import { SKY_ICON, IconStyleCtx, CLASSIC_ICON } from '@/components/weatherIcons'
 import type { Override } from '@/components/WeatherControl'
 
 type Look = (typeof LOOKS)['day']['clear']
@@ -221,6 +216,9 @@ type PanelProps = {
   live: Cell | null
   place?: string | null
   light: boolean
+  theme?: 'light' | 'dark'
+  setTheme?: (t: 'light' | 'dark') => void
+  onClose?: () => void
 }
 
 const SHARED_CSS = `
@@ -230,7 +228,7 @@ const SHARED_CSS = `
     max-height: calc(100dvh - 7.5rem); overflow-y: auto; overscroll-behavior: contain;
     background: var(--bg); color: var(--ink);
     border: 1px solid var(--hairline); border-radius: 0;
-    padding: 1.15rem 1.15rem 1.05rem; box-shadow: 0 14px 40px rgba(0,0,0,0.32);
+    padding: 1.15rem 1.15rem 1.05rem;
     line-height: 1.5; text-align: left; font-size: 0.95rem;
     animation: wv-in .22s cubic-bezier(.19,1,.22,1);
   }
@@ -245,7 +243,6 @@ const SHARED_CSS = `
     transition: color .15s;
   }
   .wv-pop .wv-reset:hover { color: var(--ink); }
-  .wv-dot { display: inline-block; width: 7px; height: 7px; border-radius: 99px; background: var(--ink); box-shadow: 0 0 0 2px var(--bg); }
 `
 
 /* Defne's own story about the canvas, word for word from the original panel.
@@ -256,7 +253,7 @@ function Story({ place }: { place?: string | null }) {
       <p className="wx-intro">
         As a chronic weather checker and lover of ambient technology, I wanted this interactive canvas
         to{' '}
-        <span style={{ color: 'var(--award)' }}>synchronize with the outside world</span>.
+        <span className="wx-hot" style={{ color: 'var(--award)' }}>synchronize with the outside world</span>.
       </p>
       <p className="wx-intro" style={{ marginTop: '0.8rem' }}>
         This is my visual interpretation of the weather in{' '}
@@ -272,31 +269,72 @@ function Story({ place }: { place?: string | null }) {
 
 // ── the picker: every hour × sky as a 5×7 grid ─────────────────────────────
 
-export function PanelA({ override, setOverride, live, place, light }: PanelProps) {
+/* The weather panel is a Xerox Star window: a striped title bar with
+   rounded command buttons (Close, Reset), then the story and the grid, with
+   the display theme as a property row of joined choices. */
+export function PanelA({ override, setOverride, live, place, light, theme, setTheme, onClose }: PanelProps) {
   const cur: Cell | null = override ?? live
   const [hover, setHover] = useState<Cell | null>(null)
   return (
-    <div className="wv-pop" style={{ ['--wv-w' as string]: '430px' }}>
+    <div className="wv-pop wv-star" style={{ ['--wv-w' as string]: '460px' }}>
+      <div className="st-head">
+        {onClose && <button className="st-cmd" onClick={onClose}>Close</button>}
+        <button className="st-cmd" onClick={() => setOverride(null)} disabled={!override}>Reset</button>
+        <span className="st-title">Field Properties</span>
+      </div>
+      <div className="st-body">
       <style>{`
         .wa-grid { display: grid; grid-template-columns: auto repeat(7, minmax(0, 1fr)); gap: 5px; align-items: center; margin-top: 1.1rem; }
-        .wa-row { font-size: 0.9rem; font-weight: 400; padding-right: 0.45rem; white-space: nowrap; line-height: 1.1; transition: font-weight .1s; }
-        .wa-col { display: flex; justify-content: center; padding-bottom: 2px; transition: transform .18s cubic-bezier(.19,1,.22,1); }
-        /* hovering a swatch picks out its row and column, so the grid reads
-           without a caption underneath */
-        .wa-row[data-hot="1"] { font-weight: 700; }
-        .wa-col[data-hot="1"] { transform: scale(1.18); }
-        .wa-col[data-hot="1"] svg { stroke-width: 2.2; }
+        .wa-row { font-size: 0.9rem; font-weight: 400; padding-right: 0.45rem; white-space: nowrap; line-height: 1.1; transition: color .12s; }
+        .wa-col { display: flex; justify-content: center; padding-bottom: 4px; transition: color .12s; }
+        /* hovering a swatch picks out its row and column in the accent, so the
+           grid reads without a caption underneath (colour, not weight, so
+           nothing reflows) */
+        .wa-row[data-hot="1"], .wa-col[data-hot="1"] { color: var(--award); }
         .wa-cell {
           position: relative; aspect-ratio: 1 / 0.82; padding: 0; border: none; cursor: pointer;
-          border-radius: 5px; background: color-mix(in srgb, var(--c) 9%, transparent);
-          outline: 1.5px solid transparent; outline-offset: 2px;
-          transition: transform .18s cubic-bezier(.19,1,.22,1), outline-color .15s;
+          border-radius: 0; background: color-mix(in srgb, var(--c) 9%, transparent);
+          outline: 2px solid transparent; outline-offset: 2px;
+          transition: outline-color .12s;
         }
-        .wa-cell canvas { border-radius: 5px; }
-        .wa-cell:hover { transform: scale(1.08); z-index: 1; }
-        .wa-cell[data-on="1"] { outline: 2px solid var(--c); }
-        .wa-cell .wv-dot { position: absolute; top: -3px; right: -3px; }
-        .wa-foot { display: flex; justify-content: flex-end; margin-top: 0.8rem; min-height: 1.7rem; }
+        .wa-cell:hover { outline-color: var(--hairline); }
+        .wa-cell[data-on="1"] { outline-color: var(--c); }
+        /* classic swatch: dithered colour, the sky icon, outline and hard shadow */
+        .wa-classic { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+          border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); color: var(--ink);
+          background-color: color-mix(in srgb, var(--c) 45%, #fff);
+          background-image: conic-gradient(var(--c) 25%, transparent 0 50%, var(--c) 0 75%, transparent 0);
+          background-size: 4px 4px; image-rendering: pixelated; }
+        .wa-classic svg { filter: drop-shadow(1px 1px 0 rgba(0,0,0,.25)); }
+        /* playing: the dither gives way to the field on the page colour */
+        .wa-classic[data-live="1"] { background: var(--bg); overflow: hidden; }
+        .wa-cell:hover .wa-classic { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+        .wa-cell[data-on="1"] .wa-classic { outline: 2px solid var(--ink); outline-offset: 2px; }
+        /* the Star window */
+        .wv-pop.wv-star { padding: 0; border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); animation: none;
+          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+        .st-head { position: sticky; top: 0; z-index: 2; height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 6px;
+          border-bottom: 2px solid var(--ink); background: repeating-linear-gradient(to bottom, var(--ink) 0 1px, var(--bg) 1px 3px); }
+        .st-title { margin: 0 auto; padding: 0 10px; background: var(--bg); font-size: 13px; line-height: 20px; white-space: nowrap; }
+        .st-cmd { height: 20px; padding: 0 8px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--bg); font-size: 12.5px !important; line-height: 1; cursor: pointer; }
+        .st-cmd:hover:not(:disabled) { background: var(--ink); color: var(--bg) !important; }
+        .st-cmd:disabled { opacity: 0.4; cursor: default; }
+        .st-cmd + .st-title { margin-left: auto; }
+        .st-body { padding: 1rem 1.1rem 1.1rem; }
+        .wv-star .wx-intro { font-family: "Times New Roman", Times, serif; font-size: 1.02rem; line-height: 1.5; }
+        .wv-star .wa-row { font-size: 0.86rem; }
+        .st-prop { display: flex; align-items: center; gap: 10px; margin-top: 1rem; padding-top: 0.8rem; border-top: 1.5px solid var(--ink); font-size: 13px; }
+        .st-seg { display: flex; border: 1.5px solid var(--ink); }
+        .st-seg button { height: 22px; padding: 0 10px; border: 0; border-right: 1.5px solid var(--ink); background: var(--bg); font-size: 12.5px !important; cursor: pointer; }
+        .st-seg button:last-child { border-right: 0; }
+        .st-seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg) !important; }
+        /* the highlighted phrases read as terminal output, like the bio's prompt */
+        .wv-pop .wx-hot, .wv-pop .wx-place { font-family: var(--font-mono); font-size: 0.92em; }
+        /* theme: the current one as a pixel sun or moon, top right */
+        .wa-theme { position: absolute; top: 0.6rem; right: 0.6rem; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+          background: none; border: none; padding: 0; cursor: pointer; color: var(--ink); transition: color .15s; }
+        .wa-theme:hover { color: var(--award); }
+        .wv-pop.wa-has-theme .wx-intro:first-of-type { padding-right: 2.4rem; }
         @media (max-width: 420px) { .wa-grid { gap: 4px; } .wa-row { font-size: 0.86rem; padding-right: 0.25rem; } }
       `}</style>
 
@@ -306,25 +344,48 @@ export function PanelA({ override, setOverride, live, place, light }: PanelProps
         <span />
         {SKIES.map(s => {
           const Icon = SKY_ICON[s]
-          return <span key={s} className="wa-col" title={SKY_NAME[s]} data-hot={hover?.s === s ? 1 : 0}><Icon /></span>
+          return <span key={s} className="wa-col" title={SKY_NAME[s]} data-hot={hover?.s === s ? 1 : 0}><Icon size={15} /></span>
         })}
         {ALL_PERIODS.map(p => (
-          <Row key={p} p={p} cur={cur} live={live} light={light} hot={hover?.p === p}
+          <Row key={p} p={p} cur={cur} live={live} light={light} hot={hover?.p === p} hover={hover}
             onPick={c => setOverride(same(c, live) ? null : c)} onHover={setHover} />
         ))}
       </div>
 
-      <div className="wa-foot">
-        {override && <button className="wv-reset" onClick={() => setOverride(null)}>Reset</button>}
+      {setTheme && (
+        <div className="st-prop">
+          <span>Display</span>
+          <div className="st-seg">
+            {(['light', 'dark'] as const).map(t => (
+              <button key={t} aria-pressed={theme === t} onClick={() => setTheme(t)}>{t === 'light' ? 'Light' : 'Dark'}</button>
+            ))}
+          </div>
+        </div>
+      )}
       </div>
     </div>
   )
 }
 
-function Row({ p, cur, live, light, hot, onPick, onHover }: {
-  p: Period; cur: Cell | null; live: Cell | null; light: boolean; hot: boolean
+/* With the classic icons, a swatch at rest is a still pixel tile: the cell's
+   colour as a two-tone dither, its sky icon on top, an outline and a hard
+   shadow like the icons around it. Point at it (or pick it) and the tile
+   plays the field it stands for, inside the same frame, so you can see
+   what you'd get. */
+function ClassicSwatch({ color, sky, live, children }: { color: string; sky: Sky; live: boolean; children: React.ReactNode }) {
+  const Icon = CLASSIC_ICON[sky]
+  return (
+    <span className="wa-classic" data-live={live ? 1 : 0} style={{ ['--c' as string]: color }}>
+      {live ? children : <Icon />}
+    </span>
+  )
+}
+
+function Row({ p, cur, live, light, hot, hover, onPick, onHover }: {
+  p: Period; cur: Cell | null; live: Cell | null; light: boolean; hot: boolean; hover: Cell | null
   onPick: (c: Cell) => void; onHover: (c: Cell | null) => void
 }) {
+  const classic = useContext(IconStyleCtx) === 'classic'
   return (
     <>
       <span className="wa-row" data-hot={hot ? 1 : 0}>{ROW_LABEL[p]}</span>
@@ -338,8 +399,12 @@ function Row({ p, cur, live, light, hot, onPick, onHover }: {
             title={`${ROW_LABEL[p]}, ${SKY_NAME[s].toLowerCase()}`}
             onMouseEnter={() => onHover(c)} onFocus={() => onHover(c)}
             onClick={() => onPick(c)}>
-            <MiniField look={l} light={light} cell={4} seed={ALL_PERIODS.indexOf(p) * 7 + SKIES.indexOf(s)} />
-            {same(c, live) && <span className="wv-dot" />}
+            {/* only the swatch you're pointing at, and the one in use, move */}
+            {classic
+              ? <ClassicSwatch color={cssColor(l, light)} sky={s} live={same(c, hover) || same(c, cur)}>
+                  <MiniField look={l} light={light} cell={4} seed={ALL_PERIODS.indexOf(p) * 7 + SKIES.indexOf(s)} />
+                </ClassicSwatch>
+              : <MiniField look={l} light={light} cell={4} seed={ALL_PERIODS.indexOf(p) * 7 + SKIES.indexOf(s)} still={!same(c, hover) && !same(c, cur)} />}
           </button>
         )
       })}
@@ -347,37 +412,23 @@ function Row({ p, cur, live, light, hot, onPick, onHover }: {
   )
 }
 
-// ── triggers: the closed control ──────────────────────────────────────────
-/* Three plain pills to compare, each opening the same picker:
-   a  "?"   b  an information "i"   c  the words "What is this?" */
+// ── trigger: the closed control ───────────────────────────────────────────
+/* The sky the field is drawing right now, as a fine pixel icon. */
 
-export type TriggerKind = 'a' | 'b' | 'c'
-
-// SVG text centres on the real glyph, which a flex box cannot do
-const Glyph = ({ ch, serif }: { ch: string; serif?: boolean }) => (
-  <svg width="16" height="20" viewBox="0 0 16 20" aria-hidden>
-    <text x="8" y="10.5" textAnchor="middle" dominantBaseline="central"
-      fontFamily={serif ? 'Georgia, serif' : 'var(--font-main)'} fontSize="16"
-      fontWeight={serif ? 700 : 500} fontStyle={serif ? 'italic' : 'normal'} fill="currentColor">{ch}</text>
-  </svg>
-)
-
-export function Trigger({ kind }: { kind: TriggerKind }) {
-  if (kind === 'a') return <Glyph ch="?" />
-  if (kind === 'b') return <Glyph ch="i" serif />
-  return <>What is this?</>
+export function Trigger({ sky = 'clear' }: { sky?: Sky }) {
+  const Icon = SKY_ICON[sky]
+  return <Icon size={15} />
 }
 
 export const TRIGGER_CSS = `
+  /* no box: a fine line icon in ink, with a 34px target around it */
   .wx-trig {
-    display: inline-flex; align-items: center; justify-content: center; height: 30px;
-    padding: 0 0.85rem; border: none; border-radius: 0;
-    background: var(--bg); color: var(--ink); cursor: pointer; white-space: nowrap;
-    font-family: inherit; font-size: 0.92rem; font-weight: 500; line-height: 1;
-    transition: border-color .2s, color .2s;
+    display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px;
+    padding: 0; border: none; border-radius: 0; line-height: 0;
+    background: none; color: var(--ink); cursor: pointer;
+    transition: color .2s;
   }
-  .wx-trig[data-v="a"], .wx-trig[data-v="b"] { width: 44px; padding: 0; }
-  .wx-trig:hover, .wx[data-open="1"] .wx-trig { border-color: var(--award); color: var(--award); }
+  .wx-trig:hover, .wx[data-open="1"] .wx-trig { color: var(--award); }
 `
 
 export { SHARED_CSS }

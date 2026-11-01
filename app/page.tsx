@@ -5,8 +5,13 @@ import AsciiCanvas from '@/components/AsciiCanvas'
 import ThemeToggle from '@/components/ThemeToggle'
 import NavMenu from '@/components/NavMenu'
 import { useTheme } from '@/components/useTheme'
-import { useAmbient, LOOKS, periodOf } from '@/components/ambient'
+import { useAmbient, LOOKS, periodOf, type Period, type Sky } from '@/components/ambient'
 import WeatherControl, { type Override } from '@/components/WeatherControl'
+import { IconStyleCtx } from '@/components/weatherIcons'
+import { ABOUT_PARAS } from '@/components/aboutContent'
+import AboutPara from '@/components/AboutPara'
+import { CARDS, type Card } from '@/components/cards'
+import { ITEMS, FOLDERS, PICTURES, picFile, dirName } from '@/components/fs'
 import { forLight } from '@/components/color'
 
 // ─── Glitch Name ──────────────────────────────────────────────────────────────
@@ -60,13 +65,20 @@ const PROJECTS = [
   { name: 'Dishcovery',      kind: 'iOS app',       year: '2024', href: '/project/dishcovery',   sub: 'Recognise and cook with ingredients from anywhere' },
 ]
 
+/* Tidbits: things I make for fun, mostly to be pretty. They sit under the
+   projects as their own short list. */
+const TIDBITS = [
+  { name: 'Sponge OS', kind: 'Desktop kit', year: '2026', href: '/sponge/' },
+  { name: 'Kilim',     kind: 'Web toy',     year: '2026', href: '/kilim/' },
+]
+// everything the list prints, in order; terminal mode types through it
+const LIST: { name: string }[] = [...PROJECTS, ...TIDBITS]
+
 const BIO = 'I think about how modern interfaces should (and fail to) meet our needs with exponentially growing agentic capabilities. BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction. Now AI @ Coinbase, where I own the agent creation experience.'
 
 
 const mono: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
-const WX_VARIANTS = ['live', 'a', 'b', 'c'] as const
-type WxVariant = typeof WX_VARIANTS[number]
 
 /* Phones, and tablets with no cursor, get the stacked layout. The windows and
    the scroll-open gesture only make sense with a mouse and a wheel. Kept in
@@ -74,133 +86,82 @@ type WxVariant = typeof WX_VARIANTS[number]
 const STACKED = '(max-width: 860px), (hover: none) and (pointer: coarse)'
 const isStacked = () => window.matchMedia(STACKED).matches
 
-/* The bio reads itself, one phrase at a time, in the breaks Defne set by hand.
-   Lengths rather than text matching, so the groups stay exact; the last group
-   absorbs any drift if the copy is edited without updating this. */
 const BIO_WORDS = BIO.split(' ')
-const PHRASE_LENGTHS = [3, 3, 4, 3, 5, 7, 3, 6, 4, 4, 3]
-const PHRASES: [number, number][] = (() => {
-  const out: [number, number][] = []
-  let i = 0
-  PHRASE_LENGTHS.forEach((len, k) => {
-    if (i >= BIO_WORDS.length) return
-    const last = k === PHRASE_LENGTHS.length - 1
-    const end = last ? BIO_WORDS.length - 1 : Math.min(BIO_WORDS.length - 1, i + len - 1)
-    out.push([i, end])
-    i = end + 1
-  })
-  if (i < BIO_WORDS.length) out.push([i, BIO_WORDS.length - 1])
-  return out
-})()
 
-/* How the bio arrives. Prototypes, picked with ?t= while we compare.
-   walk     the live one: the accent block steps through each phrase once
-   type      typed out fast behind an accent block cursor, the last few
-             characters still hot in the accent
-   develop   each phrase starts as a dithered bar and resolves, like an image
-             coming in over a modem
-   decode    the dotted bars resolve through a band of scrambling glyphs
-   scan      a scanline wipes down the paragraph, developing it as it passes
-   terminal  a prompt, some thinking dots, then typed like a person would:
-             in bursts, with a typo or two taken back. Click or press a key
-             to skip; Enter replays. The projects then print as an ls. */
-type BioMode = 'walk' | 'type' | 'develop' | 'decode' | 'scan' | 'terminal'
-const BIO_MODES: { key: BioMode; label: string }[] = [
-  { key: 'walk', label: 'Walk' },
-  { key: 'type', label: 'Type' },
-  { key: 'develop', label: 'Develop' },
-  { key: 'decode', label: 'Decode' },
-  { key: 'scan', label: 'Scan' },
-  { key: 'terminal', label: 'Terminal' },
+/* The page reads as one terminal session inside Defne-Portfolio: the bio is
+   a file you cat, the work is what ls prints. The folder's name sits once, in
+   the bar; every prompt after it is just %. */
+const HOME_DIR = 'Defne-Portfolio'
+function Prompt({ cmd, className = '', typing = false }: { cmd: string; className?: string; typing?: boolean }) {
+  return <div className={`bio-prompt ${className}`}><span>%</span> {cmd}{typing && <span className="bio-block" />}</div>
+}
+
+/* The retro cursor: the classic black arrow with a white edge, two screen
+   pixels a cell, over anything you can click. */
+const ARROW = [
+  '#..........',
+  '##.........',
+  '#o#........',
+  '#oo#.......',
+  '#ooo#......',
+  '#oooo#.....',
+  '#ooooo#....',
+  '#oooooo#...',
+  '#ooooooo#..',
+  '#oooooooo#.',
+  '#ooooo#####',
+  '#oo#oo#....',
+  '#o#.#oo#...',
+  '##..#oo#...',
+  '#....#oo#..',
+  '.....#oo#..',
+  '......##...',
 ]
-
-// word range of a run of the bio, by its text
-function wordsOf(run: string): [number, number] {
-  const target = run.split(' ')
-  for (let i = 0; i + target.length <= BIO_WORDS.length; i++)
-    if (target.every((w, k) => BIO_WORDS[i + k] === w)) return [i, i + target.length - 1]
-  return [-1, -1]
-}
-const phraseOf = (i: number) => PHRASES.findIndex(([a, b]) => i >= a && i <= b)
-
-type BioProps = { style: React.CSSProperties; onDone?: () => void }
-
-// Keeps the paragraph's final size from the first frame, so whatever sits
-// below never jumps while the text arrives.
-function Reserve({ style, children }: { style: React.CSSProperties; children: React.ReactNode }) {
-  return (
-    <div style={{ position: 'relative' }}>
-      <p style={{ ...style, visibility: 'hidden' }} aria-hidden>{BIO}_</p>
-      <p style={{ ...style, position: 'absolute', inset: 0, margin: 0 }}>{children}</p>
-    </div>
-  )
-}
-
-/* Typing runs off a precomputed timeline sampled once a frame, not a timer
-   per character: a busy main thread (the canvas, a slow phone) then drops
-   frames but never falls behind, it just prints a few characters at once. */
-function useTimeline(times: number[], run: unknown = 0, skip?: React.MutableRefObject<boolean>) {
-  const [n, setN] = useState(0)
-  useEffect(() => {
-    setN(0)
-    const t0 = performance.now()
-    let id = 0
-    const tick = () => {
-      const t = skip?.current ? Infinity : performance.now() - t0
-      let k = 0
-      while (k < times.length && times[k] <= t) k++
-      setN(k)
-      if (k < times.length) id = requestAnimationFrame(tick)
-    }
-    id = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(id)
-  }, [times, run, skip])
-  return n
-}
-
-// when each character of the bio lands: fast, with a breath at punctuation
-const TYPE_TIMES = (() => {
-  const out: number[] = []
-  let t = 350
-  for (let i = 0; i < BIO.length; i++) { t += /[.,)]/.test(BIO[i - 1] ?? '') ? 70 : 2.2; out.push(t) }
-  return out
+const ARROW_CURSOR = (() => {
+  let d = ''
+  ARROW.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch !== '.') d += `<rect x='${x * 2}' y='${y * 2}' width='2' height='2' fill='${ch === '#' ? '%23000' : '%23fff'}'/>`
+  }))
+  return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='34' shape-rendering='crispEdges'>${d}</svg>") 1 1, pointer`
 })()
 
-function TypeBio({ style, onDone }: BioProps) {
-  const n = useTimeline(TYPE_TIMES)
-  useEffect(() => { if (n >= BIO.length) onDone?.() }, [n, onDone])
-  const hot = Math.max(0, n - 14)
+/* Projects open a window on this page, so they carry a small window glyph.
+   ↗ is kept for links that leave. */
+function WinGlyph() {
   return (
-    <Reserve style={style}>
-      {BIO.slice(0, hot)}<span className="bio-hot">{BIO.slice(hot, n)}</span>
-      <span className="bio-block" data-done={n >= BIO.length ? 1 : 0} />
-    </Reserve>
+    <svg className="win-glyph" width="13" height="11" viewBox="0 0 13 11" aria-hidden>
+      <rect x="0.75" y="0.75" width="11.5" height="9.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <rect className="win-glyph-bar" x="0.75" y="0.75" width="11.5" height="3" fill="currentColor" />
+    </svg>
   )
 }
 
+/* The bio decodes itself: dotted bars resolve word by word through a band of
+   scrambling glyphs. */
 const GLYPHS = '░▒▓#%&*+=/<>'
 const scramble = (len: number) => Array.from({ length: len }, () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]).join('')
 
-function DecodeBio({ style, onDone }: BioProps) {
+function DecodeBio({ style, onDone, text = BIO, step = 60 }: { style: React.CSSProperties; onDone?: () => void; text?: string; step?: number }) {
   const BAND = 4
+  const words = text.split(' ')
   // starts a full band before the first word, so the server render (and the
   // first client render) has no random glyphs in it to disagree about
   const [r, setR] = useState(-BAND)   // words fully resolved
   useEffect(() => {
-    if (r >= BIO_WORDS.length) { onDone?.(); return }
-    const id = setTimeout(() => setR(v => v + 1), r < 0 ? 90 : 60)
+    if (r >= words.length) { onDone?.(); return }
+    const id = setTimeout(() => setR(v => v + 1), r < 0 ? 90 : step)
     return () => clearTimeout(id)
-  }, [r, onDone])
+  }, [r, onDone, words.length, step])
   // re-roll the glyphs between steps too, so the band shimmers
   const [, setTick] = useState(0)
   useEffect(() => {
-    if (r >= BIO_WORDS.length) return
+    if (r >= words.length) return
     const id = setInterval(() => setTick(t => t + 1), 40)
     return () => clearInterval(id)
   }, [r])
   return (
     <p style={style}>
-      {BIO_WORDS.map((w, i) => i < r
+      {words.map((w, i) => i < r
         ? <span key={i} className="bio-w">{w}</span>
         : i < r + BAND
           ? <span key={i} className="bio-w bio-scr"><span style={{ color: 'transparent' }}>{w}</span><span className="bio-scr-g">{scramble(w.length + 1)}</span></span>
@@ -209,138 +170,28 @@ function DecodeBio({ style, onDone }: BioProps) {
   )
 }
 
-function ScanBio({ style, onDone }: BioProps) {
-  useEffect(() => { const t = setTimeout(() => onDone?.(), 2300); return () => clearTimeout(t) }, [onDone])
+const slugOf = (href: string) => href.replace(/^\/project\//, '').replace(/\//g, '')
+
+function CardBody({ card, meta }: { card: Card; meta?: string }) {
   return (
-    <div className="bio-scan" style={{ position: 'relative' }}>
-      <p className="bio-scan-top" style={style}>
-        {BIO_WORDS.map((w, i) => <span key={i} className="bio-w">{w}</span>)}
-      </p>
+    <div className="card">
+      {meta && <div className="card-meta">{meta}</div>}
+      {card.image && <img className="card-img" src={card.image} alt="" />}
+      <p className="card-text">{card.text}</p>
+      {card.points && <ul className="card-points">{card.points.map(t => <li key={t}>{t}</li>)}</ul>}
+      <a className="card-link" href={card.link.href} target={card.link.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" style={{ ['--accent' as string]: card.accent }}>{card.link.label} ↗</a>
     </div>
   )
 }
 
-/* A script for the terminal: text to type, pauses, and backspaces. Written
-   to read like someone composing, not a machine printing: it hesitates over
-   "(and fail to)", fumbles one word, and says "at Coinbase" before settling
-   on "AI @ Coinbase". The same little performance every time. */
-type Op = { t: string; ms?: number } | { wait: number } | { del: number } | { dots: number } | { clear: true }
-function terminalScript(): Op[] {
-  const ops: Op[] = []
-  ops.push({ dots: 2 }, { wait: 260 }, { dots: 5 }, { wait: 220 }, { clear: true })
-  ops.push({ t: 'I think about how modern interfaces should' }, { wait: 520 })
-  ops.push({ t: ' (and' }, { wait: 680 }, { t: ' fail to)' }, { wait: 260 })
-  ops.push({ t: ' meet our needs with ' }, { t: 'exponentai', ms: 30 }, { wait: 300 }, { del: 3 }, { wait: 140 })
-  ops.push({ t: 'tially growing agentic capabilities.' }, { wait: 480 })
-  ops.push({ t: ' BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction.' }, { wait: 520 })
-  ops.push({ t: ' Now at Coinbase' }, { wait: 560 }, { del: 11 }, { wait: 240 })
-  ops.push({ t: 'AI @ Coinbase, where I own the agent creation experience.' })
-  return ops
+// the year and kind of a project, for the top of its window
+const metaOf = (slug: string) => {
+  const p = [...PROJECTS, ...TIDBITS].find(x => slugOf(x.href) === slug) as { year: string; kind: string; award?: string } | undefined
+  return p ? [p.year, p.kind, p.award].filter(Boolean).join(' · ') : undefined
 }
 
-// step into the folder, and the bio is what you find there
-const BIO_CMD = 'cd Defne-Portfolio'
-const HOME_DIR = 'Defne-Portfolio'
-// a person's rhythm: uneven keys, a beat at spaces, a breath at punctuation
-function keyDelay(ch: string, prev: string) {
-  let d = 26 + Math.random() * 32
-  if (ch === ' ') d += 18
-  if (prev === ',') d += 200
-  if (prev === '.' || prev === ')') d += 320
-  if (Math.random() < 0.035) d += 160 + Math.random() * 140
-  return d
-}
-type Frame = { cmd: string; out: string; dots: string }
-// the whole performance as frames on a clock
-const TERMINAL = (() => {
-  const frames: Frame[] = [], times: number[] = []
-  let t = 300, cmd = '', out = '', dots = ''
-  const push = () => { frames.push({ cmd, out, dots }); times.push(t) }
-  for (const ch of BIO_CMD) { t += 70 + Math.random() * 60; cmd += ch; push() }
-  t += 380
-  for (const op of terminalScript()) {
-    if ('dots' in op) for (let i = 0; i < op.dots; i++) { t += i < 2 ? 200 : 35; dots += '.'; push() }
-    else if ('clear' in op) { dots = ''; push() }
-    else if ('wait' in op) t += op.wait
-    else if ('del' in op) for (let i = 0; i < op.del; i++) { t += 55 + Math.random() * 25; out = out.slice(0, -1); push() }
-    else for (const ch of op.t) {
-      t += op.ms ?? keyDelay(ch, out[out.length - 1] ?? '')
-      out += ch; push()
-    }
-  }
-  frames.push({ cmd: BIO_CMD, out: BIO, dots: '' }); times.push(t)
-  return { frames, times }
-})()
-
-function TerminalBio({ style, onDone }: BioProps) {
-  const [run, setRun] = useState(0)
-  const skip = useRef(false)
-  const n = useTimeline(TERMINAL.times, run, skip)
-  const done = n >= TERMINAL.times.length
-  const f = n === 0 ? { cmd: '', out: '', dots: '' } : TERMINAL.frames[n - 1]
-  const { cmd, out, dots } = f
-  useEffect(() => { if (done) onDone?.() }, [done, onDone])
-  const replay = () => { skip.current = false; setRun(r => r + 1) }
-
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey) return
-      if (done && e.key === 'Enter') replay()
-      else if (!done) skip.current = true
-    }
-    window.addEventListener('keydown', fn)
-    return () => window.removeEventListener('keydown', fn)
-  }, [done])
-
-  return (
-    <div onClick={() => { if (!done) skip.current = true }}>
-      <div className="bio-prompt" onClick={() => { if (done) replay() }} title={done ? 'Run it again' : undefined}>
-        <span>~ %</span> {cmd}{cmd.length < BIO_CMD.length && <span className="bio-block" />}
-      </div>
-      <Reserve style={style}>
-        {dots ? <span className="bio-hot">{dots}</span> : out}
-        {cmd.length >= BIO_CMD.length && <span className="bio-block" data-done={0} />}
-      </Reserve>
-    </div>
-  )
-}
-
-function Bio({ style, onDone, mode = 'walk' }: { style: React.CSSProperties; onDone?: () => void; mode?: BioMode }) {
-  if (mode === 'type') return <TypeBio style={style} onDone={onDone} />
-  if (mode === 'decode') return <DecodeBio style={style} onDone={onDone} />
-  if (mode === 'scan') return <ScanBio style={style} onDone={onDone} />
-  if (mode === 'terminal') return <TerminalBio style={style} onDone={onDone} />
-  return <PhraseBio style={style} onDone={onDone} mode={mode} />
-}
-
-function PhraseBio({ style, onDone, mode }: { style: React.CSSProperties; onDone?: () => void; mode: BioMode }) {
-  const [step, setStep] = useState(0)
-
-  // walk and develop are the same phrase clock at different tempos
-  useEffect(() => {
-    const total = PHRASES.length
-    if (step >= total) { onDone?.(); return }
-    const wait = mode === 'walk' ? 1100 : step === 0 ? 400 : 420
-    const id = setTimeout(() => setStep(v => v + 1), wait)
-    return () => clearTimeout(id)
-  }, [step, onDone, mode])
-
-  const cls = (i: number) => {
-    const ph = phraseOf(i)
-    if (mode === 'walk') {
-      const [from, to] = PHRASES[step] ?? [-1, -1]
-      return i >= from && i <= to ? 'bio-w bio-on' : 'bio-w'
-    }
-    if (mode === 'develop') return ph < step ? 'bio-w bio-dev bio-dev-in' : 'bio-w bio-dev'
-    return 'bio-w'
-  }
-
-  return (
-    <p style={style}>
-      {BIO_WORDS.map((w, i) => <span key={i} className={cls(i)}>{w}</span>)}
-    </p>
-  )
-}
+// clicking a project opens it in place when a handler is set
+const OpenCtx = createContext<((slug: string, el: Element) => void) | null>(null)
 
 // ─── Content blocks ───────────────────────────────────────────────────────────
 
@@ -358,416 +209,180 @@ function Links({ setContact, size = '0.97rem' }: { setContact: ContactFn; size?:
   )
 }
 
-/* Section heading options, picked with ?h= while we compare. The old heading
-   was the same face, weight and colour as the names under it, only smaller,
-   so it read as a fifth project.
-   accent   "Projects" in the accent, lighter weight, a rule out to the edge
-   work     the same treatment, worded "Selected work"
-   rule     no word, just a hairline above the list
-   numbers  no heading; each name carries its number in the accent
-   none     nothing: the names are obviously the work
-   terminal the list is what "ls projects" prints inside Defne-Portfolio */
-type HeadMode = 'accent' | 'work' | 'rule' | 'numbers' | 'none' | 'terminal'
-const HEAD_MODES: { key: HeadMode; label: string }[] = [
-  { key: 'accent', label: 'Accent' },
-  { key: 'work', label: 'Selected work' },
-  { key: 'rule', label: 'Rule' },
-  { key: 'numbers', label: 'Numbers' },
-  { key: 'none', label: 'None' },
-  { key: 'terminal', label: 'Terminal' },
+// the work as ls output: projects, then tidbits, or one of the two
+type Part = 'both' | 'projects' | 'tidbits'
+const nameStyle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 500, letterSpacing: '-0.01em' }
+/* How the project names are set, picked with ?n= while we compare.
+   display  the display face at list size (the current one)
+   mono     the same list in mono, like the prompts above it
+   ls       a dated listing: the year, then the name as a folder
+   buttons  Xerox Star command buttons: small rounded boxes that invert
+   (desktop icons live in the Star view, not here: no GUI in the terminal) */
+type NameStyle = 'display' | 'mono' | 'ls' | 'buttons'
+const NAME_STYLES: { key: NameStyle; label: string }[] = [
+  { key: 'display', label: 'Display' }, { key: 'mono', label: 'Mono' }, { key: 'ls', label: 'Dated' },
+  { key: 'buttons', label: 'Star buttons' },
 ]
-const HeadCtx = createContext<HeadMode>('accent')
+const NameCtx = createContext<NameStyle>('display')
 
-function Label({ children }: { children: React.ReactNode }) {
-  const mode = useContext(HeadCtx)
-  const term = useContext(TermCtx)
-  // a terminal bio always hands over to a typed ls, whatever the heading
-  if (term) return <TermPrompt term={term} />
-  if (mode === 'terminal') return <div className="bio-prompt"><span>{HOME_DIR} %</span> ls projects</div>
-  if (mode === 'none' || mode === 'numbers') return <div style={{ height: '0.2rem' }} />
-  if (mode === 'rule') return <div className="sec-rule" />
+
+type Item = { name: string; href: string; year: string; award?: string; awardNote?: string }
+function Names({ items, click }: { items: Item[]; click: (href: string) => (e: React.MouseEvent) => void }) {
+  const style = useContext(NameCtx)
+  const open = useContext(OpenCtx)
+  const award = (p: Item) => p.award && <span className="award nm-award">{p.award} {p.awardNote}</span>
+  if (style === 'ls') return (
+    <div className="nm-ls">
+      {items.map(p => (
+        <a key={p.name} href={p.href} onClick={click(p.href)} className="nm-ls-row">
+          <span className="nm-ls-year">{p.year}</span>
+          <span><span className="nm-ls-name">{p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')}/</span>{p.award && <span className="nm-star" title={`${p.award} ${p.awardNote}`}> ★</span>}</span>
+        </a>
+      ))}
+    </div>
+  )
+  if (style === 'buttons') return (
+    <div className="nm-buttons">
+      {items.map(p => <a key={p.name} href={p.href} onClick={click(p.href)} className="nm-button">{p.name}{p.award && <span className="nm-star" title={`${p.award} ${p.awardNote}`}>★</span>}</a>)}
+    </div>
+  )
   return (
-    <div className="sec-label">
-      <span>{mode === 'work' ? 'Selected work' : children}</span>
+    <div className="pl-list">
+      {items.map(p => (
+        <a key={p.name} href={p.href} onClick={click(p.href)} className={style === 'mono' ? 'pl nm-mono' : 'pl'} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <span style={style === 'mono' ? undefined : nameStyle}>{p.name}</span>
+          {p.award && <span className="award" style={{ fontSize: '0.88rem', whiteSpace: 'nowrap' }}>{p.award} <span>{p.awardNote}</span></span>}
+        </a>
+      ))}
     </div>
   )
 }
 
-// the number before a name, only in numbers mode
-function Num({ i }: { i: number }) {
-  const mode = useContext(HeadCtx)
-  if (mode !== 'numbers') return null
-  return <span className="sec-num">{i + 1}</span>
+function NamePrompt({ cmd, className = '' }: { cmd: string; className?: string }) {
+  const style = useContext(NameCtx)
+  return <Prompt cmd={cmd} className={className} />
 }
 
-/* In terminal mode the project list is the second command: once the bio has
-   printed, "ls projects" is typed inside the defne-portfolio session and each name types out in turn. Everything
-   is laid out from the start and only painted in, so nothing moves. */
-const TERM_CMD = 'ls projects'
-const TERM_TIMES = (() => {
-  const out: number[] = []
-  let t = 450
-  for (let i = 0; i < TERM_CMD.length; i++) { t += 50 + Math.random() * 35; out.push(t) }
-  t += 260
-  for (const p of PROJECTS) { for (let i = 0; i < p.name.length; i++) { t += 14; out.push(t) } t += 110 }
-  return out
-})()
-const NO_TIMES: number[] = []
-function useTermList(on: boolean, start: boolean) {
-  const total = PROJECTS.reduce((a, p) => a + p.name.length, 0)
-  const k = useTimeline(on && start ? TERM_TIMES : NO_TIMES)
-  const cmd = Math.min(k, TERM_CMD.length)
-  const n = Math.max(0, k - TERM_CMD.length)
-  if (!on) return null
-  let off = 0
-  const rows = PROJECTS.map(p => { const shown = Math.max(0, Math.min(p.name.length, n - off)); off += p.name.length; return shown })
-  return { cmd: TERM_CMD.slice(0, cmd), typing: cmd < TERM_CMD.length, rows, done: n >= total, started: start }
-}
-
-// a name typed so far, the rest laid out but unpainted
-function Typed({ text, shown, cursor }: { text: string; shown: number; cursor?: boolean }) {
-  return <>{text.slice(0, shown)}{cursor && <span className="bio-block" />}<span style={{ color: 'transparent' }}>{text.slice(shown)}</span></>
-}
-
-type Term = NonNullable<ReturnType<typeof useTermList>>
-const TermCtx = createContext<Term | null>(null)
-
-function TermPrompt({ term }: { term: Term }) {
-  return (
-    <div className="bio-prompt" style={{ visibility: term.started ? 'visible' : 'hidden' }}>
-      <span>{HOME_DIR} %</span> {term.cmd}{term.typing && <span className="bio-block" />}
-    </div>
-  )
-}
-
-// in terminal mode a row is painted once ls has printed it
-function useRowShown() {
-  const term = useContext(TermCtx)
-  return (i: number) => !term || term.rows[i] === PROJECTS[i].name.length
-}
-
-// which row is mid-type, for the cursor
-const activeRow = (rows: number[]) => rows.findIndex((r, i) => r < PROJECTS[i].name.length)
-
-function Work({ big = false }: { big?: boolean }) {
-  const term = useContext(TermCtx)
-  const typingRow = term && !term.typing && term.cmd ? activeRow(term.rows) : -1
+function Work({ part = 'both' }: { part?: Part }) {
+  const open = useContext(OpenCtx)
+  const click = (href: string) => (e: React.MouseEvent) => { if (open) { e.preventDefault(); open(slugOf(href), e.currentTarget) } }
   return (
     <div>
-      <Label>Projects</Label>
-      <div className="pl-list" style={{ display: 'flex', flexDirection: 'column', gap: big ? '0.7rem' : '0.5rem' }}>
-        {PROJECTS.map((p, i) => (
-          <a key={p.name} href={p.href} className="pl" style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', fontSize: big ? 'clamp(1.55rem, 2.2vw, 2rem)' : '1.3rem', fontWeight: 500, letterSpacing: '-0.01em', flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: 'var(--font-display)' }}>
-              <Num i={i} />{term ? <Typed text={p.name} shown={term.rows[i]} cursor={typingRow === i} /> : p.name}
-            </span>
-            {p.award && (
-              <span className="award" style={{ fontSize: big ? '1rem' : '0.88rem', whiteSpace: 'nowrap', visibility: !term || term.rows[i] === p.name.length ? 'visible' : 'hidden' }}>
-                {p.award} <span>{p.awardNote}</span>
-              </span>
-            )}
-          </a>
-        ))}
-      </div>
+      {part !== 'tidbits' && <>
+        <NamePrompt cmd="ls projects" />
+        <Names items={PROJECTS} click={click} />
+      </>}
+      {part !== 'projects' && <>
+        <NamePrompt cmd="ls tidbits" className={part === 'tidbits' ? '' : 'ls-second'} />
+        <Names items={TIDBITS} click={click} />
+      </>}
     </div>
   )
 }
 
-function About({ big = false, xl = false, onDone, mode }: { big?: boolean; xl?: boolean; onDone?: () => void; mode?: BioMode }) {
-  // the live cell is a quarter of the screen, so its bio is set a size down
-  const size = xl ? 'clamp(1.45rem, 2.1vw, 1.9rem)' : big ? 'clamp(1.25rem, 1.7vw, 1.55rem)' : 'clamp(1.08rem, 1.35vw, 1.26rem)'
-  const strong = big || xl
+const BIO_SIZE = 'clamp(1.08rem, 1.35vw, 1.26rem)'
+/* How much of a block's text is left while it's being deleted (1 = all of
+   it). Leaving a view deletes its text fast from the end, like holding
+   backspace, before the next command runs. */
+const kept = (text: string, left: number) => text.slice(0, Math.round(text.length * left))
+const TEXT_STYLE: React.CSSProperties = { fontSize: BIO_SIZE, lineHeight: 1.65, color: 'var(--ink)' }
+
+function About({ onDone, typed, left = 1 }: { onDone?: () => void; typed?: string | null; left?: number }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-      <Bio key={mode} mode={mode} onDone={onDone} style={{ fontSize: size, lineHeight: strong ? 1.75 : 1.65, color: 'var(--ink)', fontWeight: strong ? 300 : 400, letterSpacing: xl ? '-0.01em' : 0 }} />
-      <a href="/about" style={{ fontSize: size, color: 'var(--award)', textDecoration: 'underline', textUnderlineOffset: '0.2em', alignSelf: 'flex-start' }}>About me -&gt;</a>
+      <Prompt cmd={typed ?? 'cat my-spiel'} typing={typed != null} className="bio-head" />
+      {left < 1
+        ? <p style={TEXT_STYLE}>{kept(BIO, left)}<span className="bio-block" /></p>
+        : <DecodeBio onDone={onDone} style={TEXT_STYLE} />}
     </div>
   )
 }
 
+/* About me, opened in place: the same session, one more cat. */
+const ABOUT_PLAIN = ABOUT_PARAS.map(t => t.replace(/[[\]]/g, ''))
+const ABOUT_TOTAL = ABOUT_PLAIN.reduce((a, t) => a + t.length, 0)
 
-/* Hierarchy experiments: the work gets its own window beside the bio instead
-   of sitting under it as a footnote. Each variant sets the list differently.
-   Picked with ?v= while we compare; no param keeps the live layout. */
-type Variant = 'live' | 'side' | 'index'
+function AboutText({ onBack, typed, left = 1 }: { onBack: () => void; cols?: boolean; typed?: string | null; left?: number }) {
+  // the same as the spiel: one column, the same size, decoding in
+  let budget = Math.round(ABOUT_TOTAL * left)
+  return (
+    <div className="about-tile">
+      <div className="about-top">
+        <Prompt cmd={typed ?? 'cat about-me'} typing={typed != null} className="bio-head" />
+        <a className="back-link" href="/" onClick={e => { e.preventDefault(); onBack() }}>Back</a>
+      </div>
+      <div className="about-paras">
+        {left < 1
+          ? ABOUT_PLAIN.map((t, i) => {
+              const n = Math.max(0, Math.min(t.length, budget)); budget -= t.length
+              return n > 0 ? <p key={i} style={TEXT_STYLE}>{t.slice(0, n)}{budget <= 0 && <span className="bio-block" />}</p> : null
+            })
+          : ABOUT_PLAIN.map((t, i) => <DecodeBio key={i} text={t} step={14} style={TEXT_STYLE} />)}
+      </div>
+    </div>
+  )
+}
+
+/* Layouts. Live is the 2×2 of windows with the copy in the bottom-left;
+   Centre and Stack are one group in the middle of the screen, a row of links
+   over the field and the text under it. Picked with ?v=. */
+type Variant = 'live' | 'centre' | 'stack'
 const VARIANTS: { key: Variant; label: string }[] = [
   { key: 'live', label: 'Live' },
-  { key: 'side', label: 'Live, side by side' },
-  { key: 'index', label: 'Three up top' },
+  { key: 'centre', label: 'Centre' },
+  { key: 'stack', label: 'Stack' },
 ]
+const CENTRED = (v: Variant) => v !== 'live'
 
-/* Three-window layouts around the live copy block. Each cell is placed on a
-   grid; 'text' marks the one that holds the copy, the rest are windows. */
-type Cell = { c: number; r: number; cs?: number; rs?: number; text?: 'copy' | 'bio' | 'work' }
-type Layout = { cols: number; rows: string; cells: Cell[] }
-const LAYOUTS: Record<Variant, Layout> = {
-  // the live layout: 2×2, the copy in the bottom-left window
-  live: { cols: 2, rows: '1fr 1fr', cells: [
-    { c: 0, r: 0 }, { c: 1, r: 0 }, { c: 0, r: 1, text: 'copy' }, { c: 1, r: 1 },
-  ] },
-  // the same 2×2, but the bio and the work sit side by side in their window
-  side: { cols: 2, rows: '1fr 1fr', cells: [
-    { c: 0, r: 0 }, { c: 1, r: 0 }, { c: 0, r: 1, text: 'copy' }, { c: 1, r: 1 },
-  ] },
-  // three windows over the top, bio and index share the floor
-  index: { cols: 6, rows: '1fr 1fr', cells: [
-    { c: 0, r: 0, cs: 2 }, { c: 2, r: 0, cs: 2 }, { c: 4, r: 0, cs: 2 },
-    { c: 0, r: 1, cs: 3, text: 'bio' }, { c: 3, r: 1, cs: 3, text: 'work' },
-  ] },
+/* Each layout places cells on a grid; 'text' marks a cell with a solid
+   background holding that block, every other cell is a window onto the field.
+   The one window in the centred layouts is 'main', so the scroll can grow it. */
+type CellText = 'copy' | 'about' | 'blank' | 'bar' | 'shell' | 'clists' | 'cbio' | 'cproj' | 'ctid' | 'cwork' | 'cabout'
+type Cell = { c: number; r: number; cs?: number; rs?: number; text?: CellText; main?: boolean }
+type Layout = { cols: number; colSizes?: string; rows: string; cells: Cell[] }
+type View = 'home' | 'about'
+
+// the centred group never grows past this, so wide screens keep it together
+const GROUP = '1fr minmax(0, 540px) minmax(0, 540px) 1fr'
+const frame = (rows: string, body: Cell[], last: number): Layout => ({ cols: 4, colSizes: GROUP, rows, cells: [
+  { c: 0, r: 0, cs: 4, text: 'blank' },
+  { c: 0, r: 1, rs: last - 1, text: 'blank' }, { c: 1, r: 1, cs: 2, text: 'bar' }, { c: 3, r: 1, rs: last - 1, text: 'blank' },
+  { c: 1, r: 2, cs: 2, main: true },
+  ...body,
+  { c: 1, r: last - 1, cs: 2, text: 'shell' },
+  { c: 0, r: last, cs: 4, text: 'blank' },
+] })
+
+/* The window is a fixed height and the group hangs from the top, so swapping
+   the spiel for About never moves the field or the first line of text. */
+const TOP = 'clamp(0.5rem,4vh,3rem)'
+const MAIN = 'clamp(140px,26vh,320px)'
+
+const LAYOUTS: Record<Variant, Record<View, Layout>> = {
+  live: {
+    home:  { cols: 2, rows: '1fr 1fr', cells: [{ c: 0, r: 0 }, { c: 1, r: 0 }, { c: 0, r: 1, text: 'copy' }, { c: 1, r: 1 }] },
+    // About takes the whole right column, so it reads at full size
+    about: { cols: 2, rows: '1fr 1fr', cells: [{ c: 0, r: 0 }, { c: 1, r: 0, rs: 2, text: 'about' }, { c: 0, r: 1 }] },
+  },
+  // the bio and the work side by side under the field
+  centre: {
+    home:  frame(`${TOP} auto ${MAIN} auto auto 1fr`, [{ c: 1, r: 3, text: 'cbio' }, { c: 2, r: 3, text: 'cwork' }], 5),
+    about: frame(`${TOP} auto ${MAIN} auto auto 1fr`, [{ c: 1, r: 3, cs: 2, text: 'cabout' }], 5),
+  },
+  // the bio across the full width, then the two lists side by side
+  stack: {
+    // the two lists share one cell, so they always sit at the same size
+    home:  frame(`${TOP} auto ${MAIN} auto auto auto 1fr`, [{ c: 1, r: 3, cs: 2, text: 'cbio' }, { c: 1, r: 4, cs: 2, text: 'clists' }], 6),
+    about: frame(`${TOP} auto ${MAIN} auto auto auto 1fr`, [{ c: 1, r: 3, cs: 2, rs: 2, text: 'cabout' }], 6),
+  },
 }
 
-function AwardLine({ p }: { p: typeof PROJECTS[number] }) {
-  if (!p.award) return null
-  return <span className="award" style={{ whiteSpace: 'nowrap' }}>{p.award} {p.awardNote}</span>
-}
 
-/* Ways to show the work inside the live cell. Picked with ?p= while we compare.
-   list   the live one: names stacked, the award beside Bloom
-   index  each name with its one-line pitch under it
-   table  name, kind and year in ruled columns */
-type ProjMode = 'list' | 'index' | 'table'
-const PROJ_MODES: { key: ProjMode; label: string }[] = [
-  { key: 'list', label: 'List' },
-  { key: 'index', label: 'Index' },
-  { key: 'table', label: 'Table' },
-]
-
-function Projects({ mode, terminal, start }: { mode: ProjMode; terminal: boolean; start: boolean }) {
-  const term = useTermList(terminal, start)
-  return (
-    <TermCtx.Provider value={term}>
-      {mode === 'index' ? <CellIndex /> : mode === 'table' ? <ProjectTable /> : <Work />}
-    </TermCtx.Provider>
-  )
-}
-
-function CellIndex() {
-  const shown = useRowShown()
-  return (
-    <div>
-      <Label>Projects</Label>
-      <div className="px-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-        {PROJECTS.map((p, i) => (
-          <a key={p.name} href={p.href} className="px" style={{ visibility: shown(i) ? 'visible' : 'hidden' }}>
-            <span style={{ display: 'flex', alignItems: 'baseline', gap: '0.7rem', flexWrap: 'wrap' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 500, letterSpacing: '-0.01em', lineHeight: 1.15 }}><Num i={i} />{p.name}</span>
-              <span style={{ fontSize: '0.92rem' }}><AwardLine p={p} /></span>
-            </span>
-            <span style={{ fontSize: '0.95rem', lineHeight: 1.35 }}>{p.sub}</span>
-          </a>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function ProjectTable() {
-  const shown = useRowShown()
-  return (
-    <div>
-      <Label>Projects</Label>
-      <div className="ptab">
-        {PROJECTS.map((p, i) => (
-          <a key={p.name} href={p.href} className="ptab-row" style={{ visibility: shown(i) ? 'visible' : 'hidden' }}>
-            <span className="ptab-name"><span><Num i={i} />{p.name}</span>{p.award && <span className="award ptab-award">{p.award}</span>}</span>
-            <span>{p.kind}</span>
-            <span>{p.year}</span>
-          </a>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ─── Layout primitives (temporary: comparing options) ─────────────────────────
-
-// Windows: a grid of see-through cells over one continuous canvas. Walls are
-// drawn with box-shadow so the gaps and outer margin read as solid background.
-// `content` fills a cell with a solid background; every other cell is a window.
-function Windows({ cols, rows, content = {} }: { cols: number; rows: number; content?: Record<string, React.ReactNode> }) {
-  const wall = '0 0 0 var(--wall) var(--bg)'
-  const cells = []
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-    const key = `${c},${r}`
-    if (key in content) {
-      // pointer-events comes from CSS so the open state can hand the cursor to the canvas
-      cells.push(<div key={key} className="panel scrollbar-none" style={{ background: 'var(--bg)', boxShadow: wall, overflowY: 'auto', minWidth: 0, minHeight: 0 }}>{content[key]}</div>)
-    } else {
-      cells.push(<div key={key} style={{ boxShadow: wall }} />)
-    }
-  }
-  return (
-    <div className="windows" style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`, gap: 'var(--wall)', padding: 'var(--wall)', pointerEvents: 'none' }}>
-      {cells}
-    </div>
-  )
-}
-
-// ArchWindows: the same idea as Windows, but each opening is a pointed arch with
-// tracery: two lancets below, a rosette in the top third. Drawn as one SVG of
-// solid background with the openings punched out, measured in pixels so the
-// curves never stretch.
-function ArchWindows({ count = 5 }: { count?: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [box, setBox] = useState({ w: 0, h: 0 })
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const ro = new ResizeObserver(([e]) => setBox({ w: e.contentRect.width, h: e.contentRect.height }))
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
-
-  const { w, h } = box
-  const holes: string[] = []
-
-  if (w > 0 && h > 0) {
-    const wall = Math.max(10, Math.min(w, h) * 0.05)
-    const slotW = (w - wall * (count + 1)) / count
-    const winH = h - wall * 2
-    const spring = winH * 0.45            // where the arch leaves the jamb
-
-    // one pointed arch as a path, opening upward from (x, y) with size (aw, ah)
-    const arch = (x: number, y: number, aw: number, ah: number, springRatio: number) => {
-      const sy = y + ah * (1 - springRatio)
-      const apex = y
-      const cx = x + aw / 2
-      return `M ${x} ${y + ah} L ${x} ${sy} Q ${x} ${apex} ${cx} ${apex} Q ${x + aw} ${apex} ${x + aw} ${sy} L ${x + aw} ${y + ah} Z`
-    }
-
-    for (let i = 0; i < count; i++) {
-      const x = wall + i * (slotW + wall)
-      const y = wall
-      holes.push(arch(x, y, slotW, winH, spring / winH))
-
-      // tracery: inset frame, two lancets, a rosette in the top third
-      const m = Math.max(4, slotW * 0.09)
-      const ix = x + m, iw = slotW - m * 2
-      const inner = winH - m * 2
-      const rosR = Math.min(iw * 0.3, inner * 0.16)
-      const rosCy = y + m + inner * 0.2
-      const lancetTop = rosCy + rosR + m * 0.9
-      const lancetH = y + winH - m - lancetTop
-      const lw = (iw - m * 0.9) / 2
-
-      if (lancetH > rosR && lw > 6) {
-        holes.push(arch(ix, lancetTop, lw, lancetH, 0.4))
-        holes.push(arch(ix + lw + m * 0.9, lancetTop, lw, lancetH, 0.4))
-        // rosette: six petals around a small centre
-        const petal = rosR * 0.42
-        for (let p = 0; p < 6; p++) {
-          const a = (p / 6) * Math.PI * 2 - Math.PI / 2
-          const px = x + slotW / 2 + Math.cos(a) * (rosR - petal * 0.9)
-          const py = rosCy + Math.sin(a) * (rosR - petal * 0.9)
-          holes.push(`M ${px - petal} ${py} a ${petal} ${petal} 0 1 0 ${petal * 2} 0 a ${petal} ${petal} 0 1 0 ${-petal * 2} 0 Z`)
-        }
-        const cr = rosR * 0.3
-        holes.push(`M ${x + slotW / 2 - cr} ${rosCy} a ${cr} ${cr} 0 1 0 ${cr * 2} 0 a ${cr} ${cr} 0 1 0 ${-cr * 2} 0 Z`)
-      }
-    }
-  }
-
-  return (
-    <div ref={ref} className="windows" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-      {w > 0 && (
-        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
-          <defs>
-            <mask id="arch-mask">
-              <rect x={0} y={0} width={w} height={h} fill="#fff" />
-              {holes.map((d, i) => <path key={i} d={d} fill="#000" />)}
-            </mask>
-          </defs>
-          <rect x={0} y={0} width={w} height={h} fill="var(--bg)" mask="url(#arch-mask)" />
-        </svg>
-      )}
-    </div>
-  )
-}
-
-// SashWindows: round-arched Georgian windows. A semicircular fanlight with
-// radiating spokes and an inner ring sits over a gridded sash. Same trick as
-// ArchWindows: one SVG of solid background, openings punched out, then the
-// muntins painted back in so they read as glazing bars.
-function SashWindows({ count = 2 }: { count?: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [box, setBox] = useState({ w: 0, h: 0 })
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const ro = new ResizeObserver(([e]) => setBox({ w: e.contentRect.width, h: e.contentRect.height }))
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
-
-  const { w, h } = box
-  const holes: string[] = []
-  const bars: string[] = []
-
-  if (w > 0 && h > 0) {
-    const wall = Math.max(12, Math.min(w, h) * 0.06)
-    const slotW = (w - wall * (count + 1)) / count
-    const winH = h - wall * 2
-    const r = slotW / 2
-
-    for (let i = 0; i < count; i++) {
-      const x = wall + i * (slotW + wall)
-      const y = wall
-      const cx = x + r, sy = y + r          // arc centre, springline
-      const bottom = y + winH
-
-      // opening: semicircular head over a rectangular sash
-      holes.push(`M ${x} ${bottom} L ${x} ${sy} A ${r} ${r} 0 0 1 ${x + slotW} ${sy} L ${x + slotW} ${bottom} Z`)
-
-      // fanlight: radiating spokes plus an inner ring
-      const ir = r * 0.52
-      for (let k = 1; k < 8; k++) {
-        const a = Math.PI + (k / 8) * Math.PI
-        bars.push(`M ${cx + Math.cos(a) * ir} ${sy + Math.sin(a) * ir} L ${cx + Math.cos(a) * r} ${sy + Math.sin(a) * r}`)
-      }
-      bars.push(`M ${cx - ir} ${sy} A ${ir} ${ir} 0 0 1 ${cx + ir} ${sy}`)
-      bars.push(`M ${cx - ir} ${sy} L ${cx - ir} ${sy - r * 0.02}`)
-      bars.push(`M ${x} ${sy} L ${x + slotW} ${sy}`)   // transom under the fanlight
-
-      // sash: a grid of panes, plus a meeting rail two thirds down
-      const sashH = bottom - sy
-      const cols = 4, rows = Math.max(3, Math.round(sashH / (slotW / cols)))
-      for (let c = 1; c < cols; c++) {
-        const bx = x + (slotW / cols) * c
-        bars.push(`M ${bx} ${sy} L ${bx} ${bottom}`)
-      }
-      for (let rr = 1; rr < rows; rr++) {
-        const by = sy + (sashH / rows) * rr
-        bars.push(`M ${x} ${by} L ${x + slotW} ${by}`)
-      }
-    }
-  }
-
-  const barW = Math.max(2, Math.min(w, h) * 0.006)
-
-  return (
-    <div ref={ref} className="windows" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-      {w > 0 && (
-        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
-          <defs>
-            <mask id="sash-mask">
-              <rect x={0} y={0} width={w} height={h} fill="#fff" />
-              {holes.map((d, i) => <path key={i} d={d} fill="#000" />)}
-              {bars.map((d, i) => <path key={`b${i}`} d={d} stroke="#fff" strokeWidth={barW} fill="none" />)}
-            </mask>
-          </defs>
-          <rect x={0} y={0} width={w} height={h} fill="var(--bg)" mask="url(#sash-mask)" />
-        </svg>
-      )}
-    </div>
-  )
-}
 
 /* Fit: the copy never scrolls inside its window. If the block is taller than
    the cell it is zoomed down until it fits, never below 80%, which keeps the
-   bio at a comfortable reading size. Every bio animation reserves its final
-   size from the first frame, so this only has to measure on layout changes. */
+   bio at a comfortable reading size. The bio reserves its final size from the
+   first frame, so this only has to measure on layout changes. */
 function Fit({ children, deps }: { children: React.ReactNode; deps: unknown[] }) {
   const ref = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
@@ -797,18 +412,354 @@ function Fit({ children, deps }: { children: React.ReactNode; deps: unknown[] })
   return <div ref={ref}>{children}</div>
 }
 
-// GridWindows: any arrangement from LAYOUTS. Same wall trick as Windows.
-function GridWindows({ layout, content, fitKey }: { layout: Layout; content: Record<string, React.ReactNode>; fitKey: unknown[] }) {
+/* GridWindows: a grid of see-through cells over one continuous canvas. Walls
+   are drawn with box-shadow so the gaps and outer margin read as solid
+   background; a text cell is solid, every other cell is a window. */
+function GridWindows({ layout, content, mainChild }: { layout: Layout; content: Partial<Record<CellText, React.ReactNode>>; mainChild?: React.ReactNode }) {
   const wall = '0 0 0 var(--wall) var(--bg)'
   return (
-    <div className="windows" style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: `repeat(${layout.cols}, 1fr)`, gridTemplateRows: layout.rows.split(' ').map(r => `minmax(0, ${r})`).join(' '), gap: 'var(--wall)', padding: 'var(--wall)', pointerEvents: 'none' }}>
-      {layout.cells.map((c, i) => {
+    <div className="windows" style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: layout.colSizes ?? `repeat(${layout.cols}, 1fr)`, gridTemplateRows: layout.rows.split(' ').map(r => (r.endsWith('fr') ? `minmax(0, ${r})` : r)).join(' '), gap: 'var(--wall)', padding: 'var(--wall)', pointerEvents: 'none' }}>
+      {layout.cells.map(c => {
         const place: React.CSSProperties = { gridColumn: `${c.c + 1} / span ${c.cs ?? 1}`, gridRow: `${c.r + 1} / span ${c.rs ?? 1}`, boxShadow: wall }
-        return c.text
-          ? <div key={i} className="panel scrollbar-none" style={{ ...place, background: 'var(--bg)', overflowY: 'auto', minWidth: 0, minHeight: 0 }}><Fit deps={[layout, ...fitKey]}>{content[c.text]}</Fit></div>
-          : <div key={i} style={place} />
+        const key = `${c.text ?? 'win'}-${c.c}-${c.r}`
+        if (!c.text) return <div key={key} data-main={c.main ? 1 : undefined} style={{ ...place, position: 'relative' }}>{c.main && mainChild}</div>
+        const cls = c.text === 'blank' ? 'panel blank scrollbar-none' : c.text === 'bar' ? 'panel bar' : 'panel scrollbar-none'
+        return (
+          <div key={key} className={cls} style={{ ...place, position: 'relative', background: 'var(--bg)', overflowY: 'auto', minWidth: 0, minHeight: 0 }}>
+            {c.text === 'bar' || c.text === 'shell' || c.text === 'cabout' ? content[c.text] : <Fit deps={[layout]}>{content[c.text]}</Fit>}
+          </div>
+        )
       })}
     </div>
+  )
+}
+
+/* The shell: a live prompt under the text. Type, or just start typing
+   anywhere on the page, and press Enter. */
+type ShellApi = {
+  view: View; goTo: (to: View) => void; setTheme: (t: 'light' | 'dark') => void
+  openContact: () => void; openProject: (slug: string) => void
+  weather: { place: string | null; period: Period; sky: Sky } | null
+}
+
+/* curl wttr.in, the real way people check the weather in a terminal: a
+   little report of the sky the field is drawing. */
+const WTTR: Record<Sky, string[]> = {
+  clear: ['    \\   /    ', '     .-.     ', '  ― (   ) ―  ', '     `-’     ', '    /   \\    '],
+  cloud: ['             ', '     .--.    ', '  .-(    ).  ', ' (___.__)__) ', '             '],
+  rain:  ['     .-.     ', '    (   ).   ', '   (___(__)  ', '    ‘ ‘ ‘ ‘  ', '   ‘ ‘ ‘ ‘   '],
+  snow:  ['     .-.     ', '    (   ).   ', '   (___(__)  ', '    *  *  *  ', '   *  *  *   '],
+  fog:   ['             ', ' _ - _ - _ - ', '  _ - _ - _  ', ' _ - _ - _ - ', '             '],
+  storm: ['     .-.     ', '    (   ).   ', '   (___(__)  ', '    ⚡‘ ‘⚡‘  ', '    ‘ ‘ ‘ ‘  '],
+  wind:  ['             ', '  ~~~~~~~>   ', '    ~~~~~~>  ', '  ~~~~~>     ', '             '],
+}
+const SKY_WORD: Record<Sky, string> = { clear: 'Clear', cloud: 'Overcast', rain: 'Rain', snow: 'Snow', fog: 'Fog', storm: 'Thunderstorm', wind: 'Windy' }
+function wttr(w: ShellApi['weather']) {
+  if (!w) return 'curl: (7) Failed to connect to wttr.in: still looking up your weather'
+  const art = WTTR[w.sky]
+  const info = [SKY_WORD[w.sky], w.period === 'late' ? 'late night' : w.period, '', 'the field above is drawing this']
+  return <pre className="wttr">{`Weather report: ${w.place ?? 'your area'}\n\n`}{art.map((l, i) => `${l}  ${info[i] ?? ''}`).join('\n')}</pre>
+}
+
+// what Tab can complete, by command
+const COMMANDS = ['cat', 'cd', 'ls', 'open', 'imgcat', 'startx', 'caffeinate', 'pmset', 'curl', 'mail', 'clear', 'help', 'whoami', 'date', 'echo', 'pwd']
+const ITEM_NAMES = [...PROJECTS, ...TIDBITS].map(p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, ''))
+const ARGS: Record<string, string[]> = {
+  cat: ['about-me', 'my-spiel'], cd: ['..'], ls: ['projects', 'tidbits', '-a'], open: ITEM_NAMES,
+  caffeinate: ['-d'], pmset: ['displaysleepnow'], curl: ['wttr.in'],
+}
+function complete(text: string, cwd: Path = []): { text: string; options?: string[] } {
+  const parts = text.split(' ')
+  const word = parts[parts.length - 1]
+  // file arguments complete from the folder you're in
+  const here = listing(cwd) ?? []
+  const fileArgs: Record<string, string[]> = {
+    cd: ['..', ...here.filter(x => x.endsWith('/'))],
+    ls: here, cat: here.filter(x => !x.endsWith('/')), imgcat: here.filter(x => x.endsWith('.png')), open: ['.', ...here, ...(ARGS.open ?? [])],
+  }
+  const pool = parts.length === 1 ? COMMANDS : fileArgs[parts[0]] ?? ARGS[parts[0]] ?? []
+  const hits = pool.filter(x => x.startsWith(word))
+  if (!hits.length) return { text }
+  let common = hits[0]
+  for (const h of hits) while (!h.startsWith(common)) common = common.slice(0, -1)
+  const done = hits.length === 1
+  parts[parts.length - 1] = done ? hits[0] + ' ' : common
+  return { text: parts.join(' '), options: done ? undefined : hits }
+}
+const HELP: [string, string][] = [
+  ['cat about-me', 'read about me'],
+  ['cat my-spiel', 'back to the start'],
+  ['ls', 'what\u2019s in this folder'],
+  ['cd projects', 'go into a folder (cd .. to go back up)'],
+  ['cat description.txt', 'read a project, inside its folder'],
+  ['imgcat overview.png', 'show a picture, inside a project\u2019s folder'],
+  ['open .', 'see this folder on the desktop, the GUI'],
+  ['open bloom', 'open a project (any name)'],
+  ['caffeinate -d', 'light mode'],
+  ['pmset displaysleepnow', 'dark mode'],
+  ['curl wttr.in', 'the weather the field is drawing'],
+  ['tab', 'finish a command for you'],
+  ['mail', 'write to me'],
+  ['clear', 'clear this'],
+]
+/* The same files the desktop (/star) shows, walked as a terminal:
+   ~               projects/  tidbits/  my-spiel  about-me
+   ~/projects      one folder per project
+   ~/projects/x    description.txt, site.url, papers
+   ~/tidbits       one file per tidbit */
+type Path = string[]
+const DIRS = ITEMS.filter(i => i.kind === 'folder').map(i => ({ id: i.id, dir: dirName(i.id, CARDS[i.id].title) }))
+const TIDS = ITEMS.filter(i => i.kind !== 'folder').map(i => ({ id: i.id, file: dirName(i.id, CARDS[i.id].title) }))
+const idOfDir = (d: string) => DIRS.find(x => x.dir === d)?.id
+function listing(p: Path): string[] | null {
+  if (p.length === 0) return ['projects/', 'tidbits/', 'my-spiel', 'about-me']
+  if (p.length === 1 && p[0] === 'projects') return DIRS.map(x => x.dir + '/')
+  if (p.length === 1 && p[0] === 'tidbits') return TIDS.map(x => x.file)
+  if (p.length === 2 && p[0] === 'projects') { const id = idOfDir(p[1]); return id ? [...FOLDERS[id].map(e => e.file), ...(PICTURES[id] ?? []).map(([src]) => picFile(src))] : null }
+  return null
+}
+// where a path points from here, or null if it isn't a folder
+function resolve(cwd: Path, arg: string): Path | null {
+  let p: Path = arg.startsWith('/') || arg.startsWith('~') ? [] : [...cwd]
+  for (const part of arg.replace(/^~\/?|^\//, '').split('/').filter(Boolean)) {
+    if (part === '.') continue
+    if (part === '..') { p = p.slice(0, -1); continue }
+    p = [...p, part]
+    if (!listing(p)) return null
+  }
+  return p
+}
+// a project's description, printed the way cat prints a file
+const catDesc = (id: string) => {
+  const c = CARDS[id]
+  const pic = PICTURES[id]?.[0]
+  return <div className="cat-doc">{pic && <img className="cat-img" src={pic[0]} alt={pic[1]} />}<p>{c.text}</p>{c.points?.map(t => <p key={t}>- {t}</p>)}<p>{c.link.href}</p></div>
+}
+// imgcat, the way iTerm prints a picture into the terminal
+const imgcat = (src: string, cap: string) => <div className="cat-doc"><img className="cat-img" src={src} alt={cap} /><p>{cap}</p></div>
+const findPic = (dir: Path, file: string) => {
+  const id = dir[0] === 'projects' && dir[1] ? idOfDir(dir[1]) : undefined
+  return id ? PICTURES[id]?.find(([src]) => picFile(src) === file) : undefined
+}
+const showPath = (p: Path) => (p.length ? `~/${p.join('/')}` : '~')
+const toGui = (p: Path) => { location.href = `/star${p.length ? `?open=${p.join('/')}` : ''}` }
+
+function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) => void = () => {}): React.ReactNode {
+  const cmd = raw.trim().replace(/\s+/g, ' ')
+  const [name, ...args] = cmd.split(' ')
+  const arg = args.join(' ').toLowerCase()
+  const find = (q: string) => [...PROJECTS, ...TIDBITS].find(p => p.name.toLowerCase().replace(/[^a-z]/g, '').startsWith(q.replace(/[^a-z]/g, '')))
+  switch (name) {
+    case '': return ''
+    case 'help': case 'man':
+      return <div className="help">{HELP.map(([c, d]) => <div key={c}><span className="help-cmd">{c}</span><span>{d}</span></div>)}</div>
+    case 'cat': {
+      const slash = arg.lastIndexOf('/')
+      const dir = slash >= 0 ? resolve(cwd, arg.slice(0, slash) || '/') : cwd
+      const file = arg.slice(slash + 1)
+      if (!dir) return `cat: ${arg}: No such file or directory`
+      const at = dir.length === 0
+      if (at && (file === 'about-me' || file === 'about')) { api.goTo('about'); return '' }
+      if (at && (file === 'my-spiel' || file === 'spiel')) { api.goTo('home'); return '' }
+      const id = dir[0] === 'projects' && dir[1] ? idOfDir(dir[1]) : undefined
+      const e = id && FOLDERS[id].find(x => x.file === file)
+      if (e && id && e.kind === 'doc') return catDesc(id)
+      const pc = findPic(dir, file)
+      if (pc) return 'cat: binary file. Try imgcat ' + file
+      if (e && e.href) return e.href
+      return `cat: ${arg || '?'}: No such file or directory`
+    }
+    case 'cd': case 'cd..': {
+      const target = name === 'cd..' ? '..' : arg
+      // cd .. from About goes back up to the spiel
+      if ((!target || target === '..' || target === '~') && cwd.length === 0) { if (api.view === 'about') api.goTo('home'); return '' }
+      if (!target || target === '~' || target === '/') { cd([]); return '' }
+      const p = resolve(cwd, target)
+      if (!p) return `cd: no such file or directory: ${target}`
+      cd(p); return ''
+    }
+    case 'ls': {
+      if (arg === '-a') return ['.', '..', ...(cwd.length ? [] : ['.secret']), ...(listing(cwd) ?? [])].join('  ')
+      const p = arg ? resolve(cwd, arg) : cwd
+      const l = p && listing(p)
+      return l ? l.join('  ') : `ls: ${arg}: No such file or directory`
+    }
+    case 'imgcat': {
+      const slash = arg.lastIndexOf('/')
+      const dir = slash >= 0 ? resolve(cwd, arg.slice(0, slash) || '/') : cwd
+      const pc = dir && findPic(dir, arg.slice(slash + 1))
+      return pc ? imgcat(pc[0], pc[1]) : `imgcat: ${arg || '?'}: No such file`
+    }
+    case 'startx': case 'gui': toGui(cwd); return ''
+    case 'open': {
+      // open . opens this folder on the desktop, the GUI
+      if (arg === '.') { toGui(cwd); return '' }
+      const here = cwd[0] === 'projects' && cwd[1] ? idOfDir(cwd[1]) : undefined
+      const e = here && FOLDERS[here].find(x => x.file === arg)
+      const hp = findPic(cwd, arg)
+      if (hp) return imgcat(hp[0], hp[1])
+      if (e && here) { if (e.kind === 'doc') return catDesc(here); if (e.href) window.open(e.href, '_blank'); return '' }
+      const tid = arg.startsWith('~/tidbits/') && TIDS.find(x => x.file === arg.slice(10))
+      if (tid) { window.open(CARDS[tid.id].link.href, '_blank'); return '' }
+      const p = arg && find(arg)
+      if (p) {
+        const id = slugOf(p.href)
+        // a tidbit is an app: open runs it. A project prints its description.
+        if (FOLDERS[id]) return catDesc(id)
+        window.open(p.href, '_blank'); return ''
+      }
+      return `The file ${arg || '?'} does not exist.`
+    }
+    case 'caffeinate': api.setTheme('light'); return 'display awake'
+    case 'pmset': case 'sleep': api.setTheme('dark'); return 'display asleep'
+    case 'weather': return wttr(api.weather)
+    case 'curl':
+      if (arg.startsWith('wttr.in')) return wttr(api.weather)
+      return arg ? `curl: (6) Could not resolve host: ${arg}` : 'curl: try \u2018curl wttr.in\u2019'
+    case 'mail': case 'email': api.openContact(); return ''
+    case 'whoami': return 'defne'
+    case 'pwd': return `/Users/defne/${HOME_DIR}${cwd.length ? '/' + cwd.join('/') : ''}`
+    case 'date': return new Date().toString().slice(0, 24)
+    case 'sudo': return 'defne is not in the sudoers file. This incident will be reported.'
+    case 'echo': return args.join(' ')
+    default: return `zsh: command not found: ${name}`
+  }
+}
+
+function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject<((cmd: string) => void) | null> }) {
+  const [text, setText] = useState('')
+  const [out, setOut] = useState<React.ReactNode>('type help · tab finishes a command')
+  const [cwd, setCwd] = useState<Path>([])
+  const hist = useRef<string[]>([])
+  const at = useRef(0)
+  const input = useRef<HTMLInputElement>(null)
+  // typing anywhere on the page lands here, unless another field has focus
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement
+      if (t.closest('input, textarea') || e.metaKey || e.ctrlKey || e.altKey) return
+      if (e.key.length === 1) { input.current?.focus() }
+    }
+    window.addEventListener('keydown', fn)
+    return () => window.removeEventListener('keydown', fn)
+  }, [])
+  const submit = (cmd = text) => {
+    const r = runCommand(cmd, api, cwd, setCwd)
+    if (cmd.trim()) { hist.current.push(cmd); at.current = hist.current.length }
+    setOut(cmd.trim() === 'clear' ? '' : r)
+    setText('')
+  }
+  // lets a click type a command here, a key at a time, then run it
+  const apiRef = useRef(api)
+  apiRef.current = api
+  const cwdRef = useRef(cwd)
+  cwdRef.current = cwd
+  useEffect(() => {
+    if (!runRef) return
+    let t = 0
+    runRef.current = (cmd: string) => {
+      let i = 0
+      const step = () => {
+        i += 1
+        setText(cmd.slice(0, i))
+        if (i < cmd.length) { t = window.setTimeout(step, 38); return }
+        t = window.setTimeout(() => {
+          setOut(runCommand(cmd, apiRef.current, cwdRef.current, setCwd)); hist.current.push(cmd); at.current = hist.current.length; setText('')
+        }, 180)
+      }
+      window.clearTimeout(t); step()
+    }
+    return () => { window.clearTimeout(t); if (runRef.current) runRef.current = null }
+  }, [runRef])
+  return (
+    <div className="shell" onClick={() => input.current?.focus()}>
+      {/* one line of output sits above the prompt; anything longer opens in a
+          box over the page, so the layout never moves. Esc closes it. */}
+      {out && (typeof out === 'string' && out.length < 110
+        ? <div className="shell-out">{out}</div>
+        : <div className="shell-out shell-pop" onClick={e => e.stopPropagation()}>
+            <button className="shell-pop-x" aria-label="Close" onClick={() => setOut('')}>
+              <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden><path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" /></svg>
+            </button>
+            {out}
+          </div>)}
+      {(!out || typeof out !== 'string' || out.length >= 110) && <div className="shell-out" aria-hidden>&nbsp;</div>}
+      <label className="bio-prompt shell-line">
+        <span>{cwd.length ? `${showPath(cwd)} %` : '%'}</span> {text}<span className="bio-block shell-caret" />
+        <input ref={input} className="shell-input" value={text} aria-label="Type a command" spellCheck={false} autoCapitalize="off" autoComplete="off"
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') submit()
+            else if (e.key === 'Tab') {
+              e.preventDefault()
+              const r = complete(text, cwd)
+              setText(r.text)
+              if (r.options) setOut(r.options.join('  '))
+            }
+            else if (e.key === 'ArrowUp') { at.current = Math.max(0, at.current - 1); setText(hist.current[at.current] ?? '') ; e.preventDefault() }
+            else if (e.key === 'ArrowDown') { at.current = Math.min(hist.current.length, at.current + 1); setText(hist.current[at.current] ?? ''); e.preventDefault() }
+            else if (e.key === 'Escape') { setOut(''); input.current?.blur() }
+          }} />
+      </label>
+    </div>
+  )
+}
+
+/* A window over the field, like an early Mac: a plain title bar, a close box
+   with an X, a hard shadow. It drags by its title bar. */
+function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = false, children }: {
+  title: string; accent: string; n: number; z: number
+  onClose: () => void; onFocus: () => void; initSize?: { w: number; h: number }; flush?: boolean; children: React.ReactNode
+}) {
+  const [pos, setPos] = useState({ x: 0, y: 0 })
+  const [size, setSize] = useState<{ w: number; h: number } | null>(initSize ?? null)
+  const ref = useRef<HTMLDivElement>(null)
+  /* the grow box, bottom right, like an early Mac. The window is centred on
+     its left edge, so half the extra width goes into the position to keep the
+     top-left corner still while you drag. */
+  const grow = (e: React.PointerEvent) => {
+    e.stopPropagation(); e.preventDefault(); onFocus()
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const sx = e.clientX, sy = e.clientY, p0 = pos
+    const move = (ev: PointerEvent) => {
+      const w = Math.max(300, r.width + ev.clientX - sx), h = Math.max(200, r.height + ev.clientY - sy)
+      setSize({ w, h }); setPos({ x: p0.x + (w - r.width) / 2, y: p0.y })
+    }
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
+  const drag = (e: React.PointerEvent) => {
+    onFocus()
+    const sx = e.clientX - pos.x, sy = e.clientY - pos.y
+    const move = (ev: PointerEvent) => setPos({ x: ev.clientX - sx, y: ev.clientY - sy })
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
+  return (
+    <div ref={ref} className="retro-win no-open" onPointerDown={onFocus}
+      style={{ ...(size ? { width: size.w, height: size.h, maxHeight: 'none' } : {}), zIndex: 80 + z, top: `calc(12% + ${n * 28}px)`, left: `calc(50% + ${n * 28}px)`, transform: `translate(calc(-50% + ${pos.x}px), ${pos.y}px)`, ['--accent' as string]: accent }}>
+      <div className="retro-title" onPointerDown={drag}>
+        <button className="retro-close" aria-label={`Close ${title}`} onClick={onClose} onPointerDown={e => e.stopPropagation()}>
+          <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden><path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" /></svg>
+        </button>
+        <span>{title}</span>
+      </div>
+      <div className={flush ? 'retro-body retro-flush' : 'retro-body'}>{children}</div>
+      <div className="retro-grow" onPointerDown={grow} aria-hidden>
+        <svg width="11" height="11" viewBox="0 0 11 11"><path d="M10 1L1 10M10 5L5 10M10 9L9 10" stroke="currentColor" strokeWidth="1.2" /></svg>
+      </div>
+    </div>
+  )
+}
+
+// the way into the desktop view, a nod to the Xerox Star
+function StarCredit() {
+  return (
+    <p className="star-credit">
+      <a href="/star">An ode to early interfaces →</a>
+    </p>
   )
 }
 
@@ -818,7 +769,7 @@ export default function Home() {
   const [navOpen, setNavOpen]     = useState(false)
   const [contactOpen, setContact] = useState(false)
   const [formSent, setFormSent]   = useState(false)
-  const [theme, setTheme]         = useTheme('dark')
+  const [theme, setTheme]         = useTheme('light')
   // 0 = windows at rest, 1 = walls gone and the animation fills the frame
   const [open, setOpen]           = useState(0)
 
@@ -831,37 +782,166 @@ export default function Home() {
   const [wx, setWx] = useState<Override>(null)
   const [wxOpen, setWxOpen] = useState(false)
   const [full, setFull] = useState(false)
-  // defaults are the picks: live, decode, table, no heading, C, top pill
-  const [variant, setVariant] = useState<Variant>('live')
-  const [bioMode, setBioMode] = useState<BioMode>('decode')
-  const [projMode, setProjMode] = useState<ProjMode>('table')
-  const [headMode, setHeadMode] = useState<HeadMode>('none')
-  const [wxVariant, setWxVariant] = useState<WxVariant>('c')
+  const [variant, setVariant] = useState<Variant>('stack')
   const [isLocal, setIsLocal] = useState(false)
+  // the local switcher folds to one button so it doesn't sit on the copy
+  const [switchOpen, setSwitchOpen] = useState(false)
+  // About opens in place, or as a window over the field in the window style
+  const [view, setView] = useState<View>('home')
+  const [icons, setIcons] = useState<'line' | 'classic'>('line')
+  const [names, setNames] = useState<NameStyle>('mono')
+  /* Windows over the field: About and the projects. Each keeps its own
+     stacking order; a new one opens a step down and right of the last. */
+  const [wins, setWins] = useState<{ id: string; from: DOMRect | null; z: number; n: number }[]>([])
+  const zTop = useRef(0)
+  const openWin = useCallback((id: string, el?: Element | null) => {
+    zTop.current += 1
+    const z = zTop.current
+    setWins(ws => ws.some(w => w.id === id)
+      ? ws.map(w => (w.id === id ? { ...w, z } : w))
+      : [...ws, { id, from: el ? el.getBoundingClientRect() : null, z, n: ws.length % 6 }])
+  }, [])
+  const closeWin = useCallback((id: string) => setWins(ws => ws.filter(w => w.id !== id)), [])
+  const focusWin = (id: string) => { zTop.current += 1; const z = zTop.current; setWins(ws => ws.map(w => (w.id === id ? { ...w, z } : w))) }
+  const winsRef = useRef(wins)
+  winsRef.current = wins
+  // the shell types a command when a project is clicked in terminal mode
+  const shellRun = useRef<((cmd: string) => void) | null>(null)
+  const pendingFrom = useRef<Element | null>(null)
+  /* Clicking About: the prompt over the spiel backspaces "cat my-spiel",
+     types "cat about-me", and on Enter About is shown where the spiel was.
+     Back does the reverse. Typed in the shell, it just switches. */
+  const [typed, setTyped] = useState<{ text: string; on: View } | null>(null)
+  const [left, setLeft] = useState<{ on: View; v: number } | null>(null)
+  const typing = useRef(false)
+  const typeTimer = useRef(0)
+  const goTo = useCallback((to: View, viaShell = false) => {
+    const cur = viewRef.current
+    if (to === cur || typing.current) return
+    if (viaShell || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setView(to); return }
+    typing.current = true
+    // 1. delete the text on screen, fast, from the end
+    const t0 = performance.now(), ERASE = 320
+    const erase = () => {
+      const p = Math.min(1, (performance.now() - t0) / ERASE)
+      setLeft({ on: cur, v: 1 - p })
+      if (p < 1) { typeTimer.current = window.setTimeout(erase, 16); return }
+      retype()
+    }
+    // 2. then the prompt: backspace the command, type the new one, Enter
+    const from = cur === 'home' ? 'cat my-spiel' : 'cat about-me'
+    const target = to === 'about' ? 'cat about-me' : 'cat my-spiel'
+    const frames: string[] = []
+    for (let i = from.length - 1; i >= 0; i--) frames.push(from.slice(0, i))
+    for (let i = 1; i <= target.length; i++) frames.push(target.slice(0, i))
+    let k = 0
+    const retype = () => {
+      if (k < frames.length) {
+        setTyped({ text: frames[k], on: cur })
+        typeTimer.current = window.setTimeout(retype, k < from.length ? 14 : 32)
+        k += 1
+        return
+      }
+      // a beat on the finished command, as if Enter was pressed
+      typeTimer.current = window.setTimeout(() => { setView(to); setTyped(null); setLeft(null); typing.current = false }, 160)
+    }
+    erase()
+  }, [])
+  const leftFor = (block: View) => (left?.on === block ? left.v : 1)
+  // the lists go with the spiel, a line at a time from the bottom
+  const listClip = left?.on === 'home' ? `inset(0 0 ${Math.round((1 - left.v) * 100)}% 0)` : undefined
+  const typedFor = (block: View) => (typed?.on === block ? typed.text : null)
+  const centred = CENTRED(variant)
+  const viewRef = useRef(view)
+  viewRef.current = view
+  /* The canvas window resizes from its bottom-right corner. The group stays
+     centred, so the width grows on both sides and follows the cursor. */
+  const [fieldBox, setFieldBox] = useState<{ w: number; h: number } | null>(null)
+  const growField = (e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    const main = (e.currentTarget as HTMLElement).parentElement
+    if (!main) return
+    const r = main.getBoundingClientRect(), sx = e.clientX, sy = e.clientY
+    // as big as the frame allows; the text below moves down to make room
+    const zone = main.closest('.canvas-zone')?.getBoundingClientRect()
+    const maxH = zone ? zone.bottom - r.top - 24 : window.innerHeight * 0.8
+    const move = (ev: PointerEvent) => setFieldBox({
+      w: Math.round(Math.min(window.innerWidth - 40, Math.max(360, r.width + (ev.clientX - sx) * 2))),
+      h: Math.round(Math.min(maxH, Math.max(100, r.height + ev.clientY - sy))),
+    })
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
+  const sized = (l: Layout): Layout => (!fieldBox || !centred ? l : {
+    ...l, rows: l.rows.replace(MAIN, `${fieldBox.h}px`),
+    colSizes: `1fr minmax(0,${fieldBox.w / 2}px) minmax(0,${fieldBox.w / 2}px) 1fr`,
+  })
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get('v') as Variant | null
     if (v && VARIANTS.some(x => x.key === v)) setVariant(v)
-    const t = new URLSearchParams(window.location.search).get('t') as BioMode | null
-    if (t && BIO_MODES.some(x => x.key === t)) setBioMode(t)
-    const pm = new URLSearchParams(window.location.search).get('p') as ProjMode | null
-    if (pm && PROJ_MODES.some(x => x.key === pm)) setProjMode(pm)
-    const hm = new URLSearchParams(window.location.search).get('h') as HeadMode | null
-    if (hm && HEAD_MODES.some(x => x.key === hm)) setHeadMode(hm)
-    const w = new URLSearchParams(window.location.search).get('w') as WxVariant | null
-    if (w && WX_VARIANTS.includes(w)) setWxVariant(w)
+    if (new URLSearchParams(window.location.search).get('i') === 'classic') setIcons('classic')
+    const nq = new URLSearchParams(window.location.search).get('n') as NameStyle | null
+    if (nq && NAME_STYLES.some(x => x.key === nq)) setNames(nq)
     setIsLocal(['localhost', '127.0.0.1'].includes(window.location.hostname))
   }, [])
-  const setParam = (k: string, v: string, dflt: string) => {
+  const pickVariant = (v: Variant) => {
+    setVariant(v); setView('home')
     const u = new URL(window.location.href)
-    if (v === dflt) u.searchParams.delete(k); else u.searchParams.set(k, v)
+    if (v === 'stack') u.searchParams.delete('v'); else u.searchParams.set('v', v)
     window.history.replaceState(null, '', u)
   }
-  const pickVariant = (v: Variant) => { setVariant(v); setParam('v', v, 'live') }
-  // replaying the bio re-gates the controls, like a fresh load
-  const pickBio = (t: BioMode) => { setBioDone(false); setBioMode(t); setParam('t', t, 'decode') }
-  const pickWx = (w: WxVariant) => { setWxVariant(w); setParam('w', w, 'c') }
-  const pickProj = (m: ProjMode) => { setProjMode(m); setParam('p', m, 'table') }
-  const pickHead = (m: HeadMode) => { setHeadMode(m); setParam('h', m, 'none') }
+  const pickNames = (v: NameStyle) => {
+    setNames(v)
+    const u = new URL(window.location.href)
+    if (v === 'mono') u.searchParams.delete('n'); else u.searchParams.set('n', v)
+    window.history.replaceState(null, '', u)
+  }
+  const pickIcons = (v: 'line' | 'classic') => {
+    setIcons(v)
+    const u = new URL(window.location.href)
+    if (v === 'line') u.searchParams.delete('i'); else u.searchParams.set('i', v)
+    window.history.replaceState(null, '', u)
+  }
+  const shellApi: ShellApi = {
+    view, goTo: to => goTo(to, true), setTheme, openContact: () => setContact(true),
+    weather: sky ? { place: sky.place ?? null, period: periodOf(), sky: wx?.s ?? sky.sky } : null,
+    openProject: slug => { openWin(slug, pendingFrom.current); pendingFrom.current = null },
+  }
+  /* Clicking a project opens its window. In terminal mode it types the
+     command first, so you can see what it does. */
+  const openProject = (slug: string, el: Element) => {
+    if (!shellRun.current) { openWin(slug, el); return }
+    pendingFrom.current = el
+    const dir = dirName(slug, CARDS[slug]?.title ?? slug)
+    shellRun.current(FOLDERS[slug] ? `cat ~/projects/${dir}/description.txt` : `open ~/tidbits/${dir}`)
+  }
+
+  /* Scrolling opens the field. In the centred layouts the window itself grows:
+     a frame of page colour with a hole cut where the window is, and the hole
+     widens to the whole screen while the text steps back. */
+  const zoneRef = useRef<HTMLDivElement>(null)
+  // the part of the field on screen, so the canvas only draws there
+  const fieldRegion = useRef<{ x: number; y: number; w: number; h: number } | null>(null)
+  const [hole, setHole] = useState<{ l: number; t: number; w: number; h: number; W: number; H: number } | null>(null)
+  fieldRegion.current = centred && hole
+    ? { x: hole.l * (1 - open), y: hole.t * (1 - open), w: hole.w + (hole.W - hole.w) * open, h: hole.h + (hole.H - hole.h) * open }
+    : null
+  useLayoutEffect(() => {
+    const zone = zoneRef.current
+    if (!centred || !zone) { setHole(null); return }
+    const measure = () => {
+      const main = zone.querySelector('[data-main]') as HTMLElement | null
+      if (!main || isStacked()) { setHole(null); return }
+      const z = zone.getBoundingClientRect(), r = main.getBoundingClientRect()
+      setHole({ l: r.left - z.left, t: r.top - z.top, w: r.width, h: r.height, W: z.width, H: z.height })
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(zone)
+    const main = zone.querySelector('[data-main]')
+    if (main) ro.observe(main)
+    return () => ro.disconnect()
+  }, [centred, variant, view])
   // the canvas controls stay out of the way until the bio has finished reading
   const [bioDone, setBioDone] = useState(false)
   const onBioDone = useCallback(() => setBioDone(true), [])
@@ -925,7 +1005,12 @@ export default function Home() {
 
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setNavOpen(false); setContact(false) }
+      if (e.key === 'Escape') {
+        setNavOpen(false); setContact(false)
+        const ws = winsRef.current
+        if (ws.length) { const top = ws.reduce((a, b) => (a.z > b.z ? a : b)); closeWin(top.id); return }
+        if (viewRef.current === 'about') goTo('home')
+      }
     }
     window.addEventListener('keydown', fn)
     return () => window.removeEventListener('keydown', fn)
@@ -955,9 +1040,10 @@ export default function Home() {
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
       data-full={full ? 1 : 0}
+      data-centred={centred ? 1 : 0}
       className="root-frame"
       style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
-        ...({ '--wall': `${1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
+        ...({ '--wall': `${centred ? 1.75 : 1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
         ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}
     >
       <style>{`
@@ -973,18 +1059,16 @@ export default function Home() {
         }
 
 
-        /* The bio's phrase walk: block in the accent, words inverted to the page */
-        .bio-w { display: inline-block; padding: 0.06em 0.16em; margin-right: 0.1em; border-radius: 3px; transition: background .18s ease, color .18s ease; }
-        .bio-on { background: var(--award); color: var(--bg); }
-        @media (prefers-reduced-motion: reduce) { .bio-on { background: none; color: var(--ink); } }
 
+        /* each bio word is its own box, so the decode band scrambles in place */
+        .bio-w { display: inline-block; padding: 0.06em 0.16em; margin-right: 0.1em; border-radius: 3px; }
         .bio-hot { color: var(--award); }
         .bio-block { display: inline-block; width: 0.5em; height: 1.05em; margin-left: 0.08em; vertical-align: -0.17em;
           background: var(--award); animation: blink 1s steps(1) infinite; }
         .bio-block[data-done="1"] { animation: blink 1s steps(1) 3 forwards; }
 
         /* terminal: the prompt is real terminal output, set at reading size */
-        .bio-prompt { font-family: var(--font-mono); font-size: 1rem; color: var(--award); margin-bottom: 0.6rem; cursor: default; }
+        .bio-prompt { white-space: nowrap; font-family: var(--font-mono); font-size: 1rem; color: var(--award); margin-bottom: 0.6rem; cursor: default; }
         .bio-prompt > span:first-child { color: var(--ink); }
 
         /* decode: glyphs scramble inside the word's own box, so nothing reflows */
@@ -992,20 +1076,6 @@ export default function Home() {
         .bio-scr-g { position: absolute; inset: 0.06em 0.16em; overflow: hidden; white-space: nowrap;
           font-family: var(--font-mono); color: var(--award); letter-spacing: -0.02em; }
 
-        /* scan: the developed text is masked in from the top behind a lit line */
-        @property --scan { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
-        .bio-scan { animation: scan 2.1s cubic-bezier(.45,0,.25,1) forwards; }
-        @keyframes scan { from { --scan: 0% } to { --scan: 104% } }
-        /* nothing below the line; the freshly scanned band glows in the accent
-           and cools to ink as the line moves on */
-        .bio-scan-top { color: transparent;
-          background: linear-gradient(to bottom, var(--ink) calc(var(--scan) - 18%), var(--award) calc(var(--scan) - 3%), var(--award) var(--scan), transparent var(--scan));
-          -webkit-background-clip: text; background-clip: text; }
-        .bio-scan-top .bio-w { color: transparent; }
-        .bio-scan::after { content: ''; position: absolute; left: 0; right: 0; top: var(--scan); height: 2px;
-          background: var(--award); box-shadow: 0 0 12px 2px var(--award); pointer-events: none; }
-        @keyframes scan-line-out { to { opacity: 0 } }
-        .bio-scan::after { animation: scan-line-out .3s ease 2.05s forwards; }
 
         /* develop: a sparse dot screen the width of each word, which thickens
            to a 50% checker, then the letters come through in the accent and
@@ -1013,14 +1083,6 @@ export default function Home() {
         .bio-dev { color: transparent;
           background-image: radial-gradient(var(--ink) 0.55px, transparent 0.8px);
           background-size: 4px 4px; }
-        .bio-dev-in { animation: develop 1.2s steps(1) forwards; }
-        @keyframes develop {
-          0%   { color: transparent; background-image: conic-gradient(var(--ink) 25%, transparent 0 50%, var(--ink) 0 75%, transparent 0); background-size: 3px 3px; }
-          25%  { color: transparent; background-image: radial-gradient(var(--ink) 0.8px, transparent 1px); background-size: 3px 3px; }
-          50%  { color: var(--award); background-image: radial-gradient(var(--award) 0.7px, transparent 0.9px); background-size: 4px 4px; }
-          75%  { color: var(--award); background-image: none; }
-          100% { color: var(--ink); background-image: none; }
-        }
 
 
         /* Project links */
@@ -1029,52 +1091,28 @@ export default function Home() {
         .pl-list .pl:hover { opacity: 1; }
         .award { color: var(--award); }
 
-        /* Index */
-        .px { display: flex; flex-direction: column; gap: 0.15rem; text-decoration: none; color: var(--ink); transition: opacity .2s; }
-        .px-list:hover .px { opacity: 0.35; }
-        .px-list .px:hover { opacity: 1; }
-        .px-name { font-family: var(--font-display); font-size: clamp(1.8rem, 2.6vw, 2.35rem); font-weight: 500; letter-spacing: -0.025em; line-height: 1.05; }
-        .px-sub { font-size: 1.02rem; line-height: 1.4; }
 
 
-        .sec-label { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.85rem;
-          font-family: var(--font-display); font-size: 1rem; font-weight: 400; color: var(--award); }
         /* laptop-height screens: tighter spacing so the copy fits its window */
         @media (max-height: 880px) and (min-width: 861px) {
           .copy-cell { padding-top: 0.6rem !important; padding-bottom: 0.4rem !important; gap: 1.05rem !important; }
-          .ptab-row { padding-top: 0.22rem; padding-bottom: 0.22rem; }
         }
         @media (max-height: 760px) and (min-width: 861px) {
           .copy-cell { gap: 0.8rem !important; }
           .copy-cell p { line-height: 1.5 !important; }
-          .ptab-row { padding-top: 0.12rem; padding-bottom: 0.12rem; }
-          .ptab-name { font-size: 1.1rem; }
         }
         .v-switch { max-width: calc(100vw - 1.2rem); }
         .v-row { flex-wrap: wrap; }
-        .copy-side { display: grid !important; grid-template-columns: 1.3fr 1fr; gap: 2.2rem !important; align-items: start; }
+        .copy-side { display: grid !important; grid-template-columns: 1fr 1fr; gap: 2.2rem !important; align-items: start; }
         @media (max-width: 860px), (hover: none) and (pointer: coarse) { .copy-side { display: flex !important; } }
         .foot { position: relative; z-index: 310; flex-shrink: 0; display: flex; align-items: center;
           padding: 0.4rem 1.75rem; border-top: 1px solid var(--hairline); background: var(--bg); }
         .foot .ul { font-size: 0.9rem !important; color: var(--ink) !important; }
         .foot .ul:hover { color: var(--award) !important; }
         .root-frame[data-full="1"] .foot { opacity: 0; pointer-events: none; }
-        .sec-rule { height: 1px; background: var(--award); opacity: 0.6; margin-bottom: 0.9rem; }
-        .sec-num { font-family: var(--font-display); color: var(--award); font-weight: 400; font-size: 0.85em; margin-right: 0.55em; font-variant-numeric: tabular-nums; }
-        .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--award); opacity: 0.45; }
 
-        /* Table */
-        .ptab { border-top: 1px solid var(--hairline); }
-        .ptab-row { display: grid; grid-template-columns: 1fr auto 3.2rem; gap: 1rem; align-items: baseline;
-          padding: 0.35rem 0.1rem; border-bottom: 1px solid var(--hairline); color: var(--ink); text-decoration: none; font-size: 0.98rem;
-          transition: background .15s, color .15s; }
-        .ptab-row:hover { background: var(--award); color: var(--bg); }
-        .ptab-row:hover .award { color: var(--bg); }
-        .ptab-row > span:last-child { text-align: right; }
-        .ptab-name { font-family: var(--font-display); font-size: 1.2rem; font-weight: 500; letter-spacing: -0.01em; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
-        .ptab-award { font-family: inherit; font-size: 0.88rem; font-weight: 400; letter-spacing: 0; }
 
-        .v-switch { position: fixed; right: 1rem; bottom: 1rem; z-index: 400;
+        .v-switch { position: fixed; left: 4.5rem; bottom: 1rem; z-index: 400;
           display: flex; flex-direction: column; gap: 0.2rem; padding: 0.35rem; border-radius: 14px; background: var(--bg); border: 1px solid var(--hairline); }
         .v-row { display: flex; align-items: center; gap: 0.2rem; }
         .v-row > span { font-size: 0.92rem; font-weight: 600; width: 4.8rem; padding-left: 0.5rem; }
@@ -1098,6 +1136,142 @@ export default function Home() {
            steps aside while the menu is out. */
         .ns-seg .theme-toggle { transition: opacity .25s ease; }
         .ns-seg[data-navopen="1"] .theme-toggle { opacity: 0; pointer-events: none; }
+
+        /* the work as ls output */
+        .pl-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        /* project name styles */
+        .nm-mono { font-family: var(--font-mono); font-size: 1.05rem; }
+        .nm-award { font-size: 0.85rem; white-space: nowrap; }
+        .nm-ls { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1.4rem; align-items: baseline; }
+        .nm-ls-row { display: contents; font-family: var(--font-mono); font-size: 1rem; color: var(--ink); text-decoration: none; }
+        .nm-ls-year { color: var(--award); }
+        .nm-ls-row:hover .nm-ls-name { background: var(--ink); color: var(--bg); }
+        .nm-buttons { display: flex; flex-wrap: wrap; gap: 0.7rem 0.6rem; }
+        /* Xerox Star command buttons: a small rounded box, no shadow; pointed at or pressed, it inverts */
+        .nm-button { display: inline-flex; align-items: center; gap: 0.4rem; height: 1.9rem; padding: 0 0.75rem; border: 1.5px solid var(--ink); border-radius: 5px;
+          background: var(--bg); color: var(--ink); text-decoration: none; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 0.98rem; }
+        .nm-button:hover, .nm-button:active { background: var(--ink); color: var(--bg); }
+        .nm-button:active { transform: translate(1px, 1px); }
+        .nm-star { color: var(--award); }
+        .nm-button:hover .nm-star { color: var(--bg); }
+        
+        .ls-second { margin-top: 1.3rem; }
+        .bio-head { margin-bottom: -0.5rem; }
+
+        /* Centre and Stack: no strip and no footer. A bar over the field holds
+           the folder name, the links and the weather button. */
+        .home-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+        /* top left: the folder name, set like the prompt; links and the weather button sit right */
+        .home-title { font-family: var(--font-mono); font-size: 1rem; color: var(--ink); }
+        .home-right { display: flex; align-items: center; gap: 1.25rem; }
+        .home-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+        .home-links a, .home-links button { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); text-decoration: none; background: none; border: none; padding: 0; }
+        .windows { box-shadow: inset 0 0 0 calc(var(--wall) * 1.2) var(--bg); }
+        /* About, opened in place: a cat prompt and Back on one line, then the prose */
+                .about-tile { display: flex; flex-direction: column; gap: 1.1rem; }
+        .about-paras { display: flex; flex-direction: column; gap: 0.6rem; }
+        /* Centre and Stack: About runs in two columns so it stays about as tall as the spiel */
+        .about-cols { display: block; column-count: 2; column-gap: 2.5rem; }
+        .about-cols p { margin-bottom: 0.6rem; }
+        .about-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+        /* Live: the weather icon sits in this tile's corner */
+        .root-frame[data-centred="0"] .about-tile .bio-prompt { padding-right: 2.75rem; }
+
+        /* opens-a-window links: mono, with the window glyph */
+        .open-link, .home-links .open-link { display: inline-flex; align-items: center; gap: 0.4em; font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); text-decoration: none; }
+        .open-link:hover { color: var(--award); }
+        .win-glyph { flex-shrink: 0; position: relative; top: -0.05em; }
+        .pl .win-glyph { align-self: center; color: var(--ink); }
+        .pl:hover .win-glyph, .open-link:hover .win-glyph { color: var(--award); }
+        .back-link { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); text-decoration: none; }
+        .back-link:hover { color: var(--award); }
+        .help { display: grid; grid-template-columns: max-content 1fr; gap: 0.15rem 1.5rem; }
+        .help > div { display: contents; }
+        .help-cmd { color: var(--award); }
+        /* the bar holds the weather panel, which opens down over the field */
+        .windows > .panel.bar { overflow: visible !important; position: relative; z-index: 5; }
+        /* Centre and Stack: the page colour around the window is one frame with
+           a hole in it (.hole), so the cells themselves are see-through and
+           the scroll can grow the hole to the whole screen. */
+        .root-frame[data-centred="1"] .windows,
+        .root-frame[data-centred="1"] .windows > * { box-shadow: none !important; background: transparent !important; }
+        .hole { position: absolute; pointer-events: none; box-shadow: 0 0 0 200vmax var(--bg); }
+
+        /* anything you can click shows the old black arrow */
+        .root-frame a, .root-frame button, .shell-line, .retro-title { cursor: ${ARROW_CURSOR} !important; }
+        .shell-line { cursor: ${ARROW_CURSOR} !important; }
+
+        /* the shell: last output, then a live prompt with a blinking block */
+        .col-gap { display: flex; flex-direction: column; gap: 1.6rem; }
+        .shell-row { padding-top: 0.6rem; }
+        /* the corner of the canvas window: drag to resize it */
+        .field-grip { position: absolute; right: -6px; bottom: -6px; width: 18px; height: 18px; pointer-events: auto; cursor: nwse-resize !important; z-index: 8;
+          background: linear-gradient(135deg, transparent 0 45%, var(--ink) 45% 55%, transparent 55% 65%, var(--ink) 65% 75%, transparent 75%); opacity: .7; }
+        .field-grip:hover { opacity: 1; }
+        .root-frame[data-open="1"] .field-grip { display: none; }
+        .lists-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--wall); }
+        /* bottom right: the Star credit and the link to the desktop view */
+        .star-credit { margin: 0 0 0 auto; font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); }
+        .star-credit a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
+        .star-credit a:hover { color: var(--award); }
+        .star-credit-float { position: absolute; right: 1.75rem; bottom: 1rem; z-index: 20; }
+        @media (max-width: 860px), (hover: none) and (pointer: coarse) { .star-credit-float { position: static; padding: 1rem 1.25rem 1.5rem; } }
+        .shell { position: relative; }
+        /* the box of long output rises out of the shell's cell, over the page */
+        .windows > .panel:has(.shell) { overflow: visible !important; z-index: 6; }
+        .shell-pop { position: absolute; left: 0; bottom: calc(100% + 0.4rem); z-index: 40; max-width: min(640px, 100%); max-height: 60vh; overflow: auto;
+          margin: 0; padding: 0.8rem 2.4rem 0.9rem 0.9rem; background: var(--bg); border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+        .shell-pop-x { position: absolute; top: 0.5rem; right: 0.5rem; width: 15px; height: 15px; padding: 0; display: flex; align-items: center; justify-content: center;
+          color: var(--ink); background: var(--bg); border: 1.5px solid var(--ink); }
+        .shell-pop-x:hover { background: var(--ink); color: var(--bg); }
+        .cat-doc p { margin: 0 0 0.5rem; max-width: 70ch; }
+        .cat-img { display: block; width: 100%; max-width: 560px; height: auto; margin: 0.2rem 0 0.7rem; border: 1px solid var(--ink); }
+        .wttr { margin: 0; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.35; }
+        .shell-out { font-family: var(--font-mono); font-size: 0.92rem; line-height: 1.5; color: var(--ink); margin-bottom: 0.35rem; white-space: pre-wrap; }
+        .shell-line { position: relative; display: block; margin-bottom: 0; }
+        .shell-input { position: absolute; inset: 0; width: 100%; opacity: 0; border: 0; padding: 0; background: none; font: inherit; }
+        .shell-caret { animation: blink 1s steps(1) infinite; }
+
+
+        /* window theme: each block in a frame with a title bar */
+        .gui-frame { border: 1.5px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); background: var(--bg); margin: 0 4px 4px 0; }
+        .gui-title { height: 24px; display: flex; align-items: center; justify-content: center; border-bottom: 1.5px solid var(--ink);
+          font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink); }
+        .gui-body { padding: 0.9rem 1rem 1rem; }
+
+        /* windows: they appear, no motion */
+        .retro-win { position: absolute; z-index: 80; width: min(560px, 90%); max-height: 76%;
+          display: flex; flex-direction: column; background: var(--bg); color: var(--ink);
+          border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+          /* the project's colour runs along the top edge, the one bit of colour on the window */
+          border-top: 5px solid color-mix(in srgb, var(--accent) 80%, var(--ink)); }
+        .retro-title { position: relative; flex-shrink: 0; height: 26px; display: flex; align-items: center; justify-content: center;
+          border-bottom: 1.5px solid var(--ink); touch-action: none; }
+        .retro-title span { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1; color: inherit; }
+        .retro-close { position: absolute; left: 7px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; padding: 0;
+          display: flex; align-items: center; justify-content: center; color: var(--ink); background: var(--bg); border: 1.5px solid var(--ink); }
+        .retro-close:hover { background: var(--ink); color: var(--bg); }
+        .retro-grow { position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+          color: var(--ink); cursor: nwse-resize !important; touch-action: none; background: var(--bg); }
+        .retro-body { flex: 1; min-height: 0; }
+        .retro-body { padding: 1rem 1.15rem 1.15rem; overflow-y: auto; font-family: var(--font-mono); }
+
+        /* About in a window reads plain */
+        .about-plain p { font-size: 0.95rem; line-height: 1.65; color: inherit; }
+        .about-plain p + p { margin-top: 0.8rem; }
+        /* a project window: image, a sentence or two, a few points, the link bottom right */
+        .card { display: flex; flex-direction: column; gap: 0.9rem; }
+        /* the whole image, never cropped */
+        .card-img { display: block; width: 100%; height: auto; max-height: 300px; object-fit: contain; border: 1px solid var(--hairline); }
+        .card-meta { font-size: 0.9rem; color: color-mix(in srgb, var(--accent) 75%, var(--ink)); }
+        .card-text { font-size: 0.95rem; line-height: 1.65; color: inherit; }
+        .card-points { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.45rem; }
+        .card-points li { position: relative; padding-left: 1.2rem; font-size: 0.92rem; line-height: 1.55; color: inherit; }
+        .card-points li::before { content: '-'; position: absolute; left: 0; color: color-mix(in srgb, var(--accent) 75%, var(--ink)); }
+        /* project colours mixed toward the ink so they hold up in dark mode too */
+        .card-link { margin-top: 0.4rem; align-self: flex-end; font-family: var(--font-mono); font-size: 0.92rem; text-decoration: none; color: color-mix(in srgb, var(--accent) 75%, var(--ink)); }
+        .card-link:hover { text-decoration: underline; text-underline-offset: 0.2em; }
 
         /* Nav tabs */
 
@@ -1136,7 +1310,6 @@ export default function Home() {
           .panel { background: var(--bg) !important; }
           /* --wall collapses as the canvas opens, and the windows are display:
              contents here, so the control pins to the field's own corner */
-          .no-open.wx-anchor { top: 0.6rem !important; right: 0.6rem !important; }
           .full-btn {
             display: flex; align-items: center; justify-content: center;
             position: absolute; right: 0.6rem; bottom: 0.6rem; z-index: 3;
@@ -1158,12 +1331,13 @@ export default function Home() {
 
 
           .pl-list a { font-size: 1.15rem !important; }
-          .px-name { font-size: 1.75rem; }
           .v-switch { bottom: 0.6rem; right: 50%; transform: translateX(50%); }
           .panel p   { font-size: 1.05rem !important; line-height: 1.6 !important; }
           .panel .ul { font-size: 0.9rem !important; }
           .windows { display: contents !important; }
-          .windows > div:not(.panel) { display: none; }
+          .windows > div:not(.panel):not(.win-slot) { display: none; }
+          .windows > .win-slot { position: absolute !important; top: 0; right: 0; width: 0; height: 0; z-index: 70; }
+          .windows > .panel.blank { display: none !important; }
           .panel { position: static !important; width: auto !important; flex: none !important; flex-direction: column !important; gap: 2rem !important; padding: 1.25rem 1.25rem 1.5rem !important; border: none !important; border-top: 1px solid var(--hairline) !important; box-shadow: none !important; }
           .panel > div { padding: 0 !important; height: auto !important; gap: 1.5rem !important; }
           .d-wrap { position: static !important; display: block !important; padding: 0 !important; }
@@ -1174,11 +1348,6 @@ export default function Home() {
           .panel .two-col { gap: 2rem !important; }
         }
 
-        .home-about-link { color: var(--ink); text-decoration: none; font-size: 0.95rem; }
-        .home-about-link:hover { color: var(--award); }
-        .home-about-link { transition: opacity .2s ease, color .2s; }
-        .ns-seg[data-navopen="1"] .home-about-link { opacity: 0; pointer-events: none; }
-        @media (max-width: 860px) { .home-about-link { display: none; } }
 
         @media (max-width: 600px) {
           .nav-links   { display: none !important; }
@@ -1193,6 +1362,7 @@ export default function Home() {
       `}</style>
 
       {/* ── NAME STRIP ── */}
+      {!centred && (
       <div className="name-strip" style={{ position: 'relative', zIndex: 310, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.45rem 1.75rem', borderBottom: '1px solid var(--hairline)', background: 'var(--bg)', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.85rem', minWidth: 0 }}>
           <h1 style={{ fontSize: 'clamp(0.95rem,1.5vw,1.15rem)', fontWeight: 500, letterSpacing: '-0.01em', lineHeight: 1, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
@@ -1205,7 +1375,6 @@ export default function Home() {
         {/* mark sits left of the toggle so the open row unfolds into empty strip
             rather than over the controls */}
         <div className="ns-seg" data-navopen={navOpen ? 1 : 0} style={{ display: 'flex', gap: '0.7rem', alignItems: 'center', flexShrink: 0 }}>
-          <a className="home-about-link" href="/about">About</a>
           <ThemeToggle theme={theme} setTheme={setTheme} />
           <NavMenu open={navOpen} setOpen={setNavOpen} items={[
             { label: 'Home', href: '/' },
@@ -1215,9 +1384,10 @@ export default function Home() {
           ]} />
         </div>
       </div>
+      )}
 
       {/* One continuous canvas; each option arranges windows and text over it */}
-      <div className="canvas-zone" style={{ position: 'relative', flex: 1, minHeight: 0, background: 'var(--bg)' }}
+      <div ref={zoneRef} className="canvas-zone" style={{ position: 'relative', flex: 1, minHeight: 0, background: 'var(--bg)', overflow: 'hidden' }}
         onMouseDown={e => {
           const t = e.target as HTMLElement
           if (t.closest('.no-open') || t.closest('.panel')) return
@@ -1228,7 +1398,7 @@ export default function Home() {
         onTouchMove={e => { const r = e.currentTarget.getBoundingClientRect(); const t = e.touches[0]; e.currentTarget.style.setProperty('--mx', `${t.clientX - r.left}px`); e.currentTarget.style.setProperty('--my', `${t.clientY - r.top}px`) }}
         onMouseLeave={e => { e.currentTarget.style.setProperty('--mx', '-999px'); e.currentTarget.style.setProperty('--my', '-999px') }}>
         <div className="field-main" style={{ width: '100%', height: '100%', opacity: look ? 1 : 0, transition: 'opacity .6s ease' }}>
-        <AsciiCanvas breathe={motion === 'breathe'} motion={motion} render={render} hover={hover} lightMode={isLight} chars='▓▒░' color={color ?? undefined}
+        <AsciiCanvas breathe={motion === 'breathe'} motion={motion} render={render} hover={hover} region={fieldRegion} lightMode={isLight} chars='▓▒░' color={color ?? undefined}
           message={`Defne Genç. ${BIO} Work: ${PROJECTS.map(p => p.name + (p.award ? ` (${p.award}, ${p.awardNote.replace(/[()]/g, '')})` : '')).join(', ')}.`} />
 
           <button className="full-btn no-open" onClick={() => setFull(v => !v)}
@@ -1242,7 +1412,9 @@ export default function Home() {
           </button>
         </div>
 
-        {/* field controls belong to the animation, not the nav */}
+        {/* field controls belong to the animation, not the nav; in the centre
+            layout the square sits in the field's own corner instead */}
+        {!centred && (
         <div className="no-open wx-anchor" style={{
           position: 'absolute', top: 'calc(var(--wall) + 0.5rem)', right: 'calc(var(--wall) + 0.5rem)',
           zIndex: 70, display: 'flex', alignItems: 'center', gap: '0.6rem',
@@ -1250,68 +1422,105 @@ export default function Home() {
           opacity: bioDone ? 1 : 0, pointerEvents: bioDone ? 'auto' : 'none',
           transition: 'opacity .5s ease',
         }}>
-          <WeatherControl override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} variant={wxVariant} />
+          <WeatherControl override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
         </div>
+        )}
 
-        {/* the layout: 2×2 windows with the copy in the bottom-left cell */}
-          {(
-            <HeadCtx.Provider value={headMode}>
-            <GridWindows layout={LAYOUTS[variant]} fitKey={[bioMode, projMode, headMode]} content={{
-              bio: (
-                <div style={{ padding: '1.25rem 1.25rem 1.25rem 0', maxWidth: 640 }}>
-                  <About onDone={onBioDone} big mode={bioMode} />
+        {/* centred layouts: the page-coloured frame around the growing window */}
+        {centred && hole && (
+          <div className="hole" aria-hidden style={{
+            left: hole.l * (1 - open), top: hole.t * (1 - open),
+            width: hole.w + (hole.W - hole.w) * open, height: hole.h + (hole.H - hole.h) * open,
+          }} />
+        )}
+
+        {/* the layout, at home or with About open */}
+        <IconStyleCtx.Provider value={icons}>
+        <NameCtx.Provider value={names}>
+        <OpenCtx.Provider value={openProject}>
+        <GridWindows layout={sized(LAYOUTS[variant][view])}
+          mainChild={<div className="field-grip no-open" onPointerDown={growField} onDoubleClick={() => setFieldBox(null)} title="Drag to resize · double-click to reset" />}
+          content={{
+            blank: null,
+            bar: (
+              <div className="home-bar">
+                <span className="home-title">{HOME_DIR}</span>
+                <div className="home-right">
+                  <div className="home-links">
+                    <a className="back-link" href="/about" onClick={e => { e.preventDefault(); goTo(view === 'about' ? 'home' : 'about') }}>{view === 'about' ? 'My spiel' : 'About'}</a>
+                    <a className="back-link" href="https://linkedin.com/in/-defne" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+                  </div>
+                  <div className="no-open" style={{ opacity: bioDone ? 1 : 0, pointerEvents: bioDone ? 'auto' : 'none', transition: 'opacity .5s ease' }}>
+                    <WeatherControl override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
+                  </div>
                 </div>
-              ),
-              work: (
-                <div style={{ padding: '1.25rem 0 0.5rem 1.25rem', maxWidth: 640 }}>
-                  <Projects mode={projMode} terminal={bioMode === 'terminal'} start={bioDone} />
-                </div>
-              ),
-              // the live copy block, in whichever cell holds it
-              copy: (
-                <div className={variant === 'side' ? 'copy-cell copy-side' : 'copy-cell'} style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem', padding: '1.25rem 1.25rem 1.25rem 0', maxWidth: variant === 'side' ? 'none' : 640 }}>
-                  <About onDone={onBioDone} mode={bioMode} />
-                  <Projects mode={projMode} terminal={bioMode === 'terminal'} start={bioDone} />
-                </div>
-              ),
-            }} />
-            </HeadCtx.Provider>
-          )}
+              </div>
+            ),
+            cbio: <div style={{ paddingTop: '0.4rem' }}><About onDone={onBioDone} typed={typedFor('home')} left={leftFor('home')} /></div>,
+            shell: <div className="shell-row"><Shell api={shellApi} runRef={shellRun} /></div>,
+            cwork: <div style={{ paddingTop: '0.4rem', clipPath: listClip }}><Work /></div>,
+            cproj: <Work part="projects" />,
+            clists: <div className="lists-2" style={{ clipPath: listClip }}><Work part="projects" /><Work part="tidbits" /></div>,
+            ctid: <Work part="tidbits" />,
+            cabout: <div style={{ paddingTop: '0.4rem' }}><AboutText onBack={() => goTo('home')} typed={typedFor('about')} left={leftFor('about')} cols /></div>,
+            about: <div style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.4rem' }}><AboutText onBack={() => goTo('home')} typed={typedFor('about')} left={leftFor('about')} /><Shell api={shellApi} runRef={shellRun} /></div>,
+            // Live: the bio and the lists side by side in the bottom-left window
+            copy: (
+              <div className="copy-cell copy-side" style={{ padding: '1.25rem 1.25rem 1.25rem 0' }}>
+                <About onDone={onBioDone} typed={typedFor('home')} left={leftFor('home')} />
+                <Work />
+                <div style={{ gridColumn: '1 / -1' }}><Shell api={shellApi} runRef={shellRun} /></div>
+              </div>
+            ),
+          }} />
+        </OpenCtx.Provider>
+        </NameCtx.Provider>
+        </IconStyleCtx.Provider>
+
+        {/* the window style: About over the field */}
+        {wins.map(w => {
+          const card = CARDS[w.id]
+          return (
+            <RetroWindow key={w.id}
+              title={card ? card.title : 'About me'}
+              accent={card ? card.accent : 'var(--award)'}
+              n={w.n} z={w.z} onClose={() => closeWin(w.id)} onFocus={() => focusWin(w.id)}>
+              {card ? <CardBody card={card} meta={metaOf(w.id)} /> : <div className="about-plain">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} />)}</div>}
+            </RetroWindow>
+          )
+        })}
 
       </div>
 
       {/* a thin footer for the ways to reach me, mirroring the name strip */}
+      {!centred && (
       <footer className="foot">
         <Links setContact={setContact} />
+        <StarCredit />
       </footer>
+      )}
+      {centred && <div className="star-credit-float"><StarCredit /></div>}
 
       {isLocal && (
         <div className="v-switch no-open">
+          <button onClick={() => setSwitchOpen(v => !v)} style={{ alignSelf: 'flex-start' }}>{switchOpen ? 'Hide' : 'Options'}</button>
+          {switchOpen && <>
           <div className="v-row"><span>Layout</span>
             {VARIANTS.map(v => (
               <button key={v.key} data-on={variant === v.key ? 1 : 0} onClick={() => pickVariant(v.key)}>{v.label}</button>
             ))}
           </div>
-          <div className="v-row"><span>Projects</span>
-            {PROJ_MODES.map(v => (
-              <button key={v.key} data-on={projMode === v.key ? 1 : 0} onClick={() => pickProj(v.key)}>{v.label}</button>
+          <div className="v-row"><span>Names</span>
+            {NAME_STYLES.map(v => (
+              <button key={v.key} data-on={names === v.key ? 1 : 0} onClick={() => pickNames(v.key)}>{v.label}</button>
             ))}
           </div>
-          <div className="v-row"><span>Heading</span>
-            {HEAD_MODES.map(v => (
-              <button key={v.key} data-on={headMode === v.key ? 1 : 0} onClick={() => pickHead(v.key)}>{v.label}</button>
+          <div className="v-row"><span>Icons</span>
+            {(['line', 'classic'] as const).map(v => (
+              <button key={v} data-on={icons === v ? 1 : 0} onClick={() => pickIcons(v)}>{v === 'line' ? 'Line' : 'Classic'}</button>
             ))}
           </div>
-          <div className="v-row"><span>Bio</span>
-            {BIO_MODES.map(v => (
-              <button key={v.key} data-on={bioMode === v.key ? 1 : 0} onClick={() => pickBio(v.key)}>{v.label}</button>
-            ))}
-          </div>
-          <div className="v-row"><span>ⓘ</span>
-            {WX_VARIANTS.map(v => (
-              <button key={v} data-on={wxVariant === v ? 1 : 0} onClick={() => pickWx(v)}>{v === 'live' ? 'Live' : v.toUpperCase()}</button>
-            ))}
-          </div>
+          </>}
         </div>
       )}
 
