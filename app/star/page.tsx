@@ -73,10 +73,8 @@ const SOURCES: { title: string; by: string; url: string }[] = [
   { title: 'The Xerox Star: A Retrospective', by: 'Johnson, Roberts, Verplank et al., IEEE Computer, 1989. Written by the Star\u2019s designers', url: 'https://perso.lisn.upsaclay.fr/mbl/FundHCI/papers/XeroxStar-Computer89.pdf' },
 ]
 
-/* The desktop, the way the Star laid it out: icons in a grid down the right,
-   each a document (a page with a folded corner) or a folder (a page with a
-   tab), a small picture on it and its name inside. Projects are folders and
-   tidbits are documents, right on the desk. */
+/* The desktop: big icons in a grid down the right, a drawing with its name
+   under it. Projects open as folders and tidbits as documents. */
 type Shape = 'doc' | 'folder' | 'tool'
 const PG = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.4 }
 const PICTS: Record<string, React.ReactNode> = {
@@ -87,18 +85,12 @@ const PICTS: Record<string, React.ReactNode> = {
   site: <svg width="22" height="16" viewBox="0 0 22 16" {...PG}><path d="M9 2L2 8l7 6" /><path d="M2 8h18" /></svg>,
 }
 
-function StarIcon({ shape, pict, label, pressed, title, onClick }: {
+function StarIcon({ pict, label, pressed, title, onClick }: {
   shape: Shape; pict: React.ReactNode; label: string; pressed: boolean; title: string; onClick: () => void
 }) {
-  const outline = shape === 'folder'
-    ? 'M1 9H24L28 3H50L54 9H71V83H1Z'
-    : shape === 'doc' ? 'M1 1H57L71 15V83H1Z' : 'M1 1H71V83H1Z'
+  // a big drawing on its own, the name under it; the name inverts while open
   return (
     <button className="sicon" aria-pressed={pressed} title={title} onClick={onClick}>
-      <svg className="sicon-shape" viewBox="0 0 72 84" aria-hidden>
-        <path d={outline} />
-        {shape === 'doc' && <path d="M57 1V15H71" className="sicon-ear" />}
-      </svg>
       <span className="sicon-pict">{pict}</span>
       <span className="sicon-label">{label}</span>
     </button>
@@ -534,17 +526,15 @@ const CSS = `
   .fw-picks { flex-shrink: 0; display: flex; flex-direction: column; gap: 5px; padding: 7px 24px 7px 8px; border-top: 2px solid var(--ink); background: var(--paper); }
   .choice.sm { height: 21px; padding: 0 7px; font-size: 12px !important; }
   /* the desktop: Star icons in a grid down the right */
-  .desk { position: absolute; right: 24px; top: 24px; z-index: 1; display: grid; grid-template-columns: repeat(2, 76px); gap: 12px 10px; }
-  .sicon { position: relative; width: 76px; height: 88px; padding: 0; border: 0; background: none; color: var(--ink); }
-  .sicon-shape { position: absolute; inset: 2px; width: 72px; height: 84px; overflow: visible; }
-  .sicon-shape path { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
-  .sicon-shape .sicon-ear { fill: none; }
-  .sicon-pict { position: absolute; left: 0; right: 0; top: 24px; display: flex; justify-content: center; }
-  .sicon-label { position: absolute; left: 7px; right: 7px; bottom: 7px; font-size: 11px; line-height: 1.12; text-align: left; overflow-wrap: anywhere; }
-  .sicon[aria-pressed="true"] .sicon-shape path:first-child { fill: var(--ink); }
-  .sicon[aria-pressed="true"] { color: var(--paper) !important; }
-  .sicon[aria-pressed="true"] .sicon-ear { stroke: var(--paper); }
-  .sicon:hover .sicon-shape path:first-child { stroke-width: 2.5; }
+  .desk { position: absolute; right: 20px; top: 20px; z-index: 1; display: grid; grid-template-columns: repeat(2, 96px); gap: 14px 6px; }
+  .sicon { width: 96px; padding: 4px 2px; border: 0; background: none; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  /* drawings scaled up to icon size; strokes stay thin */
+  .sicon-pict { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
+  .sicon-pict svg { width: 52px; height: 52px; overflow: visible; }
+  .sicon-pict svg * { vector-effect: non-scaling-stroke; stroke-width: 1.8; }
+  .sicon-label { font-size: 12px; line-height: 1.15; text-align: center; padding: 1px 4px; background: var(--paper); }
+  .sicon:hover .sicon-label { outline: 1.5px solid var(--ink); }
+  .sicon[aria-pressed="true"] .sicon-label { background: var(--ink); color: var(--paper); }
   /* property sheet */
   .sheet { flex-shrink: 0; border-top: 2px solid var(--ink); background: var(--paper); padding-right: 18px; }
   .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; border-bottom: 1.5px solid var(--ink); }
