@@ -6,7 +6,7 @@ export default function AboutPara({ text, style, className }: { text: string; st
   return (
     <p style={style} className={className}>
       {parts.map((part, i) => (i % 2
-        ? <a key={i} href={ABOUT_LINK} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '0.2em' }}>{part}</a>
+        ? <a key={i} href={ABOUT_LINK} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '0.2em' }}>{part}</a>
         : part))}
     </p>
   )
