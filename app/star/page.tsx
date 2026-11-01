@@ -73,8 +73,8 @@ const SOURCES: { title: string; by: string; url: string }[] = [
   { title: 'The Xerox Star: A Retrospective', by: 'Johnson, Roberts, Verplank et al., IEEE Computer, 1989. Written by the Star\u2019s designers', url: 'https://perso.lisn.upsaclay.fr/mbl/FundHCI/papers/XeroxStar-Computer89.pdf' },
 ]
 
-/* The desktop: Star icons in a grid down the right, each a white tile with
-   its picture and name inside. Projects open as folders, tidbits as documents. */
+/* The desktop: object icons in a grid down the right, each with its name
+   under it. Projects open as folders, tidbits as documents. */
 type Shape = 'doc' | 'folder' | 'tool'
 const PG = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.4 }
 const PICTS: Record<string, React.ReactNode> = {
@@ -85,10 +85,37 @@ const PICTS: Record<string, React.ReactNode> = {
   site: <svg width="22" height="16" viewBox="0 0 22 16" {...PG}><path d="M9 2L2 8l7 6" /><path d="M2 8h18" /></svg>,
 }
 
+/* Desk icons are little objects, like the Star's computer or calculator:
+   a solid white shape with its detail, sometimes text, drawn inside. */
+const OB = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+const TX = { fill: 'currentColor', stroke: 'none', fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif' }
+const DESK_ICON: Record<string, React.ReactNode> = {
+  // an ID card
+  about: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="9" width="38" height="27" rx="2" className="ob" /><circle cx="13" cy="19" r="4" /><path d="M7 31c1-4 3.4-5.6 6-5.6s5 1.6 6 5.6" /><path d="M23 17h13M23 22h13M23 27h9" /></svg>,
+  // a phone with the coach's flower on its screen
+  bloom: <svg viewBox="0 0 44 44" {...OB}><rect x="12" y="3" width="20" height="38" rx="3" className="ob" /><path d="M12 8h20M12 35h20" /><circle cx="22" cy="17" r="2.3" /><path d="M22 19.3v9M22 25c-2.4-2.6-4.8-1.6-5-.2 1.6 1.2 3.6 1.2 5 .2M22 23c2.4-2.4 4.6-1.4 4.8 0-1.6 1.2-3.4 1.2-4.8 0" /></svg>,
+  // a sheet with a map of ideas on it
+  mydrift: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="6" width="38" height="32" rx="1" className="ob" /><path d="M8 22c1.4-2 2.6 2 4 0s2.6 2 4 0" /><path d="M17 22l7-8M17 22h8M17 22l7 8" /><rect x="25" y="11" width="10" height="5" /><rect x="26" y="19.5" width="10" height="5" /><rect x="25" y="28" width="10" height="5" /></svg>,
+  // a journal with its title and two columns
+  learningetal: <svg viewBox="0 0 44 44" {...OB}><rect x="6" y="3" width="32" height="38" rx="1" className="ob" /><text x="22" y="13" textAnchor="middle" fontSize="7.5" fontStyle="italic" {...TX}>et al.</text><path d="M10 16h24M10 20h10M10 24h10M10 28h10M10 32h7M24 20h10M24 24h10M24 28h10M24 32h7" /></svg>,
+  // a recipe card with a bowl
+  dishcovery: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="8" width="38" height="28" rx="1" className="ob" /><path d="M7 21h14a7 7 0 0 1-14 0z" /><path d="M11 17c-.8-1.2.8-1.8 0-3.2M14 17c-.8-1.2.8-1.8 0-3.2M17 17c-.8-1.2.8-1.8 0-3.2" /><path d="M25 15h12M25 20h12M25 25h12M25 30h8" /></svg>,
+  // a screen with a sponge on its desktop
+  sponge: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="5" width="38" height="26" rx="1" className="ob" /><path d="M16 39h12M22 31v8" /><rect x="15" y="11" width="14" height="13" /><circle cx="19" cy="15" r="1.2" /><circle cx="25" cy="16" r="1" /><circle cx="22" cy="20" r="1.4" /></svg>,
+  // a rug with fringe and a motif
+  kilim: <svg viewBox="0 0 44 44" {...OB}><rect x="6" y="7" width="32" height="30" className="ob" /><path d="M22 11l8 11-8 11-8-11z" /><path d="M22 17l3.5 5-3.5 5-3.5-5z" /><path d="M9 3v4M14 3v4M19 3v4M24 3v4M29 3v4M34 3v4M9 37v4M14 37v4M19 37v4M24 37v4M29 37v4M34 37v4" /></svg>,
+  // the Star itself: a workstation with text on its screen
+  history: <svg viewBox="0 0 44 44" {...OB}><rect x="5" y="3" width="34" height="25" rx="1" className="ob" /><text x="22" y="14" textAnchor="middle" fontSize="6.5" fontWeight="700" {...TX}>XEROX</text><path d="M10 19h24M10 23h16" /><path d="M16 28v4h12v-4" /><rect x="3" y="34" width="38" height="7" rx="1" className="ob" /><path d="M7 37.5h30" /></svg>,
+  // a terminal window: back to the command line
+  site: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="7" width="38" height="30" rx="1" className="ob" /><path d="M3 13h38" /><text x="8" y="25" fontSize="9" {...TX} fontFamily="Menlo, monospace">%</text><path d="M15 25.5h6" /></svg>,
+  // the field: a screen of squares
+  field: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="5" width="38" height="28" rx="1" className="ob" /><path d="M16 39h12M22 33v6" /><path d="M8 10h4v4H8zM16 10h4v4h-4zM24 14h4v4h-4zM32 10h4v4h-4zM8 20h4v4H8zM20 22h4v4h-4zM28 22h4v4h-4z" fill="currentColor" stroke="none" /></svg>,
+}
+
 function StarIcon({ pict, label, pressed, title, onClick }: {
   shape: Shape; pict: React.ReactNode; label: string; pressed: boolean; title: string; onClick: () => void
 }) {
-  // a tile with the drawing and the name inside; it inverts while open
+  // the object, then its name under it; the name inverts while open
   return (
     <button className="sicon" aria-pressed={pressed} title={title} onClick={onClick}>
       <span className="sicon-pict">{pict}</span>
@@ -446,15 +473,15 @@ export default function Star() {
       {/* the desktop: an icon for everything, so whatever you close can come back */}
       <div className="desk">
         {[
-          ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: PICTS.field, go: () => open('field') }]),
-          { id: 'about', shape: 'doc' as Shape, label: 'About me', pict: PICTS.about, go: () => open('about', 680, 400) },
+          ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: DESK_ICON.field, go: () => open('field') }]),
+          { id: 'about', shape: 'doc' as Shape, label: 'About me', pict: DESK_ICON.about, go: () => open('about', 680, 400) },
           ...ITEMS.map(it => ({
             id: it.kind === 'folder' ? `folder:${it.id}` : it.id, shape: (it.kind === 'folder' ? 'folder' : 'doc') as Shape,
-            label: CARDS[it.id].title, pict: PROJECT_ICON[it.id],
+            label: CARDS[it.id].title, pict: DESK_ICON[it.id],
             go: () => open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260),
           })),
-          { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: PICTS.history, go: () => open('history', 680, 400) },
-          { id: 'site', shape: 'tool' as Shape, label: 'Back to site', pict: PICTS.site, go: () => { location.href = '/' } },
+          { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
+          { id: 'site', shape: 'tool' as Shape, label: 'Back to site', pict: DESK_ICON.site, go: () => { location.href = '/' } },
         ].map(ic => (
           <StarIcon key={ic.id} shape={ic.shape} pict={ic.pict} label={ic.label} pressed={wins.some(w => w.id === ic.id)}
             title={ic.id === 'site' ? 'Back to the main site' : `Open ${ic.label}`} onClick={ic.go} />
@@ -538,23 +565,21 @@ const CSS = `
   .fw-picks { flex-shrink: 0; display: flex; flex-direction: column; gap: 5px; padding: 7px 24px 7px 8px; border-top: 2px solid var(--ink); background: var(--paper); }
   .choice.sm { height: 21px; padding: 0 7px; font-size: 12px !important; }
   /* the desktop: Star icons in a grid down the right */
-  .desk { position: absolute; right: 20px; top: 20px; z-index: 1; display: grid; grid-template-columns: repeat(2, 84px); gap: 12px; }
-  /* Star icons: a white tile with the picture drawn inside and the name
-     inside it too, set at the bottom left, like Calc or Calendar */
-  .sicon { position: relative; width: 84px; height: 84px; padding: 0; border: 1.5px solid var(--ink); border-radius: 5px;
-    background: var(--paper); color: var(--ink); display: flex; flex-direction: column; align-items: stretch; }
-  .sicon-pict { flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 4px; }
-  .sicon-pict svg { width: 38px; height: 38px; overflow: visible; }
-  .sicon-pict svg * { vector-effect: non-scaling-stroke; stroke-width: 1.6; }
-  .sicon-label { padding: 0 6px 6px; font-size: 11px; line-height: 1.12; text-align: left; overflow-wrap: anywhere; }
-  .sicon:hover { outline: 1.5px solid var(--ink); outline-offset: 1px; }
-  .sicon[aria-pressed="true"] { background: var(--ink); color: var(--paper) !important; }
+  .desk { position: absolute; right: 20px; top: 20px; z-index: 1; display: grid; grid-template-columns: repeat(2, 92px); gap: 14px 6px; }
+  /* desk icons: the object on its own, its name under it */
+  .sicon { width: 92px; padding: 2px; border: 0; background: none; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .sicon-pict { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
+  .sicon-pict svg { width: 56px; height: 56px; overflow: visible; }
+  .sicon-pict svg .ob { fill: var(--paper); }
+  .sicon-label { font-size: 12px; line-height: 1.15; text-align: center; padding: 1px 4px; background: var(--paper); }
+  .sicon:hover .sicon-label { outline: 1.5px solid var(--ink); }
+  .sicon[aria-pressed="true"] .sicon-label { background: var(--ink); color: var(--paper); }
   /* phones */
   @media (max-width: 699px) {
     .desk { left: 8px; right: 8px; top: 10px; grid-template-columns: repeat(4, 1fr); gap: 8px 4px; }
-    .sicon { width: auto; height: 78px; }
-    .sicon-pict svg { width: 32px; height: 32px; }
-    .sicon-label { font-size: 10.5px; }
+    .sicon { width: auto; }
+    .sicon-pict, .sicon-pict svg { width: 42px; height: 42px; }
+    .sicon-label { font-size: 11px; }
     .grow { display: none; }
     .vp h1 { font-size: 26px; }
     .head { gap: 4px; padding: 0 4px; }
