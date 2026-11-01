@@ -366,8 +366,8 @@ const frame = (rows: string, body: Cell[], last: number): Layout => ({ cols: 4, 
 
 /* The window is a fixed height and the group hangs from the top, so swapping
    the spiel for About never moves the field or the first line of text. */
-const TOP = 'clamp(0.5rem,4vh,3rem)'
-const MAIN = 'clamp(140px,26vh,320px)'
+const TOP = 'clamp(0.5rem,3vh,2.5rem)'
+const MAIN = 'clamp(110px,19vh,240px)'
 
 const LAYOUTS: Record<Variant, Record<View, Layout>> = {
   live: {
@@ -1370,7 +1370,7 @@ export default function Home() {
           .home-links { display: none !important; }
           .about-inline { display: inline; font-size: 0.85rem; }
           .li-inline { display: inline; }
-          .canvas-zone > .field-main { flex: none !important; height: 22vh !important; min-height: 140px; }
+          .canvas-zone > .field-main { flex: none !important; height: 16vh !important; min-height: 110px; }
           .root-frame { --bio-size: 0.92rem; }
           .about-top .bio-prompt, .bio-prompt { font-size: 0.85rem; }
           .pl-list .pl, .pl-list .pl span { font-size: 1rem !important; }
