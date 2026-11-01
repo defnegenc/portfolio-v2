@@ -281,7 +281,7 @@ function Work({ part = 'both' }: { part?: Part }) {
 }
 
 // a variable, so phones can set it smaller
-const BIO_SIZE = 'var(--bio-size, clamp(1.08rem, 1.35vw, 1.26rem))'
+const BIO_SIZE = 'var(--bio-size, clamp(0.94rem, 1vw, 1.04rem))'
 /* How much of a block's text is left while it's being deleted (1 = all of
    it). Leaving a view deletes its text fast from the end, like holding
    backspace, before the next command runs. */
