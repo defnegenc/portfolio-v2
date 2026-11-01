@@ -73,8 +73,8 @@ const SOURCES: { title: string; by: string; url: string }[] = [
   { title: 'The Xerox Star: A Retrospective', by: 'Johnson, Roberts, Verplank et al., IEEE Computer, 1989. Written by the Star\u2019s designers', url: 'https://perso.lisn.upsaclay.fr/mbl/FundHCI/papers/XeroxStar-Computer89.pdf' },
 ]
 
-/* The desktop: big icons in a grid down the right, a drawing with its name
-   under it. Projects open as folders and tidbits as documents. */
+/* The desktop: Star icons in a grid down the right, each a white tile with
+   its picture and name inside. Projects open as folders, tidbits as documents. */
 type Shape = 'doc' | 'folder' | 'tool'
 const PG = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.4 }
 const PICTS: Record<string, React.ReactNode> = {
@@ -88,7 +88,7 @@ const PICTS: Record<string, React.ReactNode> = {
 function StarIcon({ pict, label, pressed, title, onClick }: {
   shape: Shape; pict: React.ReactNode; label: string; pressed: boolean; title: string; onClick: () => void
 }) {
-  // a big drawing on its own, the name under it; the name inverts while open
+  // a tile with the drawing and the name inside; it inverts while open
   return (
     <button className="sicon" aria-pressed={pressed} title={title} onClick={onClick}>
       <span className="sicon-pict">{pict}</span>
@@ -538,25 +538,23 @@ const CSS = `
   .fw-picks { flex-shrink: 0; display: flex; flex-direction: column; gap: 5px; padding: 7px 24px 7px 8px; border-top: 2px solid var(--ink); background: var(--paper); }
   .choice.sm { height: 21px; padding: 0 7px; font-size: 12px !important; }
   /* the desktop: Star icons in a grid down the right */
-  .desk { position: absolute; right: 20px; top: 20px; z-index: 1; display: grid; grid-template-columns: repeat(2, 96px); gap: 14px 6px; }
-  .sicon { width: 96px; padding: 4px 2px; border: 0; background: none; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  /* drawings scaled up to icon size; strokes stay thin */
-  .sicon-pict { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
-  .sicon-pict svg { width: 52px; height: 52px; overflow: visible; }
-  .sicon-pict svg * { vector-effect: non-scaling-stroke; stroke-width: 1.8; }
-  /* closed shapes are filled with paper, so each icon reads as a solid
-     object on the grey desk, the way Star icons did */
-  .sicon-pict svg :is(rect, circle, path[d$="z"], path[d$="Z"]) { fill: var(--paper); }
-  .sicon-label { font-size: 12px; line-height: 1.15; text-align: center; padding: 1px 4px; background: var(--paper); }
-  .sicon:hover .sicon-label { outline: 1.5px solid var(--ink); }
-  .sicon[aria-pressed="true"] .sicon-label { background: var(--ink); color: var(--paper); }
+  .desk { position: absolute; right: 20px; top: 20px; z-index: 1; display: grid; grid-template-columns: repeat(2, 84px); gap: 12px; }
+  /* Star icons: a white tile with the picture drawn inside and the name
+     inside it too, set at the bottom left, like Calc or Calendar */
+  .sicon { position: relative; width: 84px; height: 84px; padding: 0; border: 1.5px solid var(--ink); border-radius: 5px;
+    background: var(--paper); color: var(--ink); display: flex; flex-direction: column; align-items: stretch; }
+  .sicon-pict { flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 4px; }
+  .sicon-pict svg { width: 38px; height: 38px; overflow: visible; }
+  .sicon-pict svg * { vector-effect: non-scaling-stroke; stroke-width: 1.6; }
+  .sicon-label { padding: 0 6px 6px; font-size: 11px; line-height: 1.12; text-align: left; overflow-wrap: anywhere; }
+  .sicon:hover { outline: 1.5px solid var(--ink); outline-offset: 1px; }
+  .sicon[aria-pressed="true"] { background: var(--ink); color: var(--paper) !important; }
   /* phones */
   @media (max-width: 699px) {
     .desk { left: 8px; right: 8px; top: 10px; grid-template-columns: repeat(4, 1fr); gap: 8px 4px; }
-    .sicon { width: auto; }
-    .sicon-pict { width: 40px; height: 40px; }
-    .sicon-pict svg { width: 36px; height: 36px; }
-    .sicon-label { font-size: 11px; }
+    .sicon { width: auto; height: 78px; }
+    .sicon-pict svg { width: 32px; height: 32px; }
+    .sicon-label { font-size: 10.5px; }
     .grow { display: none; }
     .vp h1 { font-size: 26px; }
     .head { gap: 4px; padding: 0 4px; }
