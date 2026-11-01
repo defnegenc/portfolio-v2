@@ -280,17 +280,22 @@ function Work({ part = 'both' }: { part?: Part }) {
   )
 }
 
-const BIO_SIZE = 'clamp(1.08rem, 1.35vw, 1.26rem)'
+// a variable, so phones can set it smaller
+const BIO_SIZE = 'var(--bio-size, clamp(1.08rem, 1.35vw, 1.26rem))'
 /* How much of a block's text is left while it's being deleted (1 = all of
    it). Leaving a view deletes its text fast from the end, like holding
    backspace, before the next command runs. */
 const kept = (text: string, left: number) => text.slice(0, Math.round(text.length * left))
 const TEXT_STYLE: React.CSSProperties = { fontSize: BIO_SIZE, lineHeight: 1.65, color: 'var(--ink)' }
 
-function About({ onDone, typed, left = 1 }: { onDone?: () => void; typed?: string | null; left?: number }) {
+function About({ onDone, typed, left = 1, onAbout }: { onDone?: () => void; typed?: string | null; left?: number; onAbout?: () => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-      <Prompt cmd={typed ?? 'cat my-spiel'} typing={typed != null} className="bio-head" />
+      <div className="about-top">
+        <Prompt cmd={typed ?? 'cat my-spiel'} typing={typed != null} className="bio-head" />
+        {/* phones: About lives here instead of in the top row */}
+        {onAbout && <a className="back-link about-inline" href="/about" onClick={e => { e.preventDefault(); onAbout() }}>[about]</a>}
+      </div>
       {left < 1
         ? <p style={TEXT_STYLE}>{kept(BIO, left)}<span className="bio-block" /></p>
         : <DecodeBio onDone={onDone} style={TEXT_STYLE} />}
@@ -765,6 +770,7 @@ function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = 
 function StarCredit() {
   return (
     <p className="star-credit">
+      <a className="li-inline" href="https://linkedin.com/in/-defne" target="_blank" rel="noreferrer">LinkedIn ↗</a>
       <span className="cg-on">CLI</span> &lt;&gt; <a href="/star" title="An ode to early interfaces">GUI</a>
     </p>
   )
@@ -1223,6 +1229,8 @@ export default function Home() {
         .star-credit a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
         .star-credit a:hover { color: var(--award); }
         .star-credit .cg-on { color: var(--award); }
+        .about-inline, .li-inline { display: none; }
+        .li-inline { margin-right: 1.2rem; }
         .star-credit-float { position: absolute; right: 1.75rem; bottom: 1rem; z-index: 20; }
         @media (max-width: 860px), (hover: none) and (pointer: coarse) { .star-credit-float { position: static; padding: 1rem 1.25rem 1.5rem; } }
         .shell { position: relative; }
@@ -1358,6 +1366,17 @@ export default function Home() {
           .canvas-zone > .field-main { order: 1; }
           .windows > .panel.bar { order: 0; border-top: none !important; padding: 0.9rem 1.25rem !important; overflow: visible !important; }
           .windows > .panel:not(.bar) { order: 2; }
+          /* phones: About sits by the spiel, LinkedIn at the bottom; smaller text */
+          .home-links { display: none !important; }
+          .about-inline { display: inline; font-size: 0.85rem; }
+          .li-inline { display: inline; }
+          .canvas-zone > .field-main { flex: none !important; height: 22vh !important; min-height: 140px; }
+          .root-frame { --bio-size: 0.92rem; }
+          .about-top .bio-prompt, .bio-prompt { font-size: 0.85rem; }
+          .pl-list .pl, .pl-list .pl span { font-size: 1rem !important; }
+          .pl-list { gap: 0.35rem; }
+          .windows > .panel { padding: 1rem 1.1rem 1.1rem !important; gap: 1rem !important; }
+          .shell-out, .shell-line { font-size: 0.85rem; }
           /* one row: the name left, the links and the weather icon right */
           .home-bar { flex-wrap: nowrap; gap: 0.6rem; }
           .home-title { white-space: nowrap; font-size: 0.82rem; }
@@ -1478,7 +1497,7 @@ export default function Home() {
                 </div>
               </div>
             ),
-            cbio: <div style={{ paddingTop: '0.4rem' }}><About onDone={onBioDone} typed={typedFor('home')} left={leftFor('home')} /></div>,
+            cbio: <div style={{ paddingTop: '0.4rem' }}><About onDone={onBioDone} typed={typedFor('home')} left={leftFor('home')} onAbout={() => goTo('about')} /></div>,
             shell: <div className="shell-row"><Shell api={shellApi} runRef={shellRun} /></div>,
             cwork: <div style={{ paddingTop: '0.4rem', clipPath: listClip }}><Work /></div>,
             cproj: <Work part="projects" />,
@@ -1489,7 +1508,7 @@ export default function Home() {
             // Live: the bio and the lists side by side in the bottom-left window
             copy: (
               <div className="copy-cell copy-side" style={{ padding: '1.25rem 1.25rem 1.25rem 0' }}>
-                <About onDone={onBioDone} typed={typedFor('home')} left={leftFor('home')} />
+                <About onDone={onBioDone} typed={typedFor('home')} left={leftFor('home')} onAbout={() => goTo('about')} />
                 <Work />
                 <div style={{ gridColumn: '1 / -1' }}><Shell api={shellApi} runRef={shellRun} /></div>
               </div>
