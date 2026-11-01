@@ -299,51 +299,25 @@ function About({ onDone, typed, left = 1 }: { onDone?: () => void; typed?: strin
 }
 
 /* About me, opened in place: the same session, one more cat. */
-/* About types itself out when it opens: fast, in uneven bursts, with a block
-   cursor at the end of what's typed so far. */
 const ABOUT_PLAIN = ABOUT_PARAS.map(t => t.replace(/[[\]]/g, ''))
 const ABOUT_TOTAL = ABOUT_PLAIN.reduce((a, t) => a + t.length, 0)
-function useTypeOut(total: number, msPerChar = 2.4) {
-  const [n, setN] = useState(0)
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setN(total); return }
-    let raf = 0, shown = 0, last = performance.now()
-    const tick = (now: number) => {
-      // a person's rhythm, sped up: most frames a few keys, now and then a pause
-      const dt = now - last; last = now
-      if (Math.random() > 0.06) shown += (dt / msPerChar) * (0.6 + Math.random() * 0.9)
-      setN(Math.min(total, Math.floor(shown)))
-      if (shown < total) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [total, msPerChar])
-  return n
-}
 
-function AboutText({ onBack, cols = false, typed, left = 1 }: { onBack: () => void; cols?: boolean; typed?: string | null; left?: number }) {
-  const typedOut = useTypeOut(ABOUT_TOTAL)
-  // while deleting, the paragraphs shorten from the last one back; while
-  // typing, they fill in from the first
-  const total = ABOUT_TOTAL
-  let budget = left < 1 ? Math.round(total * left) : typedOut
-  const typing = left === 1 && typedOut < total
+function AboutText({ onBack, typed, left = 1 }: { onBack: () => void; cols?: boolean; typed?: string | null; left?: number }) {
+  // the same as the spiel: one column, the same size, decoding in
+  let budget = Math.round(ABOUT_TOTAL * left)
   return (
     <div className="about-tile">
       <div className="about-top">
         <Prompt cmd={typed ?? 'cat about-me'} typing={typed != null} className="bio-head" />
         <a className="back-link" href="/" onClick={e => { e.preventDefault(); onBack() }}>Back</a>
       </div>
-      <div className={cols ? 'about-paras about-cols' : 'about-paras'}>
-        {left < 1 || typing
+      <div className="about-paras">
+        {left < 1
           ? ABOUT_PLAIN.map((t, i) => {
               const n = Math.max(0, Math.min(t.length, budget)); budget -= t.length
-              // the rest is laid out but clear, so nothing moves while it types
-              return <p key={i} style={TEXT_STYLE}>
-                {t.slice(0, n)}{n > 0 && budget <= 0 && <span className="bio-block" />}<span style={{ color: 'transparent' }}>{t.slice(n)}</span>
-              </p>
+              return n > 0 ? <p key={i} style={TEXT_STYLE}>{t.slice(0, n)}{budget <= 0 && <span className="bio-block" />}</p> : null
             })
-          : ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)}
+          : ABOUT_PLAIN.map((t, i) => <DecodeBio key={i} text={t} step={14} style={TEXT_STYLE} />)}
       </div>
     </div>
   )
