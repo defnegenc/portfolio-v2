@@ -303,8 +303,12 @@ const ABOUT_PLAIN = ABOUT_PARAS.map(t => t.replace(/[[\]]/g, ''))
 const ABOUT_TOTAL = ABOUT_PLAIN.reduce((a, t) => a + t.length, 0)
 
 function AboutText({ onBack, typed, left = 1 }: { onBack: () => void; cols?: boolean; typed?: string | null; left?: number }) {
-  // the same as the spiel: one column, the same size, decoding in
+  // the same as the spiel: one column, the same size, decoding in; once
+  // every paragraph has resolved, [GUI] becomes its link
   let budget = Math.round(ABOUT_TOTAL * left)
+  const [decoded, setDecoded] = useState(0)
+  const onePara = useCallback(() => setDecoded(n => n + 1), [])
+  const done = decoded >= ABOUT_PLAIN.length
   return (
     <div className="about-tile">
       <div className="about-top">
@@ -317,7 +321,9 @@ function AboutText({ onBack, typed, left = 1 }: { onBack: () => void; cols?: boo
               const n = Math.max(0, Math.min(t.length, budget)); budget -= t.length
               return n > 0 ? <p key={i} style={TEXT_STYLE}>{t.slice(0, n)}{budget <= 0 && <span className="bio-block" />}</p> : null
             })
-          : ABOUT_PLAIN.map((t, i) => <DecodeBio key={i} text={t} step={14} style={TEXT_STYLE} />)}
+          : done
+            ? ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)
+            : ABOUT_PLAIN.map((t, i) => <DecodeBio key={i} text={t} step={14} style={TEXT_STYLE} onDone={onePara} />)}
       </div>
     </div>
   )
@@ -755,10 +761,11 @@ function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = 
 }
 
 // the way into the desktop view, a nod to the Xerox Star
+// the switch between the two versions of the site: this one is the CLI
 function StarCredit() {
   return (
     <p className="star-credit">
-      <a href="/star">An ode to early interfaces →</a>
+      <span className="cg-on">CLI</span> &lt;&gt; <a href="/star" title="An ode to early interfaces">GUI</a>
     </p>
   )
 }
@@ -1215,6 +1222,7 @@ export default function Home() {
         .star-credit { margin: 0 0 0 auto; font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); }
         .star-credit a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
         .star-credit a:hover { color: var(--award); }
+        .star-credit .cg-on { color: var(--award); }
         .star-credit-float { position: absolute; right: 1.75rem; bottom: 1rem; z-index: 20; }
         @media (max-width: 860px), (hover: none) and (pointer: coarse) { .star-credit-float { position: static; padding: 1rem 1.25rem 1.5rem; } }
         .shell { position: relative; }
