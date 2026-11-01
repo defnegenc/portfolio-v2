@@ -471,7 +471,7 @@ export default function Star() {
       <style>{CSS}</style>
       {wins.map(content)}
       {/* the switch back: this one is the GUI */}
-      <a className="cg" href="/" title="Back to the command line">CLI <span className="cg-sep">&lt;&gt;</span> <b>GUI</b></a>
+      <span className="cg"><a href="/" title="Back to the command line">CLI</a> &lt;&gt; <b>GUI</b></span>
       {/* the desktop: an icon for everything, so whatever you close can come back */}
       <div className="desk">
         {[
@@ -587,10 +587,12 @@ const CSS = `
     .head { gap: 4px; padding: 0 4px; }
     .cmd { padding: 0 6px; }
   }
-  .cg { position: absolute; right: 20px; bottom: 16px; z-index: 1; padding: 4px 10px; background: var(--paper); border: 1.5px solid var(--ink);
-    font-size: 13px; text-decoration: none; color: var(--ink) !important; }
-  .cg b { background: var(--ink); color: var(--paper); padding: 0 4px; font-weight: 400; }
-  .cg:hover { outline: 1.5px solid var(--ink); outline-offset: 1px; }
+  /* the CLI <> GUI switch, styled the same as on the homepage */
+  .cg { position: absolute; right: 20px; bottom: 16px; z-index: 1; padding: 3px 8px; border: 1.5px solid var(--ink); background: var(--paper);
+    font-family: var(--font-mono), Menlo, monospace; font-size: 13px; line-height: 1.4; color: var(--ink); }
+  .cg b { font-weight: 400; background: var(--ink); color: var(--paper); padding: 0 4px; }
+  .cg a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; padding: 0 2px; font-family: inherit; }
+  .cg a:hover { background: var(--ink); color: var(--paper) !important; text-decoration: none; }
   /* property sheet */
   .sheet { flex-shrink: 0; border-top: 2px solid var(--ink); background: var(--paper); padding-right: 18px; }
   .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; border-bottom: 1.5px solid var(--ink); }
