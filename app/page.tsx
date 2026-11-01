@@ -771,7 +771,7 @@ function StarCredit() {
   return (
     <p className="star-credit">
       <a className="li-inline" href="https://linkedin.com/in/-defne" target="_blank" rel="noreferrer">LinkedIn ↗</a>
-      <span className="cg-on">CLI</span> &lt;&gt; <a href="/star" title="An ode to early interfaces">GUI</a>
+      <span className="cg"><b>CLI</b> &lt;&gt; <a href="/star" title="An ode to early interfaces">GUI</a></span>
     </p>
   )
 }
@@ -1228,10 +1228,14 @@ export default function Home() {
         .star-credit { margin: 0 0 0 auto; font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); }
         .star-credit a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
         .star-credit a:hover { color: var(--award); }
-        .star-credit .cg-on { color: var(--award); }
+        /* the CLI <> GUI switch, styled the same on /star */
+        .cg { display: inline-block; padding: 3px 8px; border: 1.5px solid var(--ink); background: var(--bg); font-family: var(--font-mono); font-size: 13px; line-height: 1.4; color: var(--ink); }
+        .cg b { font-weight: 400; background: var(--ink); color: var(--bg); padding: 0 4px; }
+        .star-credit .cg a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; padding: 0 2px; }
+        .star-credit .cg a:hover { background: var(--ink); color: var(--bg); text-decoration: none; }
         .about-inline, .li-inline { display: none; }
         .li-inline { margin-right: 1.2rem; }
-        .star-credit-float { position: absolute; right: 1.75rem; bottom: 1rem; z-index: 20; }
+        .star-credit-float { position: absolute; right: 20px; bottom: 16px; z-index: 20; }
         @media (max-width: 860px), (hover: none) and (pointer: coarse) { .star-credit-float { position: static; padding: 1rem 1.25rem 1.5rem; } }
         .shell { position: relative; }
         /* the box of long output rises out of the shell's cell, over the page */
