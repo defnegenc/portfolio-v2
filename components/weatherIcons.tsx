@@ -1,63 +1,264 @@
 'use client'
 
-/* One stroked 24-grid icon per hour and per sky condition, shared by the
+/* One pixel icon per hour and per sky condition, shared by the
    weather picker and the matrix so the two never drift apart. */
 
+import { createContext, useContext } from 'react'
 import type { Period, Sky } from '@/components/ambient'
 
-// One 22px grid, stroked in currentColor, so they read as a set.
+/* Pixel icons drawn as square cells, the same unit the field is drawn in, so
+   the picker reads as part of the canvas rather than an icon set. Each "#" is
+   one cell; whole pixels per cell keep every edge crisp. */
+const px = (rows: string[]) => {
+  let d = ''
+  rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === '#') d += `M${x} ${y}h1v1h-1Z` }))
+  const n = rows.length
+  const Icon = ({ size = n * 2 }: { size?: number }) => (
+    <svg width={size} height={size} viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges" aria-hidden>
+      <path d={d} fill="currentColor" />
+    </svg>
+  )
+  return Icon
+}
 
-const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
-const Svg = ({ children }: { children: React.ReactNode }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>{children}</svg>
-)
-const CLOUD = 'M17.2 17H7.2a3.6 3.6 0 0 1 .9-7.1 4.7 4.7 0 0 1 8.8 1.1 3.1 3.1 0 0 1 .3 6Z'
-const CLOUD_HI = 'M17.2 15H7.2a3.6 3.6 0 0 1 .9-7.1 4.7 4.7 0 0 1 8.8 1.1 3.1 3.1 0 0 1 .3 6Z'
+/* The fine set: one-pixel lines on a 15×15 grid, drawn at 1px or 2px a
+   cell. Lighter than the 9×9 blocks, so they sit quietly beside type. */
+const Sun = px([
+  '.......#.......',
+  '.......#.......',
+  '..#.........#..',
+  '...#.......#...',
+  '.....#####.....',
+  '....#.....#....',
+  '....#.....#....',
+  '##..#.....#..##',
+  '....#.....#....',
+  '....#.....#....',
+  '.....#####.....',
+  '...#.......#...',
+  '..#.........#..',
+  '.......#.......',
+  '.......#.......',
+])
+const CLOUD_TOP = [
+  '......###......',
+  '.....#...#.....',
+  '...###....#....',
+  '..#........##..',
+  '..#..........#.',
+  '.#...........#.',
+  '..###########..',
+]
+const CloudIcon = px([
+  '...............',
+  '...............',
+  '...............',
+  '...............',
+  ...CLOUD_TOP,
+  '...............',
+  '...............',
+  '...............',
+  '...............',
+])
+const Rain = px([
+  ...CLOUD_TOP,
+  '...............',
+  '...#...#...#...',
+  '..#...#...#....',
+  '...............',
+  '.#...#...#.....',
+  '#...#...#......',
+  '...............',
+  '...............',
+])
+const Snow = px([
+  ...CLOUD_TOP,
+  '...............',
+  '...#...#...#...',
+  '...............',
+  '.....#...#.....',
+  '...............',
+  '...#...#...#...',
+  '...............',
+  '...............',
+])
+const Fog = px([
+  '...............',
+  '...............',
+  '...............',
+  '.###########...',
+  '...............',
+  '...###########.',
+  '...............',
+  '.###########...',
+  '...............',
+  '.....#######...',
+  '...............',
+  '...............',
+  '...............',
+  '...............',
+  '...............',
+])
+const Storm = px([
+  ...CLOUD_TOP,
+  '...............',
+  '.......##......',
+  '......##.......',
+  '.....####......',
+  '.......##......',
+  '......##.......',
+  '......#........',
+  '...............',
+])
+const Wind = px([
+  '...............',
+  '...............',
+  '...............',
+  '..........##...',
+  '............#..',
+  '............#..',
+  '.###########...',
+  '...............',
+  '...............',
+  '.#########.....',
+  '..........#....',
+  '..........#....',
+  '........##.....',
+  '...............',
+  '...............',
+])
+const Moon = px([
+  '......###......',
+  '....##.#.......',
+  '...#..#........',
+  '..#...#........',
+  '..#...#........',
+  '.#....#........',
+  '.#.....#.......',
+  '.#......#......',
+  '.#.......##....',
+  '..#........###.',
+  '..#.........#..',
+  '...#.......#...',
+  '....##...##....',
+  '......###......',
+  '...............',
+])
+const Sunrise = px([
+  '.........',
+  '....#....',
+  '.#.....#.',
+  '...###...',
+  '..#####..',
+  '.#######.',
+  '.........',
+  '#########',
+  '.........',
+])
+const Sunset = px([
+  '.........',
+  '.........',
+  '.........',
+  '.#.....#.',
+  '...###...',
+  '..#####..',
+  '.#######.',
+  '#########',
+  '.........',
+])
+type PxIcon = (p: { size?: number }) => React.ReactElement
 
-const Sunrise = () => (
-  <Svg><g {...S}>
-    <path d="M4 18h16" /><path d="M12 5v4" /><path d="M9 8l3-3 3 3" />
-    <path d="M6.5 18a5.5 5.5 0 0 1 11 0" />
-  </g></Svg>
-)
-const Sun = () => (
-  <Svg><g {...S}>
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4" />
-  </g></Svg>
-)
-const Sunset = () => (
-  <Svg><g {...S}>
-    <path d="M4 18h16" /><path d="M12 9V5" /><path d="M9 6l3 3 3-3" />
-    <path d="M6.5 18a5.5 5.5 0 0 1 11 0" />
-  </g></Svg>
-)
-const Moon = () => (
-  <Svg><g {...S}><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z" /></g></Svg>
-)
-const CloudIcon = () => <Svg><g {...S}><path d={CLOUD} /></g></Svg>
-const Rain = () => (
-  <Svg><g {...S}><path d={CLOUD_HI} /><path d="M9 18v1.6M12.5 17.6v2M16 18v1.6" /></g></Svg>
-)
-const Snow = () => (
-  <Svg><g {...S}><path d={CLOUD_HI} /><path d="M9 18.8h.01M12.5 20h.01M16 18.8h.01" /></g></Svg>
-)
-const Fog = () => <Svg><g {...S}><path d="M4 9h16M6 13h13M4 17h12" /></g></Svg>
-const Storm = () => (
-  <Svg><g {...S}><path d="M17.2 14H7.2a3.6 3.6 0 0 1 .9-7.1 4.7 4.7 0 0 1 8.8 1.1 3.1 3.1 0 0 1 .3 6Z" />
-    <path d="M13 16l-2.5 3.5h3l-2 3" /></g></Svg>
-)
-const Wind = () => (
-  <Svg><g {...S}>
-    <path d="M3 9h10a2.5 2.5 0 1 0-2.5-2.5" />
-    <path d="M3 14h13a2.5 2.5 0 1 1-2.5 2.5" />
-  </g></Svg>
-)
-const HOUR_ICON: Record<Period, () => React.ReactElement> = {
+/* The classic set: little colour icons with an outline and a lit side, the way
+   desktop icons looked in the nineties. 'k' is the outline (it follows the
+   ink, so it holds in dark mode); the rest are fixed colours. Two screen
+   pixels a cell. Picked with the icons option while we compare. */
+const PALETTE: Record<string, string> = {
+  k: 'currentColor', w: '#ffffff', g: '#cdd3df', s: '#8d96ab', y: '#ffd23f', o: '#f2992e', b: '#3d7be0', c: '#8fd0ff',
+}
+const cpx = (rows: string[]) => {
+  const rects: React.ReactElement[] = []
+  rows.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch !== '.') rects.push(<rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={PALETTE[ch]} />)
+  }))
+  const n = rows.length
+  const Icon = () => (
+    <svg width={n * 2} height={n * 2} viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges" aria-hidden>{rects}</svg>
+  )
+  return Icon
+}
+const CLASSIC_CLOUD = [
+  '.....kkk.....',
+  '....kwwwk....',
+  '..kkwwwwwkk..',
+  '.kwwwwwwwwwk.',
+  'kwwwwwwwwwggk',
+  'kwwwwwwwwgggk',
+  '.kgggggggggk.',
+  '..kkkkkkkkk..',
+]
+const CLASSIC: Record<Sky, () => React.ReactElement> = {
+  clear: cpx([
+    '......k......',
+    '..k...k...k..',
+    '...k.....k...',
+    '.....kkk.....',
+    '....kyyyk....',
+    '...kywyyok...',
+    'kk.kyyyyok.kk',
+    '...kyyyook...',
+    '....koook....',
+    '.....kkk.....',
+    '...k.....k...',
+    '..k...k...k..',
+    '......k......',
+  ]),
+  cloud: cpx(['.............', '.............', '.............', ...CLASSIC_CLOUD, '.............', '.............']),
+  rain: cpx([...CLASSIC_CLOUD, '.............', '..b...b...b..', '.b...b...b...', '.............', 'b...b...b....']),
+  snow: cpx([...CLASSIC_CLOUD, '.............', '..c...c...c..', '.............', '....c...c....', '..c...c...c..']),
+  fog: cpx([
+    '.............', '.............', '.............',
+    '.ggggggggg...', '.............', '...sssssssss.', '.............',
+    '.ggggggggg...', '.............', '...sssssss...', '.............', '.............', '.............',
+  ]),
+  storm: cpx([
+    '.....kkk.....',
+    '....kgggk....',
+    '..kkgggggkk..',
+    '.kgggggggggk.',
+    'kgggggggggssk',
+    'kggggggggsssk',
+    '.ksssssssssk.',
+    '..kkkkyykkk..',
+    '.....yy......',
+    '....yyyy.....',
+    '......yy.....',
+    '.....yy......',
+    '.....y.......',
+  ]),
+  wind: cpx([
+    '.............', '.............',
+    '........ccc..', '...........c.', 'cccccccccccc.',
+    '.............', '.............',
+    'ssssssss.....', '........s....', '......ss.....',
+    '.............', 'ccccc........', '.............',
+  ]),
+}
+export const IconStyleCtx = createContext<'line' | 'classic'>('line')
+export const CLASSIC_ICON = CLASSIC
+const LINE: Record<Sky, PxIcon> = { clear: Sun, cloud: CloudIcon, rain: Rain, snow: Snow, fog: Fog, storm: Storm, wind: Wind }
+const skyIcon = (sky: Sky): PxIcon => function SkyIcon({ size }) {
+  const style = useContext(IconStyleCtx)
+  if (style === 'classic') { const C = CLASSIC[sky]; return <C /> }
+  const L = LINE[sky]
+  return <L size={size} />
+}
+
+const HOUR_ICON: Record<Period, PxIcon> = {
   dawn: Sunrise, day: Sun, dusk: Sunset, night: Moon, late: Moon,
 }
-const SKY_ICON: Record<Sky, () => React.ReactElement> = {
-  clear: Sun, cloud: CloudIcon, rain: Rain, snow: Snow, fog: Fog, storm: Storm, wind: Wind,
+const SKY_ICON: Record<Sky, PxIcon> = {
+  clear: skyIcon('clear'), cloud: skyIcon('cloud'), rain: skyIcon('rain'), snow: skyIcon('snow'),
+  fog: skyIcon('fog'), storm: skyIcon('storm'), wind: skyIcon('wind'),
 }
 
 

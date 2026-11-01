@@ -1,39 +1,21 @@
 'use client'
 
-/* The live readout, top-right of the field.
+/* The weather button, in the bar over the field.
 
-   It states what the canvas is doing right now, then offers the question. The
-   content is the invitation: you click because it told you something and you
-   want the rest. Neutral plate so it never competes with the field, with the
-   accent reserved for the half that is actually the link.
+   A fine pixel icon of the sky the field is drawing right now.
+   Open, it explains what the field is and hands over the matrix of every
+   hour and sky, plus the light / dark switch. Picking a cell overrides the
+   live reading; "Back to your weather" returns it. */
 
-   Closed, it is a ringed circle like the light/dark switch. Open, it explains
-   what the field is and hands over the two dials behind it: hour and sky, each
-   picked from a row of labelled icons rather than a dropdown. Picking either
-   overrides the live reading; Reset returns it. */
-
-import { useEffect, useRef, useState } from 'react'
-import { PERIOD_LABEL, SKY_LABEL, type Period, type Sky } from '@/components/ambient'
-import { HOUR_ICON, SKY_ICON } from '@/components/weatherIcons'
+import { useEffect, useRef } from 'react'
+import { type Period, type Sky } from '@/components/ambient'
 import { PanelA, Trigger, SHARED_CSS, TRIGGER_CSS, useIsLight } from '@/components/WeatherVariants'
-
-/* 'live' is the original ? and panel. a, b and c all open the matrix picker
-   and differ only in the trigger: a "?" pill, an "i" pill, "What is this?". */
-export type WxVariant = 'live' | 'a' | 'b' | 'c'
-export const WX_VARIANTS: WxVariant[] = ['live', 'a', 'b', 'c']
-
-/* 'late' (midnight–5am) is deliberately absent: the label read as nonsense in a
-   picker. The live field can still land there; the picker just shows night. */
-const PERIODS: Period[] = ['dawn', 'day', 'dusk', 'night']
-const SKIES: Sky[] = ['clear', 'cloud', 'rain', 'snow', 'fog', 'storm', 'wind']
 
 export type Override = { p: Period; s: Sky } | null
 
 export default function WeatherControl({
-  override, setOverride, live, place, open, setOpen, variant: variantProp,
+  override, setOverride, live, place, open, setOpen, theme, setTheme,
 }: {
-  /** design variant of the tip and panel; defaults to ?w= in the URL, then 'live' */
-  variant?: WxVariant
   override: Override
   setOverride: (v: Override) => void
   live: { p: Period; s: Sky } | null
@@ -42,16 +24,11 @@ export default function WeatherControl({
   /** controlled, so clicking the canvas can open it too */
   open: boolean
   setOpen: (v: boolean) => void
+  /** when given, the panel carries the light / dark switch */
+  theme?: 'light' | 'dark'
+  setTheme?: (t: 'light' | 'dark') => void
 }) {
   const box = useRef<HTMLDivElement>(null)
-  // ?w= in the URL fills in when the caller passes no variant
-  const [urlVariant, setUrlVariant] = useState<WxVariant>('live')
-  useEffect(() => {
-    if (variantProp) return
-    const w = new URLSearchParams(window.location.search).get('w') as WxVariant | null
-    if (w && WX_VARIANTS.includes(w)) setUrlVariant(w)
-  }, [variantProp])
-  const variant: WxVariant = variantProp ?? urlVariant
   const light = useIsLight(box)
   useEffect(() => {
     if (!open) return
@@ -62,47 +39,22 @@ export default function WeatherControl({
     return () => { document.removeEventListener('mousedown', away); window.removeEventListener('keydown', esc) }
   }, [open, setOpen])
 
-  const cur = override ?? live
-  // the picker has no 'late', so it shows as night
-  const curP: Period = cur?.p === 'late' ? 'night' : (cur?.p ?? 'day')
-  const curS: Sky = cur?.s ?? 'clear'
+  const curS: Sky = (override ?? live)?.s ?? 'clear'
 
   return (
     <div ref={box} className="no-open wx" data-open={open ? 1 : 0}
       style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
       <style>{`
-        /* Pure white in dark mode, pure black in light. No accent anywhere: it
-           has to survive whatever colour the field happens to be. */
-        /* Follows the theme rather than inverting it: page background, page
-           ink, hairline edge. The mark is the site face, not an icon set. */
-        .wx-btn {
-          display: block; width: 28px; height: 28px; padding: 0;
-          border: 1px solid var(--hairline); border-radius: 999px;
-          background: var(--bg); color: var(--ink);
-          cursor: pointer; line-height: 0;
-          transition: border-color .2s, color .2s;
-        }
-        .wx-btn:hover, .wx[data-open="1"] .wx-btn { border-color: var(--award); color: var(--award); }
-        @media (max-width: 620px) { .wx-btn { width: 26px; height: 26px; } }
-
         .wx-tip {
           position: absolute; top: calc(100% + 0.35rem); right: 0; z-index: 401;
-          /* same plate as the button it belongs to, rather than inverting */
           white-space: nowrap; background: var(--bg); color: var(--ink);
-          border: 1px solid var(--hairline); border-radius: 6px;
+          border: 1px solid var(--hairline); border-radius: 0;
           padding: 0.3rem 0.55rem; font-size: 0.82rem; line-height: 1.3;
           opacity: 0; pointer-events: none; transition: opacity .16s ease;
         }
-        .wx:hover .wx-tip, .wx-btn:focus-visible ~ .wx-tip, .wx-trig:focus-visible ~ .wx-tip { opacity: 1; }
+        .wx:hover .wx-tip, .wx-trig:focus-visible ~ .wx-tip { opacity: 1; }
         .wx[data-open="1"] .wx-tip { opacity: 0; }
 
-
-        .wx-pop {
-          position: absolute; top: calc(100% + 0.5rem); right: 0; z-index: 400; width: 344px;
-          background: var(--bg); border: 1px solid var(--hairline); border-radius: 12px;
-          padding: 1.2rem; box-shadow: 0 10px 34px rgba(0,0,0,0.3);
-          line-height: 1.5; text-align: left;
-        }
         .wx-intro { font-size: 0.92rem; line-height: 1.55; color: var(--ink); }
         /* the resolved place: underlines in the accent on hover so it reads as
            a real value rather than filler copy */
@@ -117,103 +69,15 @@ export default function WeatherControl({
         .wx-real { display: none; }
         .wx-place:hover .wx-generic { display: none; }
         .wx-place:hover .wx-real { display: inline; }
-        .wx-label { font-size: 0.88rem; line-height: 1.4; color: var(--ink); }
-        .wx-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; }
-        .wx-opt {
-          display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
-          padding: 0.55rem 0.2rem; border-radius: 8px;
-          border: 1px solid transparent; background: none; cursor: pointer;
-          font-family: inherit; font-size: 0.82rem; line-height: 1.3; color: var(--ink);
-          transition: border-color .15s, color .15s;
-        }
-        .wx-opt:hover { border-color: var(--hairline); }
-        .wx-opt[data-on="1"] { border-color: var(--award); color: var(--award); }
-        .wx-foot {
-          font-size: 0.9rem; line-height: 1.4; color: var(--ink);
-          background: none; border: none; padding: 0; text-decoration: none; font-family: inherit;
-        }
-        .wx-foot:hover { color: var(--award); }
       `}</style>
+      <style>{SHARED_CSS + TRIGGER_CSS}</style>
 
-      {variant !== 'live' ? (
-        <button className="wx-trig" data-v={variant} onClick={() => setOpen(!open)}
-          aria-expanded={open} aria-label="About this canvas">
-          <Trigger kind={variant} />
-        </button>
-      ) : (
-      <button className="wx-btn" data-on={open ? 1 : 0} onClick={() => setOpen(!open)}
-        aria-expanded={open} aria-label="About this canvas">
-        {/* SVG text rather than a character in a box: textAnchor and
-            dominantBaseline centre against the real glyph metrics, which a
-            flex box cannot do because it centres the line box, not the ink. */}
-        <svg width="100%" height="100%" viewBox="0 0 24 24" aria-hidden>
-          <text x="12" y="12" textAnchor="middle" dominantBaseline="central"
-            fontFamily="var(--font-main)" fontSize="15" fontWeight="500"
-            letterSpacing="0" fill="currentColor">?</text>
-        </svg>
+      <button className="wx-trig" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="About this canvas">
+        <Trigger sky={curS} />
       </button>
-      )}
-      {/* the worded pill already asks the question, so it goes without */}
-      {variant !== 'c' && <span className="wx-tip" role="tooltip">What is this?</span>}
+      <span className="wx-tip" role="tooltip">What is this?</span>
 
-      {variant !== 'live' && <style>{SHARED_CSS + TRIGGER_CSS}</style>}
-      {open && variant !== 'live' && <PanelA override={override} setOverride={setOverride} live={live} place={place} light={light} />}
-
-      {open && variant === 'live' && (
-        <div className="wx-pop">
-          <p className="wx-intro">
-            As a chronic weather checker and lover of ambient technology, I wanted this interactive canvas
-            to{' '}
-            <span style={{ color: 'var(--award)' }}>synchronize with the outside world</span>.
-          </p>
-          <p className="wx-intro" style={{ marginTop: '0.8rem' }}>
-            This is my visual interpretation of the weather in{' '}
-            <span className="wx-place">
-              <span className="wx-generic">your area</span>
-              <span className="wx-real">{place || 'your area'}</span>
-            </span>.
-            With that being said, you{'’'}re more than welcome to play with every configuration.
-          </p>
-
-          <div style={{ marginTop: '1.5rem' }}>
-            <div className="wx-label">Hour</div>
-            <div className="wx-grid" style={{ marginTop: '0.7rem' }}>
-              {PERIODS.map(p => {
-                const Icon = HOUR_ICON[p]
-                return (
-                  <button key={p} className="wx-opt" data-on={curP === p ? 1 : 0}
-                    onClick={() => setOverride({ p, s: curS })}>
-                    <Icon />{PERIOD_LABEL[p]}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div style={{ marginTop: '1.5rem' }}>
-            <div className="wx-label">Sky</div>
-            <div className="wx-grid" style={{ marginTop: '0.7rem' }}>
-              {SKIES.map(s => {
-                const Icon = SKY_ICON[s]
-                return (
-                  <button key={s} className="wx-opt" data-on={curS === s ? 1 : 0}
-                    onClick={() => setOverride({ p: curP, s })}>
-                    <Icon />{SKY_LABEL[s]}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: '1.7rem' }}>
-            <button className="wx-foot" onClick={() => setOverride(null)} disabled={!override}
-              style={{ cursor: override ? 'pointer' : 'default', color: override ? 'var(--award)' : 'var(--ink)', opacity: override ? 1 : 0.45 }}>
-              Reset
-            </button>
-          </div>
-
-        </div>
-      )}
+      {open && <PanelA override={override} setOverride={setOverride} live={live} place={place} light={light} theme={theme} setTheme={setTheme} onClose={() => setOpen(false)} />}
     </div>
   )
 }

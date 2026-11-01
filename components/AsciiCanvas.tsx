@@ -36,6 +36,9 @@ interface Props {
    *  floor than a full-screen one or it reads as empty. */
   rest?: number
   apiRef?: React.MutableRefObject<CanvasApi | null>
+  /** The part of the canvas that's actually on screen, in CSS px. Cells
+   *  outside it aren't drawn, and the cursor's reach is sized to it. */
+  region?: React.MutableRefObject<{ x: number; y: number; w: number; h: number } | null>
 }
 
 function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
@@ -62,7 +65,7 @@ function hexToRgb(hex: string): [number, number, number] {
 
 type Drop = { x: number; y: number; vx: number; vy: number; int: number; hot: number; ph: number; life: number }
 
-export default function AsciiCanvas({ chars: charsStr, trailMode = false, breathe: breatheProp = false, lightMode = false, color, render = 'glyphs', motion = 'breathe', hover = 'mono', message, rest: restLevel = 0.05, apiRef }: Props) {
+export default function AsciiCanvas({ chars: charsStr, trailMode = false, breathe: breatheProp = false, lightMode = false, color, render = 'glyphs', motion = 'breathe', hover = 'mono', message, rest: restLevel = 0.05, apiRef, region }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -265,16 +268,21 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       canvas!.width = width * ratio
       canvas!.height = height * ratio
       ctx!.scale(ratio, ratio)
-      const targetCW = (cipher || letters) ? 8 : tiles ? 9 : trailMode ? 9 : 7
+      // small cells, so the field reads as texture on a big monitor too
+      const targetCW = (cipher || letters) ? 7 : tiles ? 7 : trailMode ? 8 : 6
       // Keep large monitors from multiplying per-frame sprite work without limit.
       const baseCellH = tiles ? targetCW : targetCW * ((trailMode || soft) ? 1.5 : 1.4)
-      const densityScale = Math.max(1, Math.sqrt((width * height) / (targetCW * baseCellH * 6000)))
+      // only the visible part costs anything, so size the budget to it
+      const vis = region?.current
+      const area = vis ? vis.w * vis.h : width * height
+      const densityScale = Math.min(1.3, Math.max(1, Math.sqrt(area / (targetCW * baseCellH * 9000))))
       cols = Math.max(1, Math.round(width / (targetCW * densityScale)))
       cellW = width / cols
       cellH = tiles ? cellW : cellW * ((trailMode || soft) ? 1.5 : 1.4)
       rows = Math.ceil(height / cellH)
       cursorScale = window.matchMedia('(max-width: 860px)').matches ? 0.55 : 1
-      reach = Math.max(0.45, Math.min(1, Math.min(width, height * 1.6) / 760)) * cursorScale
+      const rw = vis ? vis.w : width, rh = vis ? vis.h : height
+      reach = Math.max(0.35, Math.min(0.6, Math.min(rw, rh * 1.6) / 900)) * cursorScale
       const n = cols * rows
       grain = new Float32Array(n)
       cidx  = new Uint8Array(n)
@@ -521,8 +529,14 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       else if (brush) stepBrush(dt)
       else if (water) stepDrops(dt)
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
+      // draw only the cells that can be seen
+      const vr = region?.current
+      const c0 = vr ? Math.max(0, Math.floor(vr.x / cellW) - 1) : 0
+      const c1 = vr ? Math.min(cols, Math.ceil((vr.x + vr.w) / cellW) + 1) : cols
+      const r0 = vr ? Math.max(0, Math.floor(vr.y / cellH) - 1) : 0
+      const r1 = vr ? Math.min(rows, Math.ceil((vr.y + vr.h) / cellH) + 1) : rows
+      for (let r = r0; r < r1; r++) {
+        for (let c = c0; c < c1; c++) {
           const px = c * cellW + cellW / 2
           const py = r * cellH + cellH / 2
           const nx = c / cols
