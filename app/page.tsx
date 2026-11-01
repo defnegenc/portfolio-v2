@@ -1350,10 +1350,12 @@ export default function Home() {
           .canvas-zone > .field-main { order: 1; }
           .windows > .panel.bar { order: 0; border-top: none !important; padding: 0.9rem 1.25rem !important; overflow: visible !important; }
           .windows > .panel:not(.bar) { order: 2; }
-          .home-bar { flex-wrap: wrap; row-gap: 0.4rem; }
-          .home-title { white-space: nowrap; }
-          .home-right { gap: 0.9rem; }
-          .home-links { flex-wrap: nowrap; gap: 0.9rem; }
+          /* one row: the name left, the links and the weather icon right */
+          .home-bar { flex-wrap: nowrap; gap: 0.6rem; }
+          .home-title { white-space: nowrap; font-size: 0.82rem; }
+          .home-right { gap: 0.55rem; }
+          .home-links { flex-wrap: nowrap; gap: 0.7rem; }
+          .home-links a, .home-links button { font-size: 0.82rem; }
           .lists-2 { grid-template-columns: 1fr; gap: 1.6rem; }
           .about-top { flex-wrap: wrap; }
           .shell-pop { max-width: calc(100vw - 2.5rem); }
