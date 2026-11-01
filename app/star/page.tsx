@@ -235,6 +235,13 @@ export default function Star() {
   /* first layout: only the field is open. My spiel, About me, Projects and
      Properties wait on the desk as icons. */
   useEffect(() => {
+    if (innerWidth < 700) {
+      // phones: the icons take the top, the field the rest
+      const top = Math.min(300, Math.round(innerHeight * 0.38))
+      setWins([{ id: 'field', x: 8, y: top, w: innerWidth - 16, h: innerHeight - top - 8, z: 2 }])
+      z.current = 3
+      return
+    }
     // the desktop icons take a column on the right
     const W = innerWidth - 150, H = innerHeight, m = 32
     const w = Math.min(980, W - m * 2), h = Math.min(Math.round(w * 0.62), H - m * 2)
@@ -256,6 +263,12 @@ export default function Star() {
     z.current += 1
     const k = wins.length % 5
     const zz = z.current
+    // on a phone every window opens as a full sheet
+    if (innerWidth < 700) {
+      setWins(ws => ws.some(x => x.id === id) ? ws.map(x => (x.id === id ? { ...x, z: zz } : x))
+        : [...ws, { id, x: 8, y: 8, w: innerWidth - 16, h: innerHeight - 16, z: zz }])
+      return
+    }
     setWins(ws => ws.some(x => x.id === id)
       ? ws.map(x => (x.id === id ? { ...x, z: zz } : x))
       : [...ws, home.current[id] ? { ...home.current[id], z: zz } : { id, x: Math.max(20, innerWidth / 2 - w / 2 - 120 + k * 26), y: 60 + k * 26, w, h, z: zz }])
@@ -535,6 +548,18 @@ const CSS = `
   .sicon-label { font-size: 12px; line-height: 1.15; text-align: center; padding: 1px 4px; background: var(--paper); }
   .sicon:hover .sicon-label { outline: 1.5px solid var(--ink); }
   .sicon[aria-pressed="true"] .sicon-label { background: var(--ink); color: var(--paper); }
+  /* phones */
+  @media (max-width: 699px) {
+    .desk { left: 8px; right: 8px; top: 10px; grid-template-columns: repeat(4, 1fr); gap: 8px 4px; }
+    .sicon { width: auto; }
+    .sicon-pict { width: 40px; height: 40px; }
+    .sicon-pict svg { width: 36px; height: 36px; }
+    .sicon-label { font-size: 11px; }
+    .grow { display: none; }
+    .vp h1 { font-size: 26px; }
+    .head { gap: 4px; padding: 0 4px; }
+    .cmd { padding: 0 6px; }
+  }
   /* property sheet */
   .sheet { flex-shrink: 0; border-top: 2px solid var(--ink); background: var(--paper); padding-right: 18px; }
   .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; border-bottom: 1.5px solid var(--ink); }
