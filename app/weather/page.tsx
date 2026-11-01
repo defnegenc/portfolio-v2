@@ -27,7 +27,7 @@ const HOURS: Record<Period, string> = {
 const HourIcon = ({ p }: { p: Period }) => { const I = HOUR_ICON[p]; return <I /> }
 
 export default function FieldMatrix() {
-  const [theme, setTheme] = useTheme('dark')
+  const [theme, setTheme] = useTheme('light')
   const isLight = theme === 'light'
   const [sel, setSel] = useState<{ p: Period; s: Sky }>({ p: 'day', s: 'clear' })
 

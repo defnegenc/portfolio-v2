@@ -15,7 +15,7 @@ const FACTS = ABOUT_FACTS
 
 
 export default function About() {
-  const [theme] = useTheme('dark')
+  const [theme] = useTheme('light')
   const rule = <FieldRule render="glyphs" motion="trickle" hover="mono" color="#7FA8F5" lightMode={theme === 'light'} />
   return (
     <PageShell here="about" field="right" motion="trickle" hover="mono" render="glyphs" fieldColor="#7FA8F5">

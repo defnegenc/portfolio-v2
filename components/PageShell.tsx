@@ -28,7 +28,7 @@ export default function PageShell({
   // the colour the homepage field last resolved to, so a visit reads as one piece
   const [carried, setCarried] = useState<string | null>(null)
   useEffect(() => { setCarried(window.localStorage.getItem('accent')) }, [])
-  const [theme, setTheme] = useTheme('dark')
+  const [theme, setTheme] = useTheme('light')
   const isLight = theme === 'light'
   const { ambient } = useAmbient('weather')
 

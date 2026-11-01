@@ -8,16 +8,19 @@ import { useEffect, useState } from 'react'
 
 export type Theme = 'dark' | 'light'
 
-export function useTheme(fallback: Theme = 'dark') {
+// a new key, so everyone starts in light mode again; the toggle still remembers
+const KEY = 'theme-v2'
+
+export function useTheme(fallback: Theme = 'light') {
   const [theme, setTheme] = useState<Theme>(fallback)
 
   useEffect(() => {
-    const saved = window.localStorage.getItem('theme')
+    const saved = window.localStorage.getItem(KEY)
     if (saved === 'dark' || saved === 'light') setTheme(saved)
   }, [])
 
   useEffect(() => {
-    window.localStorage.setItem('theme', theme)
+    window.localStorage.setItem(KEY, theme)
   }, [theme])
 
   return [theme, setTheme] as const
