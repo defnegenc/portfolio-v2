@@ -246,7 +246,7 @@ type NameStyle = 'mono' | 'ls' | 'comment' | 'tag' | 'cols'
 const NAME_STYLES: { key: NameStyle; label: string }[] = [
   { key: 'mono', label: 'Mono' }, { key: 'comment', label: '# comment' }, { key: 'tag', label: 'git tag' }, { key: 'cols', label: 'Columns' }, { key: 'ls', label: 'Dated' },
 ]
-const NameCtx = createContext<NameStyle>('mono')
+const NameCtx = createContext<NameStyle>('comment')
 
 
 type Item = { name: string; href: string; year: string; kind?: string; award?: string; awardNote?: string }
@@ -297,9 +297,10 @@ const itemsOf = (d: Dir): Item[] => (d === 'projects' ? PROJECTS : d === 'tidbit
 const slugName = (p: Item) => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 const dirOf = (p: Item) => `${slugName(p)}-${p.year}/`
 // Dated lists the year in its own column, so the folder drops it
-const useDirOf = () => (useContext(NameCtx) === 'ls' ? (p: Item) => `${slugName(p)}/` : dirOf)
+const useDirOf = () => { const st = useContext(NameCtx); return st === 'ls' || st === 'comment' ? (p: Item) => `${slugName(p)}/` : dirOf }
 function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: Item[]; click: (href: string) => (e: React.MouseEvent) => void; open?: string | null; mode?: OpenMode; onBack?: () => void }) {
   const style = useContext(NameCtx)
+  const nameOf = useDirOf()
   const inside = (p: Item) => open === slugOf(p.href) && onBack && <ProjectView key={open + mode} slug={open} mode={mode} onBack={onBack} />
   // Dated: a long listing, folders for projects and plain files for tidbits
   if (style === 'ls') return (
@@ -326,12 +327,12 @@ function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: 
       {items.map(p => (
         <div key={p.name}>
           <a href={p.href} onClick={click(p.href)} className={`pl nm-mono nm-${style}`} data-on={open === slugOf(p.href) ? 1 : 0}>
-            <span className="pl-dir">{dirOf(p)}</span>
-            {/* Mono: the award beside the name. # comment: as a shell comment.
-                git tag: as a tag decoration. Columns: what it is, lined up. */}
+            <span className="pl-dir">{nameOf(p)}</span>
+            {/* # comment: the year and award as a shell comment. Mono: the award
+                beside the name. git tag: a tag decoration. Columns: what it is. */}
             {style === 'cols' && <span className="nm-kind">{(p.kind ?? '').toLowerCase()}</span>}
-            {p.award && (style === 'comment' ? <span className="nm-note"># {p.award}</span>
-              : style === 'tag' ? <span className="nm-note">(tag: chi-2026-best-paper)</span>
+            {style === 'comment' && <span className="nm-note"># {p.year}{p.award ? `, ${p.award}` : ''}</span>}
+            {p.award && style !== 'comment' && (style === 'tag' ? <span className="nm-note">(tag: chi-2026-best-paper)</span>
               : <span className="award nm-award">{p.award}{style === 'mono' ? ` ${p.awardNote}` : ''}</span>)}
           </a>
           {inside(p)}
@@ -1147,7 +1148,7 @@ export default function Home() {
   // About opens in place, or as a window over the field in the window style
   const [view, setView] = useState<View>('home')
   const [icons, setIcons] = useState<'line' | 'classic'>('line')
-  const [names, setNames] = useState<NameStyle>('mono')
+  const [names, setNames] = useState<NameStyle>('comment')
   const [arrange, setArrange] = useState<Arrange>('fold')
   const [openMode, setOpenMode] = useState<OpenMode>('tree')
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
@@ -1327,7 +1328,7 @@ export default function Home() {
   const pickNames = (v: NameStyle) => {
     setNames(v)
     const u = new URL(window.location.href)
-    if (v === 'mono') u.searchParams.delete('n'); else u.searchParams.set('n', v)
+    if (v === 'comment') u.searchParams.delete('n'); else u.searchParams.set('n', v)
     window.history.replaceState(null, '', u)
   }
   const pickIcons = (v: 'line' | 'classic') => {
@@ -1637,7 +1638,8 @@ export default function Home() {
         .nm-kind { color: var(--ink); }
         .bar-mini { display: inline-flex; gap: 0.9rem; font-family: var(--font-mono); font-size: 0.82rem; white-space: nowrap; }
         .bar-mini a { color: var(--ink); text-decoration: none; }
-        .bar-gui { display: inline-flex; align-items: center; color: var(--ink); }
+        .bar-gui { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--ink); text-decoration: none; font-family: var(--font-mono); font-size: 0.97rem; }
+        .bar-gui:hover span { background: var(--ink); color: var(--bg); }
         .bar-gui:hover svg { transform: translateY(-1px); }
         .ar-open { text-decoration: none; display: flex; align-items: baseline; gap: 1.2ch; }
         .ar-open em { font-style: normal; color: var(--ink); }
@@ -1897,6 +1899,8 @@ export default function Home() {
           .star-credit-float { order: 3; }
           /* names: the award drops under the name instead of breaking the line */
           .pl.nm-mono .nm-award, .pl.nm-mono .nm-note { flex-basis: 100%; padding-left: 2ch; font-size: 0.9rem; }
+          /* a short comment stays on the name's line; only a long one wraps */
+          .pl.nm-comment .nm-note { flex-basis: auto; padding-left: 0; font-size: inherit; }
           .pl.nm-cols { grid-template-columns: 1fr; } .pl.nm-cols .nm-kind { display: none; } .pl.nm-cols .nm-award { padding-left: 2ch; }
           /* Status line: LinkedIn left, the switch right, fixed along the bottom */
           .root-frame[data-phone="status"] .star-credit-float { position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 60; padding: 0.55rem 1.1rem calc(0.55rem + env(safe-area-inset-bottom)) !important;
@@ -2008,7 +2012,7 @@ export default function Home() {
                 <div className="home-right">
                   <div className="home-links">
                     <UrlLink className="back-link" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
-                    {entry === 'icon' && <a className="bar-gui" href="/star" title="Open the desktop" aria-label="Open the desktop"><StarWin /></a>}
+                    {entry === 'icon' && <a className="bar-gui" href="/star" title="Open the desktop"><StarWin /><span>go to gui</span></a>}
                   </div>
                   {/* tmux on a phone has no footer, so LinkedIn and the desktop sit up here */}
                   {stacked && phone === 'tmux' && <span className="bar-mini">
