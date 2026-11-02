@@ -9,15 +9,14 @@ const fragmentMono = Fragment_Mono({
   variable: '--font-mono',
 })
 
-const base = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
-  : new URL('http://localhost:3000')
+// the live site, so link previews point at real files (not localhost)
+const base = new URL('https://defne.io')
 
 export const metadata: Metadata = {
   metadataBase: base,
   title: "Defne's Portfolio",
   description: 'Stanford HCI · AI Platform @ Coinbase · Designer',
-  icons: { icon: '/favicon.svg' },
+  icons: { icon: '/favicon.svg', apple: '/apple-icon.png' },
   openGraph: {
     title: "Defne's Portfolio",
     description: 'Stanford HCI · AI Platform @ Coinbase · Designer',
