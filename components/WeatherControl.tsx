@@ -9,12 +9,12 @@
 
 import { useEffect, useRef } from 'react'
 import { type Period, type Sky } from '@/components/ambient'
-import { PanelA, Trigger, SHARED_CSS, TRIGGER_CSS, useIsLight } from '@/components/WeatherVariants'
+import { PanelA, PanelTerm, Trigger, SHARED_CSS, TRIGGER_CSS, useIsLight } from '@/components/WeatherVariants'
 
 export type Override = { p: Period; s: Sky } | null
 
 export default function WeatherControl({
-  override, setOverride, live, place, open, setOpen, theme, setTheme,
+  override, setOverride, live, place, open, setOpen, theme, setTheme, term = false,
 }: {
   override: Override
   setOverride: (v: Override) => void
@@ -27,6 +27,8 @@ export default function WeatherControl({
   /** when given, the panel carries the light / dark switch */
   theme?: 'light' | 'dark'
   setTheme?: (t: 'light' | 'dark') => void
+  /** the terminal dress: the panel opens as shell output */
+  term?: boolean
 }) {
   const box = useRef<HTMLDivElement>(null)
   const light = useIsLight(box)
@@ -55,6 +57,8 @@ export default function WeatherControl({
         .wx:hover .wx-tip, .wx-trig:focus-visible ~ .wx-tip { opacity: 1; }
         .wx[data-open="1"] .wx-tip { opacity: 0; }
 
+        .wx-trig.wx-trig-term { width: auto; gap: 0.4rem; padding: 0 2px; }
+        .wx-word { font-family: var(--font-mono); font-size: 0.97rem; line-height: 1; }
         .wx-intro { font-size: 0.92rem; line-height: 1.55; color: var(--ink); }
         /* the resolved place: underlines in the accent on hover so it reads as
            a real value rather than filler copy */
@@ -72,12 +76,16 @@ export default function WeatherControl({
       `}</style>
       <style>{SHARED_CSS + TRIGGER_CSS}</style>
 
-      <button className="wx-trig" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="About this canvas">
+      <button className={term ? 'wx-trig wx-trig-term' : 'wx-trig'} onClick={() => setOpen(!open)} aria-expanded={open} aria-label="About this canvas">
         <Trigger sky={curS} />
+        {/* the terminal side names the control, so it reads as one */}
+        {term && <span className="wx-word">weather</span>}
       </button>
-      <span className="wx-tip" role="tooltip">What is this?</span>
+      {!term && <span className="wx-tip" role="tooltip">What is this?</span>}
 
-      {open && <PanelA override={override} setOverride={setOverride} live={live} place={place} light={light} theme={theme} setTheme={setTheme} onClose={() => setOpen(false)} />}
+      {open && (term
+        ? <PanelTerm override={override} setOverride={setOverride} live={live} place={place} light={light} theme={theme} setTheme={setTheme} onClose={() => setOpen(false)} />
+        : <PanelA override={override} setOverride={setOverride} live={live} place={place} light={light} theme={theme} setTheme={setTheme} onClose={() => setOpen(false)} />)}
     </div>
   )
 }

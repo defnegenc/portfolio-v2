@@ -7,7 +7,8 @@ import NavMenu from '@/components/NavMenu'
 import { useTheme } from '@/components/useTheme'
 import { useAmbient, LOOKS, periodOf, type Period, type Sky } from '@/components/ambient'
 import WeatherControl, { type Override } from '@/components/WeatherControl'
-import { IconStyleCtx } from '@/components/weatherIcons'
+import { IconStyleCtx, SKY_ICON } from '@/components/weatherIcons'
+import { SKIES, SKY_NAME } from '@/components/WeatherVariants'
 import { ABOUT_PARAS } from '@/components/aboutContent'
 import AboutPara from '@/components/AboutPara'
 import { CARDS, type Card } from '@/components/cards'
@@ -141,15 +142,19 @@ function WinGlyph() {
 const GLYPHS = '░▒▓#%&*+=/<>'
 const scramble = (len: number) => Array.from({ length: len }, () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]).join('')
 
-function DecodeBio({ style, onDone, text = BIO, step = 60 }: { style: React.CSSProperties; onDone?: () => void; text?: string; step?: number }) {
+/* Several paragraphs decode in one pass: the band runs through the first,
+   then carries on into the next, instead of every paragraph decoding at once. */
+function DecodeBio({ style, onDone, text = BIO, texts, step = 60, stride = 1 }: { style: React.CSSProperties; onDone?: () => void; text?: string; texts?: string[]; step?: number; stride?: number }) {
   const BAND = 4
-  const words = text.split(' ')
+  const paras = (texts ?? [text]).map(t => t.split(' '))
+  const words = paras.flat()
   // starts a full band before the first word, so the server render (and the
   // first client render) has no random glyphs in it to disagree about
   const [r, setR] = useState(-BAND)   // words fully resolved
   useEffect(() => {
     if (r >= words.length) { onDone?.(); return }
-    const id = setTimeout(() => setR(v => v + 1), r < 0 ? 90 : step)
+    // stride: words resolved per step, so a long text still lands quickly
+    const id = setTimeout(() => setR(v => v + (v < 0 ? 1 : stride)), r < 0 ? 90 : step)
     return () => clearTimeout(id)
   }, [r, onDone, words.length, step])
   // re-roll the glyphs between steps too, so the band shimmers
@@ -159,15 +164,18 @@ function DecodeBio({ style, onDone, text = BIO, step = 60 }: { style: React.CSSP
     const id = setInterval(() => setTick(t => t + 1), 40)
     return () => clearInterval(id)
   }, [r])
-  return (
-    <p style={style}>
-      {words.map((w, i) => i < r
-        ? <span key={i} className="bio-w">{w}</span>
-        : i < r + BAND
-          ? <span key={i} className="bio-w bio-scr"><span style={{ color: 'transparent' }}>{w}</span><span className="bio-scr-g">{scramble(w.length + 1)}</span></span>
-          : <span key={i} className="bio-w bio-dev">{w}</span>)}
-    </p>
-  )
+  const word = (w: string, i: number) => i < r
+    ? <span key={i} className="bio-w">{w}</span>
+    : i < r + BAND
+      ? <span key={i} className="bio-w bio-scr"><span style={{ color: 'transparent' }}>{w}</span><span className="bio-scr-g">{scramble(w.length + 1)}</span></span>
+      : <span key={i} className="bio-w bio-dev">{w}</span>
+  let first = 0
+  return <>
+    {paras.map((ws, p) => {
+      const at = first; first += ws.length
+      return <p key={p} style={style}>{ws.map((w, k) => word(w, at + k))}</p>
+    })}
+  </>
 }
 
 const slugOf = (href: string) => href.replace(/^\/project\//, '').replace(/\//g, '')
@@ -188,6 +196,20 @@ function CardBody({ card, meta }: { card: Card; meta?: string }) {
 const metaOf = (slug: string) => {
   const p = [...PROJECTS, ...TIDBITS].find(x => slugOf(x.href) === slug) as { year: string; kind: string; award?: string } | undefined
   return p ? [p.year, p.kind, p.award].filter(Boolean).join(' · ') : undefined
+}
+
+/* Links open as browser windows over the page, with Open in new tab in the
+   corner. Sites that refuse to be shown inside another site (LinkedIn,
+   learningetal.com) skip the window and open in a new tab. */
+const UrlCtx = createContext<((href: string, title: string) => void) | null>(null)
+const NO_FRAME = ['linkedin.com', 'learningetal.com']
+// arXiv's abstract page refuses frames; its PDF doesn't
+const embedOf = (href: string) => href.replace('arxiv.org/abs/', 'arxiv.org/pdf/')
+const framable = (href: string) => !NO_FRAME.some(d => href.includes(d))
+const hostOf = (href: string) => { try { return new URL(href, 'https://defne.io').hostname.replace(/^www\./, '') } catch { return href } }
+function UrlLink({ href, title, className, children }: { href: string; title: string; className?: string; children: React.ReactNode }) {
+  const openUrl = useContext(UrlCtx)
+  return <a className={className} href={href} target="_blank" rel="noreferrer" onClick={e => { if (openUrl && framable(href)) { e.preventDefault(); openUrl(href, title) } }}>{children}</a>
 }
 
 // clicking a project opens it in place when a handler is set
@@ -211,51 +233,23 @@ function Links({ setContact, size = '0.97rem' }: { setContact: ContactFn; size?:
 
 // the work as ls output: projects, then tidbits, or one of the two
 type Part = 'both' | 'projects' | 'tidbits'
-const nameStyle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 500, letterSpacing: '-0.01em' }
 /* How the project names are set, picked with ?n= while we compare.
    display  the display face at list size (the current one)
    mono     the same list in mono, like the prompts above it
    ls       a dated listing: the year, then the name as a folder
    buttons  Xerox Star command buttons: small rounded boxes that invert
    (desktop icons live in the Star view, not here: no GUI in the terminal) */
-type NameStyle = 'display' | 'mono' | 'ls' | 'buttons'
+type NameStyle = 'mono' | 'ls'
 const NAME_STYLES: { key: NameStyle; label: string }[] = [
-  { key: 'display', label: 'Display' }, { key: 'mono', label: 'Mono' }, { key: 'ls', label: 'Dated' },
-  { key: 'buttons', label: 'Star buttons' },
+  { key: 'mono', label: 'Mono' }, { key: 'ls', label: 'Dated' },
 ]
-const NameCtx = createContext<NameStyle>('display')
+const NameCtx = createContext<NameStyle>('mono')
 
 
 type Item = { name: string; href: string; year: string; award?: string; awardNote?: string }
+// the lists, everywhere: what ls prints
 function Names({ items, click }: { items: Item[]; click: (href: string) => (e: React.MouseEvent) => void }) {
-  const style = useContext(NameCtx)
-  const open = useContext(OpenCtx)
-  const award = (p: Item) => p.award && <span className="award nm-award">{p.award} {p.awardNote}</span>
-  if (style === 'ls') return (
-    <div className="nm-ls">
-      {items.map(p => (
-        <a key={p.name} href={p.href} onClick={click(p.href)} className="nm-ls-row">
-          <span className="nm-ls-year">{p.year}</span>
-          <span><span className="nm-ls-name">{p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')}/</span>{p.award && <span className="nm-star" title={`${p.award} ${p.awardNote}`}> ★</span>}</span>
-        </a>
-      ))}
-    </div>
-  )
-  if (style === 'buttons') return (
-    <div className="nm-buttons">
-      {items.map(p => <a key={p.name} href={p.href} onClick={click(p.href)} className="nm-button">{p.name}{p.award && <span className="nm-star" title={`${p.award} ${p.awardNote}`}>★</span>}</a>)}
-    </div>
-  )
-  return (
-    <div className="pl-list">
-      {items.map(p => (
-        <a key={p.name} href={p.href} onClick={click(p.href)} className={style === 'mono' ? 'pl nm-mono' : 'pl'} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <span style={style === 'mono' ? undefined : nameStyle}>{p.name}</span>
-          {p.award && <span className="award" style={{ fontSize: '0.88rem', whiteSpace: 'nowrap' }}>{p.award} <span>{p.awardNote}</span></span>}
-        </a>
-      ))}
-    </div>
-  )
+  return <DirList items={items} click={click} />
 }
 
 function NamePrompt({ cmd, className = '' }: { cmd: string; className?: string }) {
@@ -276,6 +270,191 @@ function Work({ part = 'both' }: { part?: Part }) {
         <NamePrompt cmd="ls tidbits" className={part === 'tidbits' ? '' : 'ls-second'} />
         <Names items={TIDBITS} click={click} />
       </>}
+    </div>
+  )
+}
+
+/* The text under the field: commands on the left and their output on the
+   right, or folded, each command opening in place. Picked from Options (?a=);
+   phones always fold. */
+type Arrange = 'panes' | 'fold'
+const ARRANGES: { key: Arrange; label: string }[] = [
+  { key: 'fold', label: 'Folded' },
+  { key: 'panes', label: 'Two panes' },
+]
+type Dir = 'spiel' | 'projects' | 'tidbits' | 'about'
+const AR_DIRS: { key: Dir; cmd: string }[] = [
+  { key: 'spiel', cmd: 'cat my-spiel' },
+  { key: 'projects', cmd: 'ls projects' },
+  { key: 'tidbits', cmd: 'ls tidbits' },
+  { key: 'about', cmd: 'cat about-me' },
+]
+const itemsOf = (d: Dir): Item[] => (d === 'projects' ? PROJECTS : d === 'tidbits' ? TIDBITS : [])
+// what ls prints: a real directory name, with the year folded in
+const slugName = (p: Item) => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+const dirOf = (p: Item) => `${slugName(p)}-${p.year}/`
+// Dated lists the year in its own column, so the folder drops it
+const useDirOf = () => (useContext(NameCtx) === 'ls' ? (p: Item) => `${slugName(p)}/` : dirOf)
+function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: Item[]; click: (href: string) => (e: React.MouseEvent) => void; open?: string | null; mode?: OpenMode; onBack?: () => void }) {
+  const style = useContext(NameCtx)
+  const inside = (p: Item) => open === slugOf(p.href) && onBack && <ProjectView key={open + mode} slug={open} mode={mode} onBack={onBack} />
+  // Dated: a long listing, folders for projects and plain files for tidbits
+  if (style === 'ls') return (
+    <div className="pl-list ls-l">
+      {items.map(p => {
+        const folder = !!FOLDERS[slugOf(p.href)]
+        const name = slugName(p)
+        return (
+          <div key={p.name}>
+            <a href={p.href} onClick={click(p.href)} className="pl nm-mono ls-row" data-on={open === slugOf(p.href) ? 1 : 0}>
+              <span className="ls-perm">{folder ? 'drwxr-xr-x' : '-rw-r--r--'}</span>
+              <span className="ls-perm">defne</span>
+              <span>{p.year}</span>
+              <span><span className="pl-dir">{folder ? `${name}/` : name}</span>{p.award && <span className="award nm-award"> {p.award} {p.awardNote}</span>}</span>
+            </a>
+            {inside(p)}
+          </div>
+        )
+      })}
+    </div>
+  )
+  return (
+    <div className="pl-list">
+      {items.map(p => (
+        <div key={p.name}>
+          <a href={p.href} onClick={click(p.href)} className="pl nm-mono" data-on={open === slugOf(p.href) ? 1 : 0} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <span className="pl-dir">{dirOf(p)}</span>
+            {p.award && <span className="award nm-award">{p.award} {p.awardNote}</span>}
+          </a>
+          {inside(p)}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// About inside an arrangement: there at once, no animation
+function AboutBody() {
+  return <div className="about-paras">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)}</div>
+}
+
+/* What clicking a project does: it opens right under its name, as a tree,
+   as the ls and cat you'd type, or as a cd into the folder. Compared from
+   Options (?o=). */
+type OpenMode = 'tree' | 'ls' | 'cd'
+const OPEN_MODES: { key: OpenMode; label: string }[] = [
+  { key: 'tree', label: 'Tree' }, { key: 'ls', label: 'ls' }, { key: 'cd', label: 'cd' },
+]
+const itemOf = (slug: string) => [...PROJECTS, ...TIDBITS].find(p => slugOf(p.href) === slug) as Item | undefined
+// a project's files: its folder, or for a tidbit the one link it is
+const filesOf = (slug: string): { file: string; href?: string }[] => FOLDERS[slug] ?? (CARDS[slug] ? [{ file: 'description.txt' }, { href: CARDS[slug].link.href, file: `${slug}.url` }] : [])
+const FileLink = ({ f }: { f: { file: string; href?: string } }) => (f.href
+  ? <UrlLink className="pv-file" href={f.href} title={f.file}>{f.file}</UrlLink>
+  : <span className="pv-file pv-plain">{f.file}</span>)
+
+function ProjectView({ slug, mode, onBack }: { slug: string; mode: OpenMode; onBack: () => void }) {
+  const card = CARDS[slug], item = itemOf(slug), files = filesOf(slug)
+  const nameOf = useDirOf()
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') onBack() }
+    window.addEventListener('keydown', esc)
+    return () => window.removeEventListener('keydown', esc)
+  }, [onBack])
+  if (!card || !item) return null
+  const dir = nameOf(item)
+  const points = card.points ?? []
+
+  if (mode === 'tree') return (
+    <div className="pv-tree ar-hop">
+      {/* the branches are drawn, not typed: the mono face has no box glyphs */}
+      {files.map(f => (
+        <div key={f.file} className="pv-node">
+          <FileLink f={f} />
+          {f.file === 'description.txt' && <p style={TEXT_STYLE}>{card.text}</p>}
+        </div>
+      ))}
+    </div>
+  )
+
+  const files_ = <div className="pv-files">{files.map(f => <FileLink key={f.file} f={f} />)}</div>
+  const text = <>
+    <p style={TEXT_STYLE}>{card.text}</p>
+    {points.length > 0 && <ul className="pv-points">{points.map(t => <li key={t} style={TEXT_STYLE}>{t}</li>)}</ul>}
+  </>
+
+  // ls: the two commands you'd type to look inside, already run
+  if (mode === 'ls') return (
+    <div className="pv-inline ar-hop">
+      <Prompt cmd={`ls ${dir}`} />
+      {files_}
+      <Prompt cmd={`cat ${dir}description.txt`} className="pv-gap" />
+      {text}
+    </div>
+  )
+
+  // cd: you're inside the folder, so the prompt carries its name; cd .. closes it
+  const here = dir.replace(/\/$/, '')
+  return (
+    <div className="pv-inline ar-hop">
+      <div className="bio-prompt"><span>{here} %</span> ls</div>
+      {files_}
+      <div className="bio-prompt pv-gap"><span>{here} %</span> cat description.txt</div>
+      {text}
+      <button className="ar-cmd pv-gap" onClick={onBack}><span>{here} %</span> cd ..</button>
+    </div>
+  )
+}
+
+function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: OpenMode; onBioDone: () => void }) {
+  // the project opened in place; clicking it again closes it
+  const [proj, setProj] = useState<string | null>(null)
+  const back = useCallback(() => setProj(null), [])
+  const click = (href: string) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    const slug = slugOf(href)
+    setProj(p => (p === slug ? null : slug))
+  }
+  // a list, or the project opened from it: cd and man take the list's place,
+  // tree grows under the clicked name
+  const listOrProject = (items: Item[]) => {
+    return <DirList items={items} click={click} open={proj} mode={openMode} onBack={back} />
+  }
+  const spiel = <DecodeBio onDone={onBioDone} style={TEXT_STYLE} />
+  const body = (d: Dir) => (d === 'spiel' ? spiel : d === 'about' ? <AboutBody /> : listOrProject(itemsOf(d)))
+  const [dir, setDir] = useState<Dir>('spiel')
+  const [fold, setFold] = useState<Dir | null>('spiel')
+
+  if (kind === 'panes') return (
+    <div className="ar-panes">
+      <div className="ar-cmds">
+        {AR_DIRS.map(d => <button key={d.key} className="ar-cmd" data-on={dir === d.key ? 1 : 0} onClick={() => setDir(d.key)}><span>%</span> {d.cmd}</button>)}
+      </div>
+      <div key={dir} className="ar-hop ar-pane">{body(dir)}</div>
+    </div>
+  )
+
+  // fold: each command opens in place, one at a time
+  return (
+    <div className="ar-fold">
+      {AR_DIRS.map(d => (
+        <div key={d.key} className="ar-item" data-on={fold === d.key ? 1 : 0}>
+          <button className="ar-cmd" onClick={() => setFold(fold === d.key ? null : d.key)}><span>%</span> {d.cmd}</button>
+          {fold === d.key && <div className="ar-hop ar-out">{body(d.key)}</div>}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* Phones: the skies in a row under the field, so the animation can be
+   changed with one tap. The full matrix is still behind the weather icon. */
+function SkyRow({ cur, onPick }: { cur: Sky; onPick: (s: Sky) => void }) {
+  return (
+    <div className="sky-row no-open">
+      {SKIES.map(s => {
+        const I = SKY_ICON[s]
+        return <button key={s} data-on={cur === s ? 1 : 0} onClick={() => onPick(s)} aria-label={SKY_NAME[s]} title={SKY_NAME[s]}><I size={18} /></button>
+      })}
     </div>
   )
 }
@@ -308,12 +487,8 @@ const ABOUT_PLAIN = ABOUT_PARAS.map(t => t.replace(/[[\]]/g, ''))
 const ABOUT_TOTAL = ABOUT_PLAIN.reduce((a, t) => a + t.length, 0)
 
 function AboutText({ onBack, typed, left = 1 }: { onBack: () => void; cols?: boolean; typed?: string | null; left?: number }) {
-  // the same as the spiel: one column, the same size, decoding in; once
-  // every paragraph has resolved, [GUI] becomes its link
+  // the same column and size as the spiel, but there at once: no animation
   let budget = Math.round(ABOUT_TOTAL * left)
-  const [decoded, setDecoded] = useState(0)
-  const onePara = useCallback(() => setDecoded(n => n + 1), [])
-  const done = decoded >= ABOUT_PLAIN.length
   return (
     <div className="about-tile">
       <div className="about-top">
@@ -326,9 +501,7 @@ function AboutText({ onBack, typed, left = 1 }: { onBack: () => void; cols?: boo
               const n = Math.max(0, Math.min(t.length, budget)); budget -= t.length
               return n > 0 ? <p key={i} style={TEXT_STYLE}>{t.slice(0, n)}{budget <= 0 && <span className="bio-block" />}</p> : null
             })
-          : done
-            ? ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)
-            : ABOUT_PLAIN.map((t, i) => <DecodeBio key={i} text={t} step={14} style={TEXT_STYLE} onDone={onePara} />)}
+          : ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)}
       </div>
     </div>
   )
@@ -348,7 +521,7 @@ const CENTRED = (v: Variant) => v !== 'live'
 /* Each layout places cells on a grid; 'text' marks a cell with a solid
    background holding that block, every other cell is a window onto the field.
    The one window in the centred layouts is 'main', so the scroll can grow it. */
-type CellText = 'copy' | 'about' | 'blank' | 'bar' | 'shell' | 'clists' | 'cbio' | 'cproj' | 'ctid' | 'cwork' | 'cabout'
+type CellText = 'copy' | 'about' | 'blank' | 'bar' | 'shell' | 'clists' | 'cbio' | 'cproj' | 'ctid' | 'cwork' | 'cabout' | 'arr'
 type Cell = { c: number; r: number; cs?: number; rs?: number; text?: CellText; main?: boolean }
 type Layout = { cols: number; colSizes?: string; rows: string; cells: Cell[] }
 type View = 'home' | 'about'
@@ -389,6 +562,9 @@ const LAYOUTS: Record<Variant, Record<View, Layout>> = {
 }
 
 
+
+// the arrangement takes the whole width under the field
+const ARRANGED: Layout = frame(`${TOP} auto ${MAIN} auto auto 1fr`, [{ c: 1, r: 3, cs: 2, text: 'arr' }], 5)
 
 /* Fit: the copy never scrolls inside its window. If the block is taller than
    the cell it is zoomed down until it fits, never below 80%, which keeps the
@@ -434,10 +610,10 @@ function GridWindows({ layout, content, mainChild }: { layout: Layout; content: 
         const place: React.CSSProperties = { gridColumn: `${c.c + 1} / span ${c.cs ?? 1}`, gridRow: `${c.r + 1} / span ${c.rs ?? 1}`, boxShadow: wall }
         const key = `${c.text ?? 'win'}-${c.c}-${c.r}`
         if (!c.text) return <div key={key} data-main={c.main ? 1 : undefined} style={{ ...place, position: 'relative' }}>{c.main && mainChild}</div>
-        const cls = c.text === 'blank' ? 'panel blank scrollbar-none' : c.text === 'bar' ? 'panel bar' : 'panel scrollbar-none'
+        const cls = c.text === 'blank' ? 'panel blank scrollbar-none' : c.text === 'bar' ? 'panel bar' : c.text === 'arr' ? 'panel panel-scroll' : 'panel scrollbar-none'
         return (
           <div key={key} className={cls} style={{ ...place, position: 'relative', background: 'var(--bg)', overflowY: 'auto', minWidth: 0, minHeight: 0 }}>
-            {c.text === 'bar' || c.text === 'shell' || c.text === 'cabout' ? content[c.text] : <Fit deps={[layout]}>{content[c.text]}</Fit>}
+            {c.text === 'bar' || c.text === 'shell' || c.text === 'cabout' || c.text === 'arr' ? content[c.text] : <Fit deps={[layout]}>{content[c.text]}</Fit>}
           </div>
         )
       })}
@@ -718,44 +894,67 @@ function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject
 
 /* A window over the field, like an early Mac: a plain title bar, a close box
    with an X, a hard shadow. It drags by its title bar. */
-function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = false, children }: {
+// while a window is dragged or resized, pages inside windows let the pointer through
+const holdPointer = () => {
+  document.body.classList.add('win-dragging')
+  const up = () => { document.body.classList.remove('win-dragging'); window.removeEventListener('pointerup', up) }
+  window.addEventListener('pointerup', up)
+}
+
+function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = false, action, children }: {
   title: string; accent: string; n: number; z: number
-  onClose: () => void; onFocus: () => void; initSize?: { w: number; h: number }; flush?: boolean; children: React.ReactNode
+  onClose: () => void; onFocus: () => void; initSize?: { w: number; h: number }; flush?: boolean; action?: React.ReactNode; children: React.ReactNode
 }) {
-  const [pos, setPos] = useState({ x: 0, y: 0 })
+  // where the window sits in its frame, in pixels, once it has opened
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
   const [size, setSize] = useState<{ w: number; h: number } | null>(initSize ?? null)
   const ref = useRef<HTMLDivElement>(null)
-  /* the grow box, bottom right, like an early Mac. The window is centred on
-     its left edge, so half the extra width goes into the position to keep the
-     top-left corner still while you drag. */
+  // it opens centred, a step down and right of the last one, and inside the frame
+  useLayoutEffect(() => {
+    const el = ref.current, frame = el?.offsetParent as HTMLElement | null
+    if (!el || !frame) return
+    const f = frame.getBoundingClientRect(), r = el.getBoundingClientRect()
+    const w = Math.min(r.width, f.width - 16), h = Math.min(r.height, f.height - 16)
+    if (size && (w !== size.w || h !== size.h)) setSize({ w, h })
+    setPos({
+      x: Math.max(8, Math.min(f.width - w - 8, (f.width - w) / 2 + n * 28)),
+      y: Math.max(8, Math.min(f.height - h - 8, f.height * 0.1 + n * 28)),
+    })
+  }, [])   // eslint-disable-line react-hooks/exhaustive-deps
+  /* the grow box, bottom right: the top-left corner stays put and the bottom
+     right follows the pointer exactly */
   const grow = (e: React.PointerEvent) => {
     e.stopPropagation(); e.preventDefault(); onFocus()
     const el = ref.current
     if (!el) return
     const r = el.getBoundingClientRect()
-    const sx = e.clientX, sy = e.clientY, p0 = pos
-    const move = (ev: PointerEvent) => {
-      const w = Math.max(300, r.width + ev.clientX - sx), h = Math.max(200, r.height + ev.clientY - sy)
-      setSize({ w, h }); setPos({ x: p0.x + (w - r.width) / 2, y: p0.y })
-    }
+    const sx = e.clientX, sy = e.clientY
+    holdPointer()
+    const move = (ev: PointerEvent) => setSize({ w: Math.max(300, r.width + ev.clientX - sx), h: Math.max(200, r.height + ev.clientY - sy) })
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
   }
   const drag = (e: React.PointerEvent) => {
+    if (!pos) return
     onFocus()
     const sx = e.clientX - pos.x, sy = e.clientY - pos.y
-    const move = (ev: PointerEvent) => setPos({ x: ev.clientX - sx, y: ev.clientY - sy })
+    holdPointer()
+    const move = (ev: PointerEvent) => setPos({ x: ev.clientX - sx, y: Math.max(0, ev.clientY - sy) })
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
   }
+  const place: React.CSSProperties = pos
+    ? { left: pos.x, top: pos.y }
+    : { top: `calc(12% + ${n * 28}px)`, left: `calc(50% + ${n * 28}px)`, transform: 'translateX(-50%)', visibility: 'hidden' }
   return (
     <div ref={ref} className="retro-win no-open" onPointerDown={onFocus}
-      style={{ ...(size ? { width: size.w, height: size.h, maxHeight: 'none' } : {}), zIndex: 80 + z, top: `calc(12% + ${n * 28}px)`, left: `calc(50% + ${n * 28}px)`, transform: `translate(calc(-50% + ${pos.x}px), ${pos.y}px)`, ['--accent' as string]: accent }}>
+      style={{ ...(size ? { width: size.w, height: size.h, maxHeight: 'none' } : {}), zIndex: 80 + z, ...place, ['--accent' as string]: accent }}>
       <div className="retro-title" onPointerDown={drag}>
         <button className="retro-close" aria-label={`Close ${title}`} onClick={onClose} onPointerDown={e => e.stopPropagation()}>
           <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden><path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" /></svg>
         </button>
-        <span>{title}</span>
+        <span className="retro-name">{title}</span>
+        {action ? <span className="retro-action" onPointerDown={e => e.stopPropagation()}>{action}</span> : <span className="retro-spacer" />}
       </div>
       <div className={flush ? 'retro-body retro-flush' : 'retro-body'}>{children}</div>
       <div className="retro-grow" onPointerDown={grow} aria-hidden>
@@ -767,11 +966,29 @@ function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = 
 
 // the way into the desktop view, a nod to the Xerox Star
 // the switch between the two versions of the site: this one is the CLI
+/* The CLI <> GUI switch as a Xerox Star property sheet: a label, then the
+   two choices with the picked one inverted. Picking GUI inverts it first,
+   then the page goes. */
+/* The CLI <> GUI switch: the shape of a Xerox Star property sheet choice
+   (a label, then the two choices with the picked one inverted), dressed as
+   the terminal on this side. The GUI side wears the Star version. Picking
+   GUI inverts it first, then the page goes. */
+function SiteToggle() {
+  const [going, setGoing] = useState(false)
+  const go = (e: React.MouseEvent) => { e.preventDefault(); setGoing(true); setTimeout(() => { window.location.href = '/star' }, 260) }
+  return (
+    <span className="tg-sheet tg-mono">
+      <span className="tg-k">% interface</span>
+      <span className="tg-seg2"><b data-on={going ? 0 : 1}>cli</b><a href="/star" onClick={go} data-on={going ? 1 : 0} title="An ode to early interfaces">gui</a></span>
+    </span>
+  )
+}
+
 function StarCredit() {
   return (
     <p className="star-credit">
-      <a className="li-inline" href="https://linkedin.com/in/-defne" target="_blank" rel="noreferrer">LinkedIn ↗</a>
-      <span className="cg"><b>CLI</b> &lt;&gt; <a href="/star" title="An ode to early interfaces">GUI</a></span>
+      <UrlLink className="li-inline" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
+      <SiteToggle />
     </p>
   )
 }
@@ -803,6 +1020,16 @@ export default function Home() {
   const [view, setView] = useState<View>('home')
   const [icons, setIcons] = useState<'line' | 'classic'>('line')
   const [names, setNames] = useState<NameStyle>('mono')
+  const [arrange, setArrange] = useState<Arrange>('fold')
+  const [openMode, setOpenMode] = useState<OpenMode>('tree')
+  // phones always fold, whatever is picked for wide screens
+  const [stacked, setStacked] = useState(false)
+  useEffect(() => {
+    const m = window.matchMedia(STACKED)
+    const f = () => setStacked(m.matches)
+    f(); m.addEventListener('change', f)
+    return () => m.removeEventListener('change', f)
+  }, [])
   /* Windows over the field: About and the projects. Each keeps its own
      stacking order; a new one opens a step down and right of the last. */
   const [wins, setWins] = useState<{ id: string; from: DOMRect | null; z: number; n: number }[]>([])
@@ -815,6 +1042,9 @@ export default function Home() {
       : [...ws, { id, from: el ? el.getBoundingClientRect() : null, z, n: ws.length % 6 }])
   }, [])
   const closeWin = useCallback((id: string) => setWins(ws => ws.filter(w => w.id !== id)), [])
+  // a link opened as a window: its title is kept by its address
+  const urlTitles = useRef<Record<string, string>>({})
+  const openUrl = useCallback((href: string, title: string) => { urlTitles.current[href] = title; openWin('url:' + href) }, [openWin])
   const focusWin = (id: string) => { zTop.current += 1; const z = zTop.current; setWins(ws => ws.map(w => (w.id === id ? { ...w, z } : w))) }
   const winsRef = useRef(wins)
   winsRef.current = wins
@@ -865,6 +1095,7 @@ export default function Home() {
   const listClip = left?.on === 'home' ? `inset(0 0 ${Math.round((1 - left.v) * 100)}% 0)` : undefined
   const typedFor = (block: View) => (typed?.on === block ? typed.text : null)
   const centred = CENTRED(variant)
+  const arr: Arrange = stacked ? 'fold' : arrange
   const viewRef = useRef(view)
   viewRef.current = view
   /* The canvas window resizes from its bottom-right corner. The group stays
@@ -877,7 +1108,8 @@ export default function Home() {
     const r = main.getBoundingClientRect(), sx = e.clientX, sy = e.clientY
     // as big as the frame allows; the text below moves down to make room
     const zone = main.closest('.canvas-zone')?.getBoundingClientRect()
-    const maxH = zone ? zone.bottom - r.top - 24 : window.innerHeight * 0.8
+    // leave room under it for the text to stay readable
+    const maxH = zone ? Math.max(120, zone.bottom - r.top - 380) : window.innerHeight * 0.5
     const move = (ev: PointerEvent) => setFieldBox({
       w: Math.round(Math.min(window.innerWidth - 40, Math.max(360, r.width + (ev.clientX - sx) * 2))),
       h: Math.round(Math.min(maxH, Math.max(100, r.height + ev.clientY - sy))),
@@ -895,12 +1127,28 @@ export default function Home() {
     if (new URLSearchParams(window.location.search).get('i') === 'classic') setIcons('classic')
     const nq = new URLSearchParams(window.location.search).get('n') as NameStyle | null
     if (nq && NAME_STYLES.some(x => x.key === nq)) setNames(nq)
+    const aq = new URLSearchParams(window.location.search).get('a') as Arrange | null
+    if (aq && ARRANGES.some(x => x.key === aq)) setArrange(aq)
+    const oq = new URLSearchParams(window.location.search).get('o') as OpenMode | null
+    if (oq && OPEN_MODES.some(x => x.key === oq)) setOpenMode(oq)
     setIsLocal(['localhost', '127.0.0.1'].includes(window.location.hostname))
   }, [])
   const pickVariant = (v: Variant) => {
     setVariant(v); setView('home')
     const u = new URL(window.location.href)
     if (v === 'stack') u.searchParams.delete('v'); else u.searchParams.set('v', v)
+    window.history.replaceState(null, '', u)
+  }
+  const pickArrange = (v: Arrange) => {
+    setArrange(v); setView('home')
+    const u = new URL(window.location.href)
+    if (v === 'fold') u.searchParams.delete('a'); else u.searchParams.set('a', v)
+    window.history.replaceState(null, '', u)
+  }
+  const pickOpen = (v: OpenMode) => {
+    setOpenMode(v)
+    const u = new URL(window.location.href)
+    if (v === 'tree') u.searchParams.delete('o'); else u.searchParams.set('o', v)
     window.history.replaceState(null, '', u)
   }
   const pickNames = (v: NameStyle) => {
@@ -1000,14 +1248,9 @@ export default function Home() {
       if (isStacked()) return
       const t = e.target as HTMLElement
       if (t?.closest('.no-open')) return
-      /* On a short screen the copy scrolls inside its window. Let it finish
-         scrolling before the wheel starts opening the field, or the text fades
-         out from under the reader mid-sentence. */
-      const panel = t?.closest('.panel') as HTMLElement | null
-      if (panel) {
-        const more = panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1
-        if ((e.deltaY > 0 && more) || (e.deltaY < 0 && panel.scrollTop > 0)) return
-      }
+      /* Only the field opens the field. Over the text the wheel scrolls the
+         text and nothing else, so reading never fades the page out. */
+      if (t?.closest('.panel')) return
       setOpen(v => Math.min(1, Math.max(0, v + e.deltaY / 900)))
     }
     const onResize = () => { if (isStacked()) setOpen(0) }
@@ -1049,6 +1292,7 @@ export default function Home() {
   }, [award])
 
   return (
+    <UrlCtx.Provider value={openUrl}>
     <div
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
@@ -1156,20 +1400,57 @@ export default function Home() {
         /* project name styles */
         .nm-mono { font-family: var(--font-mono); font-size: 1.05rem; }
         .nm-award { font-size: 0.85rem; white-space: nowrap; }
-        .nm-ls { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1.4rem; align-items: baseline; }
-        .nm-ls-row { display: contents; font-family: var(--font-mono); font-size: 1rem; color: var(--ink); text-decoration: none; }
-        .nm-ls-year { color: var(--award); }
-        .nm-ls-row:hover .nm-ls-name { background: var(--ink); color: var(--bg); }
-        .nm-buttons { display: flex; flex-wrap: wrap; gap: 0.7rem 0.6rem; }
-        /* Xerox Star command buttons: a small rounded box, no shadow; pointed at or pressed, it inverts */
-        .nm-button { display: inline-flex; align-items: center; gap: 0.4rem; height: 1.9rem; padding: 0 0.75rem; border: 1.5px solid var(--ink); border-radius: 5px;
-          background: var(--bg); color: var(--ink); text-decoration: none; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 0.98rem; }
-        .nm-button:hover, .nm-button:active { background: var(--ink); color: var(--bg); }
-        .nm-button:active { transform: translate(1px, 1px); }
-        .nm-star { color: var(--award); }
-        .nm-button:hover .nm-star { color: var(--bg); }
+        /* Dated: ls -l, the columns lined up */
+        .ls-row { display: grid !important; grid-template-columns: 10ch 5ch 4ch 1fr; column-gap: 1.6ch; align-items: baseline; }
+        .ls-row .nm-award { white-space: normal; }
+        @media (max-width: 600px) { .ls-row { grid-template-columns: 4ch 1fr; } .ls-perm { display: none; } }
         
         .ls-second { margin-top: 1.3rem; }
+
+        /* the arrangements under the field */
+        .ar-cmd { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 0; cursor: pointer;
+          font-family: var(--font-mono); font-size: 1rem; line-height: 2.3; color: var(--award); white-space: nowrap; }
+        .ar-cmd > span { color: var(--ink); }
+        .ar-hop { animation: arHop .4s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes arHop { from { opacity: 0; transform: translateY(8px); } }
+        @media (prefers-reduced-motion: reduce) { .ar-hop { animation: none; } }
+        .ar-gap { margin-top: 1.6rem; }
+        .ar-panes { display: grid; grid-template-columns: 15rem 1fr; gap: 3rem; align-items: start; }
+        .ar-panes .ar-cmd { padding: 0 0.6rem; }
+        .ar-pane { min-width: 0; }
+        .ar-pane .about-paras, .ar-pane > p { max-width: none; }
+        .ar-panes .ar-cmd[data-on="1"] { background: var(--ink); color: var(--bg); }
+        .ar-panes .ar-cmd[data-on="1"] > span { color: var(--bg); }
+        .ar-fold { max-width: none; }
+        .ar-item + .ar-item { border-top: 1px solid var(--hairline); }
+        .ar-fold .ar-cmd { line-height: 1; padding: 0.95rem 0; }
+        .ar-out { padding: 0 0 1.1rem; }
+        .sky-row { display: none; }
+        /* the text under the field scrolls in place when it runs long, and shows it */
+        .panel-scroll { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 45%, transparent) transparent; }
+        .panel-scroll::-webkit-scrollbar { width: 6px; }
+        .panel-scroll::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 45%, transparent); }
+        /* the project that's open: selected, like highlighted text in a terminal */
+        .pl[data-on="1"] .pl-dir { background: var(--ink); color: var(--bg); }
+        .pl-list .pl[data-on="1"] { opacity: 1 !important; }
+        /* a project opened in the terminal */
+        .pv-files { display: flex; flex-wrap: wrap; gap: 0.3rem 1.6rem; font-family: var(--font-mono); font-size: 1rem; }
+        .pv-file { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
+        .pv-file:hover { color: var(--award); }
+        .pv-plain { text-decoration: none; }
+        .pv-points { list-style: none; margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; max-width: 72ch; }
+        .pv-points li::before { content: '- '; font-family: var(--font-mono); }
+        .pv-inline { padding: 0.5rem 0 0.9rem 2ch; }
+        .pv-inline .bio-prompt { margin-bottom: 0.3rem; }
+        .pv-gap { margin-top: 0.8rem; }
+        .ar-panes .pv-inline .ar-cmd, .pv-inline .ar-cmd { padding: 0; line-height: 1.5; white-space: normal; }
+        .pv-inline p, .pv-inline ul { max-width: 72ch; }
+        .pv-tree { font-family: var(--font-mono); font-size: 1rem; padding: 0.3rem 0 0.7rem 0.5ch; }
+        .pv-node { position: relative; padding: 0.15rem 0 0.15rem 2.4rem; }
+        .pv-node::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1.5px solid var(--ink); }
+        .pv-node:last-child::before { bottom: auto; height: 0.95em; }
+        .pv-node::after { content: ''; position: absolute; left: 0; top: 0.95em; width: 1.7rem; border-top: 1.5px solid var(--ink); }
+        .pv-node p { max-width: 62ch; margin: 0.2rem 0 0.3rem; }
         .bio-head { margin-bottom: -0.5rem; }
 
         /* Centre and Stack: no strip and no footer. A bar over the field holds
@@ -1229,10 +1510,19 @@ export default function Home() {
         .star-credit a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
         .star-credit a:hover { color: var(--award); }
         /* the CLI <> GUI switch, styled the same on /star */
-        .cg { display: inline-block; padding: 3px 8px; border: 1.5px solid var(--ink); background: var(--bg); font-family: var(--font-mono); font-size: 13px; line-height: 1.4; color: var(--ink); }
-        .cg b { font-weight: 400; background: var(--ink); color: var(--bg); padding: 0 4px; }
-        .star-credit .cg a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; padding: 0 2px; }
-        .star-credit .cg a:hover { background: var(--ink); color: var(--bg); text-decoration: none; }
+        /* the switch */
+        .tg-sheet { display: inline-flex; align-items: center; color: var(--ink); gap: 0.6rem; font-family: var(--font-main); font-size: 14px; }
+        .tg-k { font-weight: 600; }
+        .tg-seg2 { display: inline-flex; border: 1.5px solid var(--ink); background: var(--bg); }
+        .tg-seg2 > * { height: 28px; display: flex; align-items: center; padding: 0 12px; font-weight: 400; color: var(--ink); text-decoration: none; }
+        .tg-seg2 > * + * { border-left: 1.5px solid var(--ink); }
+        .tg-seg2 > [data-on="1"] { background: var(--ink); color: var(--bg); }
+        .tg-seg2 > a:hover { text-decoration: underline; }
+        .star-credit .tg-seg2 a { text-decoration: none; }
+        /* the terminal dress: the same shape in the mono face */
+        .tg-mono { font-family: var(--font-mono); }
+        .tg-mono .tg-k { font-weight: 400; color: var(--award); }
+        .star-credit .tg-seg2 a:hover { text-decoration: underline; }
         .about-inline, .li-inline { display: none; }
         .li-inline { margin-right: 1.2rem; }
         .star-credit-float { position: absolute; right: 20px; bottom: 16px; z-index: 20; }
@@ -1266,10 +1556,12 @@ export default function Home() {
           border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
           /* the project's colour runs along the top edge, the one bit of colour on the window */
           border-top: 5px solid color-mix(in srgb, var(--accent) 80%, var(--ink)); }
-        .retro-title { position: relative; flex-shrink: 0; height: 26px; display: flex; align-items: center; justify-content: center;
+        .retro-title { position: relative; flex-shrink: 0; height: 26px; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 7px;
           border-bottom: 1.5px solid var(--ink); touch-action: none; }
         .retro-title span { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1; color: inherit; }
-        .retro-close { position: absolute; left: 7px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; padding: 0;
+        .retro-name { flex: 1; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .retro-spacer { width: 15px; flex-shrink: 0; }
+        .retro-close { flex-shrink: 0; width: 15px; height: 15px; padding: 0;
           display: flex; align-items: center; justify-content: center; color: var(--ink); background: var(--bg); border: 1.5px solid var(--ink); }
         .retro-close:hover { background: var(--ink); color: var(--bg); }
         .retro-grow { position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
@@ -1277,6 +1569,14 @@ export default function Home() {
         .retro-body { flex: 1; min-height: 0; }
         .retro-body { padding: 1rem 1.15rem 1.15rem; overflow-y: auto; font-family: var(--font-mono); }
 
+        /* a link opened as a window: the page fills it, Open in new tab sits top right */
+        .retro-action { flex-shrink: 0; white-space: nowrap; }
+        .retro-newtab { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink); text-decoration: none; padding: 1px 4px; }
+        .retro-newtab:hover { background: var(--ink); color: var(--bg); }
+        .retro-flush { padding: 0 !important; overflow: hidden !important; display: flex; }
+        body.win-dragging iframe { pointer-events: none; }
+        body.win-dragging, body.win-dragging * { user-select: none; }
+        .retro-frame { flex: 1; width: 100%; height: 100%; border: 0; background: #fff; }
         /* About in a window reads plain */
         .about-plain p { font-size: 0.95rem; line-height: 1.65; color: inherit; }
         .about-plain p + p { margin-top: 0.8rem; }
@@ -1391,6 +1691,10 @@ export default function Home() {
           .about-top { flex-wrap: wrap; }
           .shell-pop { max-width: calc(100vw - 2.5rem); }
           .star-credit-float { order: 3; }
+          .sky-row { display: flex; order: 1; justify-content: space-between; padding: 0.2rem 0.6rem; border-bottom: 1px solid var(--hairline); }
+          .sky-row button { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: none; border: 0; color: var(--ink); padding: 0; }
+          .sky-row button[data-on="1"] { background: var(--ink); color: var(--bg); }
+          .ar-fold .ar-cmd { padding: 0.85rem 0; }
         }
 
 
@@ -1457,6 +1761,8 @@ export default function Home() {
           </button>
         </div>
 
+        <SkyRow cur={(wx ?? live)?.s ?? 'clear'} onPick={s => setWx({ p: (wx ?? live)?.p ?? periodOf(), s })} />
+
         {/* field controls belong to the animation, not the nav; in the centre
             layout the square sits in the field's own corner instead */}
         {!centred && (
@@ -1467,7 +1773,7 @@ export default function Home() {
           opacity: bioDone ? 1 : 0, pointerEvents: bioDone ? 'auto' : 'none',
           transition: 'opacity .5s ease',
         }}>
-          <WeatherControl override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
+          <WeatherControl term override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
         </div>
         )}
 
@@ -1483,7 +1789,7 @@ export default function Home() {
         <IconStyleCtx.Provider value={icons}>
         <NameCtx.Provider value={names}>
         <OpenCtx.Provider value={openProject}>
-        <GridWindows layout={sized(LAYOUTS[variant][view])}
+        <GridWindows layout={sized(centred && view === 'home' ? ARRANGED : LAYOUTS[variant][view])}
           mainChild={<div className="field-grip no-open" onPointerDown={growField} onDoubleClick={() => setFieldBox(null)} title="Drag to resize · double-click to reset" />}
           content={{
             blank: null,
@@ -1492,11 +1798,10 @@ export default function Home() {
                 <span className="home-title">{HOME_DIR}</span>
                 <div className="home-right">
                   <div className="home-links">
-                    <a className="back-link" href="/about" onClick={e => { e.preventDefault(); goTo(view === 'about' ? 'home' : 'about') }}>{view === 'about' ? 'My spiel' : 'About'}</a>
-                    <a className="back-link" href="https://linkedin.com/in/-defne" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+                    <UrlLink className="back-link" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
                   </div>
-                  <div className="no-open" style={{ opacity: bioDone ? 1 : 0, pointerEvents: bioDone ? 'auto' : 'none', transition: 'opacity .5s ease' }}>
-                    <WeatherControl override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
+                  <div className="no-open">
+                    <WeatherControl term override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
                   </div>
                 </div>
               </div>
@@ -1507,6 +1812,7 @@ export default function Home() {
             cproj: <Work part="projects" />,
             clists: <div className="lists-2" style={{ clipPath: listClip }}><Work part="projects" /><Work part="tidbits" /></div>,
             ctid: <Work part="tidbits" />,
+            arr: <div style={{ paddingTop: '0.4rem' }}><Arranged key={arr} kind={arr} openMode={openMode} onBioDone={onBioDone} /></div>,
             cabout: <div style={{ paddingTop: '0.4rem' }}><AboutText onBack={() => goTo('home')} typed={typedFor('about')} left={leftFor('about')} cols /></div>,
             about: <div style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.4rem' }}><AboutText onBack={() => goTo('home')} typed={typedFor('about')} left={leftFor('about')} /><Shell api={shellApi} runRef={shellRun} /></div>,
             // Live: the bio and the lists side by side in the bottom-left window
@@ -1524,6 +1830,17 @@ export default function Home() {
 
         {/* the window style: About over the field */}
         {wins.map(w => {
+          if (w.id.startsWith('url:')) {
+            const href = w.id.slice(4)
+            const newTab = <a href={href} target="_blank" rel="noreferrer" className="retro-newtab">Open in new tab ↗</a>
+            return (
+              <RetroWindow key={w.id} title={`${urlTitles.current[href] ?? hostOf(href)} · ${hostOf(href)}`} accent="var(--award)" flush action={newTab}
+                n={w.n} z={w.z} onClose={() => closeWin(w.id)} onFocus={() => focusWin(w.id)}
+                initSize={{ w: Math.min(980, window.innerWidth - 32), h: Math.min(640, Math.round(window.innerHeight * 0.72)) }}>
+                <iframe className="retro-frame" src={embedOf(href)} title={urlTitles.current[href] ?? href} />
+              </RetroWindow>
+            )
+          }
           const card = CARDS[w.id]
           return (
             <RetroWindow key={w.id}
@@ -1553,6 +1870,16 @@ export default function Home() {
           <div className="v-row"><span>Layout</span>
             {VARIANTS.map(v => (
               <button key={v.key} data-on={variant === v.key ? 1 : 0} onClick={() => pickVariant(v.key)}>{v.label}</button>
+            ))}
+          </div>
+          <div className="v-row"><span>Text</span>
+            {ARRANGES.map(v => (
+              <button key={v.key} data-on={arrange === v.key ? 1 : 0} onClick={() => pickArrange(v.key)}>{v.label}</button>
+            ))}
+          </div>
+          <div className="v-row"><span>Open</span>
+            {OPEN_MODES.map(v => (
+              <button key={v.key} data-on={openMode === v.key ? 1 : 0} onClick={() => pickOpen(v.key)}>{v.label}</button>
             ))}
           </div>
           <div className="v-row"><span>Names</span>
@@ -1610,5 +1937,6 @@ export default function Home() {
       )}
 
     </div>
+    </UrlCtx.Provider>
   )
             }

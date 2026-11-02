@@ -269,21 +269,8 @@ function Story({ place }: { place?: string | null }) {
 
 // ── the picker: every hour × sky as a 5×7 grid ─────────────────────────────
 
-/* The weather panel is a Xerox Star window: a striped title bar with
-   rounded command buttons (Close, Reset), then the story and the grid, with
-   the display theme as a property row of joined choices. */
-export function PanelA({ override, setOverride, live, place, light, theme, setTheme, onClose }: PanelProps) {
-  const cur: Cell | null = override ?? live
-  const [hover, setHover] = useState<Cell | null>(null)
-  return (
-    <div className="wv-pop wv-star" style={{ ['--wv-w' as string]: '460px' }}>
-      <div className="st-head">
-        {onClose && <button className="st-cmd" onClick={onClose}>Close</button>}
-        <button className="st-cmd" onClick={() => setOverride(null)} disabled={!override}>Reset</button>
-        <span className="st-title">Field Properties</span>
-      </div>
-      <div className="st-body">
-      <style>{`
+// the grid's own styles, shared by the Star panel and the shell panel
+const GRID_CSS = `
         .wa-grid { display: grid; grid-template-columns: auto repeat(7, minmax(0, 1fr)); gap: 5px; align-items: center; margin-top: 1.1rem; }
         .wa-row { font-size: 0.9rem; font-weight: 400; padding-right: 0.45rem; white-space: nowrap; line-height: 1.1; transition: color .12s; }
         .wa-col { display: flex; justify-content: center; padding-bottom: 4px; transition: color .12s; }
@@ -310,6 +297,25 @@ export function PanelA({ override, setOverride, live, place, light, theme, setTh
         .wa-classic[data-live="1"] { background: var(--bg); overflow: hidden; }
         .wa-cell:hover .wa-classic { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
         .wa-cell[data-on="1"] .wa-classic { outline: 2px solid var(--ink); outline-offset: 2px; }
+`
+
+
+/* The weather panel is a Xerox Star window: a striped title bar with
+   rounded command buttons (Close, Reset), then the story and the grid, with
+   the display theme as a property row of joined choices. */
+export function PanelA({ override, setOverride, live, place, light, theme, setTheme, onClose }: PanelProps) {
+  const cur: Cell | null = override ?? live
+  const [hover, setHover] = useState<Cell | null>(null)
+  return (
+    <div className="wv-pop wv-star" style={{ ['--wv-w' as string]: '460px' }}>
+      <div className="st-head">
+        {onClose && <button className="st-cmd" onClick={onClose}>Close</button>}
+        <button className="st-cmd" onClick={() => setOverride(null)} disabled={!override}>Reset</button>
+        <span className="st-title">Field Properties</span>
+      </div>
+      <div className="st-body">
+      <style>{`
+        ${GRID_CSS}
         /* the Star window */
         .wv-pop.wv-star { padding: 0; border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); animation: none;
           font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
@@ -359,6 +365,87 @@ export function PanelA({ override, setOverride, live, place, light, theme, setTh
             {(['light', 'dark'] as const).map(t => (
               <button key={t} aria-pressed={theme === t} onClick={() => setTheme(t)}>{t === 'light' ? 'Light' : 'Dark'}</button>
             ))}
+          </div>
+        </div>
+      )}
+      </div>
+    </div>
+  )
+}
+
+/* The CLI side's weather panel: the same story and grid, as output in a
+   shell box (the same box long shell output opens in), so the little fields
+   still play. Each part is the command that printed it. */
+export function PanelTerm({ override, setOverride, live, place, light, theme, setTheme, onClose }: PanelProps) {
+  const cur: Cell | null = override ?? live
+  const [hover, setHover] = useState<Cell | null>(null)
+  // a terminal window: drag it by its title bar, anywhere on the page
+  const [pos, setPos] = useState({ x: 0, y: 0 })
+  const drag = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return
+    e.preventDefault()
+    const sx = e.clientX - pos.x, sy = e.clientY - pos.y
+    const move = (ev: PointerEvent) => setPos({ x: ev.clientX - sx, y: ev.clientY - sy })
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
+  return (
+    <div className="wv-pop wv-term" style={{ ['--wv-w' as string]: '480px', transform: `translate(${pos.x}px, ${pos.y}px)` }}>
+      <style>{GRID_CSS + `
+        /* opens clear of the field's resize corner, which sits on the right edge */
+        .wv-pop.wv-term { right: 2.75rem; }
+        @media (max-width: 860px) { .wv-pop.wv-term { right: 0; } }
+        .wv-pop.wv-term { padding: 0; border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); border-radius: 0; animation: none; font-family: var(--font-mono); }
+        .wt-bar { position: sticky; top: 0; z-index: 2; height: 26px; display: flex; align-items: center; justify-content: center; background: var(--bg);
+          border-bottom: 1.5px solid var(--ink); font-size: 0.85rem; cursor: move; touch-action: none; user-select: none; }
+        .wt-body { padding: 0.8rem 1rem 1rem; }
+        .wt-x { position: absolute; top: 50%; left: 7px; transform: translateY(-50%); width: 15px; height: 15px; padding: 0; display: flex; align-items: center; justify-content: center;
+          color: var(--ink); background: var(--bg); border: 1.5px solid var(--ink); cursor: pointer; }
+        .wt-x:hover { background: var(--ink); color: var(--bg); }
+        .wt-cmd { font-size: 0.92rem; color: var(--award); margin: 0 0 0.45rem; }
+        .wt-cmd > span { color: var(--ink); }
+        .wt-cmd + .wt-cmd, * + .wt-cmd { margin-top: 1rem; }
+        .wt-body > .wt-cmd:first-child { margin-top: 0; }
+        .wv-term .wx-intro { font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; padding-right: 1.2rem; }
+        .wv-term .wa-grid { margin-top: 0.2rem; }
+        .wv-term .wa-row { font-size: 0.86rem; text-transform: lowercase; }
+        .wt-line { display: flex; align-items: center; gap: 0.7rem; font-size: 0.9rem; }
+        .wt-seg { display: inline-flex; border: 1.5px solid var(--ink); }
+        .wt-seg button { height: 26px; padding: 0 10px; border: 0; background: var(--bg); font: inherit; font-size: 0.88rem; cursor: pointer; color: var(--ink); }
+        .wt-seg button + button { border-left: 1.5px solid var(--ink); }
+        .wt-seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+        .wt-reset { background: none; border: 0; padding: 0; font: inherit; font-size: 0.9rem; color: var(--award); cursor: pointer; text-align: left; }
+        .wt-reset:hover { text-decoration: underline; }
+      `}</style>
+      <div className="wt-bar" onPointerDown={drag}>
+        {onClose && (
+          <button className="wt-x" aria-label="Close" onClick={onClose}>
+            <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden><path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" /></svg>
+          </button>
+        )}
+        <span>weather</span>
+      </div>
+      <div className="wt-body">
+      <div className="wt-cmd"><span>%</span> cat weather.txt</div>
+      <Story place={place} />
+      <div className="wt-cmd"><span>%</span> weather --pick</div>
+      <div className="wa-grid" onMouseLeave={() => setHover(null)}>
+        <span />
+        {SKIES.map(s => {
+          const Icon = SKY_ICON[s]
+          return <span key={s} className="wa-col" title={SKY_NAME[s]} data-hot={hover?.s === s ? 1 : 0}><Icon size={15} /></span>
+        })}
+        {ALL_PERIODS.map(p => (
+          <Row key={p} p={p} cur={cur} live={live} light={light} hot={hover?.p === p} hover={hover}
+            onPick={c => setOverride(same(c, live) ? null : c)} onHover={setHover} />
+        ))}
+      </div>
+      {override && <button className="wt-reset" style={{ marginTop: '0.8rem' }} onClick={() => setOverride(null)}>% weather --reset</button>}
+      {setTheme && (
+        <div className="wt-line" style={{ marginTop: '1rem' }}>
+          <span className="wt-cmd" style={{ margin: 0 }}><span>%</span> theme</span>
+          <div className="wt-seg">
+            {(['light', 'dark'] as const).map(t => <button key={t} aria-pressed={theme === t} onClick={() => setTheme(t)}>{t}</button>)}
           </div>
         </div>
       )}
