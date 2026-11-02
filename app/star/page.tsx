@@ -624,7 +624,7 @@ export default function Star() {
       <StarWindow key={w.id} {...common} title="About me" onClose={() => close('about')}>
         <div className="vp">
           <header><h1>About me</h1><p className="vp-sub">Defne Gen\u00e7. Istanbul, Stanford, New York</p></header>
-          <div className="vp-cols">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} />)}</div>
+          <div className="vp-cols">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} side="gui" />)}</div>
         </div>
       </StarWindow>
     )
