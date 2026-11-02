@@ -73,7 +73,11 @@ const PARC_SOURCE = 'https://web.stanford.edu/dept/SUL/sites/mac/parc.html'
    abstract page refuses frames, its PDF doesn't. */
 const NO_FRAME = ['linkedin.com', 'learningetal.com']
 const framable = (url: string) => !NO_FRAME.some(d => url.includes(d))
-const embedOf = (url: string) => url.replace('arxiv.org/abs/', 'arxiv.org/pdf/')
+// PDFs open without the viewer's thumbnail sidebar, fitted to the window's width
+const embedOf = (url: string) => {
+  const u = url.replace('arxiv.org/abs/', 'arxiv.org/pdf/')
+  return /\.pdf$|arxiv\.org\/pdf\//.test(u) ? `${u}#navpanes=0&view=FitH` : u
+}
 // the sources, each opens in a browser window on the desk
 const SOURCES: { title: string; by: string; url: string }[] = [
   { title: 'The Xerox PARC Visit', by: 'Stanford Libraries', url: PARC_SOURCE },
