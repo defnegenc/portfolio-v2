@@ -363,6 +363,16 @@ const FileLink = ({ f }: { f: { file: string; href?: string } }) => (f.href
   ? <UrlLink className="pv-file" href={f.href} title={f.file}>{f.file}</UrlLink>
   : <span className="pv-file pv-plain">{f.file}</span>)
 
+/* What each file in a project folder is, shown as a shell comment beside it. */
+const fileNote = (slug: string, file: string) => {
+  if (file === 'description.txt') return 'what it is'
+  if (file === 'paper.pdf') return slug === 'bloom' ? 'the CHI 2026 paper' : 'the paper'
+  if (file === 'app-guide.pdf') return 'how the app works'
+  if (file === 'case-study.url') return 'the full case study'
+  if (file.endsWith('.url')) return 'the live site'
+  return ''
+}
+
 function ProjectView({ slug, mode, onBack }: { slug: string; mode: OpenMode; onBack: () => void }) {
   const card = CARDS[slug], item = itemOf(slug), files = filesOf(slug)
   const nameOf = useDirOf()
@@ -385,7 +395,7 @@ function ProjectView({ slug, mode, onBack }: { slug: string; mode: OpenMode; onB
       {/* the branches are drawn, not typed: the mono face has no box glyphs */}
       {files.map(f => (
         <div key={f.file} className="pv-node">
-          {fileOf(f)}
+          {fileOf(f)}{fileNote(slug, f.file) && <span className="nm-note pv-note"> # {fileNote(slug, f.file)}</span>}
           {f.file === 'description.txt' && readme && <p className="ar-hop" style={TEXT_STYLE}>{card.text}</p>}
         </div>
       ))}
@@ -1680,6 +1690,11 @@ export default function Home() {
         .ar-open { text-decoration: none; display: flex; align-items: baseline; gap: 1.2ch; }
         .ar-open em { font-style: normal; color: var(--ink); }
         .ar-open:hover em { background: var(--ink); color: var(--bg); }
+        /* a file's comment shows when you point at the file; touch screens skip it */
+        .pv-note { white-space: pre; opacity: 0; transition: opacity .15s; }
+        .pv-node:hover .pv-note, .pv-node:focus-within .pv-note { opacity: 1; }
+        @media (hover: none) { .pv-note { display: none; } }
+        .pv-file { white-space: nowrap; }
         .pv-rowv { padding: 0.35rem 0 0.7rem 2ch; }
         .pv-btn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
         .pv-btn[data-on="1"] { background: var(--ink); color: var(--bg); text-decoration: none; }
