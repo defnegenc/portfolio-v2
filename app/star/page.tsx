@@ -68,6 +68,12 @@ const STAR_HISTORY = [
 ]
 // where [Xerox PARC] and the source line point
 const PARC_SOURCE = 'https://web.stanford.edu/dept/SUL/sites/mac/parc.html'
+/* Links open in a browser window on the desk. Sites that refuse to be shown
+   inside another site (LinkedIn, learningetal.com) open in a new tab. arXiv's
+   abstract page refuses frames, its PDF doesn't. */
+const NO_FRAME = ['linkedin.com', 'learningetal.com']
+const framable = (url: string) => !NO_FRAME.some(d => url.includes(d))
+const embedOf = (url: string) => url.replace('arxiv.org/abs/', 'arxiv.org/pdf/')
 // the sources, each opens in a browser window on the desk
 const SOURCES: { title: string; by: string; url: string }[] = [
   { title: 'The Xerox PARC Visit', by: 'Stanford Libraries', url: PARC_SOURCE },
@@ -153,7 +159,7 @@ function StarIcon({ pict, label, pressed, title, onClick, at, onMove }: {
 /* A project's Description, set like a page made on the Star: a bold title,
    the overview beside its first figure, the subtitle in italics, then the
    highlights in narrow columns and the other figures in a row. */
-function ViewPointDoc({ id }: { id: string }) {
+function ViewPointDoc({ id, onOpen }: { id: string; onOpen: (url: string, title: string) => void }) {
   const c = CARDS[id]
   const pics = PICTURES[id] ?? []
   // a bullet like "What I did: ..." becomes an italic run-in subhead
@@ -176,15 +182,15 @@ function ViewPointDoc({ id }: { id: string }) {
       </div>
       {c.points && <div className="vp2-cols">{c.points.map(runIn)}</div>}
       {pics.length > 1 && <div className="vp2-figs">{pics.slice(1).map((pc, i) => fig(pc, i + 2))}</div>}
-      <p className="vp2-visit"><a href={c.link.href} target="_blank" rel="noreferrer">{c.link.label} ↗</a></p>
+      <p className="vp2-visit"><a href={c.link.href} target="_blank" rel="noreferrer" onClick={e => { e.preventDefault(); onOpen(c.link.href, c.link.label) }}>{c.link.label} ↗</a></p>
     </div>
   )
 }
 
 type Win = { id: string; x: number; y: number; w: number; h: number; z: number }
 
-function StarWindow({ win, title, buttons = [], onClose, onFocus, onMove, onSize, flush = false, children }: {
-  win: Win; title: string; buttons?: [string, () => void][]; onClose?: () => void; onFocus: () => void
+function StarWindow({ win, title, buttons = [], end, onClose, onFocus, onMove, onSize, flush = false, children }: {
+  win: Win; title: string; buttons?: [string, () => void][]; end?: React.ReactNode; onClose?: () => void; onFocus: () => void
   onMove: (x: number, y: number) => void; onSize: (w: number, h: number) => void; flush?: boolean; children: React.ReactNode
 }) {
   const scroll = useRef<HTMLDivElement>(null)
@@ -244,6 +250,7 @@ function StarWindow({ win, title, buttons = [], onClose, onFocus, onMove, onSize
       <div className="head" onPointerDown={drag}>
         {cmds.map(([label, fn]) => <button key={label} className="cmd" onPointerDown={e => e.stopPropagation()} onClick={fn}>{label}</button>)}
         <span className="title">{title}</span>
+        {end && <span className="head-end" onPointerDown={e => e.stopPropagation()}>{end}</span>}
       </div>
       <div className="body">
         {flush ? children : <>
@@ -430,7 +437,12 @@ export default function Star() {
 
 
   const [webUrl, setWebUrl] = useState(PARC_SOURCE)
-  const browse = (url: string) => (e: React.MouseEvent) => { e.preventDefault(); setWebUrl(url); open('web', 820, Math.min(700, innerHeight - 60)) }
+  const [webTitle, setWebTitle] = useState<string | null>(null)
+  const openWeb = (url: string, title?: string) => {
+    if (!framable(url)) { window.open(url, '_blank'); return }
+    setWebUrl(url); setWebTitle(title ?? null); open('web', 820, Math.min(700, innerHeight - 60))
+  }
+  const browse = (url: string) => (e: React.MouseEvent) => { e.preventDefault(); openWeb(url) }
   const content = (w: Win) => {
     const common = { win: w, onFocus: () => focus(w.id), onMove: move(w.id), onSize: size(w.id) }
     /* Every field window works the same way: Close, Properties (its hour,
@@ -449,13 +461,10 @@ export default function Star() {
         <StarWindow key={w.id} {...common} flush
           title={`Field: ${SKIES.find(x => x[0] === sk)?.[1]}, ${HOURS.find(h => h[0] === p)?.[1].toLowerCase()}${main && !pick && sky?.place ? ` in ${sky.place}` : ''}`}
           onClose={() => { close(w.id); if (!main) setFields(f => { const n = { ...f }; delete n[w.id]; return n }) }}
-          buttons={[['Properties', flip]]}>
+          buttons={[['Properties', flip]]}
+          end={<button className="cmd cmd-black" onClick={newField} title="New field" aria-label="New field"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden><path d="M5 0v10M0 5h10" stroke="currentColor" strokeWidth="2" /></svg></button>}>
           <div className="fw">
             <div className="field">
-              {/* another field, from the field itself */}
-              <button className="new-field" onClick={newField} title="New field" aria-label="New field">
-                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden><path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" /></svg>
-              </button>
               <AsciiCanvas breathe={lk.motion === 'breathe'} motion={lk.motion} render={lk.render} hover={lk.hover}
                 lightMode={theme === 'light'} chars="▓▒░" color={lk.color ?? undefined} message={SPIEL} />
             </div>
@@ -499,7 +508,7 @@ export default function Star() {
       const id = w.id.slice(7)
       const go = (e: Entry) => {
         if (e.kind === 'doc') open(`desc:${id}`, 780, 420)
-        else if (e.href) (e.href.startsWith('http') || e.href.endsWith('.pdf') ? window.open(e.href, '_blank') : (location.href = e.href))
+        else if (e.href) openWeb(e.href, `${CARDS[id].title}: ${e.name}`)
       }
       return (
         <StarWindow key={w.id} {...common} title={CARDS[id].title} onClose={() => close(w.id)}>
@@ -518,18 +527,18 @@ export default function Star() {
       const c = CARDS[w.id.slice(5)]
       return (
         <StarWindow key={w.id} {...common} title={`${c.title}: Description`} onClose={() => close(w.id)}>
-          <ViewPointDoc id={w.id.slice(5)} />
+          <ViewPointDoc id={w.id.slice(5)} onOpen={openWeb} />
         </StarWindow>
       )
     }
 
     // a browser window: the page itself, inside the desktop
     if (w.id === 'web') return (
-      <StarWindow key={w.id} {...common} flush title={SOURCES.find(x => x.url === webUrl)?.title ?? 'Browser'} onClose={() => close('web')}
+      <StarWindow key={w.id} {...common} flush title={webTitle ?? SOURCES.find(x => x.url === webUrl)?.title ?? 'Browser'} onClose={() => close('web')}
         buttons={[['Open in new tab', () => window.open(webUrl, '_blank')]]}>
         <div className="web">
           <div className="web-url">{webUrl}</div>
-          <iframe key={webUrl} src={webUrl} title={SOURCES.find(x => x.url === webUrl)?.title ?? 'Browser'} />
+          <iframe key={webUrl} src={embedOf(webUrl)} title={webTitle ?? SOURCES.find(x => x.url === webUrl)?.title ?? 'Browser'} />
         </div>
       </StarWindow>
     )
@@ -581,12 +590,12 @@ export default function Star() {
     const ext = c.link.href.startsWith('http')
     return (
       <StarWindow key={w.id} {...common} title={c.title} onClose={() => close(w.id)}
-        buttons={[['Visit', () => (ext ? window.open(c.link.href, '_blank') : (location.href = c.link.href))]]}>
+        buttons={[['Visit', () => openWeb(c.link.href, c.title)]]}>
         <div className="doc">
           {c.image && <img src={c.image} alt="" />}
           <p>{c.text}</p>
           {c.points && <ul>{c.points.map(t => <li key={t}>{t}</li>)}</ul>}
-          <div className="link"><a href={c.link.href} target={ext ? '_blank' : undefined} rel="noreferrer">{c.link.label} ↗</a></div>
+          <div className="link"><a href={c.link.href} target={ext ? '_blank' : undefined} rel="noreferrer" onClick={e => { e.preventDefault(); openWeb(c.link.href, c.title) }}>{c.link.label} ↗</a></div>
         </div>
       </StarWindow>
     )
@@ -744,10 +753,10 @@ const CSS = `
   .cg-seg b { background: var(--ink); color: var(--paper); }
   .cg-seg a:hover { text-decoration: underline; }
   /* property sheet */
-  .new-field { position: absolute; top: 10px; right: 10px; z-index: 3; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-    padding: 0; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--paper); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; }
-  .new-field:hover { background: var(--ink); color: var(--paper); }
-  .new-field:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+  /* a black command button at the right end of a title bar */
+  .head-end { margin-left: auto; display: flex; }
+  .cmd.cmd-black { display: flex; align-items: center; justify-content: center; background: var(--ink); color: var(--paper) !important; border-color: var(--ink); min-width: 28px; }
+  .cmd.cmd-black:hover { background: var(--paper); color: var(--ink) !important; }
   .hist-tabs { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1.5px solid var(--ink); background: var(--paper); flex-shrink: 0; }
   .dg { max-width: 760px; }
   .dg-svg { width: 100%; height: auto; display: block; color: var(--ink); }
