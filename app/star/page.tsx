@@ -112,12 +112,36 @@ const DESK_ICON: Record<string, React.ReactNode> = {
   field: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="5" width="38" height="28" rx="1" className="ob" /><path d="M16 39h12M22 33v6" /><path d="M8 10h4v4H8zM16 10h4v4h-4zM24 14h4v4h-4zM32 10h4v4h-4zM8 20h4v4H8zM20 22h4v4h-4zM28 22h4v4h-4z" fill="currentColor" stroke="none" /></svg>,
 }
 
-function StarIcon({ pict, label, pressed, title, onClick }: {
+/* Icons can be dragged anywhere on the desk and dropped; a click without a
+   drag opens them. Where you left each one is remembered. */
+type Offsets = Record<string, { x: number; y: number }>
+function StarIcon({ pict, label, pressed, title, onClick, at, onMove }: {
   shape: Shape; pict: React.ReactNode; label: string; pressed: boolean; title: string; onClick: () => void
+  at?: { x: number; y: number }; onMove: (x: number, y: number) => void
 }) {
+  const [dragging, setDragging] = useState(false)
+  const down = (e: React.PointerEvent) => {
+    if (e.button !== 0) return
+    const sx = e.clientX, sy = e.clientY, ox = at?.x ?? 0, oy = at?.y ?? 0
+    let moved = false
+    const move = (ev: PointerEvent) => {
+      const dx = ev.clientX - sx, dy = ev.clientY - sy
+      if (!moved && Math.hypot(dx, dy) < 5) return
+      moved = true; setDragging(true)
+      onMove(ox + dx, oy + dy)
+    }
+    const up = () => {
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up)
+      setDragging(false)
+      if (!moved) onClick()
+    }
+    addEventListener('pointermove', move); addEventListener('pointerup', up)
+  }
   // the object, then its name under it; the name inverts while open
   return (
-    <button className="sicon" aria-pressed={pressed} title={title} onClick={onClick}>
+    <button className={dragging ? 'sicon dragging' : 'sicon'} aria-pressed={pressed} title={title}
+      onPointerDown={down} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      style={at ? { transform: `translate(${at.x}px, ${at.y}px)` } : undefined}>
       <span className="sicon-pict">{pict}</span>
       <span className="sicon-label">{label}</span>
     </button>
@@ -259,6 +283,11 @@ export default function Star() {
   const z = useRef(10)
   const [wins, setWins] = useState<Win[]>([])
   const [sel, setSel] = useState<string | null>(null)
+  // where each desk icon has been dragged to, kept between visits
+  const [iconAt, setIconAt] = useState<Offsets>({})
+  const iconsLoaded = useRef(false)
+  useEffect(() => { try { setIconAt(JSON.parse(localStorage.getItem('star-icons') ?? '{}')) } catch {} iconsLoaded.current = true }, [])
+  useEffect(() => { if (iconsLoaded.current) localStorage.setItem('star-icons', JSON.stringify(iconAt)) }, [iconAt])
   /* first layout: only the field is open. My spiel, About me, Projects and
      Properties wait on the desk as icons. */
   useEffect(() => {
@@ -475,7 +504,6 @@ export default function Star() {
       {/* the desktop: an icon for everything, so whatever you close can come back */}
       <div className="desk">
         {[
-          ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: DESK_ICON.field, go: () => open('field') }]),
           { id: 'about', shape: 'doc' as Shape, label: 'About me', pict: DESK_ICON.about, go: () => open('about', 680, 400) },
           ...ITEMS.map(it => ({
             id: it.kind === 'folder' ? `folder:${it.id}` : it.id, shape: (it.kind === 'folder' ? 'folder' : 'doc') as Shape,
@@ -484,9 +512,11 @@ export default function Star() {
           })),
           { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
           { id: 'site', shape: 'tool' as Shape, label: 'Back to site', pict: DESK_ICON.site, go: () => { location.href = '/' } },
+          ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: DESK_ICON.field, go: () => open('field') }]),
         ].map(ic => (
           <StarIcon key={ic.id} shape={ic.shape} pict={ic.pict} label={ic.label} pressed={wins.some(w => w.id === ic.id)}
-            title={ic.id === 'site' ? 'Back to the main site' : `Open ${ic.label}`} onClick={ic.go} />
+            title={ic.id === 'site' ? 'Back to the main site' : `Open ${ic.label}`} onClick={ic.go}
+            at={iconAt[ic.id]} onMove={(x, y) => setIconAt(a => ({ ...a, [ic.id]: { x, y } }))} />
         ))}
       </div>
     </div>
@@ -567,7 +597,7 @@ const CSS = `
   .fw-picks { flex-shrink: 0; display: flex; flex-direction: column; gap: 5px; padding: 7px 24px 7px 8px; border-top: 2px solid var(--ink); background: var(--paper); }
   .choice.sm { height: 21px; padding: 0 7px; font-size: 12px !important; }
   /* the desktop: Star icons in a grid down the right */
-  .desk { position: absolute; right: 20px; top: 20px; z-index: 1; display: grid; grid-template-columns: repeat(2, 92px); gap: 14px 6px; }
+  .desk { position: absolute; right: 20px; top: 20px; display: grid; grid-template-columns: repeat(2, 92px); gap: 14px 6px; }
   /* desk icons: the object on its own, its name under it */
   .sicon { width: 92px; padding: 2px; border: 0; background: none; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 5px; }
   .sicon-pict { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
@@ -575,6 +605,10 @@ const CSS = `
   .sicon-pict svg .ob { fill: var(--paper); }
   .sicon-label { font-size: 12px; line-height: 1.15; text-align: center; padding: 1px 4px; background: var(--paper); }
   .sicon:hover .sicon-label { outline: 1.5px solid var(--ink); }
+  /* icons sit under windows, but one being dragged rides above everything */
+  .desk-root .sicon { position: relative; z-index: 1; touch-action: none; cursor: grab; }
+  .desk-root .sicon.dragging { cursor: grabbing; z-index: 1000; }
+  .sicon.dragging .sicon-label { background: var(--ink); color: var(--paper); }
   .sicon[aria-pressed="true"] .sicon-label { background: var(--ink); color: var(--paper); }
   /* phones */
   @media (max-width: 699px) {
