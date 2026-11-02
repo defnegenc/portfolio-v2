@@ -460,7 +460,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       if (len < 0.01) return
       {
         // Slow = fat and wet, fast = thin and dry. Bristles are parallel lines with their own weight.
-        const w = Math.max(1.5, 9 / (1 + len / 1.2)) * cursorScale
+        const w = Math.max(2.5, 9 / (1 + len / 1.2)) * cursorScale
         const nx = -ddy / len, ny = ddx / len
         const bristles = Math.max(3, Math.round(w * 1.4))
         const steps = Math.max(1, Math.ceil(len * 1.5))
@@ -469,10 +469,19 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
           const edge = 1 - Math.abs(off) / (w / 2)
           const hb = Math.sin(b * 12.9898) * 43758.5453
           const weight = 0.45 + (hb - Math.floor(hb)) * 0.55
+          /* each point of a bristle is shared between the four cells around
+             it, by how close it is to each, so strokes come out smooth
+             instead of stepping from cell to cell */
+          const ink = Math.min(1, (0.35 + edge * 0.5) * weight + 0.2)
           for (let s2 = 0; s2 <= steps; s2++) {
             const f = s2 / steps
-            const c = Math.round(prev.x + ddx * f + nx * off), r = Math.round(prev.y + ddy * f + ny * off)
-            if (c >= 0 && c < cols && r >= 0 && r < rows) deposit(r * cols + c, Math.min(1, (0.35 + edge * 0.5) * weight + 0.2), 1)
+            const fx = prev.x + ddx * f + nx * off, fy = prev.y + ddy * f + ny * off
+            const c0 = Math.floor(fx), r0 = Math.floor(fy), tx = fx - c0, ty = fy - r0
+            for (let q = 0; q < 4; q++) {
+              const c = c0 + (q & 1), r = r0 + (q >> 1)
+              const share = ((q & 1) ? tx : 1 - tx) * ((q >> 1) ? ty : 1 - ty)
+              if (share > 0.05 && c >= 0 && c < cols && r >= 0 && r < rows) deposit(r * cols + c, ink * Math.min(1, share * 1.6), 1)
+            }
           }
         }
       }
@@ -568,7 +577,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             }
             const opacity = Math.max(0.06, Math.min(1, 0.06 + val * val * 1.1))
             glyph(cidx[i], opacity, 0, px, py)
-            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(swirl(nx, ny) + hot * 0.12) : 1, px, py)
+            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(swirl(nx, ny)) : 1, px, py)
             continue
           }
 
@@ -588,7 +597,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             if (Math.random() < rate * dt) cidx[i] = Math.floor(Math.random() * chars.length)
             const opacity = Math.max(lightMode ? 0.12 : 0.05, Math.min(0.95, (lightMode ? 0.2 : 0.12) + val * (lightMode ? 0.95 : 0.8)))
             glyph(cidx[i], opacity, 0, px, py)
-            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(swirl(nx, ny) + hot * 0.12) : 1, px, py)
+            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(swirl(nx, ny)) : 1, px, py)
             continue
           }
 
@@ -602,7 +611,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
               : Math.floor(Math.abs(val * chars.length * 2) % chars.length)
             const opacity = Math.max(0.03, Math.min(0.95, val * 0.9))
             if (hot > 0.05) {
-              const tone = rainbow ? rainbowTone(swirl(nx, ny) + hot * 0.12) : 1
+              const tone = rainbow ? rainbowTone(swirl(nx, ny)) : 1
               glyph(charIdx, Math.min(1, opacity + hot * 0.25), tone, px, py)
             } else {
               glyph(charIdx, opacity, 0, px, py)
