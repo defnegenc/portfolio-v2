@@ -331,7 +331,8 @@ function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: 
             {/* # comment: the year and award as a shell comment. Mono: the award
                 beside the name. git tag: a tag decoration. Columns: what it is. */}
             {style === 'cols' && <span className="nm-kind">{(p.kind ?? '').toLowerCase()}</span>}
-            {style === 'comment' && <span className="nm-note"># {p.year}{p.award ? `, ${p.award}` : ''}</span>}
+            {/* phones get the award without its year so the comment fits on the name's line */}
+            {style === 'comment' && <span className="nm-note"># {p.year}{p.award && <><span className="nm-full">, {p.award}</span><span className="nm-short">, {p.award.replace(/ \d{4} /, ' ')}</span></>}</span>}
             {p.award && style !== 'comment' && (style === 'tag' ? <span className="nm-note">(tag: chi-2026-best-paper)</span>
               : <span className="award nm-award">{p.award}{style === 'mono' ? ` ${p.awardNote}` : ''}</span>)}
           </a>
@@ -1082,7 +1083,7 @@ function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = 
    folder on the desktop from a real terminal. */
 type Entry = 'toggle' | 'icon' | 'open'
 const ENTRIES: { key: Entry; label: string }[] = [{ key: 'toggle', label: 'Toggle' }, { key: 'icon', label: 'Icon' }, { key: 'open', label: 'open .' }]
-const EntryCtx = createContext<Entry>('toggle')
+const EntryCtx = createContext<Entry>('open')
 
 /* Phone layouts, compared from Options (?p=). Status: LinkedIn and the
    switch in a status line along the bottom. Commands: no footer, LinkedIn
@@ -1090,7 +1091,7 @@ const EntryCtx = createContext<Entry>('toggle')
    tab bar along the bottom, one shown at a time. */
 type Phone = 'status' | 'commands' | 'tmux'
 const PHONES: { key: Phone; label: string }[] = [{ key: 'status', label: 'Status line' }, { key: 'commands', label: 'All commands' }, { key: 'tmux', label: 'tmux tabs' }]
-const PhoneCtx = createContext<{ phone: Phone; stacked: boolean }>({ phone: 'status', stacked: false })
+const PhoneCtx = createContext<{ phone: Phone; stacked: boolean }>({ phone: 'commands', stacked: false })
 // the Star window from the favicon: a white window, black frame, striped title bar
 const StarWin = () => (
   <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden>
@@ -1152,8 +1153,8 @@ export default function Home() {
   const [arrange, setArrange] = useState<Arrange>('fold')
   const [openMode, setOpenMode] = useState<OpenMode>('tree')
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
-  const [entry, setEntry] = useState<Entry>('toggle')
-  const [phone, setPhone] = useState<Phone>('status')
+  const [entry, setEntry] = useState<Entry>('open')
+  const [phone, setPhone] = useState<Phone>('commands')
   // phones always fold, whatever is picked for wide screens
   const [stacked, setStacked] = useState(false)
   useEffect(() => {
@@ -1316,13 +1317,13 @@ export default function Home() {
   const pickPhone = (v: Phone) => {
     setPhone(v)
     const u = new URL(window.location.href)
-    if (v === 'status') u.searchParams.delete('p'); else u.searchParams.set('p', v)
+    if (v === 'commands') u.searchParams.delete('p'); else u.searchParams.set('p', v)
     window.history.replaceState(null, '', u)
   }
   const pickEntry = (v: Entry) => {
     setEntry(v)
     const u = new URL(window.location.href)
-    if (v === 'toggle') u.searchParams.delete('e'); else u.searchParams.set('e', v)
+    if (v === 'open') u.searchParams.delete('e'); else u.searchParams.set('e', v)
     window.history.replaceState(null, '', u)
   }
   const pickNames = (v: NameStyle) => {
@@ -1634,6 +1635,7 @@ export default function Home() {
         /* project names */
         .pl.nm-mono { display: flex; align-items: baseline; gap: 0.3rem 0.75rem; flex-wrap: wrap; }
         .nm-note { color: var(--award); }
+        .nm-short { display: none; }
         .pl.nm-cols { display: grid; grid-template-columns: 24ch 9ch 1fr; column-gap: 1.5ch; }
         .nm-kind { color: var(--ink); }
         .bar-mini { display: inline-flex; gap: 0.9rem; font-family: var(--font-mono); font-size: 0.82rem; white-space: nowrap; }
@@ -1901,6 +1903,7 @@ export default function Home() {
           .pl.nm-mono .nm-award, .pl.nm-mono .nm-note { flex-basis: 100%; padding-left: 2ch; font-size: 0.9rem; }
           /* a short comment stays on the name's line; only a long one wraps */
           .pl.nm-comment .nm-note { flex-basis: auto; padding-left: 0; font-size: inherit; }
+          .nm-full { display: none; } .nm-short { display: inline; }
           .pl.nm-cols { grid-template-columns: 1fr; } .pl.nm-cols .nm-kind { display: none; } .pl.nm-cols .nm-award { padding-left: 2ch; }
           /* Status line: LinkedIn left, the switch right, fixed along the bottom */
           .root-frame[data-phone="status"] .star-credit-float { position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 60; padding: 0.55rem 1.1rem calc(0.55rem + env(safe-area-inset-bottom)) !important;
