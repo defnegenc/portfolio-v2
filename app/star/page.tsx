@@ -661,7 +661,7 @@ export default function Star() {
             go: () => open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260),
           })),
           { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
-          { id: 'site', shape: 'tool' as Shape, label: 'Back to site', pict: DESK_ICON.site, go: () => { location.href = '/' } },
+          { id: 'site', shape: 'tool' as Shape, label: 'Terminal', pict: DESK_ICON.site, go: () => { location.href = '/' } },
           ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: DESK_ICON.field, go: () => open('field') }]),
         ].map(ic => (
           <StarIcon key={ic.id} shape={ic.shape} pict={ic.pict} label={ic.label} pressed={wins.some(w => w.id === ic.id)}

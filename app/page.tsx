@@ -436,6 +436,7 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
     return <DirList items={items} click={click} open={proj} mode={openMode} onBack={back} />
   }
   const spiel = <DecodeBio onDone={onBioDone} style={TEXT_STYLE} />
+  const entry = useContext(EntryCtx)
   const body = (d: Dir) => (d === 'spiel' ? spiel : d === 'about' ? <AboutBody /> : listOrProject(itemsOf(d)))
   const [dir, setDir] = useState<Dir>('spiel')
   const [fold, setFold] = useState<Dir | null>('spiel')
@@ -471,6 +472,11 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
           {fold === d.key && <div className="ar-hop ar-out">{body(d.key)}</div>}
         </div>
       ))}
+      {entry === 'open' && (
+        <div className="ar-item">
+          <a className="ar-cmd ar-open" href="/star"><span>%</span> open .<em>the desktop</em></a>
+        </div>
+      )}
     </div>
   )
 }
@@ -646,6 +652,28 @@ type ShellApi = {
   weather: { place: string | null; period: Period; sky: Sky } | null
   openWeather: () => void
   setWeather: (v: { p: Period; s: Sky } | null) => void
+  /* the terminal session: once you start typing, the text under the field
+     gives way to a scrollback of what you ran. null when it's closed. */
+  log: LogEntry[] | null
+  setLog: React.Dispatch<React.SetStateAction<LogEntry[] | null>>
+}
+type LogEntry = { at: string; cmd: string; out: React.ReactNode }
+
+/* The scrollback, newest at the bottom, kept in view as it grows. */
+function TermLog({ entries }: { entries: LogEntry[] }) {
+  const end = useRef<HTMLDivElement>(null)
+  useEffect(() => { end.current?.scrollIntoView({ block: 'end' }) }, [entries.length])
+  return (
+    <div className="term-log">
+      {entries.map((e, i) => (
+        <div key={i} className="term-entry">
+          <div className="bio-prompt"><span>{e.at}</span> {e.cmd}</div>
+          {e.out !== '' && e.out != null && <div className="shell-out term-out">{e.out}</div>}
+        </div>
+      ))}
+      <div ref={end} />
+    </div>
+  )
 }
 
 // words the shell takes for each sky and time of day
@@ -853,7 +881,7 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
 
 function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject<((cmd: string) => void) | null> }) {
   const [text, setText] = useState('')
-  const [out, setOut] = useState<React.ReactNode>('type help · tab finishes a command')
+  const [out, setOut] = useState<React.ReactNode>('type help · press tab to see options')
   const [cwd, setCwd] = useState<Path>([])
   const hist = useRef<string[]>([])
   const at = useRef(0)
@@ -868,10 +896,21 @@ function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject
     window.addEventListener('keydown', fn)
     return () => window.removeEventListener('keydown', fn)
   }, [])
+  const session = api.log !== null
+  const prompt = cwd.length ? `${showPath(cwd)} %` : '%'
+  const start = () => { if (!session) api.setLog([]) }
+  const end = () => { api.setLog(null); setText(''); setOut('type help · press tab to see options') }
   const submit = (cmd = text) => {
-    const r = runCommand(cmd, api, cwd, setCwd)
     if (cmd.trim()) { hist.current.push(cmd); at.current = hist.current.length }
-    setOut(cmd.trim() === 'clear' ? '' : r)
+    const c = cmd.trim()
+    if (c === 'exit') { end(); return }
+    // in the session, the about files print here instead of switching views
+    const r = c === 'cat about-me' || c === 'cat about'
+      ? <div className="term-doc">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} />)}</div>
+      : c === 'cat my-spiel' || c === 'cat spiel' ? BIO
+      : runCommand(cmd, api, cwd, setCwd)
+    if (c === 'clear') api.setLog([])
+    else api.setLog(l => [...(l ?? []), { at: prompt, cmd, out: r }])
     setText('')
   }
   // lets a click type a command here, a key at a time, then run it
@@ -900,7 +939,9 @@ function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject
     <div className="shell" onClick={() => input.current?.focus()}>
       {/* one line of output sits above the prompt; anything longer opens in a
           box over the page, so the layout never moves. Esc closes it. */}
-      {out && (typeof out === 'string' && out.length < 110
+      {session
+        ? <div className="shell-out">ctrl+c to exit</div>
+        : out && (typeof out === 'string' && out.length < 110
         ? <div className="shell-out">{out}</div>
         : <div className="shell-out shell-pop" onClick={e => e.stopPropagation()}>
             <button className="shell-pop-x" aria-label="Close" onClick={() => setOut('')}>
@@ -908,22 +949,23 @@ function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject
             </button>
             {out}
           </div>)}
-      {(!out || typeof out !== 'string' || out.length >= 110) && <div className="shell-out" aria-hidden>&nbsp;</div>}
+      {!session && (!out || typeof out !== 'string' || out.length >= 110) && <div className="shell-out" aria-hidden>&nbsp;</div>}
       <label className="bio-prompt shell-line">
-        <span>{cwd.length ? `${showPath(cwd)} %` : '%'}</span> {text}<span className="bio-block shell-caret" />
+        <span>{prompt}</span> {text}<span className="bio-block shell-caret" />
         <input ref={input} className="shell-input" value={text} aria-label="Type a command" spellCheck={false} autoCapitalize="off" autoComplete="off"
-          onChange={e => setText(e.target.value)}
+          onChange={e => { if (e.target.value) start(); setText(e.target.value) }}
           onKeyDown={e => {
-            if (e.key === 'Enter') submit()
+            if (e.ctrlKey && e.key.toLowerCase() === 'c') { e.preventDefault(); end(); input.current?.blur(); return }
+            if (e.key === 'Enter') { start(); submit() }
             else if (e.key === 'Tab') {
               e.preventDefault()
               const r = complete(text, cwd)
               setText(r.text)
-              if (r.options) setOut(r.options.join('  '))
+              if (r.options) { start(); api.setLog(l => [...(l ?? []), { at: prompt, cmd: text, out: r.options!.join('  ') }]) }
             }
             else if (e.key === 'ArrowUp') { at.current = Math.max(0, at.current - 1); setText(hist.current[at.current] ?? '') ; e.preventDefault() }
             else if (e.key === 'ArrowDown') { at.current = Math.min(hist.current.length, at.current + 1); setText(hist.current[at.current] ?? ''); e.preventDefault() }
-            else if (e.key === 'Escape') { setOut(''); input.current?.blur() }
+            else if (e.key === 'Escape') { if (session) end(); else setOut(''); input.current?.blur() }
           }} />
       </label>
     </div>
@@ -1011,6 +1053,23 @@ function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = 
    (a label, then the two choices with the picked one inverted), dressed as
    the terminal on this side. The GUI side wears the Star version. Picking
    GUI inverts it first, then the page goes. */
+/* Ways into the GUI, compared from Options (?e=): the toggle in the corner,
+   the Star window as an icon in the bar (the desk has a Terminal icon back),
+   or `open .` as the last command in the list, which is how you'd open a
+   folder on the desktop from a real terminal. */
+type Entry = 'toggle' | 'icon' | 'open'
+const ENTRIES: { key: Entry; label: string }[] = [{ key: 'toggle', label: 'Toggle' }, { key: 'icon', label: 'Icon' }, { key: 'open', label: 'open .' }]
+const EntryCtx = createContext<Entry>('toggle')
+// the Star window from the favicon: a white window, black frame, striped title bar
+const StarWin = () => (
+  <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden>
+    <rect x="2" y="4" width="28" height="24" fill="var(--bg)" stroke="currentColor" strokeWidth="2" />
+    <g fill="currentColor"><rect x="3" y="6.5" width="26" height="1" /><rect x="3" y="8.5" width="26" height="1" /><rect x="3" y="10.5" width="26" height="1" /></g>
+    <rect x="7" y="15" width="6" height="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
+    <rect x="17" y="15" width="8" height="1.5" fill="currentColor" /><rect x="17" y="18.5" width="6" height="1.5" fill="currentColor" />
+  </svg>
+)
+
 function SiteToggle() {
   const [going, setGoing] = useState(false)
   const go = (e: React.MouseEvent) => { e.preventDefault(); setGoing(true); setTimeout(() => { window.location.href = '/star' }, 260) }
@@ -1023,10 +1082,11 @@ function SiteToggle() {
 }
 
 function StarCredit() {
+  const entry = useContext(EntryCtx)
   return (
     <p className="star-credit">
       <UrlLink className="li-inline" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
-      <SiteToggle />
+      {entry === 'toggle' && <SiteToggle />}
     </p>
   )
 }
@@ -1060,6 +1120,8 @@ export default function Home() {
   const [names, setNames] = useState<NameStyle>('mono')
   const [arrange, setArrange] = useState<Arrange>('fold')
   const [openMode, setOpenMode] = useState<OpenMode>('tree')
+  const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
+  const [entry, setEntry] = useState<Entry>('toggle')
   // phones always fold, whatever is picked for wide screens
   const [stacked, setStacked] = useState(false)
   useEffect(() => {
@@ -1193,6 +1255,8 @@ export default function Home() {
     if (nq && NAME_STYLES.some(x => x.key === nq)) setNames(nq)
     const aq = new URLSearchParams(window.location.search).get('a') as Arrange | null
     if (aq && ARRANGES.some(x => x.key === aq)) setArrange(aq)
+    const eq = new URLSearchParams(window.location.search).get('e') as Entry | null
+    if (eq && ENTRIES.some(x => x.key === eq)) setEntry(eq)
     const oq = new URLSearchParams(window.location.search).get('o') as OpenMode | null
     if (oq && OPEN_MODES.some(x => x.key === oq)) setOpenMode(oq)
     setIsLocal(['localhost', '127.0.0.1'].includes(window.location.hostname))
@@ -1215,6 +1279,12 @@ export default function Home() {
     if (v === 'tree') u.searchParams.delete('o'); else u.searchParams.set('o', v)
     window.history.replaceState(null, '', u)
   }
+  const pickEntry = (v: Entry) => {
+    setEntry(v)
+    const u = new URL(window.location.href)
+    if (v === 'toggle') u.searchParams.delete('e'); else u.searchParams.set('e', v)
+    window.history.replaceState(null, '', u)
+  }
   const pickNames = (v: NameStyle) => {
     setNames(v)
     const u = new URL(window.location.href)
@@ -1233,6 +1303,7 @@ export default function Home() {
     openProject: slug => { openWin(slug, pendingFrom.current); pendingFrom.current = null },
     openWeather: () => setWxOpen(true),
     setWeather: v => setWx(v),
+    log: termLog, setLog: setTermLog,
   }
   /* Clicking a project opens its window. In terminal mode it types the
      command first, so you can see what it does. */
@@ -1359,6 +1430,7 @@ export default function Home() {
 
   return (
     <UrlCtx.Provider value={openUrl}>
+    <EntryCtx.Provider value={entry}>
     <div
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
@@ -1511,6 +1583,16 @@ export default function Home() {
         .pv-gap { margin-top: 0.8rem; }
         .ar-panes .pv-inline .ar-cmd, .pv-inline .ar-cmd { padding: 0; line-height: 1.5; white-space: normal; }
         .pv-inline p, .pv-inline ul { max-width: 72ch; }
+        /* the terminal session's scrollback */
+        .term-log { display: flex; flex-direction: column; gap: 0.7rem; padding-bottom: 0.5rem; }
+        .term-entry .bio-prompt { margin-bottom: 0.2rem; white-space: normal; }
+        .term-out { margin: 0; }
+        .term-doc p { font-family: var(--font-main); font-size: 0.95rem; line-height: 1.6; margin: 0 0 0.6rem; max-width: 72ch; white-space: normal; }
+        .bar-gui { display: inline-flex; align-items: center; color: var(--ink); }
+        .bar-gui:hover svg { transform: translateY(-1px); }
+        .ar-open { text-decoration: none; display: flex; align-items: baseline; gap: 1.2ch; }
+        .ar-open em { font-style: normal; color: var(--ink); }
+        .ar-open:hover em { background: var(--ink); color: var(--bg); }
         .pv-rowv { padding: 0.35rem 0 0.7rem 2ch; }
         .pv-btn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
         .pv-btn[data-on="1"] { background: var(--ink); color: var(--bg); text-decoration: none; }
@@ -1865,10 +1947,11 @@ export default function Home() {
             blank: null,
             bar: (
               <div className="home-bar">
-                <span className="home-title">{HOME_DIR}</span>
+                <span className="home-title">~/{HOME_DIR}</span>
                 <div className="home-right">
                   <div className="home-links">
                     <UrlLink className="back-link" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
+                    {entry === 'icon' && <a className="bar-gui" href="/star" title="Open the desktop" aria-label="Open the desktop"><StarWin /></a>}
                   </div>
                   <div className="no-open">
                     <WeatherControl term override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
@@ -1882,7 +1965,7 @@ export default function Home() {
             cproj: <Work part="projects" />,
             clists: <div className="lists-2" style={{ clipPath: listClip }}><Work part="projects" /><Work part="tidbits" /></div>,
             ctid: <Work part="tidbits" />,
-            arr: <div style={{ paddingTop: '0.4rem' }}><Arranged key={arr} kind={arr} openMode={openMode} onBioDone={onBioDone} /></div>,
+            arr: <div style={{ paddingTop: '0.4rem' }}>{termLog ? <TermLog entries={termLog} /> : <Arranged key={arr} kind={arr} openMode={openMode} onBioDone={onBioDone} />}</div>,
             cabout: <div style={{ paddingTop: '0.4rem' }}><AboutText onBack={() => goTo('home')} typed={typedFor('about')} left={leftFor('about')} cols /></div>,
             about: <div style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.4rem' }}><AboutText onBack={() => goTo('home')} typed={typedFor('about')} left={leftFor('about')} /><Shell api={shellApi} runRef={shellRun} /></div>,
             // Live: the bio and the lists side by side in the bottom-left window
@@ -1952,6 +2035,11 @@ export default function Home() {
               <button key={v.key} data-on={openMode === v.key ? 1 : 0} onClick={() => pickOpen(v.key)}>{v.label}</button>
             ))}
           </div>
+          <div className="v-row"><span>Way to GUI</span>
+            {ENTRIES.map(v => (
+              <button key={v.key} data-on={entry === v.key ? 1 : 0} onClick={() => pickEntry(v.key)}>{v.label}</button>
+            ))}
+          </div>
           <div className="v-row"><span>Names</span>
             {NAME_STYLES.map(v => (
               <button key={v.key} data-on={names === v.key ? 1 : 0} onClick={() => pickNames(v.key)}>{v.label}</button>
@@ -2007,6 +2095,7 @@ export default function Home() {
       )}
 
     </div>
+    </EntryCtx.Provider>
     </UrlCtx.Provider>
   )
             }
