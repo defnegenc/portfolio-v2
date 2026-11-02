@@ -707,6 +707,11 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     const ro = new ResizeObserver(() => resize())
     ro.observe(container)
     window.addEventListener('resize', resize)
+    /* coming back to the page (from the GUI, another tab, the back button)
+       re-measures and redraws, so the field never comes back blank */
+    const wake = () => { if (!document.hidden) resize() }
+    window.addEventListener('pageshow', wake)
+    document.addEventListener('visibilitychange', wake)
     container.addEventListener('mousemove', onMouseMove)
     container.addEventListener('mouseleave', onMouseLeave)
     container.addEventListener('touchstart', onTouchStart, { passive: true })
@@ -735,6 +740,8 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     return () => {
       if (apiRef) apiRef.current = null
       cancelAnimationFrame(animId)
+      window.removeEventListener('pageshow', wake)
+      document.removeEventListener('visibilitychange', wake)
       ro.disconnect()
       window.removeEventListener('resize', resize)
       container.removeEventListener('mousemove', onMouseMove)

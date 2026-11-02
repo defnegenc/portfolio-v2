@@ -7,8 +7,7 @@ import NavMenu from '@/components/NavMenu'
 import { useTheme } from '@/components/useTheme'
 import { useAmbient, LOOKS, periodOf, type Period, type Sky } from '@/components/ambient'
 import WeatherControl, { type Override } from '@/components/WeatherControl'
-import { IconStyleCtx, SKY_ICON } from '@/components/weatherIcons'
-import { SKIES, SKY_NAME } from '@/components/WeatherVariants'
+import { IconStyleCtx } from '@/components/weatherIcons'
 import { ABOUT_PARAS } from '@/components/aboutContent'
 import AboutPara from '@/components/AboutPara'
 import { CARDS, type Card } from '@/components/cards'
@@ -204,7 +203,11 @@ const metaOf = (slug: string) => {
 const UrlCtx = createContext<((href: string, title: string) => void) | null>(null)
 const NO_FRAME = ['linkedin.com', 'learningetal.com']
 // arXiv's abstract page refuses frames; its PDF doesn't
-const embedOf = (href: string) => href.replace('arxiv.org/abs/', 'arxiv.org/pdf/')
+// PDFs open without the viewer's thumbnail sidebar, fitted to the window's width
+const embedOf = (href: string) => {
+  const u = href.replace('arxiv.org/abs/', 'arxiv.org/pdf/')
+  return /\.pdf$|arxiv\.org\/pdf\//.test(u) ? `${u}#navpanes=0&view=FitH` : u
+}
 const framable = (href: string) => !NO_FRAME.some(d => href.includes(d))
 const hostOf = (href: string) => { try { return new URL(href, 'https://defne.io').hostname.replace(/^www\./, '') } catch { return href } }
 function UrlLink({ href, title, className, children }: { href: string; title: string; className?: string; children: React.ReactNode }) {
@@ -472,18 +475,6 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
   )
 }
 
-/* Phones: the skies in a row under the field, so the animation can be
-   changed with one tap. The full matrix is still behind the weather icon. */
-function SkyRow({ cur, onPick }: { cur: Sky; onPick: (s: Sky) => void }) {
-  return (
-    <div className="sky-row no-open">
-      {SKIES.map(s => {
-        const I = SKY_ICON[s]
-        return <button key={s} data-on={cur === s ? 1 : 0} onClick={() => onPick(s)} aria-label={SKY_NAME[s]} title={SKY_NAME[s]}><I size={18} /></button>
-      })}
-    </div>
-  )
-}
 
 // a variable, so phones can set it smaller
 const BIO_SIZE = 'var(--bio-size, clamp(0.94rem, 1vw, 1.04rem))'
@@ -653,7 +644,13 @@ type ShellApi = {
   view: View; goTo: (to: View) => void; setTheme: (t: 'light' | 'dark') => void
   openContact: () => void; openProject: (slug: string) => void
   weather: { place: string | null; period: Period; sky: Sky } | null
+  openWeather: () => void
+  setWeather: (v: { p: Period; s: Sky } | null) => void
 }
+
+// words the shell takes for each sky and time of day
+const SKY_WORDS: Record<string, Sky> = { clear: 'clear', sun: 'clear', sunny: 'clear', cloud: 'cloud', cloudy: 'cloud', overcast: 'cloud', rain: 'rain', snow: 'snow', fog: 'fog', storm: 'storm', thunder: 'storm', wind: 'wind', windy: 'wind' }
+const TIME_WORDS: Record<string, Period> = { early: 'dawn', dawn: 'dawn', morning: 'dawn', day: 'day', daytime: 'day', evening: 'dusk', dusk: 'dusk', night: 'night', late: 'late' }
 
 /* curl wttr.in, the real way people check the weather in a terminal: a
    little report of the sky the field is drawing. */
@@ -711,6 +708,8 @@ const HELP: [string, string][] = [
   ['caffeinate -d', 'light mode'],
   ['pmset displaysleepnow', 'dark mode'],
   ['curl wttr.in', 'the weather the field is drawing'],
+  ['weather --pick', 'pick the weather the field draws'],
+  ['weather rain night', 'set it straight from here'],
   ['tab', 'finish a command for you'],
   ['mail', 'write to me'],
   ['clear', 'clear this'],
@@ -774,6 +773,7 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
       const at = dir.length === 0
       if (at && (file === 'about-me' || file === 'about')) { api.goTo('about'); return '' }
       if (at && (file === 'my-spiel' || file === 'spiel')) { api.goTo('home'); return '' }
+      if (at && file === 'weather.txt') { api.openWeather(); return '' }
       const id = dir[0] === 'projects' && dir[1] ? idOfDir(dir[1]) : undefined
       const e = id && FOLDERS[id].find(x => x.file === file)
       if (e && id && e.kind === 'doc') return catDesc(id)
@@ -825,7 +825,19 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
     }
     case 'caffeinate': api.setTheme('light'); return 'display awake'
     case 'pmset': case 'sleep': api.setTheme('dark'); return 'display asleep'
-    case 'weather': return wttr(api.weather)
+    case 'weather': {
+      // weather --pick opens the window; weather rain night sets it; --reset goes back to yours
+      if (arg === '--pick' || arg === '-p') { api.openWeather(); return '' }
+      if (arg === '--reset') { api.setWeather(null); return 'back to your weather' }
+      if (!arg) return wttr(api.weather)
+      const words = arg.toLowerCase().split(/\s+/)
+      const s = words.map(w => SKY_WORDS[w]).find(Boolean)
+      const p = words.map(w => TIME_WORDS[w]).find(Boolean)
+      if (!s && !p) return `weather: try weather --pick, or weather rain night`
+      const cur = api.weather
+      api.setWeather({ p: p ?? cur?.period ?? periodOf(), s: s ?? cur?.sky ?? 'clear' })
+      return ''
+    }
     case 'curl':
       if (arg.startsWith('wttr.in')) return wttr(api.weather)
       return arg ? `curl: (6) Could not resolve host: ${arg}` : 'curl: try \u2018curl wttr.in\u2019'
@@ -1157,6 +1169,18 @@ export default function Home() {
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
   }
+  // phones: the field's height, dragged from its bottom edge
+  const [phoneH, setPhoneH] = useState<number | null>(null)
+  const growPhoneField = (e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    const field = (e.currentTarget as HTMLElement).parentElement
+    if (!field) return
+    const h0 = field.getBoundingClientRect().height, sy = e.clientY
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    const move = (ev: PointerEvent) => setPhoneH(Math.round(Math.min(window.innerHeight * 0.7, Math.max(90, h0 + ev.clientY - sy))))
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
   const sized = (l: Layout): Layout => (!fieldBox || !centred ? l : {
     ...l, rows: l.rows.replace(MAIN, `${fieldBox.h}px`),
     colSizes: `1fr minmax(0,${fieldBox.w / 2}px) minmax(0,${fieldBox.w / 2}px) 1fr`,
@@ -1207,6 +1231,8 @@ export default function Home() {
     view, goTo: to => goTo(to, true), setTheme, openContact: () => setContact(true),
     weather: sky ? { place: sky.place ?? null, period: periodOf(), sky: wx?.s ?? sky.sky } : null,
     openProject: slug => { openWin(slug, pendingFrom.current); pendingFrom.current = null },
+    openWeather: () => setWxOpen(true),
+    setWeather: v => setWx(v),
   }
   /* Clicking a project opens its window. In terminal mode it types the
      command first, so you can see what it does. */
@@ -1271,7 +1297,7 @@ export default function Home() {
     return () => clearTimeout(t)
   }, [])
 
-  const look = pinned ?? ambient ?? (remembered ? LOOKS[remembered.p][remembered.s] : null)
+  const look = pinned ?? ambient ?? (remembered ? LOOKS[remembered.p]?.[remembered.s] : null)
     ?? (waited ? LOOKS[periodOf()].clear : null)
 
   const color  = look?.color  ?? null
@@ -1341,6 +1367,7 @@ export default function Home() {
       className="root-frame"
       style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
         ...({ '--wall': `${centred ? 1.75 : 1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
+        ...(phoneH ? ({ '--phone-field': `${phoneH}px` } as React.CSSProperties) : {}),
         ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}
     >
       <style>{`
@@ -1465,7 +1492,6 @@ export default function Home() {
         .ar-item + .ar-item { border-top: 1px solid var(--hairline); }
         .ar-fold .ar-cmd { line-height: 1; padding: 0.95rem 0; }
         .ar-out { padding: 0 0 1.1rem; }
-        .sky-row { display: none; }
         /* the text under the field scrolls in place when it runs long, and shows it */
         .panel-scroll { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 45%, transparent) transparent; }
         .panel-scroll::-webkit-scrollbar { width: 6px; }
@@ -1658,6 +1684,7 @@ export default function Home() {
         /* the wrapper anchors the corner controls inside the field */
         .field-main { position: relative; }
         .full-btn { display: none; }
+        .m-grip { display: none; }
 
         /* Stacked (phones, touch tablets): field on top, copy below. The field
            takes whatever height the copy leaves, so on most phones the page
@@ -1718,7 +1745,9 @@ export default function Home() {
           .home-links { display: none !important; }
           .about-inline { display: inline; font-size: 0.85rem; }
           .li-inline { display: inline; }
-          .canvas-zone > .field-main { flex: none !important; height: 16vh !important; min-height: 110px; }
+          .canvas-zone > .field-main { flex: none !important; height: var(--phone-field, 16vh) !important; min-height: 90px; }
+          .m-grip { display: flex; position: absolute; left: 0; right: 0; bottom: -14px; height: 28px; z-index: 4; align-items: center; justify-content: center; touch-action: none; }
+          .m-grip span { width: 44px; height: 5px; border-radius: 3px; background: var(--ink); }
           .root-frame { --bio-size: 0.92rem; }
           .about-top .bio-prompt, .bio-prompt { font-size: 0.85rem; }
           .pl-list .pl, .pl-list .pl span { font-size: 1rem !important; }
@@ -1735,9 +1764,6 @@ export default function Home() {
           .about-top { flex-wrap: wrap; }
           .shell-pop { max-width: calc(100vw - 2.5rem); }
           .star-credit-float { order: 3; }
-          .sky-row { display: flex; order: 1; justify-content: space-between; padding: 0.2rem 0.6rem; border-bottom: 1px solid var(--hairline); }
-          .sky-row button { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: none; border: 0; color: var(--ink); padding: 0; }
-          .sky-row button[data-on="1"] { background: var(--ink); color: var(--bg); }
           .ar-fold .ar-cmd { padding: 0.85rem 0; }
         }
 
@@ -1794,6 +1820,8 @@ export default function Home() {
         <AsciiCanvas breathe={motion === 'breathe'} motion={motion} render={render} hover={hover} region={fieldRegion} lightMode={isLight} chars='▓▒░' color={color ?? undefined}
           message={`Defne Genç. ${BIO} Work: ${PROJECTS.map(p => p.name + (p.award ? ` (${p.award}, ${p.awardNote.replace(/[()]/g, '')})` : '')).join(', ')}.`} />
 
+          {/* phones: drag the bottom edge to make the field taller or shorter */}
+          <div className="m-grip no-open" onPointerDown={growPhoneField} aria-hidden><span /></div>
           <button className="full-btn no-open" onClick={() => setFull(v => !v)}
             aria-label={full ? 'Exit full screen' : 'Full screen'}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1804,8 +1832,6 @@ export default function Home() {
             </svg>
           </button>
         </div>
-
-        <SkyRow cur={(wx ?? live)?.s ?? 'clear'} onPick={s => setWx({ p: (wx ?? live)?.p ?? periodOf(), s })} />
 
         {/* field controls belong to the animation, not the nav; in the centre
             layout the square sits in the field's own corner instead */}

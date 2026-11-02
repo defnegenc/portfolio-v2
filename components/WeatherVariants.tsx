@@ -160,7 +160,9 @@ export function MiniField({ look, light, cell = 5, seed = 0, still: stillProp = 
 
     const [tr, tg, tb] = tintOf(look.color ?? null, light)
     const [hue, sat, lit] = rgbToHsl(tr, tg, tb)
-    const rainbow = look.hover === 'rainbow' && look.color
+    /* the real field is one colour at rest; its rainbow only shows under the
+       cursor, so a swatch at rest stays in that one colour too */
+    const rainbow = false
     const tones: string[] = []
     for (let i = 0; i < 12; i++) {
       const [r, g, b] = rainbow
@@ -170,7 +172,7 @@ export function MiniField({ look, light, cell = 5, seed = 0, still: stillProp = 
     }
 
     // cream swallows faint tiles, so light mode keeps a higher floor
-    const floor = light ? 0.42 : 0.3
+    const floor = light ? 0.3 : 0.24
     let lastDraw = -1
     const draw = (now: number) => {
       if (now - lastDraw < 1 / 30) return
