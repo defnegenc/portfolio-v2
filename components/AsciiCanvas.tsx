@@ -471,8 +471,12 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       const k = Math.pow(0.996, dt)
       for (let i = 0; i < field.length; i++) { field[i] *= k; hotf[i] *= k }
       if (mouseCell.c < 0) { prev.x = -1; return }
-      const x = mouse.x / cellW, y = mouse.y / cellH
-      if (prev.x < 0) { prev.x = x; prev.y = y; return }
+      /* The pen trails the pointer instead of jumping to it, so a fast flick
+         draws a curve rather than straight segments with corners. */
+      const tx = mouse.x / cellW, ty = mouse.y / cellH
+      if (prev.x < 0) { prev.x = tx; prev.y = ty; return }
+      const follow = 1 - Math.pow(1 - 0.35, dt)
+      const x = prev.x + (tx - prev.x) * follow, y = prev.y + (ty - prev.y) * follow
       const ddx = x - prev.x, ddy = y - prev.y
       const len = Math.hypot(ddx, ddy)
       if (len < 0.01) return

@@ -1662,7 +1662,8 @@ export default function Home() {
         /* a project opened in the terminal */
         .pv-files { display: flex; flex-wrap: wrap; gap: 0.3rem 1.6rem; font-family: var(--font-mono); font-size: 1rem; }
         .pv-file { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
-        .pv-file:hover { color: var(--award); }
+        /* pointing at a file selects it, like terminal text, so its comment keeps the colour to itself */
+        .pv-file:hover { background: var(--ink); color: var(--bg); text-decoration: none; }
         .pv-plain { text-decoration: none; }
         .pv-points { list-style: none; margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; max-width: 72ch; }
         .pv-points li::before { content: '- '; font-family: var(--font-mono); }
@@ -1691,7 +1692,7 @@ export default function Home() {
         .ar-open em { font-style: normal; color: var(--ink); }
         .ar-open:hover em { background: var(--ink); color: var(--bg); }
         /* a file's comment shows when you point at the file; touch screens skip it */
-        .pv-note { white-space: pre; opacity: 0; transition: opacity .15s; }
+        .pv-note { white-space: pre; color: var(--award) !important; opacity: 0; transition: opacity .15s; }
         .pv-node:hover .pv-note, .pv-node:focus-within .pv-note { opacity: 1; }
         @media (hover: none) { .pv-note { display: none; } }
         .pv-file { white-space: nowrap; }
@@ -1771,7 +1772,6 @@ export default function Home() {
         .tg-seg2 > * { height: 28px; display: flex; align-items: center; padding: 0 12px; font-weight: 400; color: var(--ink); text-decoration: none; }
         .tg-seg2 > * + * { border-left: 1.5px solid var(--ink); }
         .tg-seg2 > [data-on="1"] { background: var(--ink); color: var(--bg); }
-        .tg-seg2 > a:hover { text-decoration: underline; }
         .star-credit .tg-seg2 a { text-decoration: none; }
         /* the terminal dress: the same shape in the mono face */
         .tg-mono { font-family: var(--font-mono); }
@@ -1786,7 +1786,8 @@ export default function Home() {
         .tg-icons2 > [data-on="1"] svg rect:first-child { fill: var(--bg); }
         .tg-icons2 > [data-on="1"] svg text { fill: var(--ink); }
         .tg-keys > a:hover, .tg-icons2 > a:hover { background: var(--ink); color: var(--bg) !important; }
-        .star-credit .tg-seg2 a:hover { text-decoration: underline; }
+        /* gui underlines in ink when pointed at, never in the accent colour */
+        .star-credit .tg-seg2 a:hover, .tg-seg2 > a:hover { color: var(--ink) !important; text-decoration: underline !important; text-decoration-color: var(--ink) !important; text-underline-offset: 0.25em; }
         .about-inline, .li-inline { display: none; }
         .li-inline { margin-right: 1.2rem; }
         .star-credit-float { position: absolute; right: 20px; bottom: 16px; z-index: 20; }
