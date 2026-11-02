@@ -165,9 +165,13 @@ export function MiniField({ look, light, cell = 5, seed = 0, still: stillProp = 
     const rainbow = false
     const tones: string[] = []
     for (let i = 0; i < 12; i++) {
+      /* the swatch colour is the field's, mixed a third of the way toward the
+         page, so a tiny swatch doesn't read louder than the full-size field */
+      const paper = light ? [244, 242, 236] : [10, 10, 10]
+      const mix = (a: number, k: number) => Math.round(a + (paper[k] - a) * 0.35)
       const [r, g, b] = rainbow
         ? hslToRgb(hue + Math.sin((i / 12) * Math.PI * 2) * 0.06, sat, lit)
-        : [tr, tg, tb]
+        : [mix(tr, 0), mix(tg, 1), mix(tb, 2)]
       tones.push(`${r},${g},${b}`)
     }
 
@@ -175,7 +179,7 @@ export function MiniField({ look, light, cell = 5, seed = 0, still: stillProp = 
     /* the real field is mostly paper with colour coming and going, so a
        swatch keeps its tiles light: a low floor and a ceiling well under full */
     const floor = light ? 0.12 : 0.16
-    const ceil = light ? 0.62 : 0.75
+    const ceil = light ? 0.55 : 0.7
     let lastDraw = -1
     const draw = (now: number) => {
       if (now - lastDraw < 1 / 30) return

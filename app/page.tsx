@@ -738,7 +738,7 @@ const HELP: [string, string][] = [
   ['curl wttr.in', 'the weather the field is drawing'],
   ['weather --pick', 'pick the weather the field draws'],
   ['weather rain night', 'set it straight from here'],
-  ['tab', 'finish a command for you'],
+  ['tab', 'see options, or finish a command'],
   ['mail', 'write to me'],
   ['clear', 'clear this'],
 ]
@@ -781,7 +781,8 @@ const findPic = (dir: Path, file: string) => {
   const id = dir[0] === 'projects' && dir[1] ? idOfDir(dir[1]) : undefined
   return id ? PICTURES[id]?.find(([src]) => picFile(src) === file) : undefined
 }
-const showPath = (p: Path) => (p.length ? `~/${p.join('/')}` : '~')
+// the prompt shows where you are inside the portfolio folder, which is the shell's starting point
+const showPath = (p: Path) => `~/${HOME_DIR}${p.length ? '/' + p.join('/') : ''}`
 const toGui = (p: Path) => { location.href = `/star${p.length ? `?open=${p.join('/')}` : ''}` }
 
 function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) => void = () => {}): React.ReactNode {
@@ -897,7 +898,7 @@ function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject
     return () => window.removeEventListener('keydown', fn)
   }, [])
   const session = api.log !== null
-  const prompt = cwd.length ? `${showPath(cwd)} %` : '%'
+  const prompt = `${showPath(cwd)} %`
   const start = () => { if (!session) api.setLog([]) }
   const end = () => { api.setLog(null); setText(''); setOut('type help · press tab to see options') }
   const submit = (cmd = text) => {
@@ -1588,7 +1589,7 @@ export default function Home() {
         .term-entry .bio-prompt { margin-bottom: 0.2rem; white-space: normal; }
         .term-out { margin: 0; }
         /* about-me printed in the session reads like the rest of the output: mono, same size and spacing */
-        .term-doc p { font-family: var(--font-mono); font-size: 0.92rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
+        .term-doc p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
         .bar-gui { display: inline-flex; align-items: center; color: var(--ink); }
         .bar-gui:hover svg { transform: translateY(-1px); }
         .ar-open { text-decoration: none; display: flex; align-items: baseline; gap: 1.2ch; }
@@ -1674,7 +1675,7 @@ export default function Home() {
         .star-credit .tg-seg2 a { text-decoration: none; }
         /* the terminal dress: the same shape in the mono face */
         .tg-mono { font-family: var(--font-mono); }
-        .tg-mono .tg-k { font-weight: 400; color: var(--award); }
+        .tg-mono .tg-k { font-weight: 400; color: var(--ink); }
         .star-credit .tg-seg2 a:hover { text-decoration: underline; }
         .about-inline, .li-inline { display: none; }
         .li-inline { margin-right: 1.2rem; }
@@ -1691,7 +1692,7 @@ export default function Home() {
         .cat-doc p { margin: 0 0 0.5rem; max-width: 70ch; }
         .cat-img { display: block; width: 100%; max-width: 560px; height: auto; margin: 0.2rem 0 0.7rem; border: 1px solid var(--ink); }
         .wttr { margin: 0; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.35; }
-        .shell-out { font-family: var(--font-mono); font-size: 0.92rem; line-height: 1.5; color: var(--ink); margin-bottom: 0.35rem; white-space: pre-wrap; }
+        .shell-out { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; color: var(--ink); margin-bottom: 0.35rem; white-space: pre-wrap; }
         .shell-line { position: relative; display: block; margin-bottom: 0; }
         .shell-input { position: absolute; inset: 0; width: 100%; opacity: 0; border: 0; padding: 0; background: none; font: inherit; }
         .shell-caret { animation: blink 1s steps(1) infinite; }
