@@ -488,6 +488,16 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       return 2 + (Math.floor(eased * HUE_TONES) % HUE_TONES + HUE_TONES) % HUE_TONES
     }
 
+    /* Where a cell sits in the rainbow: a few slow sine waves at different
+       angles and speeds folded together, so the colour pools and swirls
+       instead of sweeping across in straight bands, and drifts slowly. */
+    function swirl(nx: number, ny: number) {
+      return 0.2 * Math.sin(nx * 2.1 + time * 0.31)
+        + 0.16 * Math.sin(ny * 1.7 - time * 0.23 + nx * 0.9)
+        + 0.1 * Math.sin((nx + ny) * 3.3 + time * 0.17)
+        + time * 0.035
+    }
+
     // Cipher breathe: data rain. Each column runs its own packet down the grid at
     // its own speed, so the field reads as columns of moving text, not noise.
     function cipherPattern(c: number, r: number) {
@@ -558,7 +568,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             }
             const opacity = Math.max(0.06, Math.min(1, 0.06 + val * val * 1.1))
             glyph(cidx[i], opacity, 0, px, py)
-            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(ny * 0.35 + nx * 0.14 + time * 0.16 + hot * 0.18) : 1, px, py)
+            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(swirl(nx, ny) + hot * 0.12) : 1, px, py)
             continue
           }
 
@@ -578,7 +588,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
             if (Math.random() < rate * dt) cidx[i] = Math.floor(Math.random() * chars.length)
             const opacity = Math.max(lightMode ? 0.12 : 0.05, Math.min(0.95, (lightMode ? 0.2 : 0.12) + val * (lightMode ? 0.95 : 0.8)))
             glyph(cidx[i], opacity, 0, px, py)
-            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(ny * 0.35 + nx * 0.14 + time * 0.16 + hot * 0.18) : 1, px, py)
+            if (hot > 0.05) glyph(cidx[i], Math.min(1, opacity * hot), rainbow ? rainbowTone(swirl(nx, ny) + hot * 0.12) : 1, px, py)
             continue
           }
 
@@ -592,7 +602,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
               : Math.floor(Math.abs(val * chars.length * 2) % chars.length)
             const opacity = Math.max(0.03, Math.min(0.95, val * 0.9))
             if (hot > 0.05) {
-              const tone = rainbow ? rainbowTone(ny * 0.35 + nx * 0.14 + time * 0.16 + hot * 0.18) : 1
+              const tone = rainbow ? rainbowTone(swirl(nx, ny) + hot * 0.12) : 1
               glyph(charIdx, Math.min(1, opacity + hot * 0.25), tone, px, py)
             } else {
               glyph(charIdx, opacity, 0, px, py)
@@ -627,7 +637,7 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
               /* sin(ang), not ang: atan2 jumps from +π to −π on the left of the
                  cursor, which cut a hard seam through the glow that the colours
                  then swept past like a clock hand. */
-              const tone = rainbow ? rainbowTone(Math.sin(ang) * 0.22 + time * 0.14 + influence * 0.25 + g * 0.06) : 1
+              const tone = rainbow ? rainbowTone(Math.sin(ang) * 0.22 + time * 0.05 + influence * 0.2 + g * 0.06) : 1
               glyph(charIdx, Math.min(1, opacity + influence * 0.7), tone, px, py)
             } else {
               glyph(charIdx, opacity, 0, px, py)

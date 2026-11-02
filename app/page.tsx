@@ -341,9 +341,9 @@ function AboutBody() {
 /* What clicking a project does: it opens right under its name, as a tree,
    as the ls and cat you'd type, or as a cd into the folder. Compared from
    Options (?o=). */
-type OpenMode = 'tree' | 'ls' | 'cd'
+type OpenMode = 'tree' | 'row' | 'ls' | 'cd'
 const OPEN_MODES: { key: OpenMode; label: string }[] = [
-  { key: 'tree', label: 'Tree' }, { key: 'ls', label: 'ls' }, { key: 'cd', label: 'cd' },
+  { key: 'tree', label: 'Tree' }, { key: 'row', label: 'Row' }, { key: 'ls', label: 'ls' }, { key: 'cd', label: 'cd' },
 ]
 const itemOf = (slug: string) => [...PROJECTS, ...TIDBITS].find(p => slugOf(p.href) === slug) as Item | undefined
 // a project's files: its folder, or for a tidbit the one link it is
@@ -355,6 +355,7 @@ const FileLink = ({ f }: { f: { file: string; href?: string } }) => (f.href
 function ProjectView({ slug, mode, onBack }: { slug: string; mode: OpenMode; onBack: () => void }) {
   const card = CARDS[slug], item = itemOf(slug), files = filesOf(slug)
   const nameOf = useDirOf()
+  const [readme, setReadme] = useState(false)
   useEffect(() => {
     const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') onBack() }
     window.addEventListener('keydown', esc)
@@ -364,15 +365,27 @@ function ProjectView({ slug, mode, onBack }: { slug: string; mode: OpenMode; onB
   const dir = nameOf(item)
   const points = card.points ?? []
 
+  // description.txt opens its text on a click, so the files stay in view
+  const readmeBtn = <button className="pv-file pv-btn" data-on={readme ? 1 : 0} onClick={() => setReadme(v => !v)}>description.txt</button>
+  const fileOf = (f: { file: string; href?: string }) => (f.file === 'description.txt' ? <span key={f.file}>{readmeBtn}</span> : <FileLink key={f.file} f={f} />)
+
   if (mode === 'tree') return (
     <div className="pv-tree ar-hop">
       {/* the branches are drawn, not typed: the mono face has no box glyphs */}
       {files.map(f => (
         <div key={f.file} className="pv-node">
-          <FileLink f={f} />
-          {f.file === 'description.txt' && <p style={TEXT_STYLE}>{card.text}</p>}
+          {fileOf(f)}
+          {f.file === 'description.txt' && readme && <p className="ar-hop" style={TEXT_STYLE}>{card.text}</p>}
         </div>
       ))}
+    </div>
+  )
+
+  // row: every file on one line under the name, the description under that
+  if (mode === 'row') return (
+    <div className="pv-rowv ar-hop">
+      <div className="pv-files">{files.map(fileOf)}</div>
+      {readme && <p className="ar-hop" style={TEXT_STYLE}>{card.text}</p>}
     </div>
   )
 
@@ -423,6 +436,19 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
   const body = (d: Dir) => (d === 'spiel' ? spiel : d === 'about' ? <AboutBody /> : listOrProject(itemsOf(d)))
   const [dir, setDir] = useState<Dir>('spiel')
   const [fold, setFold] = useState<Dir | null>('spiel')
+  // the GUI and back: the same command, pane and project stay open
+  const restored = useRef(false)
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('cli-session') ?? 'null')
+      if (saved) { setFold(saved.fold ?? 'spiel'); setDir(saved.dir ?? 'spiel'); setProj(saved.proj ?? null) }
+    } catch {}
+    restored.current = true
+  }, [])
+  useEffect(() => {
+    if (!restored.current) return
+    try { sessionStorage.setItem('cli-session', JSON.stringify({ fold, dir, proj })) } catch {}
+  }, [fold, dir, proj])
 
   if (kind === 'panes') return (
     <div className="ar-panes">
@@ -1045,6 +1071,20 @@ export default function Home() {
   // a link opened as a window: its title is kept by its address
   const urlTitles = useRef<Record<string, string>>({})
   const openUrl = useCallback((href: string, title: string) => { urlTitles.current[href] = title; openWin('url:' + href) }, [openWin])
+  // link windows come back when you return from the GUI
+  const winsRestored = useRef(false)
+  useEffect(() => {
+    try {
+      const saved: { href: string; title: string }[] = JSON.parse(sessionStorage.getItem('cli-windows') ?? '[]')
+      saved.forEach(w => openUrl(w.href, w.title))
+    } catch {}
+    winsRestored.current = true
+  }, [openUrl])
+  useEffect(() => {
+    if (!winsRestored.current) return
+    const urls = wins.filter(w => w.id.startsWith('url:')).map(w => ({ href: w.id.slice(4), title: urlTitles.current[w.id.slice(4)] ?? '' }))
+    try { sessionStorage.setItem('cli-windows', JSON.stringify(urls)) } catch {}
+  }, [wins])
   const focusWin = (id: string) => { zTop.current += 1; const z = zTop.current; setWins(ws => ws.map(w => (w.id === id ? { ...w, z } : w))) }
   const winsRef = useRef(wins)
   winsRef.current = wins
@@ -1445,6 +1485,10 @@ export default function Home() {
         .pv-gap { margin-top: 0.8rem; }
         .ar-panes .pv-inline .ar-cmd, .pv-inline .ar-cmd { padding: 0; line-height: 1.5; white-space: normal; }
         .pv-inline p, .pv-inline ul { max-width: 72ch; }
+        .pv-rowv { padding: 0.35rem 0 0.7rem 2ch; }
+        .pv-btn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+        .pv-btn[data-on="1"] { background: var(--ink); color: var(--bg); text-decoration: none; }
+        .pv-rowv p { margin-top: 0.5rem; max-width: 72ch; }
         .pv-tree { font-family: var(--font-mono); font-size: 1rem; padding: 0.3rem 0 0.7rem 0.5ch; }
         .pv-node { position: relative; padding: 0.15rem 0 0.15rem 2.4rem; }
         .pv-node::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1.5px solid var(--ink); }
