@@ -297,74 +297,99 @@ function StarWindow({ win, title, buttons = [], end, onClose, onFocus, onMove, o
    The facts are from the designers' retrospective (Johnson et al., 1989). */
 type Part = 'display' | 'objects' | 'icons' | 'commands' | 'mouse'
 const PARTS: Record<Part, { name: string; text: string }> = {
-  display: { name: 'Display', text: 'A 17-inch bitmapped screen at 72 pixels per inch, the same as a printer\u2019s points, so documents look on screen as they will print.' },
-  objects: { name: 'Document objects', text: 'Everything inside a document is an object you can select: a page, text, a frame holding a graphic, table or equation, a field, a footnote. Each one has its own property sheet.' },
-  icons: { name: 'Icons', text: 'Small pictures of the things in an office: documents, folders, file drawers, in- and out-baskets for mail, printers, a calculator. You open one to see what’s inside.' },
-  commands: { name: 'Universal commands', text: 'A small set of generic commands work on every kind of data: Move, Copy, Open, Delete, Show Properties and Same (Copy Properties). Each has its own key. Printing is a Copy to a printer icon, and mail is a Move to the out-basket.' },
-  mouse: { name: 'Mouse', text: 'Two buttons, between Apple\u2019s one and most others\u2019 three. The designers\u2019 studies found one button traded fewer button mix-ups for more selection errors.' },
+  display: { name: 'Display', text: 'A 17-inch bitmapped screen at 72 pixels per inch, the same as a printer’s points, so documents look on screen as they will print.' },
+  objects: { name: 'Document objects', text: 'Everything inside a document is an object you can select: a page, text down to a character or paragraph, a frame holding graphics, a table, an equation or text, a field, a footnote. Each one has its own property sheet.' },
+  icons: { name: 'Icons', text: 'Pictures of the things in an office: documents, folders, file drawers, in- and out-baskets, printers, a calculator. You open one to see what’s inside. Printing is a Copy to the printer icon, and mail is a Move to the out-basket.' },
+  commands: { name: 'Universal commands', text: 'The same few commands work on every kind of object, each on its own key at the sides of the keyboard. You select a thing first, then press what to do with it.' },
+  mouse: { name: 'Mouse', text: 'Two buttons, between Apple’s one and most others’ three. The designers’ studies found one button traded fewer button mix-ups for more selection errors.' },
 }
-const DG_OBJECTS = ['Page', 'Text', 'Frame', 'Field', 'Footnote']
-const DG_ICONS = ['Document', 'Folder', 'File drawer', 'In- and out-basket', 'Printer', 'Calculator', 'Directory']
-const DG_COMMANDS = ['Move', 'Copy', 'Open', 'Delete', 'Show Properties', 'Same']
+// the labels, as they appear on Xerox's own diagram of the Star
+const DG_OBJECTS: [string, number][] = [['Page', 0], ['Text', 0], ['character', 1], ['paragraph', 1], ['Frame', 0], ['Graphics', 1], ['line', 2], ['symbol', 2], ['chart', 2], ['Table', 1], ['Equation', 1], ['Text', 1], ['Field', 0], ['Footnote', 0]]
+const DG_ICONS = ['Document', 'Record File', 'Folder', '', 'File Drawer', 'In- and Out-Baskets', 'Printer', 'Floppy Disk Drive', 'User and User Group', 'Calculator', 'Terminal Emulators', 'Checker', 'Directory']
+const DG_COMMANDS = ['Delete', 'Copy', 'Move', 'Show Properties', 'Copy Properties', 'Again', 'Undo', 'Help']
 
 function StarDiagram() {
   const [part, setPart] = useState<Part>('display')
   const on = (p: Part) => part === p
   const pick = (p: Part) => ({ onClick: () => setPart(p), className: `dg-hit${on(p) ? ' dg-on' : ''}`, role: 'button' as const, tabIndex: 0,
     onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPart(p) } } })
-  const label = (t: string, x: number, y: number, p: Part, anchor: 'start' | 'end' | 'middle' = 'start', bold = false) => (
-    <text key={t} x={x} y={y} textAnchor={anchor} className={bold ? 'dg-head' : 'dg-label'} data-on={on(p) ? 1 : 0}>{t}</text>
-  )
-  const dot = { stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '2 3', fill: 'none' }
-  const ink = { stroke: 'currentColor', strokeWidth: 1.5, fill: 'none' }
+  const ink = { stroke: 'currentColor', fill: 'none' }
+  const dash = { stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '3 3', fill: 'none' }
+  const head = (t: string, x: number, y: number, anchor: 'start' | 'middle' | 'end' = 'start') => <text x={x} y={y} textAnchor={anchor} className="dg-head">{t}</text>
+  // the object list: bold top level, lighter and indented below it
+  let oy = 180
+  const objects = DG_OBJECTS.map(([t, lvl], i) => {
+    if (i && lvl === 0) oy += 14
+    const y = oy; oy += lvl === 0 ? 22 : 20
+    return <text key={i} x={46 + lvl * 26} y={y} className={lvl === 0 ? 'dg-item' : 'dg-sub'}>{t}</text>
+  })
   return (
     <div className="dg">
-      <svg viewBox="0 0 680 420" className="dg-svg" aria-label="The Xerox Star user interface">
-        {/* display */}
-        <g {...pick('display')}>
-          {label('Display', 335, 30, 'display', 'middle', true)}
-          <rect x="230" y="40" width="210" height="170" {...ink} strokeWidth={on('display') ? 3 : 1.5} />
-          <rect x="242" y="52" width="186" height="140" {...ink} />
-          <rect x="310" y="210" width="50" height="14" {...ink} />
-        </g>
-        {/* document objects: a window with a document in it */}
+      <svg viewBox="0 0 800 820" className="dg-svg" aria-label="The Xerox Star user interface">
+        <defs>
+          <pattern id="dg-dots" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1.4" height="1.4" fill="currentColor" /></pattern>
+        </defs>
+        <text x="400" y="70" textAnchor="middle" className="dg-title"><tspan className="dg-xerox">XEROX</tspan> STAR User-Interface</text>
+
+        {/* document objects */}
         <g {...pick('objects')}>
-          {label('Document objects', 20, 58, 'objects', 'start', true)}
-          {DG_OBJECTS.map((t, i) => label(t, 20, 82 + i * 20, 'objects'))}
-          {DG_OBJECTS.map((t, i) => <path key={t} d={`M ${92} ${78 + i * 20} L 252 ${80 + i * 16}`} {...dot} />)}
-          <rect x="252" y="62" width="110" height="112" {...ink} strokeWidth={on('objects') ? 3 : 1.5} />
-          {[0, 1, 2].map(i => <line key={i} x1="252" x2="362" y1={65 + i * 3} y2={65 + i * 3} stroke="currentColor" strokeWidth="1" />)}
-          {[0, 1, 2, 3].map(i => <line key={i} x1="262" x2={346 - (i % 2) * 18} y1={84 + i * 7} y2={84 + i * 7} stroke="currentColor" strokeWidth="1" />)}
-          <rect x="262" y="118" width="44" height="32" {...ink} />
-          <path d="M268 144 L276 132 L284 138 L298 124" {...ink} />
-          {[0, 1].map(i => <line key={i} x1="314" x2="352" y1={124 + i * 8} y2={124 + i * 8} stroke="currentColor" strokeWidth="1" />)}
+          {head('DOCUMENT OBJECTS', 40, 140)}
+          {objects}
+          <path d="M150 250 L300 290" {...dash} />
+          <path d="M140 332 L302 372" {...dash} />
+          <rect x="292" y="258" width="112" height="152" fill="var(--paper)" stroke="currentColor" strokeWidth={on('objects') ? 3 : 1.5} />
+          {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1="300" x2="340" y1={272 + i * 7} y2={272 + i * 7} stroke="currentColor" strokeWidth="1" />)}
+          <rect x="348" y="268" width="46" height="62" {...ink} strokeWidth="1.5" />
+          {[[358, 304, 18], [368, 296, 26], [378, 308, 14]].map(([x, y, h]) => <rect key={x} x={x} y={y} width="6" height={h} fill="currentColor" />)}
+          <rect x="300" y="346" width="42" height="52" {...ink} strokeWidth="1" strokeDasharray="2 2" />
+          <path d="M309 356 h10 v10 h-10z M313 366 v18 h8 M321 372 h10 v8 h-10z M321 380 h10 v8 h-10z" {...ink} strokeWidth="1.2" />
+          {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1="350" x2="394" y1={348 + i * 8} y2={348 + i * 8} stroke="currentColor" strokeWidth="1" />)}
         </g>
+
+        {/* the display: a monitor with a dotted screen */}
+        <g {...pick('display')}>
+          {head('DISPLAY', 400, 222, 'middle')}
+          <rect x="268" y="234" width="264" height="200" rx="3" {...ink} strokeWidth={on('display') ? 4.5 : 3} />
+          <rect x="284" y="248" width="232" height="170" fill="url(#dg-dots)" stroke="currentColor" strokeWidth="1.2" opacity="0.9" />
+          <path d="M400 434 V462" {...ink} strokeWidth="3" />
+        </g>
+
         {/* icons down the right of the screen */}
         <g {...pick('icons')}>
-          {label('Icons', 470, 58, 'icons', 'start', true)}
-          {DG_ICONS.map((t, i) => label(t, 470, 82 + i * 18, 'icons'))}
-          {[0, 1, 2, 3, 4].map(i => <rect key={i} x="392" y={62 + i * 25} width="22" height="18" {...ink} strokeWidth={on('icons') ? 2.5 : 1.5} />)}
-          {[0, 1, 2, 3, 4].map(i => <path key={i} d={`M 414 ${71 + i * 25} L 466 ${78 + i * 22}`} {...dot} />)}
+          {head('ICONS', 712, 140, 'middle')}
+          {DG_ICONS.map((t, i) => t && <text key={t} x="618" y={180 + i * 19.5} className="dg-sub">{t}</text>)}
+          {[[452, 262], [452, 286], [452, 310], [476, 310], [476, 334]].map(([x, y]) => <rect key={`${x}${y}`} x={x} y={y} width="18" height="18" fill="var(--paper)" stroke="currentColor" strokeWidth={on('icons') ? 3 : 2} />)}
+          <path d="M496 292 L612 292" {...dash} />
         </g>
-        {/* keyboard, with the command keys on the left */}
+
+        {/* keyboard: function keys along the top, command keys at both sides */}
         <g {...pick('commands')}>
-          {label('Keyboard', 335, 332, 'commands', 'middle')}
-          <rect x="200" y="250" width="270" height="62" {...ink} />
-          {[0, 1, 2, 3].map(r => [0, 1].map(c => <rect key={`${r}${c}`} x={208 + c * 18} y={256 + r * 13} width="14" height="10" fill={on('commands') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" />))}
-          {[0, 1, 2, 3].map(r => Array.from({ length: 11 }, (_, c) => <rect key={`k${r}${c}`} x={252 + c * 18} y={256 + r * 13} width="14" height="10" fill="none" stroke="currentColor" strokeWidth="1" />))}
-          {label('Universal commands', 20, 262, 'commands', 'start', true)}
-          {DG_COMMANDS.map((t, i) => label(t, 20, 282 + i * 16, 'commands'))}
-          <path d="M 160 258 L 206 262" {...dot} />
+          <rect x="256" y="464" width="276" height="98" {...ink} strokeWidth="2.5" />
+          {Array.from({ length: 7 }, (_, i) => <rect key={i} x={326 + i * 21} y="476" width="19" height="13" {...ink} strokeWidth="1.2" />)}
+          <rect x="316" y="498" width="172" height="40" {...ink} strokeWidth="1.5" />
+          <rect x="330" y="545" width="146" height="9" {...ink} strokeWidth="1.2" />
+          {[264, 498].map(x => <g key={x}>
+            <rect x={x} y="496" width="28" height="44" fill={on('commands') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.2" />
+            {[1, 2, 3].map(r => <line key={r} x1={x} x2={x + 28} y1={496 + r * 11} y2={496 + r * 11} stroke={on('commands') ? 'var(--paper)' : 'currentColor'} strokeWidth="1" />)}
+            <line x1={x + 14} x2={x + 14} y1="496" y2="540" stroke={on('commands') ? 'var(--paper)' : 'currentColor'} strokeWidth="1" />
+          </g>)}
+          {head('KEYBOARD', 400, 590, 'middle')}
+          <path d="M268 562 L236 612" {...dash} />
+          {head('UNIVERSAL COMMANDS', 90, 632)}
+          {DG_COMMANDS.map((t, i) => <text key={t} x="112" y={666 + i * 19} className="dg-sub">{t}</text>)}
         </g>
-        {/* mouse: Select and Adjust */}
+
+        {/* mouse, on its cable: Select and Adjust */}
         <g {...pick('mouse')}>
-          <path d="M527 255 C 527 228, 488 232, 470 262" {...ink} />
-          <rect x="510" y="255" width="34" height="52" rx="4" {...ink} strokeWidth={on('mouse') ? 3 : 1.5} />
-          <rect x="513" y="259" width="13" height="15" fill={on('mouse') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" />
-          <rect x="528" y="259" width="13" height="15" fill={on('mouse') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" />
-          {label('Mouse', 556, 276, 'mouse', 'start', true)}
-          {label('Select', 505, 330, 'mouse', 'end')}
-          {label('Adjust', 549, 330, 'mouse', 'start')}
+          <path d="M432 464 V452 H574 V478" {...ink} strokeWidth="2" />
+          <rect x="554" y="478" width="40" height="52" {...ink} strokeWidth={on('mouse') ? 3.5 : 2} />
+          <rect x="565" y="488" width="6" height="20" fill="currentColor" />
+          <rect x="577" y="488" width="6" height="20" fill="currentColor" />
+          {head('MOUSE', 606, 500)}
+          <path d="M568 530 L604 584" {...dash} />
+          <path d="M580 530 L676 584" {...dash} />
+          <text x="604" y="604" textAnchor="middle" className="dg-item">Select</text>
+          <text x="680" y="604" textAnchor="middle" className="dg-item">Adjust</text>
         </g>
       </svg>
       {/* the clicked part's properties, as a Star property sheet */}
@@ -576,6 +601,13 @@ export default function Star() {
       )
     }
 
+    // the terminal: defne.io's command line, in a window on its own desk
+    if (w.id === 'term') return (
+      <StarWindow key={w.id} {...common} flush title="Terminal: defne.io" onClose={() => close('term')}
+        buttons={[['Full screen', () => { location.href = '/' }]]}>
+        <div className="web"><iframe src="/" title="Terminal" /></div>
+      </StarWindow>
+    )
     // a browser window: the page itself, inside the desktop
     if (w.id === 'web') return (
       <StarWindow key={w.id} {...common} flush title={webTitle ?? SOURCES.find(x => x.url === webUrl)?.title ?? 'Browser'} onClose={() => close('web')}
@@ -661,7 +693,8 @@ export default function Star() {
             go: () => open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260),
           })),
           { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
-          { id: 'site', shape: 'tool' as Shape, label: 'Terminal', pict: DESK_ICON.site, go: () => { location.href = '/' } },
+          // the terminal opens as a window on the desk: the CLI site, running inside the GUI
+          { id: 'site', shape: 'tool' as Shape, label: 'Terminal', pict: DESK_ICON.site, go: () => open('term', 900, Math.min(640, innerHeight - 60)) },
           ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: DESK_ICON.field, go: () => open('field') }]),
         ].map(ic => (
           <StarIcon key={ic.id} shape={ic.shape} pict={ic.pict} label={ic.label} pressed={wins.some(w => w.id === ic.id)}
@@ -804,10 +837,13 @@ const CSS = `
   .dg { max-width: 760px; }
   .dg-svg { width: 100%; height: auto; display: block; color: var(--ink); }
   .dg-hit { cursor: pointer; outline: none; }
-  .dg-label { font-size: 13px; fill: currentColor; }
-  .dg-head { font-size: 13px; font-weight: 700; fill: currentColor; }
-  .dg-hit:hover .dg-label, .dg-hit:hover .dg-head { text-decoration: underline; }
-  .dg-on .dg-label, .dg-on .dg-head { paint-order: stroke; stroke: var(--ink); stroke-width: 9px; stroke-linejoin: round; fill: var(--paper); }
+  .dg-title { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 700; fill: currentColor; }
+  .dg-xerox { font-size: 30px; font-weight: 400; letter-spacing: 0.02em; }
+  .dg-head { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: currentColor; }
+  .dg-item { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; fill: currentColor; }
+  .dg-sub { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; fill: currentColor; }
+  .dg-hit:hover .dg-head { text-decoration: underline; }
+  .dg-on .dg-head { paint-order: stroke; stroke: var(--ink); stroke-width: 10px; stroke-linejoin: round; fill: var(--paper); }
   .dg-sheet { margin-top: 12px; border: 1.5px solid var(--ink); }
   .dg-sheet-head { padding: 5px 8px; border-bottom: 1.5px solid var(--ink); font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; }
   .dg-sheet p { padding: 10px 10px 12px; margin: 0; }

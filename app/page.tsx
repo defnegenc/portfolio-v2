@@ -242,14 +242,14 @@ type Part = 'both' | 'projects' | 'tidbits'
    ls       a dated listing: the year, then the name as a folder
    buttons  Xerox Star command buttons: small rounded boxes that invert
    (desktop icons live in the Star view, not here: no GUI in the terminal) */
-type NameStyle = 'mono' | 'ls'
+type NameStyle = 'mono' | 'ls' | 'comment' | 'tag' | 'cols'
 const NAME_STYLES: { key: NameStyle; label: string }[] = [
-  { key: 'mono', label: 'Mono' }, { key: 'ls', label: 'Dated' },
+  { key: 'mono', label: 'Mono' }, { key: 'comment', label: '# comment' }, { key: 'tag', label: 'git tag' }, { key: 'cols', label: 'Columns' }, { key: 'ls', label: 'Dated' },
 ]
 const NameCtx = createContext<NameStyle>('mono')
 
 
-type Item = { name: string; href: string; year: string; award?: string; awardNote?: string }
+type Item = { name: string; href: string; year: string; kind?: string; award?: string; awardNote?: string }
 // the lists, everywhere: what ls prints
 function Names({ items, click }: { items: Item[]; click: (href: string) => (e: React.MouseEvent) => void }) {
   return <DirList items={items} click={click} />
@@ -325,9 +325,14 @@ function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: 
     <div className="pl-list">
       {items.map(p => (
         <div key={p.name}>
-          <a href={p.href} onClick={click(p.href)} className="pl nm-mono" data-on={open === slugOf(p.href) ? 1 : 0} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <a href={p.href} onClick={click(p.href)} className={`pl nm-mono nm-${style}`} data-on={open === slugOf(p.href) ? 1 : 0}>
             <span className="pl-dir">{dirOf(p)}</span>
-            {p.award && <span className="award nm-award">{p.award} {p.awardNote}</span>}
+            {/* Mono: the award beside the name. # comment: as a shell comment.
+                git tag: as a tag decoration. Columns: what it is, lined up. */}
+            {style === 'cols' && <span className="nm-kind">{(p.kind ?? '').toLowerCase()}</span>}
+            {p.award && (style === 'comment' ? <span className="nm-note"># {p.award}</span>
+              : style === 'tag' ? <span className="nm-note">(tag: chi-2026-best-paper)</span>
+              : <span className="award nm-award">{p.award}{style === 'mono' ? ` ${p.awardNote}` : ''}</span>)}
           </a>
           {inside(p)}
         </div>
@@ -437,6 +442,7 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
   }
   const spiel = <DecodeBio onDone={onBioDone} style={TEXT_STYLE} />
   const entry = useContext(EntryCtx)
+  const { phone, stacked } = useContext(PhoneCtx)
   const body = (d: Dir) => (d === 'spiel' ? spiel : d === 'about' ? <AboutBody /> : listOrProject(itemsOf(d)))
   const [dir, setDir] = useState<Dir>('spiel')
   const [fold, setFold] = useState<Dir | null>('spiel')
@@ -463,6 +469,16 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
     </div>
   )
 
+  // tmux on a phone: one section at a time, the tab bar fixed along the bottom
+  if (stacked && phone === 'tmux') return (
+    <div className="tmux">
+      <div key={dir} className="ar-hop tmux-body">{body(dir)}</div>
+      <nav className="tmux-bar">
+        {AR_DIRS.map((d, i) => <button key={d.key} data-on={dir === d.key ? 1 : 0} onClick={() => setDir(d.key)}>{i}:{d.key === 'spiel' ? 'spiel' : d.key}</button>)}
+      </nav>
+    </div>
+  )
+
   // fold: each command opens in place, one at a time
   return (
     <div className="ar-fold">
@@ -472,7 +488,12 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
           {fold === d.key && <div className="ar-hop ar-out">{body(d.key)}</div>}
         </div>
       ))}
-      {entry === 'open' && (
+      {stacked && phone === 'commands' && (
+        <div className="ar-item">
+          <UrlLink className="ar-cmd ar-open" href="https://linkedin.com/in/-defne" title="LinkedIn"><span>%</span> open linkedin<em>↗</em></UrlLink>
+        </div>
+      )}
+      {(entry === 'open' || (stacked && phone === 'commands')) && (
         <div className="ar-item">
           <a className="ar-cmd ar-open" href="/star"><span>%</span> open .<em>the desktop</em></a>
         </div>
@@ -1061,6 +1082,14 @@ function RetroWindow({ title, accent, n, z, onClose, onFocus, initSize, flush = 
 type Entry = 'toggle' | 'icon' | 'open'
 const ENTRIES: { key: Entry; label: string }[] = [{ key: 'toggle', label: 'Toggle' }, { key: 'icon', label: 'Icon' }, { key: 'open', label: 'open .' }]
 const EntryCtx = createContext<Entry>('toggle')
+
+/* Phone layouts, compared from Options (?p=). Status: LinkedIn and the
+   switch in a status line along the bottom. Commands: no footer, LinkedIn
+   and the desktop are commands in the list. tmux: the four commands as a
+   tab bar along the bottom, one shown at a time. */
+type Phone = 'status' | 'commands' | 'tmux'
+const PHONES: { key: Phone; label: string }[] = [{ key: 'status', label: 'Status line' }, { key: 'commands', label: 'All commands' }, { key: 'tmux', label: 'tmux tabs' }]
+const PhoneCtx = createContext<{ phone: Phone; stacked: boolean }>({ phone: 'status', stacked: false })
 // the Star window from the favicon: a white window, black frame, striped title bar
 const StarWin = () => (
   <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden>
@@ -1123,6 +1152,7 @@ export default function Home() {
   const [openMode, setOpenMode] = useState<OpenMode>('tree')
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
   const [entry, setEntry] = useState<Entry>('toggle')
+  const [phone, setPhone] = useState<Phone>('status')
   // phones always fold, whatever is picked for wide screens
   const [stacked, setStacked] = useState(false)
   useEffect(() => {
@@ -1256,6 +1286,8 @@ export default function Home() {
     if (nq && NAME_STYLES.some(x => x.key === nq)) setNames(nq)
     const aq = new URLSearchParams(window.location.search).get('a') as Arrange | null
     if (aq && ARRANGES.some(x => x.key === aq)) setArrange(aq)
+    const pq = new URLSearchParams(window.location.search).get('p') as Phone | null
+    if (pq && PHONES.some(x => x.key === pq)) setPhone(pq)
     const eq = new URLSearchParams(window.location.search).get('e') as Entry | null
     if (eq && ENTRIES.some(x => x.key === eq)) setEntry(eq)
     const oq = new URLSearchParams(window.location.search).get('o') as OpenMode | null
@@ -1278,6 +1310,12 @@ export default function Home() {
     setOpenMode(v)
     const u = new URL(window.location.href)
     if (v === 'tree') u.searchParams.delete('o'); else u.searchParams.set('o', v)
+    window.history.replaceState(null, '', u)
+  }
+  const pickPhone = (v: Phone) => {
+    setPhone(v)
+    const u = new URL(window.location.href)
+    if (v === 'status') u.searchParams.delete('p'); else u.searchParams.set('p', v)
     window.history.replaceState(null, '', u)
   }
   const pickEntry = (v: Entry) => {
@@ -1432,11 +1470,13 @@ export default function Home() {
   return (
     <UrlCtx.Provider value={openUrl}>
     <EntryCtx.Provider value={entry}>
+    <PhoneCtx.Provider value={{ phone, stacked }}>
     <div
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
       data-full={full ? 1 : 0}
       data-centred={centred ? 1 : 0}
+      data-phone={phone}
       className="root-frame"
       style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
         ...({ '--wall': `${centred ? 1.75 : 1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
@@ -1590,6 +1630,13 @@ export default function Home() {
         .term-out { margin: 0; }
         /* about-me printed in the session reads like the rest of the output: mono, same size and spacing */
         .term-doc p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
+        /* project names */
+        .pl.nm-mono { display: flex; align-items: baseline; gap: 0.3rem 0.75rem; flex-wrap: wrap; }
+        .nm-note { color: var(--award); }
+        .pl.nm-cols { display: grid; grid-template-columns: 24ch 9ch 1fr; column-gap: 1.5ch; }
+        .nm-kind { color: var(--ink); }
+        .bar-mini { display: inline-flex; gap: 0.9rem; font-family: var(--font-mono); font-size: 0.82rem; white-space: nowrap; }
+        .bar-mini a { color: var(--ink); text-decoration: none; }
         .bar-gui { display: inline-flex; align-items: center; color: var(--ink); }
         .bar-gui:hover svg { transform: translateY(-1px); }
         .ar-open { text-decoration: none; display: flex; align-items: baseline; gap: 1.2ch; }
@@ -1848,6 +1895,23 @@ export default function Home() {
           .about-top { flex-wrap: wrap; }
           .shell-pop { max-width: calc(100vw - 2.5rem); }
           .star-credit-float { order: 3; }
+          /* names: the award drops under the name instead of breaking the line */
+          .pl.nm-mono .nm-award, .pl.nm-mono .nm-note { flex-basis: 100%; padding-left: 2ch; font-size: 0.9rem; }
+          .pl.nm-cols { grid-template-columns: 1fr; } .pl.nm-cols .nm-kind { display: none; } .pl.nm-cols .nm-award { padding-left: 2ch; }
+          /* Status line: LinkedIn left, the switch right, fixed along the bottom */
+          .root-frame[data-phone="status"] .star-credit-float { position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 60; padding: 0.55rem 1.1rem calc(0.55rem + env(safe-area-inset-bottom)) !important;
+            background: var(--bg); border-top: 1px solid var(--hairline); }
+          .root-frame[data-phone="status"] .star-credit { display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0; }
+          .root-frame[data-phone="status"] .star-credit .li-inline { margin: 0; }
+          .root-frame[data-phone="status"] .windows > .panel:last-of-type { padding-bottom: 4.5rem !important; }
+          /* All commands: no footer, it's all in the list */
+          .root-frame[data-phone="commands"] .star-credit-float { display: none !important; }
+          /* tmux: no footer; the tab bar sits along the bottom */
+          .root-frame[data-phone="tmux"] .star-credit-float { display: none !important; }
+          .tmux-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; display: flex; background: var(--ink); padding-bottom: env(safe-area-inset-bottom); }
+          .tmux-bar button { flex: 1; height: 44px; border: 0; background: none; color: var(--bg); font-family: var(--font-mono); font-size: 0.85rem; }
+          .tmux-bar button[data-on="1"] { background: var(--award); color: var(--bg); }
+          .tmux-body { padding-bottom: 4rem; }
           .ar-fold .ar-cmd { padding: 0.85rem 0; }
         }
 
@@ -1906,15 +1970,6 @@ export default function Home() {
 
           {/* phones: drag the bottom edge to make the field taller or shorter */}
           <div className="m-grip no-open" onPointerDown={growPhoneField} aria-hidden><span /></div>
-          <button className="full-btn no-open" onClick={() => setFull(v => !v)}
-            aria-label={full ? 'Exit full screen' : 'Full screen'}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              {full
-                ? <><polyline points="9 3 9 9 3 9" /><polyline points="15 21 15 15 21 15" /></>
-                : <><polyline points="3 9 3 3 9 3" /><polyline points="21 15 21 21 15 21" /></>}
-            </svg>
-          </button>
         </div>
 
         {/* field controls belong to the animation, not the nav; in the centre
@@ -1955,6 +2010,11 @@ export default function Home() {
                     <UrlLink className="back-link" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
                     {entry === 'icon' && <a className="bar-gui" href="/star" title="Open the desktop" aria-label="Open the desktop"><StarWin /></a>}
                   </div>
+                  {/* tmux on a phone has no footer, so LinkedIn and the desktop sit up here */}
+                  {stacked && phone === 'tmux' && <span className="bar-mini">
+                    <UrlLink className="back-link" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
+                    <a className="back-link" href="/star">gui</a>
+                  </span>}
                   <div className="no-open">
                     <WeatherControl term override={wx} setOverride={setWx} live={live} place={sky?.place} open={wxOpen} setOpen={setWxOpen} theme={theme} setTheme={setTheme} />
                   </div>
@@ -2037,6 +2097,11 @@ export default function Home() {
               <button key={v.key} data-on={openMode === v.key ? 1 : 0} onClick={() => pickOpen(v.key)}>{v.label}</button>
             ))}
           </div>
+          <div className="v-row"><span>Phone</span>
+            {PHONES.map(v => (
+              <button key={v.key} data-on={phone === v.key ? 1 : 0} onClick={() => pickPhone(v.key)}>{v.label}</button>
+            ))}
+          </div>
           <div className="v-row"><span>Way to GUI</span>
             {ENTRIES.map(v => (
               <button key={v.key} data-on={entry === v.key ? 1 : 0} onClick={() => pickEntry(v.key)}>{v.label}</button>
@@ -2097,6 +2162,7 @@ export default function Home() {
       )}
 
     </div>
+    </PhoneCtx.Provider>
     </EntryCtx.Provider>
     </UrlCtx.Provider>
   )
