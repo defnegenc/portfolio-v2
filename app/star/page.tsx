@@ -382,9 +382,26 @@ export default function Star() {
   useEffect(() => { if (iconsLoaded.current) localStorage.setItem('star-icons', JSON.stringify(iconAt)) }, [iconAt])
   // About the Star: the history, or the clickable diagram
   const [histTab, setHistTab] = useState<'history' | 'diagram'>('history')
+  /* Going to the terminal and back keeps the desk as you left it: the open
+     windows, extra fields, the browser page and the About the Star tab live
+     in this tab's session. */
+  const restored = useRef(false)
   /* first layout: only the field is open. My spiel, About me, Projects and
      Properties wait on the desk as icons. */
   useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('star-session') ?? 'null')
+      if (saved?.wins?.length && !new URLSearchParams(location.search).get('open')) {
+        setWins(saved.wins); setFields(saved.fields ?? {}); fieldN.current = saved.fieldN ?? 0
+        if (saved.webUrl) setWebUrl(saved.webUrl)
+        setWebTitle(saved.webTitle ?? null)
+        if (saved.histTab) setHistTab(saved.histTab)
+        z.current = Math.max(3, ...saved.wins.map((w: Win) => w.z)) + 1
+        restored.current = true
+        return
+      }
+    } catch {}
+    restored.current = true
     if (innerWidth < 700) {
       // phones: the icons take the top, the field the rest
       const top = Math.min(300, Math.round(innerHeight * 0.38))
@@ -443,6 +460,10 @@ export default function Star() {
     setWebUrl(url); setWebTitle(title ?? null); open('web', 820, Math.min(700, innerHeight - 60))
   }
   const browse = (url: string) => (e: React.MouseEvent) => { e.preventDefault(); openWeb(url) }
+  useEffect(() => {
+    if (!restored.current) return
+    try { sessionStorage.setItem('star-session', JSON.stringify({ wins, fields, fieldN: fieldN.current, webUrl, webTitle, histTab })) } catch {}
+  }, [wins, fields, webUrl, webTitle, histTab])   // eslint-disable-line react-hooks/exhaustive-deps
   const content = (w: Win) => {
     const common = { win: w, onFocus: () => focus(w.id), onMove: move(w.id), onSize: size(w.id) }
     /* Every field window works the same way: Close, Properties (its hour,
@@ -462,7 +483,7 @@ export default function Star() {
           title={`Field: ${SKIES.find(x => x[0] === sk)?.[1]}, ${HOURS.find(h => h[0] === p)?.[1].toLowerCase()}${main && !pick && sky?.place ? ` in ${sky.place}` : ''}`}
           onClose={() => { close(w.id); if (!main) setFields(f => { const n = { ...f }; delete n[w.id]; return n }) }}
           buttons={[['Properties', flip]]}
-          end={<button className="cmd cmd-black" onClick={newField} title="New field" aria-label="New field"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden><path d="M5 0v10M0 5h10" stroke="currentColor" strokeWidth="2" /></svg></button>}>
+          end={<button className="cmd cmd-black" onClick={newField} title="New field" >New field <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden><path d="M5 0v10M0 5h10" stroke="currentColor" strokeWidth="2" /></svg></button>}>
           <div className="fw">
             <div className="field">
               <AsciiCanvas breathe={lk.motion === 'breathe'} motion={lk.motion} render={lk.render} hover={lk.hover}
@@ -755,7 +776,7 @@ const CSS = `
   /* property sheet */
   /* a black command button at the right end of a title bar */
   .head-end { margin-left: auto; display: flex; }
-  .cmd.cmd-black { display: flex; align-items: center; justify-content: center; background: var(--ink); color: var(--paper) !important; border-color: var(--ink); min-width: 28px; }
+  .cmd.cmd-black { display: flex; align-items: center; justify-content: center; gap: 5px; background: var(--ink); color: var(--paper) !important; border-color: var(--ink); min-width: 28px; }
   .cmd.cmd-black:hover { background: var(--paper); color: var(--ink) !important; }
   .hist-tabs { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1.5px solid var(--ink); background: var(--paper); flex-shrink: 0; }
   .dg { max-width: 760px; }

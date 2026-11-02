@@ -57,8 +57,6 @@ export default function WeatherControl({
         .wx:hover .wx-tip, .wx-trig:focus-visible ~ .wx-tip { opacity: 1; }
         .wx[data-open="1"] .wx-tip { opacity: 0; }
 
-        .wx-trig.wx-trig-term { width: auto; gap: 0.4rem; padding: 0 2px; }
-        .wx-word { font-family: var(--font-mono); font-size: 0.97rem; line-height: 1; }
         .wx-intro { font-size: 0.92rem; line-height: 1.55; color: var(--ink); }
         /* the resolved place: underlines in the accent on hover so it reads as
            a real value rather than filler copy */
@@ -76,10 +74,8 @@ export default function WeatherControl({
       `}</style>
       <style>{SHARED_CSS + TRIGGER_CSS}</style>
 
-      <button className={term ? 'wx-trig wx-trig-term' : 'wx-trig'} onClick={() => setOpen(!open)} aria-expanded={open} aria-label="About this canvas">
+      <button className="wx-trig" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="About this canvas">
         <Trigger sky={curS} />
-        {/* the terminal side names the control, so it reads as one */}
-        {term && <span className="wx-word">weather</span>}
       </button>
       {!term && <span className="wx-tip" role="tooltip">What is this?</span>}
 
