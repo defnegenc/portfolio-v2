@@ -172,7 +172,10 @@ export function MiniField({ look, light, cell = 5, seed = 0, still: stillProp = 
     }
 
     // cream swallows faint tiles, so light mode keeps a higher floor
-    const floor = light ? 0.3 : 0.24
+    /* the real field is mostly paper with colour coming and going, so a
+       swatch keeps its tiles light: a low floor and a ceiling well under full */
+    const floor = light ? 0.12 : 0.16
+    const ceil = light ? 0.62 : 0.75
     let lastDraw = -1
     const draw = (now: number) => {
       if (now - lastDraw < 1 / 30) return
@@ -192,13 +195,13 @@ export function MiniField({ look, light, cell = 5, seed = 0, still: stillProp = 
         const x = ox + c * cw, y = oy + r * ch
         if (!glyphs) {
           const s = cw * (0.28 + 0.62 * v)
-          ctx.fillStyle = `rgba(${tone},${floor + (1 - floor) * v})`
+          ctx.fillStyle = `rgba(${tone},${floor + (ceil - floor) * v * v})`
           ctx.fillRect(x + (cw - s) / 2, y + (ch - s) / 2, s, s)
         } else {
           const glyph = look.render === 'cipher'
             ? CIPHER[Math.floor(hash(c + seed * 31, r) * CIPHER.length + t * (0.6 + hash(r, c) * 1.5)) % CIPHER.length]
             : GLYPH[Math.min(GLYPH.length - 1, Math.floor(v * GLYPH.length))]
-          ctx.fillStyle = `rgba(${tone},${0.22 + 0.78 * v})`
+          ctx.fillStyle = `rgba(${tone},${0.18 + (ceil - 0.18) * v})`
           ctx.fillText(glyph, x + cw / 2, y + ch / 2)
         }
       }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export type Render = 'glyphs' | 'tiles' | 'cipher' | 'letters'
 export type Motion = 'breathe' | 'trickle' | 'geometric' | 'lightning' | 'brush'
@@ -68,6 +68,11 @@ type Drop = { x: number; y: number; vx: number; vy: number; int: number; hot: nu
 export default function AsciiCanvas({ chars: charsStr, trailMode = false, breathe: breatheProp = false, lightMode = false, color, render = 'glyphs', motion = 'breathe', hover = 'mono', message, rest: restLevel = 0.05, apiRef, region }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  /* A browser can drop a canvas's drawing context (memory pressure, a tab
+     left in the background, a phone locking), which leaves the field blank
+     until a reload. When that happens the canvas is replaced with a fresh one
+     and everything is set up again. */
+  const [gen, setGen] = useState(0)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -75,6 +80,18 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     if (!canvas || !container) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+    const renew = () => setGen(g => g + 1)
+    const onLost = (e: Event) => { e.preventDefault(); setTimeout(renew, 200) }
+    canvas.addEventListener('contextlost', onLost)
+    canvas.addEventListener('contextrestored', renew)
+    // the back/forward cache can hand back a page whose canvas no longer draws
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) renew() }
+    window.addEventListener('pageshow', onShow)
+    // and a check, for browsers that drop the context without saying so
+    const watch = setInterval(() => {
+      const c = ctx as CanvasRenderingContext2D & { isContextLost?: () => boolean }
+      if (c.isContextLost?.()) renew()
+    }, 2000)
 
     const cipher = render === 'cipher'
     const letters = render === 'letters'
@@ -740,6 +757,10 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
     return () => {
       if (apiRef) apiRef.current = null
       cancelAnimationFrame(animId)
+      canvas.removeEventListener('contextlost', onLost)
+      canvas.removeEventListener('contextrestored', renew)
+      window.removeEventListener('pageshow', onShow)
+      clearInterval(watch)
       window.removeEventListener('pageshow', wake)
       document.removeEventListener('visibilitychange', wake)
       ro.disconnect()
@@ -750,11 +771,11 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
       container.removeEventListener('touchmove', onTouchMove)
       container.removeEventListener('touchend', onTouchEnd)
     }
-  }, [charsStr, trailMode, breatheProp, lightMode, color, render, motion, hover, message, restLevel, apiRef])
+  }, [charsStr, trailMode, breatheProp, lightMode, color, render, motion, hover, message, restLevel, apiRef, gen])
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
-      <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
+      <canvas key={gen} ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
     </div>
   )
 }
