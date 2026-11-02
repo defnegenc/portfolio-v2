@@ -1587,7 +1587,8 @@ export default function Home() {
         .term-log { display: flex; flex-direction: column; gap: 0.7rem; padding-bottom: 0.5rem; }
         .term-entry .bio-prompt { margin-bottom: 0.2rem; white-space: normal; }
         .term-out { margin: 0; }
-        .term-doc p { font-family: var(--font-main); font-size: 0.95rem; line-height: 1.6; margin: 0 0 0.6rem; max-width: 72ch; white-space: normal; }
+        /* about-me printed in the session reads like the rest of the output: mono, same size and spacing */
+        .term-doc p { font-family: var(--font-mono); font-size: 0.92rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
         .bar-gui { display: inline-flex; align-items: center; color: var(--ink); }
         .bar-gui:hover svg { transform: translateY(-1px); }
         .ar-open { text-decoration: none; display: flex; align-items: baseline; gap: 1.2ch; }
