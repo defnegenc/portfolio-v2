@@ -13,6 +13,7 @@ import { ITEMS, FOLDERS, PICTURES, dirName, type Kind, type Entry } from '@/comp
 import { ABOUT_PARAS } from '@/components/aboutContent'
 import AboutPara from '@/components/AboutPara'
 import { useTheme } from '@/components/useTheme'
+import { CLASSIC_ICON } from '@/components/weatherIcons'
 
 const SPIEL = 'I think about how modern interfaces should (and fail to) meet our needs with exponentially growing agentic capabilities. BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction. Now AI @ Coinbase, where I own the agent creation experience.'
 // what the Projects folder holds, listed like a Star folder window
@@ -149,9 +150,9 @@ function StarIcon({ pict, label, pressed, title, onClick, at, onMove }: {
 }
 
 
-/* A project's Description, set like a Star ViewPoint document: a big
-   title with its subtitle under it, then serif text in columns with bold
-   headings, run-in italic subheads and numbered figures. */
+/* A project's Description, set like a page made on the Star: a bold title,
+   the overview beside its first figure, the subtitle in italics, then the
+   highlights in narrow columns and the other figures in a row. */
 function ViewPointDoc({ id }: { id: string }) {
   const c = CARDS[id]
   const pics = PICTURES[id] ?? []
@@ -164,20 +165,18 @@ function ViewPointDoc({ id }: { id: string }) {
     <figure key={src}><img src={src} alt={cap} /><figcaption><em>Figure {n}:</em> {cap}</figcaption></figure>
   )
   return (
-    <div className="vp">
-      <header>
-        <h1>{c.title}</h1>
-        {SUBTITLE[id] && <p className="vp-sub">{SUBTITLE[id]}</p>}
-      </header>
-      <div className="vp-cols">
-        <h2>Overview</h2>
-        <p>{c.text}</p>
+    <div className="vp vp2">
+      <h1 className="vp2-title">{c.title}</h1>
+      <div className={pics[0] ? 'vp2-top' : 'vp2-top vp2-solo'}>
+        <div>
+          <p className="vp2-lede">{c.text}</p>
+          {SUBTITLE[id] && <p className="vp2-sub"><em>{SUBTITLE[id]}</em></p>}
+        </div>
         {pics[0] && fig(pics[0], 1)}
-        {c.points && <><h2>Highlights</h2>{c.points.map(runIn)}</>}
-        {pics.slice(1).map((pc, i) => fig(pc, i + 2))}
-        <h2>Visit</h2>
-        <p><a href={c.link.href} target="_blank" rel="noreferrer">{c.link.label} \u2197</a></p>
       </div>
+      {c.points && <div className="vp2-cols">{c.points.map(runIn)}</div>}
+      {pics.length > 1 && <div className="vp2-figs">{pics.slice(1).map((pc, i) => fig(pc, i + 2))}</div>}
+      <p className="vp2-visit"><a href={c.link.href} target="_blank" rel="noreferrer">{c.link.label} ↗</a></p>
     </div>
   )
 }
@@ -261,6 +260,92 @@ function StarWindow({ win, title, buttons = [], onClose, onFocus, onMove, onSize
   )
 }
 
+/* The Star's user interface as one diagram, redrawn after the one in
+   Xerox's own materials: the display, keyboard and mouse in the middle, the
+   document objects, desk icons and universal commands around them. Each part
+   is clickable and opens its properties underneath, like a Star property sheet.
+   The facts are from the designers' retrospective (Johnson et al., 1989). */
+type Part = 'display' | 'objects' | 'icons' | 'commands' | 'mouse'
+const PARTS: Record<Part, { name: string; text: string }> = {
+  display: { name: 'Display', text: 'A 17-inch bitmapped screen, black on white. The computer draws every dot, which is what made pictures of documents and icons possible.' },
+  objects: { name: 'Document objects', text: 'Everything inside a document is an object you can select: a page, text, a frame holding a graphic, table or equation, a field, a footnote. Each one has its own property sheet.' },
+  icons: { name: 'Icons', text: 'Small pictures of the things in an office: documents, folders, file drawers, in- and out-baskets for mail, printers, a calculator. You open one to see what’s inside.' },
+  commands: { name: 'Universal commands', text: 'The same few commands work on everything: Move, Copy, Delete, Show Properties, Copy Properties, Again, Undo and Help. They have their own keys. You select a thing first, then press what to do with it.' },
+  mouse: { name: 'Mouse', text: 'Two buttons. Select picks a thing. Adjust makes the selection bigger or smaller.' },
+}
+const DG_OBJECTS = ['Page', 'Text', 'Frame', 'Field', 'Footnote']
+const DG_ICONS = ['Document', 'Folder', 'File drawer', 'In- and out-basket', 'Printer', 'Calculator', 'Directory']
+const DG_COMMANDS = ['Move', 'Copy', 'Delete', 'Show Properties', 'Copy Properties', 'Again', 'Undo', 'Help']
+
+function StarDiagram() {
+  const [part, setPart] = useState<Part>('display')
+  const on = (p: Part) => part === p
+  const pick = (p: Part) => ({ onClick: () => setPart(p), className: `dg-hit${on(p) ? ' dg-on' : ''}`, role: 'button' as const, tabIndex: 0,
+    onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPart(p) } } })
+  const label = (t: string, x: number, y: number, p: Part, anchor: 'start' | 'end' | 'middle' = 'start', bold = false) => (
+    <text key={t} x={x} y={y} textAnchor={anchor} className={bold ? 'dg-head' : 'dg-label'} data-on={on(p) ? 1 : 0}>{t}</text>
+  )
+  const dot = { stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '2 3', fill: 'none' }
+  const ink = { stroke: 'currentColor', strokeWidth: 1.5, fill: 'none' }
+  return (
+    <div className="dg">
+      <svg viewBox="0 0 680 420" className="dg-svg" aria-label="The Xerox Star user interface">
+        {/* display */}
+        <g {...pick('display')}>
+          {label('Display', 335, 30, 'display', 'middle', true)}
+          <rect x="230" y="40" width="210" height="170" {...ink} strokeWidth={on('display') ? 3 : 1.5} />
+          <rect x="242" y="52" width="186" height="140" {...ink} />
+          <rect x="310" y="210" width="50" height="14" {...ink} />
+        </g>
+        {/* document objects: a window with a document in it */}
+        <g {...pick('objects')}>
+          {label('Document objects', 20, 58, 'objects', 'start', true)}
+          {DG_OBJECTS.map((t, i) => label(t, 20, 82 + i * 20, 'objects'))}
+          {DG_OBJECTS.map((t, i) => <path key={t} d={`M ${92} ${78 + i * 20} L 252 ${80 + i * 16}`} {...dot} />)}
+          <rect x="252" y="62" width="110" height="112" {...ink} strokeWidth={on('objects') ? 3 : 1.5} />
+          {[0, 1, 2].map(i => <line key={i} x1="252" x2="362" y1={65 + i * 3} y2={65 + i * 3} stroke="currentColor" strokeWidth="1" />)}
+          {[0, 1, 2, 3].map(i => <line key={i} x1="262" x2={346 - (i % 2) * 18} y1={84 + i * 7} y2={84 + i * 7} stroke="currentColor" strokeWidth="1" />)}
+          <rect x="262" y="118" width="44" height="32" {...ink} />
+          <path d="M268 144 L276 132 L284 138 L298 124" {...ink} />
+          {[0, 1].map(i => <line key={i} x1="314" x2="352" y1={124 + i * 8} y2={124 + i * 8} stroke="currentColor" strokeWidth="1" />)}
+        </g>
+        {/* icons down the right of the screen */}
+        <g {...pick('icons')}>
+          {label('Icons', 470, 58, 'icons', 'start', true)}
+          {DG_ICONS.map((t, i) => label(t, 470, 82 + i * 18, 'icons'))}
+          {[0, 1, 2, 3, 4].map(i => <rect key={i} x="392" y={62 + i * 25} width="22" height="18" {...ink} strokeWidth={on('icons') ? 2.5 : 1.5} />)}
+          {[0, 1, 2, 3, 4].map(i => <path key={i} d={`M 414 ${71 + i * 25} L 466 ${78 + i * 22}`} {...dot} />)}
+        </g>
+        {/* keyboard, with the command keys on the left */}
+        <g {...pick('commands')}>
+          {label('Keyboard', 335, 332, 'commands', 'middle')}
+          <rect x="200" y="250" width="270" height="62" {...ink} />
+          {[0, 1, 2, 3].map(r => [0, 1].map(c => <rect key={`${r}${c}`} x={208 + c * 18} y={256 + r * 13} width="14" height="10" fill={on('commands') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" />))}
+          {[0, 1, 2, 3].map(r => Array.from({ length: 11 }, (_, c) => <rect key={`k${r}${c}`} x={252 + c * 18} y={256 + r * 13} width="14" height="10" fill="none" stroke="currentColor" strokeWidth="1" />))}
+          {label('Universal commands', 20, 262, 'commands', 'start', true)}
+          {DG_COMMANDS.map((t, i) => label(t, 20, 282 + i * 16, 'commands'))}
+          <path d="M 160 258 L 206 262" {...dot} />
+        </g>
+        {/* mouse: Select and Adjust */}
+        <g {...pick('mouse')}>
+          <path d="M527 255 C 527 228, 488 232, 470 262" {...ink} />
+          <rect x="510" y="255" width="34" height="52" rx="4" {...ink} strokeWidth={on('mouse') ? 3 : 1.5} />
+          <rect x="513" y="259" width="13" height="15" fill={on('mouse') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" />
+          <rect x="528" y="259" width="13" height="15" fill={on('mouse') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1" />
+          {label('Mouse', 556, 276, 'mouse', 'start', true)}
+          {label('Select', 505, 330, 'mouse', 'end')}
+          {label('Adjust', 549, 330, 'mouse', 'start')}
+        </g>
+      </svg>
+      {/* the clicked part's properties, as a Star property sheet */}
+      <div className="dg-sheet">
+        <div className="dg-sheet-head">{PARTS[part].name.toUpperCase()} PROPERTIES</div>
+        <p>{PARTS[part].text}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function Star() {
   const [theme, setTheme] = useTheme('light')
   const { ambient, sky } = useAmbient('weather')
@@ -288,6 +373,8 @@ export default function Star() {
   const iconsLoaded = useRef(false)
   useEffect(() => { try { setIconAt(JSON.parse(localStorage.getItem('star-icons') ?? '{}')) } catch {} iconsLoaded.current = true }, [])
   useEffect(() => { if (iconsLoaded.current) localStorage.setItem('star-icons', JSON.stringify(iconAt)) }, [iconAt])
+  // About the Star: the history, or the clickable diagram
+  const [histTab, setHistTab] = useState<'history' | 'diagram'>('history')
   /* first layout: only the field is open. My spiel, About me, Projects and
      Properties wait on the desk as icons. */
   useEffect(() => {
@@ -362,9 +449,13 @@ export default function Star() {
         <StarWindow key={w.id} {...common} flush
           title={`Field: ${SKIES.find(x => x[0] === sk)?.[1]}, ${HOURS.find(h => h[0] === p)?.[1].toLowerCase()}${main && !pick && sky?.place ? ` in ${sky.place}` : ''}`}
           onClose={() => { close(w.id); if (!main) setFields(f => { const n = { ...f }; delete n[w.id]; return n }) }}
-          buttons={[['Properties', flip], ['New field', newField]]}>
+          buttons={[['Properties', flip]]}>
           <div className="fw">
             <div className="field">
+              {/* another field, from the field itself */}
+              <button className="new-field" onClick={newField} title="New field" aria-label="New field">
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden><path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" /></svg>
+              </button>
               <AsciiCanvas breathe={lk.motion === 'breathe'} motion={lk.motion} render={lk.render} hover={lk.hover}
                 lightMode={theme === 'light'} chars="▓▒░" color={lk.color ?? undefined} message={SPIEL} />
             </div>
@@ -382,7 +473,8 @@ export default function Star() {
                 <span className="sheet-k">Hour</span>
                 <div className="seg">{HOURS.map(([hp, l]) => <button key={hp} aria-pressed={p === hp} onClick={() => set(hp, sk)}>{l}</button>)}</div>
                 <span className="sheet-k">Sky</span>
-                <div className="seg">{SKIES.map(([ks, l]) => <button key={ks} aria-pressed={sk === ks} onClick={() => set(p, ks)}>{l}</button>)}</div>
+                {/* the classic pixel weather icons belong here, in the GUI */}
+                <div className="seg seg-ic">{SKIES.map(([ks, l]) => { const I = CLASSIC_ICON[ks]; return <button key={ks} aria-pressed={sk === ks} onClick={() => set(p, ks)} aria-label={l} title={l}><I /></button> })}</div>
                 <span className="sheet-k">Display</span>
                 <div className="seg">{(['light', 'dark'] as const).map(t => <button key={t} aria-pressed={theme === t} onClick={() => setTheme(t)}>{t === 'light' ? 'Light' : 'Dark'}</button>)}</div>
               </div>
@@ -453,7 +545,12 @@ export default function Star() {
     )
     if (w.id === 'history') return (
       <StarWindow key={w.id} {...common} title="About the Star" onClose={() => close('history')}>
-        <div className="vp">
+        {/* a property sheet's Display row picks what the window shows */}
+        <div className="hist-tabs">
+          <span className="sheet-k">Display</span>
+          <div className="seg">{(['history', 'diagram'] as const).map(t => <button key={t} aria-pressed={histTab === t} onClick={() => setHistTab(t)}>{t.toUpperCase()}</button>)}</div>
+        </div>
+        {histTab === 'diagram' ? <div className="vp"><StarDiagram /></div> : <div className="vp">
           <header><h1>Xerox</h1><p className="vp-sub">8010 Star Information System</p></header>
           <div className="vp-cols">
             <p><em>{STAR_HISTORY[0]}</em></p>
@@ -468,7 +565,7 @@ export default function Star() {
             <h2>Sources</h2>
             {SOURCES.map(x => <p key={x.url} className="vp-src"><a href={x.url} onClick={browse(x.url)}>{x.title}</a>. {x.by}.</p>)}
           </div>
-        </div>
+        </div>}
       </StarWindow>
     )
     if (w.id === 'about') return (
@@ -500,7 +597,8 @@ export default function Star() {
       <style>{CSS}</style>
       {wins.map(content)}
       {/* the switch back: this one is the GUI */}
-      <span className="cg"><a href="/" title="Back to the command line">CLI</a> &lt;&gt; <b>GUI</b></span>
+      {/* the same switch as the CLI side: a Star property sheet choice */}
+      <span className="cg"><span className="cg-k">Interface</span><span className="cg-seg"><a href="/" title="Back to the command line">CLI</a><b>GUI</b></span></span>
       {/* the desktop: an icon for everything, so whatever you close can come back */}
       <div className="desk">
         {[
@@ -565,6 +663,22 @@ const CSS = `
   /* while a window is dragged or resized, the page inside mustn't catch the pointer */
   .desk-root:has(.head:active, .grow:active) iframe { pointer-events: none; }
   /* ViewPoint document */
+  /* the Star page layout */
+  .vp2 { font-family: "Times New Roman", Times, serif; font-variant-numeric: lining-nums; font-size: 15.5px; line-height: 1.5; }
+  .vp2 .vp2-title { text-transform: none; letter-spacing: 0; margin: 0 0 10px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; font-size: 24px; line-height: 1.15; }
+  .vp2-top { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 22px; align-items: start; padding-bottom: 14px; border-bottom: 1.5px solid var(--ink); }
+  .vp2-top.vp2-solo { grid-template-columns: 1fr; }
+  .vp2-lede { margin: 0 0 10px; font-size: 17px; line-height: 1.45; }
+  .vp2-sub { margin: 0; }
+  .vp2 figure { margin: 0; }
+  .vp2 figure img { display: block; width: 100%; height: auto; border: 1.5px solid var(--ink); filter: grayscale(1) contrast(1.05); }
+  .vp2 figcaption { margin-top: 5px; font-size: 13px; line-height: 1.35; }
+  .vp2-cols { margin-top: 14px; column-width: 190px; column-gap: 22px; text-align: justify; hyphens: auto; }
+  .vp2-cols p { margin: 0 0 10px; break-inside: avoid; }
+  .vp2-figs { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .vp2-visit { margin: 14px 0 0; }
+  .vp2 a { color: inherit; }
+  @media (max-width: 640px) { .vp2-top { grid-template-columns: 1fr; } }
   .vp header { border-bottom: 1.5px solid var(--ink); padding-bottom: 10px; margin-bottom: 14px; }
   .vp h1 { margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 800; font-size: 34px; line-height: 1; letter-spacing: 0.01em; text-transform: uppercase; }
   .vp-sub { margin: 6px 0 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; }
@@ -593,7 +707,7 @@ const CSS = `
   .folder-row { min-height: 30px; }
   .viewer { display: block; width: 100%; height: auto; border: 1.5px solid var(--ink); }
   .fw { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .fw .field { flex: 1; min-height: 0; }
+  .fw .field { flex: 1; min-height: 0; position: relative; }
   .fw-picks { flex-shrink: 0; display: flex; flex-direction: column; gap: 5px; padding: 7px 24px 7px 8px; border-top: 2px solid var(--ink); background: var(--paper); }
   .choice.sm { height: 21px; padding: 0 7px; font-size: 12px !important; }
   /* the desktop: Star icons in a grid down the right */
@@ -622,12 +736,29 @@ const CSS = `
     .cmd { padding: 0 6px; }
   }
   /* the CLI <> GUI switch, styled the same as on the homepage */
-  .cg { position: absolute; right: 20px; bottom: 16px; z-index: 1; padding: 3px 8px; border: 1.5px solid var(--ink); background: var(--paper);
-    font-family: var(--font-mono), Menlo, monospace; font-size: 13px; line-height: 1.4; color: var(--ink); }
-  .cg b { font-weight: 400; background: var(--ink); color: var(--paper); padding: 0 4px; }
-  .cg a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; padding: 0 2px; font-family: inherit; }
-  .cg a:hover { background: var(--ink); color: var(--paper) !important; text-decoration: none; }
+  .cg { position: absolute; right: 20px; bottom: 16px; z-index: 1; display: inline-flex; align-items: center; gap: 0.6rem; color: var(--ink); font-size: 14px; }
+  .cg-k { font-weight: 600; background: var(--paper); padding: 0 4px; }
+  .cg-seg { display: inline-flex; border: 1.5px solid var(--ink); background: var(--paper); }
+  .cg-seg > * { height: 28px; display: flex; align-items: center; padding: 0 12px; font-weight: 400; color: var(--ink); text-decoration: none; font-family: inherit; }
+  .cg-seg > * + * { border-left: 1.5px solid var(--ink); }
+  .cg-seg b { background: var(--ink); color: var(--paper); }
+  .cg-seg a:hover { text-decoration: underline; }
   /* property sheet */
+  .new-field { position: absolute; top: 10px; right: 10px; z-index: 3; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+    padding: 0; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--paper); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; }
+  .new-field:hover { background: var(--ink); color: var(--paper); }
+  .new-field:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+  .hist-tabs { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1.5px solid var(--ink); background: var(--paper); flex-shrink: 0; }
+  .dg { max-width: 760px; }
+  .dg-svg { width: 100%; height: auto; display: block; color: var(--ink); }
+  .dg-hit { cursor: pointer; outline: none; }
+  .dg-label { font-size: 13px; fill: currentColor; }
+  .dg-head { font-size: 13px; font-weight: 700; fill: currentColor; }
+  .dg-hit:hover .dg-label, .dg-hit:hover .dg-head { text-decoration: underline; }
+  .dg-on .dg-label, .dg-on .dg-head { paint-order: stroke; stroke: var(--ink); stroke-width: 9px; stroke-linejoin: round; fill: var(--paper); }
+  .dg-sheet { margin-top: 12px; border: 1.5px solid var(--ink); }
+  .dg-sheet-head { padding: 5px 8px; border-bottom: 1.5px solid var(--ink); font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; }
+  .dg-sheet p { padding: 10px 10px 12px; margin: 0; }
   .sheet { flex-shrink: 0; border-top: 2px solid var(--ink); background: var(--paper); padding-right: 18px; }
   .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; border-bottom: 1.5px solid var(--ink); }
   .sheet-head span { font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; }
@@ -638,6 +769,8 @@ const CSS = `
   .seg { display: flex; flex-wrap: wrap; justify-self: start; border: 1.5px solid var(--ink); }
   .seg button { height: 22px; padding: 0 8px; border: 0; border-right: 1.5px solid var(--ink); background: var(--paper); font-size: 12.5px !important; }
   .seg button:last-child { border-right: 0; }
+  .seg-ic button { height: 34px; width: 42px; padding: 0; display: flex; align-items: center; justify-content: center; }
+  .seg.seg-ic button[aria-pressed="true"] { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); color: var(--ink) !important; }
   .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper) !important; }
   .seg button:hover:not([aria-pressed="true"]) { text-decoration: underline; }
   .props { font-size: 14px; display: grid; grid-template-columns: max-content 1fr; gap: 12px 16px; align-items: start; }
