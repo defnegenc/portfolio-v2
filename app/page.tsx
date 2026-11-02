@@ -10,6 +10,7 @@ import WeatherControl, { type Override } from '@/components/WeatherControl'
 import { IconStyleCtx } from '@/components/weatherIcons'
 import { ABOUT_PARAS } from '@/components/aboutContent'
 import AboutPara from '@/components/AboutPara'
+import { TOGGLES, readToggle, saveToggle, type ToggleStyle } from '@/components/siteToggle'
 import { CARDS, type Card } from '@/components/cards'
 import { ITEMS, FOLDERS, PICTURES, picFile, dirName } from '@/components/fs'
 import { forLight } from '@/components/color'
@@ -1102,13 +1103,36 @@ const StarWin = () => (
   </svg>
 )
 
+const ToggleCtx = createContext<ToggleStyle>('sheet')
+// a terminal: dark screen, prompt, orange cursor
+const TermGlyph = () => (
+  <svg width="18" height="18" viewBox="0 0 32 32" aria-hidden><rect x="2" y="4" width="28" height="24" fill="currentColor" /><text x="5.5" y="22" fontSize="13" fontFamily="Menlo, monospace" fill="var(--bg)">%</text><rect x="15" y="18.5" width="8" height="3.5" fill="#F59A2B" /></svg>
+)
+/* The terminal versions. Picking gui shows the choice move first, then the page goes. */
 function SiteToggle() {
+  const style = useContext(ToggleCtx)
   const [going, setGoing] = useState(false)
   const go = (e: React.MouseEvent) => { e.preventDefault(); setGoing(true); setTimeout(() => { window.location.href = '/star' }, 260) }
+  const gui = { href: '/star', onClick: go, title: 'An ode to early interfaces' }
+  if (style === 'radio') return (
+    <span className="tg-sheet tg-mono tg-radio2">
+      <span>({going ? ' ' : '•'}) cli</span><a {...gui}>({going ? '•' : ' '}) gui</a>
+    </span>
+  )
+  if (style === 'keys') return (
+    <span className="tg-sheet tg-mono tg-keys">
+      <b data-on={going ? 0 : 1}><i>F1</i>cli</b><a {...gui} data-on={going ? 1 : 0}><i>F2</i>gui</a>
+    </span>
+  )
+  if (style === 'icons') return (
+    <span className="tg-sheet tg-mono tg-icons2">
+      <b data-on={going ? 0 : 1}><TermGlyph />cli</b><a {...gui} data-on={going ? 1 : 0}><StarWin />gui</a>
+    </span>
+  )
   return (
     <span className="tg-sheet tg-mono">
       <span className="tg-k">% interface</span>
-      <span className="tg-seg2"><b data-on={going ? 0 : 1}>cli</b><a href="/star" onClick={go} data-on={going ? 1 : 0} title="An ode to early interfaces">gui</a></span>
+      <span className="tg-seg2"><b data-on={going ? 0 : 1}>cli</b><a {...gui} data-on={going ? 1 : 0}>gui</a></span>
     </span>
   )
 }
@@ -1118,7 +1142,8 @@ function StarCredit() {
   return (
     <p className="star-credit">
       <UrlLink className="li-inline" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
-      {entry === 'toggle' && <SiteToggle />}
+      {/* the toggle stays everywhere, so people remember how to get there */}
+      {entry !== 'icon' && <SiteToggle />}
     </p>
   )
 }
@@ -1155,6 +1180,8 @@ export default function Home() {
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
   const [entry, setEntry] = useState<Entry>('open')
   const [phone, setPhone] = useState<Phone>('commands')
+  const [toggle, setToggle] = useState<ToggleStyle>('sheet')
+  useEffect(() => { setToggle(readToggle()) }, [])
   // phones always fold, whatever is picked for wide screens
   const [stacked, setStacked] = useState(false)
   useEffect(() => {
@@ -1257,8 +1284,9 @@ export default function Home() {
     const zone = main.closest('.canvas-zone')?.getBoundingClientRect()
     // leave room under it for the text to stay readable
     const maxH = zone ? Math.max(120, zone.bottom - r.top - 380) : window.innerHeight * 0.5
+    const maxW = zone ? zone.width - 2 * 28 - 8 : window.innerWidth - 64
     const move = (ev: PointerEvent) => setFieldBox({
-      w: Math.round(Math.min(window.innerWidth - 40, Math.max(360, r.width + (ev.clientX - sx) * 2))),
+      w: Math.round(Math.min(maxW, Math.max(360, r.width + (ev.clientX - sx) * 2))),
       h: Math.round(Math.min(maxH, Math.max(100, r.height + ev.clientY - sy))),
     })
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
@@ -1314,6 +1342,7 @@ export default function Home() {
     if (v === 'tree') u.searchParams.delete('o'); else u.searchParams.set('o', v)
     window.history.replaceState(null, '', u)
   }
+  const pickToggle = (v: ToggleStyle) => { setToggle(v); saveToggle(v) }
   const pickPhone = (v: Phone) => {
     setPhone(v)
     const u = new URL(window.location.href)
@@ -1379,8 +1408,13 @@ export default function Home() {
     ro.observe(zone)
     const main = zone.querySelector('[data-main]')
     if (main) ro.observe(main)
-    return () => ro.disconnect()
-  }, [centred, variant, view])
+    // the field can move without changing size (a window resize recentres it),
+    // which a ResizeObserver doesn't see, so measure on those too
+    const later = () => requestAnimationFrame(measure)
+    window.addEventListener('resize', later)
+    window.addEventListener('pointerup', later)
+    return () => { ro.disconnect(); window.removeEventListener('resize', later); window.removeEventListener('pointerup', later) }
+  }, [centred, variant, view, fieldBox, arr, termLog === null])
   // the canvas controls stay out of the way until the bio has finished reading
   const [bioDone, setBioDone] = useState(false)
   const onBioDone = useCallback(() => setBioDone(true), [])
@@ -1473,6 +1507,7 @@ export default function Home() {
     <UrlCtx.Provider value={openUrl}>
     <EntryCtx.Provider value={entry}>
     <PhoneCtx.Provider value={{ phone, stacked }}>
+    <ToggleCtx.Provider value={toggle}>
     <div
       data-theme={theme}
       data-open={open > 0.15 ? 1 : 0}
@@ -1642,7 +1677,6 @@ export default function Home() {
         .bar-mini a { color: var(--ink); text-decoration: none; }
         .bar-gui { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--ink); text-decoration: none; font-family: var(--font-mono); font-size: 0.97rem; }
         .bar-gui:hover span { background: var(--ink); color: var(--bg); }
-        .bar-gui:hover svg { transform: translateY(-1px); }
         .ar-open { text-decoration: none; display: flex; align-items: baseline; gap: 1.2ch; }
         .ar-open em { font-style: normal; color: var(--ink); }
         .ar-open:hover em { background: var(--ink); color: var(--bg); }
@@ -1727,6 +1761,16 @@ export default function Home() {
         /* the terminal dress: the same shape in the mono face */
         .tg-mono { font-family: var(--font-mono); }
         .tg-mono .tg-k { font-weight: 400; color: var(--ink); }
+        .tg-radio2 { gap: 1.2rem; white-space: pre; }
+        .tg-radio2 a { color: var(--ink) !important; text-decoration: none !important; }
+        .tg-radio2 a:hover { background: var(--ink); color: var(--bg) !important; }
+        .tg-keys, .tg-icons2 { gap: 0.5rem; }
+        .tg-keys > *, .tg-icons2 > * { display: inline-flex; align-items: center; gap: 0.4rem; height: 30px; padding: 0 10px; border: 1.5px solid var(--ink); font-weight: 400; color: var(--ink) !important; text-decoration: none !important; background: var(--bg); }
+        .tg-keys i { font-style: normal; opacity: 1; }
+        .tg-keys > [data-on="1"], .tg-icons2 > [data-on="1"] { background: var(--ink); color: var(--bg) !important; }
+        .tg-icons2 > [data-on="1"] svg rect:first-child { fill: var(--bg); }
+        .tg-icons2 > [data-on="1"] svg text { fill: var(--ink); }
+        .tg-keys > a:hover, .tg-icons2 > a:hover { background: var(--ink); color: var(--bg) !important; }
         .star-credit .tg-seg2 a:hover { text-decoration: underline; }
         .about-inline, .li-inline { display: none; }
         .li-inline { margin-right: 1.2rem; }
@@ -1912,7 +1956,9 @@ export default function Home() {
           .root-frame[data-phone="status"] .star-credit .li-inline { margin: 0; }
           .root-frame[data-phone="status"] .windows > .panel:last-of-type { padding-bottom: 4.5rem !important; }
           /* All commands: no footer, it's all in the list */
-          .root-frame[data-phone="commands"] .star-credit-float { display: none !important; }
+          /* All commands: LinkedIn is a command, so the footer keeps only the toggle */
+          .root-frame[data-phone="commands"] .star-credit .li-inline { display: none !important; }
+          .root-frame[data-phone="commands"] .star-credit-float { padding-top: 0.25rem !important; }
           /* tmux: no footer; the tab bar sits along the bottom */
           .root-frame[data-phone="tmux"] .star-credit-float { display: none !important; }
           .tmux-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; display: flex; background: var(--ink); padding-bottom: env(safe-area-inset-bottom); }
@@ -1933,6 +1979,14 @@ export default function Home() {
           .name-strip  { padding: 0.4rem 1rem !important; gap: 0.5rem !important; }
           .ns-sub      { display: none !important; }
         }
+        /* every line of the terminal is one size: commands, names, files,
+           output and the prompt. Phones step it down a little. */
+        .root-frame { --term: 1rem; }
+        @media (max-width: 860px), (hover: none) and (pointer: coarse) { .root-frame { --term: 0.94rem; } }
+        .root-frame .ar-cmd, .root-frame .pl.nm-mono, .root-frame .pl.nm-mono span, .root-frame .pl-list .pl,
+        .root-frame .pv-tree, .root-frame .pv-files, .root-frame .pv-file, .root-frame .pv-inline .bio-prompt,
+        .root-frame .shell-out, .root-frame .shell-line, .root-frame .bio-prompt, .root-frame .term-doc p,
+        .root-frame .home-title, .root-frame .home-links a, .root-frame .bar-gui, .root-frame .bar-mini { font-size: var(--term) !important; }
       `}</style>
 
       {/* ── NAME STRIP ── */}
@@ -2015,7 +2069,7 @@ export default function Home() {
                 <div className="home-right">
                   <div className="home-links">
                     <UrlLink className="back-link" href="https://linkedin.com/in/-defne" title="LinkedIn">LinkedIn ↗</UrlLink>
-                    {entry === 'icon' && <a className="bar-gui" href="/star" title="Open the desktop"><StarWin /><span>go to gui</span></a>}
+                    {entry === 'icon' && <a className="bar-gui" href="/star" title="Open the desktop"><StarWin /><span>go to gui ↗</span></a>}
                   </div>
                   {/* tmux on a phone has no footer, so LinkedIn and the desktop sit up here */}
                   {stacked && phone === 'tmux' && <span className="bar-mini">
@@ -2104,6 +2158,11 @@ export default function Home() {
               <button key={v.key} data-on={openMode === v.key ? 1 : 0} onClick={() => pickOpen(v.key)}>{v.label}</button>
             ))}
           </div>
+          <div className="v-row"><span>Toggle</span>
+            {TOGGLES.map(v => (
+              <button key={v.key} data-on={toggle === v.key ? 1 : 0} onClick={() => pickToggle(v.key)}>{v.label}</button>
+            ))}
+          </div>
           <div className="v-row"><span>Phone</span>
             {PHONES.map(v => (
               <button key={v.key} data-on={phone === v.key ? 1 : 0} onClick={() => pickPhone(v.key)}>{v.label}</button>
@@ -2169,6 +2228,7 @@ export default function Home() {
       )}
 
     </div>
+    </ToggleCtx.Provider>
     </PhoneCtx.Provider>
     </EntryCtx.Provider>
     </UrlCtx.Provider>

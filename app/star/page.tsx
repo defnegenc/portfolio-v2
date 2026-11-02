@@ -14,6 +14,7 @@ import { ABOUT_PARAS } from '@/components/aboutContent'
 import AboutPara from '@/components/AboutPara'
 import { useTheme } from '@/components/useTheme'
 import { CLASSIC_ICON } from '@/components/weatherIcons'
+import { readToggle, type ToggleStyle } from '@/components/siteToggle'
 
 const SPIEL = 'I think about how modern interfaces should (and fail to) meet our needs with exponentially growing agentic capabilities. BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction. Now AI @ Coinbase, where I own the agent creation experience.'
 // what the Projects folder holds, listed like a Star folder window
@@ -401,6 +402,30 @@ function StarDiagram() {
   )
 }
 
+/* The Star versions of the CLI <> GUI switch; the terminal ones live on the
+   CLI side, and both follow the same pick (components/siteToggle). */
+function GuiToggle() {
+  const [style, setStyle] = useState<ToggleStyle>('sheet')
+  useEffect(() => { setStyle(readToggle()) }, [])
+  const cli = { href: '/', title: 'Back to the command line' }
+  if (style === 'radio') return (
+    <span className="cg cg-radio">
+      <span className="cg-k">Interface</span>
+      <a {...cli}><i />CLI</a><span><i data-on="1" />GUI</span>
+    </span>
+  )
+  if (style === 'keys') return (
+    <span className="cg cg-keys"><a {...cli} className="cmd">CLI</a><b className="cmd">GUI</b></span>
+  )
+  if (style === 'icons') return (
+    <span className="cg cg-icons">
+      <a {...cli}><span className="cg-pict">{DESK_ICON.site}</span><span>CLI</span></a>
+      <b><span className="cg-pict">{DESK_ICON.history}</span><span>GUI</span></b>
+    </span>
+  )
+  return <span className="cg"><span className="cg-k">Interface</span><span className="cg-seg"><a {...cli}>CLI</a><b>GUI</b></span></span>
+}
+
 export default function Star() {
   const [theme, setTheme] = useTheme('light')
   const { ambient, sky } = useAmbient('weather')
@@ -682,7 +707,7 @@ export default function Star() {
       {wins.map(content)}
       {/* the switch back: this one is the GUI */}
       {/* the same switch as the CLI side: a Star property sheet choice */}
-      <span className="cg"><span className="cg-k">Interface</span><span className="cg-seg"><a href="/" title="Back to the command line">CLI</a><b>GUI</b></span></span>
+      <GuiToggle />
       {/* the desktop: an icon for everything, so whatever you close can come back */}
       <div className="desk">
         {[
@@ -828,6 +853,21 @@ const CSS = `
   .cg-seg > * + * { border-left: 1.5px solid var(--ink); }
   .cg-seg b { background: var(--ink); color: var(--paper); }
   .cg-seg a:hover { text-decoration: underline; }
+  .cg-radio { gap: 0.9rem; }
+  .cg-radio > a, .cg-radio > span:not(.cg-k) { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); text-decoration: none; background: var(--paper); padding: 0 4px; }
+  .cg-radio i { width: 13px; height: 13px; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--paper); position: relative; }
+  .cg-radio i[data-on="1"]::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--ink); }
+  .cg-radio > a:hover { text-decoration: underline; }
+  .cg-keys { gap: 6px; }
+  .cg-keys .cmd { height: 26px; display: inline-flex; align-items: center; padding: 0 12px; text-decoration: none; color: var(--ink); font-weight: 400; }
+  .cg-keys b.cmd { background: var(--ink); color: var(--paper) !important; }
+  .cg-keys a.cmd:hover { background: var(--ink); color: var(--paper) !important; }
+  .cg-icons { gap: 10px; align-items: flex-end; }
+  .cg-icons > * { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink); text-decoration: none; font-weight: 400; }
+  .cg-pict { width: 40px; height: 34px; display: flex; align-items: center; justify-content: center; }
+  .cg-pict svg { width: 40px; height: 34px; }
+  .cg-icons > * > span:last-child { background: var(--paper); padding: 0 4px; }
+  .cg-icons > b > span:last-child { background: var(--ink); color: var(--paper); }
   /* property sheet */
   /* a black command button at the right end of a title bar */
   .head-end { margin-left: auto; display: flex; }

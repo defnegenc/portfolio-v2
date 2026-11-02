@@ -143,7 +143,8 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
 
     // Tone palette: 0 = base, 1 = mono highlight (same family, brighter and a
     // touch more saturated), 2.. = HUE_TONES hue-rotated tones for rainbow hover.
-    const HUE_TONES = 28
+    // fine steps, so neighbouring cells differ by a shade instead of a band
+    const HUE_TONES = 56
     const mono: [number, number, number] = tint
       ? hslToRgb(hue, Math.min(1, satBase * 1.15), lightMode ? litBase * 0.5 : litBase + (1 - litBase) * 0.55)
       : lightMode ? [0, 0, 0] : [255, 255, 255]
@@ -510,18 +511,18 @@ export default function AsciiCanvas({ chars: charsStr, trailMode = false, breath
        on a closed loop this reads as breathing rather than cycling. */
     function rainbowTone(phase: number) {
       const t = ((phase % 1) + 1) % 1
-      const eased = t - Math.sin(t * Math.PI * 2) / (Math.PI * 2)
-      return 2 + (Math.floor(eased * HUE_TONES) % HUE_TONES + HUE_TONES) % HUE_TONES
+      return 2 + (Math.round(t * HUE_TONES) % HUE_TONES)
     }
 
     /* Where a cell sits in the rainbow: a few slow sine waves at different
        angles and speeds folded together, so the colour pools and swirls
        instead of sweeping across in straight bands, and drifts slowly. */
     function swirl(nx: number, ny: number) {
-      return 0.2 * Math.sin(nx * 2.1 + time * 0.31)
-        + 0.16 * Math.sin(ny * 1.7 - time * 0.23 + nx * 0.9)
-        + 0.1 * Math.sin((nx + ny) * 3.3 + time * 0.17)
-        + time * 0.035
+      // broad, slow waves: wide pools of colour that drift, no visible bands
+      return 0.22 * Math.sin(nx * 1.1 + time * 0.12)
+        + 0.18 * Math.sin(ny * 0.9 - time * 0.09 + nx * 0.5)
+        + 0.08 * Math.sin((nx - ny) * 1.6 + time * 0.07)
+        + time * 0.012
     }
 
     // Cipher breathe: data rain. Each column runs its own packet down the grid at
