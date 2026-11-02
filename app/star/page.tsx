@@ -5,7 +5,7 @@
    buttons, pictorial tiles with the name inside, a property sheet with
    inverted choices. One window is the live field in full colour. */
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
 import { useAmbient, LOOKS, periodOf, type Period, type Sky } from '@/components/ambient'
 import { CARDS } from '@/components/cards'
@@ -56,17 +56,35 @@ const HOURS: [Period, string][] = [['dawn', 'Early'], ['day', 'Daytime'], ['dusk
 
 // the desktop tiles, line drawings in the ink
 const LS = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.5 }
-/* "About the Star": a short history of the machine this view borrows from.
-   The first paragraph is Defne's; the rest is checked history. */
-const STAR_HISTORY = [
+/* "About the Star": the first two lines are Defne's. The rest is told by
+   the two sources, quoted where possible: {1} and {2} mark which one, and
+   open it in a browser window on the desk. */
+const STAR_INTRO = [
   'This interface is inspired by the Xerox Star.',
   'The Xerox Star exudes a rough charm through its primitive interface. Yet behind this powerful toy sit big ideas.',
-  'Released in 1981, the Star was the first computer you could buy that put a mouse, icons you point at and click, folders and a desktop on one screen. Its designers made a deliberate bet. Office workers didn\u2019t care to see the command line or the code underneath. They wanted a picture of their work: documents, folders and in-trays on a desk.',
-  'The ideas came from the Alto, a research computer built at [Xerox PARC] in 1973. The mouse itself was an older idea, shown by Doug Engelbart in 1968. PARC opened in 1970 and hired researchers from Engelbart\u2019s lab at SRI. They were HCI researchers setting out to build the office of the future.',
-  'In 1979, Steve Jobs struck a deal with Xerox. Xerox received 100,000 pre-IPO shares of Apple\u2019s stock, and in exchange, Apple\u2019s team got a tour of the lab. Few visitors ever got to look under the hood. Jobs\u2019s team was one of them.',
-  'Apple put those ideas into the Lisa in 1983 and the Macintosh in 1984. The Star cost about $16,000 per workstation and sold poorly. The Mac brought the same ideas to everyone.',
 ]
-// where [Xerox PARC] and the source line point
+const STAR_HISTORY: { h: string; paras: string[] }[] = [
+  { h: 'The machine', paras: [
+    '\u201cIn April of 1981, Xerox introduced the 8010 \u201cStar\u201d Information System.\u201d It was meant for offices, where \u201cprofessionals in a business or organization would have workstations on their desks\u201d to produce \u201cdocumentation, presentations, memos, and reports.\u201d {1}',
+    'Its designers \u201cassumed that the target users are interested in getting their work done and not at all interested in computers.\u201d So the goal was \u201cto make the \u2018computer\u2019 as invisible to users as possible.\u201d {1}',
+    'Documents were \u201cWYSIWYG\u201d: \u201cWithin the limits of screen resolution, Star documents are displayed as they will be printed, including typographic features such as boldface, italics, proportional spacing, variable font families, superscripts.\u201d Even math: \u201cA square root sign has a slot for an expression, and grows when the expression becomes large.\u201d {1}',
+    'Every user began at the Desktop, \u201cwhich resembles the top of an office desk,\u201d with \u201cpictures of familiar office objects, such as documents, folders, file drawers, in-baskets, and out-baskets.\u201d The designers favoured \u201crecognition over recall, seeing and pointing over remembering and typing.\u201d As one of them wrote, \u201cthe display becomes reality.\u201d {1}',
+  ] },
+  { h: 'Where it came from', paras: [
+    '\u201cIn 1970, Xerox established a research center in Palo Alto.\u201d Its researchers \u201cwere fond of the slogan: \u2018The best way to predict the future is to invent it.\u2019\u201d {1}',
+    'Their answer was the Alto, first working in 1972, with a \u201cfull-page\u201d bitmapped display and a mouse. The mouse came from Douglas Engelbart\u2019s lab at SRI, which licensed it to Xerox in 1971. {1}',
+    'Star itself \u201cwas not developed at PARC, but rather in a separate product development organization.\u201d Its designers called the Alto \u201cperhaps the largest prototyping effort in history.\u201d {1}',
+  ] },
+  { h: 'Steve Jobs at PARC', paras: [
+    '\u201cXerox\u2019s venture capital arm had recently made an investment in Apple, and had agreed to show Apple what was going on in its lab.\u201d {2}',
+    '\u201cThere were actually two visits by groups from Apple to Xerox PARC in 1979. Steve Jobs was on the second of the two.\u201d \u201cOnly a very few visitors got to look under the hood at the actual technology that made the system run. The Apple delegation led by Jobs in December 1979 was one.\u201d {2}',
+  ] },
+  { h: 'What happened next', paras: [
+    'Star sold for \u201c$16,500 with software,\u201d a price \u201cnear that of time-shared mini-computers,\u201d while it \u201cwas, however, competing for desktop space with micro-computer-based PCs.\u201d {1}',
+    'Its designers admit they \u201cdidn\u2019t pay enough attention to the \u2018other\u2019 personal computer revolution.\u201d And \u201cApple Computer learned the same lesson with its Lisa computer, and similarly replaced it with a cheaper one having a more open software architecture: Macintosh.\u201d {1}',
+  ] },
+]
+// the Stanford Libraries page on the Apple visits
 const PARC_SOURCE = 'https://web.stanford.edu/dept/SUL/sites/mac/parc.html'
 /* Links open in a browser window on the desk. Sites that refuse to be shown
    inside another site (LinkedIn, learningetal.com) open in a new tab. arXiv's
@@ -79,9 +97,10 @@ const embedOf = (url: string) => {
   return /\.pdf$|arxiv\.org\/pdf\//.test(u) ? `${u}#navpanes=0&view=FitH` : u
 }
 // the sources, each opens in a browser window on the desk
+// numbered in the order the text cites them
 const SOURCES: { title: string; by: string; url: string }[] = [
-  { title: 'The Xerox PARC Visit', by: 'Stanford Libraries', url: PARC_SOURCE },
   { title: 'The Xerox Star: A Retrospective', by: 'Johnson, Roberts, Verplank et al., IEEE Computer, 1989. Written by the Star\u2019s designers', url: 'https://perso.lisn.upsaclay.fr/mbl/FundHCI/papers/XeroxStar-Computer89.pdf' },
+  { title: 'The Xerox PARC Visit', by: 'Stanford Libraries', url: PARC_SOURCE },
 ]
 
 /* The desktop: object icons in a grid down the right, each with its name
@@ -278,15 +297,15 @@ function StarWindow({ win, title, buttons = [], end, onClose, onFocus, onMove, o
    The facts are from the designers' retrospective (Johnson et al., 1989). */
 type Part = 'display' | 'objects' | 'icons' | 'commands' | 'mouse'
 const PARTS: Record<Part, { name: string; text: string }> = {
-  display: { name: 'Display', text: 'A 17-inch bitmapped screen, black on white. The computer draws every dot, which is what made pictures of documents and icons possible.' },
+  display: { name: 'Display', text: 'A 17-inch bitmapped screen at 72 pixels per inch, the same as a printer\u2019s points, so documents look on screen as they will print.' },
   objects: { name: 'Document objects', text: 'Everything inside a document is an object you can select: a page, text, a frame holding a graphic, table or equation, a field, a footnote. Each one has its own property sheet.' },
   icons: { name: 'Icons', text: 'Small pictures of the things in an office: documents, folders, file drawers, in- and out-baskets for mail, printers, a calculator. You open one to see what’s inside.' },
-  commands: { name: 'Universal commands', text: 'The same few commands work on everything: Move, Copy, Delete, Show Properties, Copy Properties, Again, Undo and Help. They have their own keys. You select a thing first, then press what to do with it.' },
-  mouse: { name: 'Mouse', text: 'Two buttons. Select picks a thing. Adjust makes the selection bigger or smaller.' },
+  commands: { name: 'Universal commands', text: 'A small set of generic commands work on every kind of data: Move, Copy, Open, Delete, Show Properties and Same (Copy Properties). Each has its own key. Printing is a Copy to a printer icon, and mail is a Move to the out-basket.' },
+  mouse: { name: 'Mouse', text: 'Two buttons, between Apple\u2019s one and most others\u2019 three. The designers\u2019 studies found one button traded fewer button mix-ups for more selection errors.' },
 }
 const DG_OBJECTS = ['Page', 'Text', 'Frame', 'Field', 'Footnote']
 const DG_ICONS = ['Document', 'Folder', 'File drawer', 'In- and out-basket', 'Printer', 'Calculator', 'Directory']
-const DG_COMMANDS = ['Move', 'Copy', 'Delete', 'Show Properties', 'Copy Properties', 'Again', 'Undo', 'Help']
+const DG_COMMANDS = ['Move', 'Copy', 'Open', 'Delete', 'Show Properties', 'Same']
 
 function StarDiagram() {
   const [part, setPart] = useState<Part>('display')
@@ -587,17 +606,16 @@ export default function Star() {
         {histTab === 'diagram' ? <div className="vp"><StarDiagram /></div> : <div className="vp">
           <header><h1>Xerox</h1><p className="vp-sub">8010 Star Information System</p></header>
           <div className="vp-cols">
-            <p><em>{STAR_HISTORY[0]}</em></p>
-            <h2>The machine</h2>
-            {STAR_HISTORY.slice(1, 3).map((t, i) => <p key={i}>{t}</p>)}
-            <h2>Where it came from</h2>
-            {STAR_HISTORY.slice(3, 4).map((t, i) => (
-              <p key={i}>{t.split(/\[([^\]]+)\]/).map((part, k) => (k % 2 ? <a key={k} href={PARC_SOURCE} onClick={browse(PARC_SOURCE)}>{part}</a> : part))}</p>
-            ))}
-            <h2>Steve Jobs at PARC</h2>
-            {STAR_HISTORY.slice(4).map((t, i) => <p key={i}>{t}</p>)}
+            <p><em>{STAR_INTRO[0]}</em></p>
+            <p>{STAR_INTRO[1]}</p>
+            {STAR_HISTORY.map(sec => <Fragment key={sec.h}>
+              <h2>{sec.h}</h2>
+              {sec.paras.map(t => <p key={t}>{t.split(/\{(\d)\}/).map((part, k) => (k % 2
+                ? <sup key={k}><a href={SOURCES[+part - 1].url} onClick={browse(SOURCES[+part - 1].url)} title={SOURCES[+part - 1].title}>[{part}]</a></sup>
+                : part))}</p>)}
+            </Fragment>)}
             <h2>Sources</h2>
-            {SOURCES.map(x => <p key={x.url} className="vp-src"><a href={x.url} onClick={browse(x.url)}>{x.title}</a>. {x.by}.</p>)}
+            {SOURCES.map((x, i) => <p key={x.url} className="vp-src">[{i + 1}] <a href={x.url} onClick={browse(x.url)}>{x.title}</a>. {x.by}.</p>)}
           </div>
         </div>}
       </StarWindow>
