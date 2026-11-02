@@ -11,6 +11,7 @@ import { IconStyleCtx } from '@/components/weatherIcons'
 import { ABOUT_PARAS } from '@/components/aboutContent'
 import AboutPara from '@/components/AboutPara'
 import { TOGGLES, readToggle, saveToggle, type ToggleStyle } from '@/components/siteToggle'
+import { AboutGraph, GRAPH_CSS, type GraphView } from '@/components/aboutGraph'
 import { CARDS, type Card } from '@/components/cards'
 import { ITEMS, FOLDERS, PICTURES, picFile, dirName } from '@/components/fs'
 import { forLight } from '@/components/color'
@@ -344,9 +345,21 @@ function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: 
   )
 }
 
-// About inside an arrangement: there at once, no animation
+// About inside an arrangement: there at once, no animation. Under it, the
+// same story as two family-tree diagrams, each opened by its own command.
 function AboutBody() {
-  return <div className="about-paras">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)}</div>
+  const [graph, setGraph] = useState<GraphView | null>(null)
+  return (
+    <div>
+      <div className="about-paras">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)}</div>
+      <div className="g-cmds">
+        {([['life', 'cat about-me --graph'], ['ideas', 'cat ideas --graph']] as const).map(([v, c]) => (
+          <button key={v} className="ar-cmd" data-on={graph === v ? 1 : 0} onClick={() => setGraph(g => (g === v ? null : v))}><span>%</span> {c}</button>
+        ))}
+      </div>
+      {graph && <div className="g-term ar-hop"><AboutGraph view={graph} /></div>}
+    </div>
+  )
 }
 
 /* What clicking a project does: it opens right under its name, as a tree,
@@ -1530,6 +1543,7 @@ export default function Home() {
         ...(phoneH ? ({ '--phone-field': `${phoneH}px` } as React.CSSProperties) : {}),
         ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}
     >
+      <style>{GRAPH_CSS}</style>
       <style>{`
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
         @keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
@@ -2003,6 +2017,12 @@ export default function Home() {
         .root-frame .pv-tree, .root-frame .pv-files, .root-frame .pv-file, .root-frame .pv-inline .bio-prompt,
         .root-frame .shell-out, .root-frame .shell-line, .root-frame .bio-prompt, .root-frame .term-doc p,
         .root-frame .home-title, .root-frame .home-links a, .root-frame .bar-gui, .root-frame .bar-mini { font-size: var(--term) !important; }
+        /* the about diagrams in the terminal */
+        .g-cmds { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1rem; }
+        .ar-fold .g-cmds .ar-cmd, .g-cmds .ar-cmd { width: auto; line-height: 1.6; padding: 0 0.4rem; margin-left: -0.4rem; }
+        .g-cmds .ar-cmd[data-on="1"] { background: var(--ink); color: var(--bg); }
+        .g-cmds .ar-cmd[data-on="1"] > span { color: var(--bg); }
+        .g-term { --g-bg: var(--bg); --g-ink: var(--ink); --g-accent: var(--award); margin-top: 1rem; max-width: 980px; }
       `}</style>
 
       {/* ── NAME STRIP ── */}

@@ -15,6 +15,7 @@ import AboutPara from '@/components/AboutPara'
 import { useTheme } from '@/components/useTheme'
 import { CLASSIC_ICON } from '@/components/weatherIcons'
 import { readToggle, type ToggleStyle } from '@/components/siteToggle'
+import { AboutGraph, GRAPH_CSS } from '@/components/aboutGraph'
 
 const SPIEL = 'I think about how modern interfaces should (and fail to) meet our needs with exponentially growing agentic capabilities. BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction. Now AI @ Coinbase, where I own the agent creation experience.'
 // what the Projects folder holds, listed like a Star folder window
@@ -455,6 +456,7 @@ export default function Star() {
   useEffect(() => { if (iconsLoaded.current) localStorage.setItem('star-icons', JSON.stringify(iconAt)) }, [iconAt])
   // About the Star: the history, or the clickable diagram
   const [histTab, setHistTab] = useState<'history' | 'diagram'>('history')
+  const [aboutTab, setAboutTab] = useState<'text' | 'life' | 'ideas'>('text')
   /* Going to the terminal and back keeps the desk as you left it: the open
      windows, extra fields, the browser page and the About the Star tab live
      in this tab's session. */
@@ -648,7 +650,7 @@ export default function Star() {
       <StarWindow key={w.id} {...common} title="My spiel" onClose={() => close('main')}
         buttons={[['Mail', () => { location.href = 'mailto:defneg@stanford.edu' }], ['LinkedIn', () => window.open('https://linkedin.com/in/-defne', '_blank')]]}>
         <div className="vp">
-          <header><h1>Defne Gen\u00e7</h1><p className="vp-sub">My spiel</p></header>
+          <header><h1>Defne Genç</h1><p className="vp-sub">My spiel</p></header>
           <div className="vp-cols vp-one"><p>{SPIEL}</p></div>
         </div>
       </StarWindow>
@@ -679,10 +681,15 @@ export default function Star() {
     )
     if (w.id === 'about') return (
       <StarWindow key={w.id} {...common} title="About me" onClose={() => close('about')}>
-        <div className="vp">
-          <header><h1>About me</h1><p className="vp-sub">Defne Gen\u00e7. Istanbul, Stanford, New York</p></header>
-          <div className="vp-cols">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} side="gui" />)}</div>
+        {/* the text, or the same story as two Star-style family trees */}
+        <div className="hist-tabs">
+          <span className="sheet-k">Display</span>
+          <div className="seg">{(['text', 'life', 'ideas'] as const).map(t => <button key={t} aria-pressed={aboutTab === t} onClick={() => setAboutTab(t)}>{t.toUpperCase()}</button>)}</div>
         </div>
+        {aboutTab === 'text' ? <div className="vp">
+          <header><h1>About me</h1><p className="vp-sub">Defne Genç. Istanbul, Stanford, New York</p></header>
+          <div className="vp-cols">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} side="gui" />)}</div>
+        </div> : <div className="vp g-star"><AboutGraph view={aboutTab} /></div>}
       </StarWindow>
     )
     const c = CARDS[w.id]
@@ -703,7 +710,7 @@ export default function Star() {
 
   return (
     <div className="desk-root" data-theme={theme}>
-      <style>{CSS}</style>
+      <style>{CSS + GRAPH_CSS}</style>
       {wins.map(content)}
       {/* the switch back: this one is the GUI */}
       {/* the same switch as the CLI side: a Star property sheet choice */}
@@ -873,6 +880,7 @@ const CSS = `
   .head-end { margin-left: auto; display: flex; }
   .cmd.cmd-black { display: flex; align-items: center; justify-content: center; gap: 5px; background: var(--ink); color: var(--paper) !important; border-color: var(--ink); min-width: 28px; }
   .cmd.cmd-black:hover { background: var(--paper); color: var(--ink) !important; }
+  .g-star { --g-bg: var(--paper); --g-ink: var(--ink); --g-accent: var(--ink); }
   .hist-tabs { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1.5px solid var(--ink); background: var(--paper); flex-shrink: 0; }
   .dg { max-width: 760px; }
   .dg-svg { width: 100%; height: auto; display: block; color: var(--ink); }
