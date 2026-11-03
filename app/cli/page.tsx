@@ -1026,8 +1026,20 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
     ].join('\n')}</pre>
     case 'rm': case 'rmdir': case 'mkdir': case 'touch': case 'mv': case 'cp': case 'chmod':
       return `${name}: ${arg || '.'}: Read-only file system`
-    case 'vim': case 'vi': case 'nano': case 'emacs': case 'code':
-      return `${name}: this portfolio is read-only. Try cat ${arg || 'about-me'}`
+    case 'vim': case 'vi': case 'nano': case 'emacs': case 'code': {
+      // opens the file the way vim draws it: the text, empty lines as ~, a status line
+      if (!arg) return `${name}: this portfolio is read-only. Try ${name} .secret`
+      const body = runCommand(`cat ${arg}`, api, cwd, cd)
+      if (typeof body === 'string' && /^cat: |^usage/.test(body)) return body.replace(/^cat/, name)
+      const text = typeof body === 'string' ? body : ''
+      return (
+        <div className="vim">
+          <div className="vim-body">{typeof body === 'string' ? body : body}</div>
+          <pre className="term-pre vim-tilde">{Array.from({ length: 4 }, () => '~').join('\n')}</pre>
+          <div className="vim-status"><span>"{arg}" [readonly] {text ? `${text.split('\n').length}L, ${text.length}B` : ''}</span><span>:q</span></div>
+        </div>
+      )
+    }
     case 'ssh': return arg ? `ssh: connect to host ${arg}: you're already here` : 'usage: ssh host'
     case 'exit': case 'logout': return 'logout'
     default: return `zsh: command not found: ${name}`
@@ -1806,6 +1818,10 @@ export default function Home() {
         .term-log { display: flex; flex-direction: column; gap: 0.7rem; padding-bottom: 0.5rem; }
         .term-entry .bio-prompt { margin-bottom: 0.2rem; white-space: normal; }
         .term-out { margin: 0; }
+        .vim { margin: 0.2rem 0 0.4rem; }
+        .vim-body { white-space: pre-wrap; }
+        .vim-tilde { color: var(--award); }
+        .vim-status { display: flex; justify-content: space-between; background: var(--ink); color: var(--bg); padding: 0 0.5ch; }
         .term-pre { margin: 0; font-family: var(--font-mono); font-size: inherit; line-height: 1.45; white-space: pre; }
         /* about-me printed in the session reads like the rest of the output: mono, same size and spacing */
         .term-doc p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
