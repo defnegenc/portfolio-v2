@@ -11,7 +11,7 @@ export const ABOUT_PARAS = [
 ]
 
 // where each linked word goes
-export const ABOUT_LINKS: Record<string, string> = { GUI: '/star', CLI: '/' }
+export const ABOUT_LINKS: Record<string, string> = { GUI: '/', CLI: '/cli' }
 
 export const ABOUT_FACTS: [string, string][] = [
   ['Based', 'New York City'],
