@@ -304,6 +304,22 @@ function DirList({ items, click, open = null, mode = 'tree', onBack, inline = tr
   const style = useContext(NameCtx)
   const nameOf = useDirOf()
   const inside = (p: Item) => inline && open === slugOf(p.href) && onBack && <ProjectView key={open + mode} slug={open} mode={mode} onBack={onBack} />
+  /* Trunk: the listing itself is a tree, like running tree. An open folder's
+     files hang off its own branch while the trunk carries on to the next
+     name, so opening one in the middle never breaks the list. */
+  if (mode === 'trunk') return (
+    <div className="pv-tree tk">
+      {items.map(p => (
+        <div key={p.name} className="pv-node">
+          <a href={p.href} onClick={click(p.href)} className={`pl nm-mono nm-${style}`} data-on={open === slugOf(p.href) ? 1 : 0}>
+            <span className="pl-dir">{nameOf(p)}</span>
+            {style === 'comment' && <span className="nm-note"># {p.year}{p.award && <><span className="nm-full">, {p.award}</span><span className="nm-short">, {p.award.replace(/ \d{4} /, ' ')}</span></>}</span>}
+          </a>
+          {open === slugOf(p.href) && onBack && <ProjectView key={open} slug={open} mode="tree" onBack={onBack} />}
+        </div>
+      ))}
+    </div>
+  )
   // Dated: a long listing, folders for projects and plain files for tidbits
   if (style === 'ls') return (
     <div className="pl-list ls-l">
@@ -369,9 +385,9 @@ function AboutBody() {
    Tree, between its siblings; After, printed under the whole list as its own
    tree command; Side, beside the list; Focus, the list folds to just that
    project until cd .. */
-type OpenMode = 'tree' | 'after' | 'side' | 'focus' | 'row' | 'ls' | 'cd'
+type OpenMode = 'trunk' | 'tree' | 'after' | 'side' | 'focus' | 'row' | 'ls' | 'cd'
 const OPEN_MODES: { key: OpenMode; label: string }[] = [
-  { key: 'after', label: 'After' }, { key: 'tree', label: 'Tree' }, { key: 'side', label: 'Side' }, { key: 'focus', label: 'Focus' },
+  { key: 'trunk', label: 'Trunk' }, { key: 'after', label: 'After' }, { key: 'tree', label: 'Tree' }, { key: 'side', label: 'Side' }, { key: 'focus', label: 'Focus' },
 ]
 const itemOf = (slug: string) => [...PROJECTS, ...TIDBITS].find(p => slugOf(p.href) === slug) as Item | undefined
 // a project's files: its folder, or for a tidbit the one link it is
@@ -488,6 +504,7 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
         <button className="ar-cmd pv-up" onClick={back}><span>%</span> cd ..<em>{items.length - 1} more</em></button>
       </div>
     )
+    if (openMode === 'trunk') return <DirList items={items} click={click} open={proj} mode="trunk" onBack={back} />
     return <DirList items={items} click={click} open={proj} mode={openMode} onBack={back} />
   }
   const spiel = <DecodeBio onDone={onBioDone} style={TEXT_STYLE} />
@@ -1224,7 +1241,7 @@ export default function Home() {
   const [icons, setIcons] = useState<'line' | 'classic'>('line')
   const [names, setNames] = useState<NameStyle>('comment')
   const [arrange, setArrange] = useState<Arrange>('fold')
-  const [openMode, setOpenMode] = useState<OpenMode>('after')
+  const [openMode, setOpenMode] = useState<OpenMode>('trunk')
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
   const [entry, setEntry] = useState<Entry>('open')
   const [phone, setPhone] = useState<Phone>('commands')
@@ -1388,7 +1405,7 @@ export default function Home() {
   const pickOpen = (v: OpenMode) => {
     setOpenMode(v)
     const u = new URL(window.location.href)
-    if (v === 'after') u.searchParams.delete('o'); else u.searchParams.set('o', v)
+    if (v === 'trunk') u.searchParams.delete('o'); else u.searchParams.set('o', v)
     window.history.replaceState(null, '', u)
   }
   const pickToggle = (v: ToggleStyle) => { setToggle(v); saveToggle(v) }
@@ -1743,6 +1760,9 @@ export default function Home() {
         @media (max-width: 860px) { .pv-side { grid-template-columns: 1fr; } .pv-side > .ar-hop { border: 0; padding: 0.6rem 0 0; } }
         .ar-fold .pv-up, .pv-up { display: flex; gap: 1.2ch; width: auto; line-height: 1.6; margin-top: 0.4rem; }
         .pv-up em { font-style: normal; color: var(--ink); }
+        .tk { padding-top: 0.1rem; }
+        .tk > .pv-node > .pl { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; line-height: 1.55; }
+        .tk .pv-tree { padding: 0.1rem 0 0.35rem 0.5ch; }
         .pv-rowv { padding: 0.35rem 0 0.7rem 2ch; }
         .pv-btn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
         .pv-btn[data-on="1"] { background: var(--ink); color: var(--bg); text-decoration: none; }
