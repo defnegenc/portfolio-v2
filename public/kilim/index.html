@@ -6,11 +6,19 @@
     <title>kilim</title>
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link href="https://api.fontshare.com/v2/css?f[]=neco@400,500,700,401&display=swap" rel="stylesheet" />
+    <script>if (new URLSearchParams(location.search).get('dark') === '1') document.documentElement.classList.add('dark')</script>
     <style>
-      /* Always dark, as on defne.io: near-black page, warm off-white ink. */
+      /* Light by default: a warm white page and near-black ink. ?dark=1 brings
+         back the dark floor. */
       :root {
+        color-scheme: light;
+        --side: 0px; --ink: #1a1918; --page: #f7f4ed; --panel: #efebe3; --pick: #e2ddd3; --hover: #eae6dd;
+        --card: #fbf9f4; --line: #cfc8bc; --on-ink: #f7f4ed; --ink-hover: #3a3733; --veil: rgba(247, 244, 237, 0.85);
+        --map-land: #c9c1b4; --map-dot: #1a1918;
+      }
+      :root.dark {
         color-scheme: dark;
-        --side: 0px; --ink: #e8e6e0; --page: #0c0b0a; --panel: #141312; --pick: #2a2723; --hover: #201e1b;
+        --ink: #e8e6e0; --page: #0c0b0a; --panel: #141312; --pick: #2a2723; --hover: #201e1b;
         --card: #161514; --line: #3a352f; --on-ink: #0c0b0a; --ink-hover: #c9c6bf; --veil: rgba(12, 11, 10, 0.8);
         --map-land: #5e574d; --map-dot: #e8e6e0;
       }
