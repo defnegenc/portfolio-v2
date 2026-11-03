@@ -741,6 +741,7 @@ type ShellApi = {
   weather: { place: string | null; period: Period; sky: Sky } | null
   openWeather: () => void
   setWeather: (v: { p: Period; s: Sky } | null) => void
+  openResume?: () => void
   /* the terminal session: once you start typing, the text under the field
      gives way to a scrollback of what you ran. null when it's closed. */
   log: LogEntry[] | null
@@ -789,7 +790,7 @@ function wttr(w: ShellApi['weather']) {
 }
 
 // what Tab can complete, by command
-const COMMANDS = ['cat', 'cd', 'ls', 'tree', 'open', 'imgcat', 'startx', 'caffeinate', 'pmset', 'curl', 'weather', 'mail', 'clear', 'help', 'history', 'whoami', 'date', 'echo', 'pwd', 'git', 'ps', 'neofetch', 'uname', 'uptime', 'hostname', 'which', 'ssh', 'sudo', 'exit']
+const COMMANDS = ['cat', 'cd', 'ls', 'tree', 'vim', 'fortune', 'cowsay', 'cal', 'who', 'resume', 'open', 'imgcat', 'startx', 'caffeinate', 'pmset', 'curl', 'weather', 'mail', 'clear', 'help', 'history', 'whoami', 'date', 'echo', 'pwd', 'git', 'ps', 'neofetch', 'uname', 'uptime', 'hostname', 'which', 'ssh', 'sudo', 'exit']
 const ITEM_NAMES = [...PROJECTS, ...TIDBITS].map(p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, ''))
 const ARGS: Record<string, string[]> = {
   cat: ['about-me', 'my-spiel'], cd: ['..'], ls: ['projects', 'tidbits', '-a'], open: ITEM_NAMES,
@@ -831,6 +832,8 @@ const HELP: [string, string][] = [
   ['git log', 'the history, as commits'],
   ['neofetch', 'about this machine'],
   ['history', 'what you typed'],
+  ['resume', 'my résumé'],
+  ['fortune', 'a line of mine, at random'],
   ['tab', 'see options, or finish a command'],
   ['mail', 'write to me'],
   ['clear', 'clear this'],
@@ -884,6 +887,30 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
   const [name, ...args] = cmd.split(' ')
   const arg = args.join(' ').toLowerCase()
   const find = (q: string) => [...PROJECTS, ...TIDBITS].find(p => p.name.toLowerCase().replace(/[^a-z]/g, '').startsWith(q.replace(/[^a-z]/g, '')))
+  // things people type that aren't commands: greetings, manners, vim panic
+  const said = cmd.toLowerCase().replace(/[!?.,]+$/g, '')
+  const SAID: Record<string, string> = {
+    hi: 'hi. type help for the tour, or ls to look around',
+    hello: 'hello. type help for the tour, or ls to look around',
+    hey: 'hey. type help for the tour, or ls to look around',
+    wassup: 'not much. building interfaces. you?',
+    sup: 'not much. building interfaces. you?',
+    yo: 'yo. type help',
+    'whats up': 'not much. building interfaces. you?',
+    "what's up": 'not much. building interfaces. you?',
+    thanks: 'anytime', 'thank you': 'anytime', ty: 'anytime',
+    please: 'manners noted. still not a command',
+    lol: 'ha', haha: 'ha', lmao: 'ha',
+    ':q': 'you were never in vim. you are free', ':q!': 'you were never in vim. you are free', ':wq': 'saved nothing. you were never in vim', ':x': 'you were never in vim. you are free',
+    'rm -rf /': 'nice try', 'sudo rm -rf /': 'nice try',
+    ping: 'pong',
+    coffee: 'BrewBird would be proud', 'make coffee': 'BrewBird would be proud', brew: 'BrewBird would be proud',
+    shutdown: 'not on my watch', reboot: 'not on my watch', 'sudo shutdown': 'not on my watch',
+    love: '<3', '<3': '<3',
+    'hire me': 'you want to hire defne? try mail, or resume', 'hire defne': 'good idea. try mail',
+    'who are you': 'defne. cat about-me for the long version', 'what is this': 'defne.io, as a terminal. type help', 'what': 'defne.io, as a terminal. type help',
+  }
+  if (SAID[said]) return SAID[said]
   switch (name) {
     case '': return ''
     case 'help': case 'man':
@@ -983,6 +1010,25 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
     case 'pwd': return `/Users/defne/${HOME_DIR}${cwd.length ? '/' + cwd.join('/') : ''}`
     case 'date': return new Date().toString().slice(0, 24)
     case 'sudo': return 'defne is not in the sudoers file. This incident will be reported.'
+    case 'who': return 'defne    ttys001    ' + new Date().toString().slice(4, 21)
+    case 'fortune': {
+      const lines = ['my software goes hard', 'third time\u2019s the charm', 'the chat interface is to LLMs what the CLI was to personal computers', 'we need to make the leap to find AI\u2019s GUI', 'I\u2019m all and none of those things']
+      return lines[Math.floor(Math.random() * lines.length)]
+    }
+    case 'cowsay': {
+      const t = args.join(' ') || 'moo'
+      return <pre className="term-pre">{[' ' + '_'.repeat(t.length + 2), `< ${t} >`, ' ' + '-'.repeat(t.length + 2), '        \\   ^__^', '         \\  (oo)\\_______', '            (__)\\       )\\/\\', '                ||----w |', '                ||     ||'].join('\n')}</pre>
+    }
+    case 'cal': {
+      const d = new Date(), y = d.getFullYear(), m = d.getMonth()
+      const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate()
+      const cells = [...Array(first).fill('  '), ...Array.from({ length: days }, (_, i) => String(i + 1).padStart(2))]
+      const rows = []
+      for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7).join(' '))
+      const title = d.toLocaleString('en-US', { month: 'long' }) + ' ' + y
+      return <pre className="term-pre">{[title.padStart(10 + Math.ceil(title.length / 2)), 'Su Mo Tu We Th Fr Sa', ...rows].join('\n')}</pre>
+    }
+    case 'resume': case 'cv': api.openResume?.(); return ''
     case 'echo': return args.join(' ')
     case 'hostname': return 'defne.io'
     case 'uname': return arg === '-a' ? 'Darwin defne.io 25.6.0 Darwin Kernel: Bikini Bottom Edition arm64' : 'Darwin'
@@ -1042,7 +1088,18 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
     }
     case 'ssh': return arg ? `ssh: connect to host ${arg}: you're already here` : 'usage: ssh host'
     case 'exit': case 'logout': return 'logout'
-    default: return `zsh: command not found: ${name}`
+    default: {
+      // the nearest real command, if a typo is one or two keys off
+      const dist = (a: string, b: string) => {
+        const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
+        for (let j = 1; j <= b.length; j++) d[0][j] = j
+        for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+          d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+        return d[a.length][b.length]
+      }
+      const near = COMMANDS.map(c => [c, dist(name.toLowerCase(), c)] as const).sort((a, b) => a[1] - b[1])[0]
+      return near && near[1] <= 2 && name.length > 1 ? `zsh: command not found: ${name}. did you mean ${near[0]}?` : `zsh: command not found: ${name}`
+    }
   }
 }
 
@@ -1540,6 +1597,8 @@ export default function Home() {
     weather: sky ? { place: sky.place ?? null, period: periodOf(), sky: wx?.s ?? sky.sky } : null,
     openProject: slug => { openWin(slug, pendingFrom.current); pendingFrom.current = null },
     openWeather: () => setWxOpen(true),
+    // the résumé opens in a window, like any other file
+    openResume: () => openUrl('/defne-genc-resume.pdf', 'résumé'),
     setWeather: v => setWx(v),
     log: termLog, setLog: setTermLog,
   }
