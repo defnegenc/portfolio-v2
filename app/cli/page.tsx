@@ -11,7 +11,7 @@ import { IconStyleCtx } from '@/components/weatherIcons'
 import { ABOUT_PARAS } from '@/components/aboutContent'
 import AboutPara from '@/components/AboutPara'
 import { TOGGLES, readToggle, saveToggle, type ToggleStyle } from '@/components/siteToggle'
-import { AboutGraph, GRAPH_CSS, type GraphView } from '@/components/aboutGraph'
+import { Timeline, FIGURE_CSS } from '@/components/aboutFigures'
 import { CARDS, type Card } from '@/components/cards'
 import { ITEMS, FOLDERS, PICTURES, picFile, dirName } from '@/components/fs'
 import { forLight } from '@/components/color'
@@ -300,10 +300,10 @@ const slugName = (p: Item) => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').r
 const dirOf = (p: Item) => `${slugName(p)}-${p.year}/`
 // Dated lists the year in its own column, so the folder drops it
 const useDirOf = () => { const st = useContext(NameCtx); return st === 'ls' || st === 'comment' ? (p: Item) => `${slugName(p)}/` : dirOf }
-function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: Item[]; click: (href: string) => (e: React.MouseEvent) => void; open?: string | null; mode?: OpenMode; onBack?: () => void }) {
+function DirList({ items, click, open = null, mode = 'tree', onBack, inline = true }: { items: Item[]; click: (href: string) => (e: React.MouseEvent) => void; open?: string | null; mode?: OpenMode; onBack?: () => void; inline?: boolean }) {
   const style = useContext(NameCtx)
   const nameOf = useDirOf()
-  const inside = (p: Item) => open === slugOf(p.href) && onBack && <ProjectView key={open + mode} slug={open} mode={mode} onBack={onBack} />
+  const inside = (p: Item) => inline && open === slugOf(p.href) && onBack && <ProjectView key={open + mode} slug={open} mode={mode} onBack={onBack} />
   // Dated: a long listing, folders for projects and plain files for tidbits
   if (style === 'ls') return (
     <div className="pl-list ls-l">
@@ -345,19 +345,19 @@ function DirList({ items, click, open = null, mode = 'tree', onBack }: { items: 
   )
 }
 
-// About inside an arrangement: there at once, no animation. Under it, the
-// same story as two family-tree diagrams, each opened by its own command.
+// About inside an arrangement: there at once, no animation. Under it, a
+// command that draws the timeline.
 function AboutBody() {
-  const [graph, setGraph] = useState<GraphView | null>(null)
+  const [graph, setGraph] = useState<'timeline' | null>(null)
   return (
     <div>
       <div className="about-paras">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} style={TEXT_STYLE} />)}</div>
       <div className="g-cmds">
-        {([['short', 'cat about-me --graph'], ['ideas', 'cat ideas --graph']] as const).map(([v, c]) => (
+        {([['timeline', 'cat about-me --timeline']] as const).map(([v, c]) => (
           <button key={v} className="ar-cmd" data-on={graph === v ? 1 : 0} onClick={() => setGraph(g => (g === v ? null : v))}><span>%</span> {c}</button>
         ))}
       </div>
-      {graph && <div className="g-term ar-hop"><AboutGraph view={graph} /></div>}
+      {graph && <div className="g-term ar-hop"><Timeline /></div>}
     </div>
   )
 }
@@ -365,9 +365,13 @@ function AboutBody() {
 /* What clicking a project does: it opens right under its name, as a tree,
    as the ls and cat you'd type, or as a cd into the folder. Compared from
    Options (?o=). */
-type OpenMode = 'tree' | 'row' | 'ls' | 'cd'
+/* Where an opened project's tree goes, compared from Options (?o=):
+   Tree, between its siblings; After, printed under the whole list as its own
+   tree command; Side, beside the list; Focus, the list folds to just that
+   project until cd .. */
+type OpenMode = 'tree' | 'after' | 'side' | 'focus' | 'row' | 'ls' | 'cd'
 const OPEN_MODES: { key: OpenMode; label: string }[] = [
-  { key: 'tree', label: 'Tree' }, { key: 'row', label: 'Row' }, { key: 'ls', label: 'ls' }, { key: 'cd', label: 'cd' },
+  { key: 'tree', label: 'Tree' }, { key: 'after', label: 'After' }, { key: 'side', label: 'Side' }, { key: 'focus', label: 'Focus' },
 ]
 const itemOf = (slug: string) => [...PROJECTS, ...TIDBITS].find(p => slugOf(p.href) === slug) as Item | undefined
 // a project's files: its folder, or for a tidbit the one link it is
@@ -464,9 +468,30 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
   // a list, or the project opened from it: cd and man take the list's place,
   // tree grows under the clicked name
   const listOrProject = (items: Item[]) => {
+    const here = items.find(p => slugOf(p.href) === proj)
+    const tree = here && <ProjectView key={proj} slug={proj!} mode="tree" onBack={back} />
+    if (openMode === 'after') return (
+      <div>
+        <DirList items={items} click={click} open={proj} onBack={back} inline={false} />
+        {here && <div className="pv-after ar-hop"><Prompt cmd={`tree ${nameOf(here)}`} />{tree}</div>}
+      </div>
+    )
+    if (openMode === 'side') return (
+      <div className="pv-side">
+        <DirList items={items} click={click} open={proj} onBack={back} inline={false} />
+        {here && <div className="ar-hop">{tree}</div>}
+      </div>
+    )
+    if (openMode === 'focus' && here) return (
+      <div>
+        <DirList items={[here]} click={click} open={proj} mode="tree" onBack={back} />
+        <button className="ar-cmd pv-up" onClick={back}><span>%</span> cd ..<em>{items.length - 1} more</em></button>
+      </div>
+    )
     return <DirList items={items} click={click} open={proj} mode={openMode} onBack={back} />
   }
   const spiel = <DecodeBio onDone={onBioDone} style={TEXT_STYLE} />
+  const nameOf = useDirOf()
   const entry = useContext(EntryCtx)
   const { phone, stacked } = useContext(PhoneCtx)
   const body = (d: Dir) => (d === 'spiel' ? spiel : d === 'about' ? <AboutBody /> : listOrProject(itemsOf(d)))
@@ -1543,7 +1568,7 @@ export default function Home() {
         ...(phoneH ? ({ '--phone-field': `${phoneH}px` } as React.CSSProperties) : {}),
         ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}
     >
-      <style>{GRAPH_CSS}</style>
+      <style>{FIGURE_CSS}</style>
       <style>{`
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
         @keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
@@ -1710,6 +1735,13 @@ export default function Home() {
         .pv-node:hover .pv-note, .pv-node:focus-within .pv-note { opacity: 1; }
         @media (hover: none) { .pv-note { display: none; } }
         .pv-file { white-space: nowrap; }
+        .pv-after { margin-top: 0.9rem; }
+        .pv-after .bio-prompt { margin-bottom: 0.2rem; }
+        .pv-side { display: grid; grid-template-columns: max-content 1fr; gap: 0 3rem; align-items: start; }
+        .pv-side > .ar-hop { border-left: 1px solid var(--hairline); padding-left: 1.5rem; }
+        @media (max-width: 860px) { .pv-side { grid-template-columns: 1fr; } .pv-side > .ar-hop { border: 0; padding: 0.6rem 0 0; } }
+        .ar-fold .pv-up, .pv-up { display: flex; gap: 1.2ch; width: auto; line-height: 1.6; margin-top: 0.4rem; }
+        .pv-up em { font-style: normal; color: var(--ink); }
         .pv-rowv { padding: 0.35rem 0 0.7rem 2ch; }
         .pv-btn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
         .pv-btn[data-on="1"] { background: var(--ink); color: var(--bg); text-decoration: none; }
