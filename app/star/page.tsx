@@ -427,6 +427,9 @@ function GuiToggle() {
   return <span className="cg"><span className="cg-k">Interface</span><span className="cg-seg"><a {...cli}>CLI</a><b>GUI</b></span></span>
 }
 
+// tidbits that open as themselves instead of a description
+const DIRECT: Record<string, string> = { sponge: '/sponge/index.html', kilim: '/kilim/index.html' }
+
 export default function Star() {
   const [theme, setTheme] = useTheme('light')
   const { ambient, sky } = useAmbient('weather')
@@ -725,8 +728,8 @@ export default function Star() {
           ...ITEMS.map(it => ({
             id: it.kind === 'folder' ? `folder:${it.id}` : it.id, shape: (it.kind === 'folder' ? 'folder' : 'doc') as Shape,
             label: CARDS[it.id].title, pict: DESK_ICON[it.id],
-            // Sponge OS opens itself, in a browser window on the desk
-            go: () => (it.id === 'sponge' ? openWeb('/sponge/index.html', 'Sponge OS') : open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260)),
+            // the tidbits open themselves, in a browser window on the desk
+            go: () => (DIRECT[it.id] ? openWeb(DIRECT[it.id], CARDS[it.id].title) : open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260)),
           })),
           { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
           // the terminal opens as a window on the desk: the CLI site, running inside the GUI
