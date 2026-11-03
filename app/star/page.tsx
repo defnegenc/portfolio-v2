@@ -702,16 +702,20 @@ export default function Star() {
       <StarWindow key={w.id} {...common} title="About me" onClose={() => close('about')}>
         <div className="vp">
           <header><h1>About me</h1><p className="vp-sub">Defne Genç. Istanbul, Stanford, New York</p></header>
-          <div className="vp-cols">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} side="gui" />)}</div>
-          {/* figures, set in the page like the Star's own documents */}
-          <figure className="g-star g-fig">
-            <Timeline />
-            <figcaption><em>Figure 1:</em> Where I lived, and school. The Ph.D. starts in 2027, deferred.</figcaption>
-          </figure>
-          <figure className="g-star g-fig">
-            <CliGui here="gui" />
-            <figcaption><em>Figure 2:</em> This site, as a CLI and as a GUI. Click the CLI to switch.</figcaption>
-          </figure>
+          {/* each figure sits right after the paragraph it illustrates */}
+          <div className="vp-cols vp-flow">
+            <AboutPara text={ABOUT_PARAS[0]} side="gui" />
+            <AboutPara text={ABOUT_PARAS[1]} side="gui" />
+            <figure className="g-star g-fig">
+              <CliGui here="gui" />
+              <figcaption><em>Figure 1:</em> This site, as a CLI and as a GUI. Click the CLI to switch.</figcaption>
+            </figure>
+            <AboutPara text={ABOUT_PARAS[2]} side="gui" />
+            <figure className="g-star g-fig">
+              <Timeline />
+              <figcaption><em>Figure 2:</em> Where I lived, and school. The Ph.D. starts in 2027, deferred.</figcaption>
+            </figure>
+          </div>
         </div>
       </StarWindow>
     )
@@ -825,6 +829,9 @@ const CSS = `
   .vp h1 { margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 800; font-size: 34px; line-height: 1; letter-spacing: 0.01em; text-transform: uppercase; }
   .vp-sub { margin: 6px 0 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; }
   .vp-cols { column-width: 300px; column-gap: 26px; column-rule: 1px solid var(--ink); font-family: "Times New Roman", Times, serif; font-variant-numeric: lining-nums; font-size: 15.5px; line-height: 1.5; text-align: justify; hyphens: auto; }
+  /* one column, so figures can sit between paragraphs */
+  .vp-cols.vp-flow { column-width: auto; column-count: 1; }
+  .vp-flow .g-fig { margin: 6px 0 16px; padding-top: 0; border-top: 0; text-align: left; }
   .vp-cols.vp-one { column-width: auto; column-count: 1; font-size: 18px; text-align: left; }
   .vp-src { font-size: 13.5px; text-align: left; }
   .vp-cols h2 { margin: 0 0 6px; font-size: 16px; font-weight: 700; break-after: avoid; }
