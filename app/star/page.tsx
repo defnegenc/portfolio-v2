@@ -408,7 +408,7 @@ function StarDiagram() {
 function GuiToggle() {
   const [style, setStyle] = useState<ToggleStyle>('sheet')
   useEffect(() => { setStyle(readToggle()) }, [])
-  const cli = { href: '/', title: 'Back to the command line' }
+  const cli = { href: '/cli', title: 'Back to the command line' }
   if (style === 'radio') return (
     <span className="cg cg-radio">
       <span className="cg-k">Interface</span>
@@ -456,7 +456,6 @@ export default function Star() {
   useEffect(() => { if (iconsLoaded.current) localStorage.setItem('star-icons', JSON.stringify(iconAt)) }, [iconAt])
   // About the Star: the history, or the clickable diagram
   const [histTab, setHistTab] = useState<'history' | 'diagram'>('history')
-  const [aboutTab, setAboutTab] = useState<'text' | 'life' | 'ideas'>('text')
   /* Going to the terminal and back keeps the desk as you left it: the open
      windows, extra fields, the browser page and the About the Star tab live
      in this tab's session. */
@@ -631,8 +630,8 @@ export default function Star() {
     // the terminal: defne.io's command line, in a window on its own desk
     if (w.id === 'term') return (
       <StarWindow key={w.id} {...common} flush title="Terminal: defne.io" onClose={() => close('term')}
-        buttons={[['Full screen', () => { location.href = '/' }]]}>
-        <div className="web"><iframe src="/" title="Terminal" /></div>
+        buttons={[['Full screen', () => { location.href = '/cli' }]]}>
+        <div className="web"><iframe src="/cli" title="Terminal" /></div>
       </StarWindow>
     )
     // a browser window: the page itself, inside the desktop
@@ -681,15 +680,15 @@ export default function Star() {
     )
     if (w.id === 'about') return (
       <StarWindow key={w.id} {...common} title="About me" onClose={() => close('about')}>
-        {/* the text, or the same story as two Star-style family trees */}
-        <div className="hist-tabs">
-          <span className="sheet-k">Display</span>
-          <div className="seg">{(['text', 'life', 'ideas'] as const).map(t => <button key={t} aria-pressed={aboutTab === t} onClick={() => setAboutTab(t)}>{t.toUpperCase()}</button>)}</div>
-        </div>
-        {aboutTab === 'text' ? <div className="vp">
+        <div className="vp">
           <header><h1>About me</h1><p className="vp-sub">Defne Genç. Istanbul, Stanford, New York</p></header>
           <div className="vp-cols">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} side="gui" />)}</div>
-        </div> : <div className="vp g-star"><AboutGraph view={aboutTab} /></div>}
+          {/* the same story as a Star-style family tree, set in the page like a figure */}
+          <figure className="g-star g-fig">
+            <AboutGraph view="short" />
+            <figcaption><em>Figure 1:</em> Life, research, work and projects, drawn like the Star’s genealogy chart.</figcaption>
+          </figure>
+        </div>
       </StarWindow>
     )
     const c = CARDS[w.id]
@@ -722,7 +721,8 @@ export default function Star() {
           ...ITEMS.map(it => ({
             id: it.kind === 'folder' ? `folder:${it.id}` : it.id, shape: (it.kind === 'folder' ? 'folder' : 'doc') as Shape,
             label: CARDS[it.id].title, pict: DESK_ICON[it.id],
-            go: () => open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260),
+            // Sponge OS opens itself, in a browser window on the desk
+            go: () => (it.id === 'sponge' ? openWeb('/sponge/index.html', 'Sponge OS') : open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260)),
           })),
           { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
           // the terminal opens as a window on the desk: the CLI site, running inside the GUI
@@ -881,6 +881,8 @@ const CSS = `
   .cmd.cmd-black { display: flex; align-items: center; justify-content: center; gap: 5px; background: var(--ink); color: var(--paper) !important; border-color: var(--ink); min-width: 28px; }
   .cmd.cmd-black:hover { background: var(--paper); color: var(--ink) !important; }
   .g-star { --g-bg: var(--paper); --g-ink: var(--ink); --g-accent: var(--ink); }
+  .g-fig { margin: 18px 0 4px; padding-top: 14px; border-top: 1.5px solid var(--ink); }
+  .g-fig figcaption { margin-top: 6px; font-family: "Times New Roman", Times, serif; font-size: 13px; }
   .hist-tabs { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1.5px solid var(--ink); background: var(--paper); flex-shrink: 0; }
   .dg { max-width: 760px; }
   .dg-svg { width: 100%; height: auto; display: block; color: var(--ink); }

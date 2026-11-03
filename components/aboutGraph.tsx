@@ -109,11 +109,13 @@ function edge(a: N, b: N, bend = 0) {
   return bend ? `M${x1},${y1} Q${cx},${cy} ${x2},${y2}` : `M${x1},${y1} L${x2},${y2}`
 }
 
-export function Graph({ nodes, edges, heads, years, label }: {
-  nodes: Record<string, N>; edges: [string, string, boolean?, number?][]; heads: [string, number][]; years: [string, number][]; label: string
+export function Graph({ nodes, edges, heads, years, label, w = 1060, h = 780 }: {
+  nodes: Record<string, N>; edges: [string, string, boolean?, number?][]; heads: [string, number][]; years: [string, number][]; label: string; w?: number; h?: number
 }) {
+  // time runs down the right edge, the years just beside it
+  const tx = w - 85, mid = h / 2
   return (
-    <svg className="g-svg" viewBox="0 0 1060 780" role="img" aria-label={label}>
+    <svg className="g-svg" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={label}>
       <defs>
         <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
           <path d="M0,0 L10,5 L0,10 z" className="g-head" />
@@ -126,7 +128,7 @@ export function Graph({ nodes, edges, heads, years, label }: {
           : <path key={f + t} d={d} className="g-line" markerEnd="url(#ah)" />
       })}
       {heads.map(([h, x]) => h && <text key={h} x={x} y={38} textAnchor="middle" className="g-head-label">{h}</text>)}
-      {years.map(([yr, y]) => <text key={yr} x={995} y={y} className="g-year">{yr}</text>)}
+      {years.map(([yr, y]) => <text key={yr} x={tx + 20} y={y} className="g-year">{yr}</text>)}
       {Object.entries(nodes).map(([k, n]) => (
         <g key={k} className={n.hot ? 'g-node hot' : 'g-node'}>
           <text x={n.x} y={n.y} textAnchor="middle">{n.t}</text>
@@ -135,17 +137,44 @@ export function Graph({ nodes, edges, heads, years, label }: {
       ))}
       {/* time, running down the right edge */}
       <g className="g-time">
-        <path d="M975,20 V760" className="g-dbl-out" /><path d="M975,20 V760" className="g-dbl-in" />
-        <path d="M965,745 L975,765 L985,745" className="g-tip" />
-        <text x="975" y="390" textAnchor="middle" transform="rotate(90 975 390)" className="g-time-label">Time</text>
+        <path d={`M${tx},20 V${h - 20}`} className="g-dbl-out" /><path d={`M${tx},20 V${h - 20}`} className="g-dbl-in" />
+        <path d={`M${tx - 10},${h - 35} L${tx},${h - 15} L${tx + 10},${h - 35}`} className="g-tip" />
+        <text x={tx} y={mid} textAnchor="middle" transform={`rotate(90 ${tx} ${mid})`} className="g-time-label">Time</text>
       </g>
     </svg>
   )
 }
 
 
-export type GraphView = 'ideas' | 'life'
+/* The short version, for About me: three trees (life, research, work) and
+   the projects, all meeting at AI's GUI. */
+const SY = { pre: 70, 2020: 125, early: 185, 2024: 250, 2025: 315, 2026: 380, end: 455 }
+const SHORT_YEARS: [string, number][] = [['2020', SY[2020]], ['2024', SY[2024]], ['2025', SY[2025]], ['2026', SY[2026]]]
+const SHORT_HEADS: [string, number][] = [['Life', 80], ['Research', 260], ['Work', 430], ['Projects', 600]]
+const SHORT: Record<string, N> = {
+  istanbul: { x: 80, y: SY.pre, t: 'Istanbul' },
+  stanford: { x: 80, y: SY[2020], t: 'Stanford', sub: '(B.S., M.S.)' },
+  nyc: { x: 80, y: SY[2025], t: 'New York' },
+  kuo: { x: 260, y: SY.early, t: 'Kuo Lab', sub: '(cancer research)' },
+  landay: { x: 260, y: SY[2024], t: 'Landay Lab', sub: '(Stanford HCI)' },
+  bloom: { x: 260, y: SY[2025], t: 'Bloom' },
+  chi: { x: 260, y: SY[2026], t: 'CHI 2026', sub: '(Best Paper)' },
+  apm: { x: 430, y: SY[2024], t: 'Coinbase', sub: '(APM intern)' },
+  pm: { x: 430, y: SY[2025], t: 'Coinbase', sub: '(AI Platform)' },
+  dish: { x: 600, y: SY[2024], t: 'Dishcovery' },
+  let: { x: 600, y: SY[2026] - 14, t: 'Learning Et Al.' },
+  drift: { x: 600, y: SY[2026] + 18, t: 'Catching My Drift' },
+  aigui: { x: 400, y: SY.end, t: 'AI\u2019s GUI', sub: '(not found yet)', hot: true },
+}
+const SHORT_EDGES: [string, string, boolean?, number?][] = [
+  ['istanbul', 'stanford', true], ['stanford', 'nyc', true], ['stanford', 'kuo'], ['kuo', 'landay', true],
+  ['landay', 'bloom', true], ['bloom', 'chi', true], ['apm', 'pm', true],
+  ['chi', 'aigui'], ['pm', 'aigui'], ['drift', 'aigui'],
+]
+
+export type GraphView = 'ideas' | 'life' | 'short'
 export function AboutGraph({ view }: { view: GraphView }) {
+  if (view === 'short') return <Graph nodes={SHORT} edges={SHORT_EDGES} heads={SHORT_HEADS} years={SHORT_YEARS} w={780} h={510} label="Defne's life, research, work and projects as family trees over time, meeting at AI's GUI" />
   return view === 'ideas'
     ? <Graph nodes={IDEAS} edges={IDEA_EDGES} heads={IDEA_HEADS} years={IDEA_YEARS} label="New technologies and the interfaces they got, from the command line to the GUI, the web, the touchscreen and chat, leading to AI's GUI, not found yet" />
     : <Graph nodes={LIFE} edges={LIFE_EDGES} heads={LIFE_HEADS} years={LIFE_YEARS} label="Defne's life, school, work, research and projects as family trees over time, meeting at AI's GUI and the next interface revolution" />
