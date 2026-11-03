@@ -28,7 +28,7 @@ export const FOLDERS: Record<string, Entry[]> = {
     { name: 'Description', kind: 'doc', file: 'description.txt' },
   ],
   learningetal: [
-    { name: 'learningetal.com', kind: 'link', href: 'https://learningetal.com', file: 'site.url' },
+    { name: 'learningetal.com', kind: 'link', href: 'https://www.learningetal.com', file: 'site.url' },
     { name: 'Description', kind: 'doc', file: 'description.txt' },
   ],
   dishcovery: [
