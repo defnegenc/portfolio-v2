@@ -507,7 +507,7 @@ function Arranged({ kind, openMode, onBioDone }: { kind: Arrange; openMode: Open
     restored.current = true
   }, [])
   useEffect(() => {
-    if (!restored.current) return
+    if (!restored.current || window.self !== window.top) return
     try { sessionStorage.setItem('cli-session', JSON.stringify({ fold, dir, proj })) } catch {}
   }, [fold, dir, proj])
 
@@ -1257,13 +1257,14 @@ export default function Home() {
   const winsRestored = useRef(false)
   useEffect(() => {
     try {
-      const saved: { href: string; title: string }[] = JSON.parse(sessionStorage.getItem('cli-windows') ?? '[]')
+      // a copy inside a window starts clean
+      const saved: { href: string; title: string }[] = window.self !== window.top ? [] : JSON.parse(sessionStorage.getItem('cli-windows') ?? '[]')
       saved.forEach(w => openUrl(w.href, w.title))
     } catch {}
     winsRestored.current = true
   }, [openUrl])
   useEffect(() => {
-    if (!winsRestored.current) return
+    if (!winsRestored.current || window.self !== window.top) return
     const urls = wins.filter(w => w.id.startsWith('url:')).map(w => ({ href: w.id.slice(4), title: urlTitles.current[w.id.slice(4)] ?? '' }))
     try { sessionStorage.setItem('cli-windows', JSON.stringify(urls)) } catch {}
   }, [wins])
