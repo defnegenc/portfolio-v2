@@ -430,7 +430,7 @@ function GuiToggle() {
 }
 
 // tidbits that open as themselves instead of a description
-const DIRECT: Record<string, string> = { sponge: '/sponge/index.html', kilim: '/kilim/index.html' }
+const DIRECT: Record<string, string> = { sponge: '/sponge/index.html?embed=1', kilim: '/kilim/index.html' }
 
 export default function Star() {
   const [theme, setTheme] = useTheme('light')
@@ -465,26 +465,17 @@ export default function Star() {
      windows, extra fields, the browser page and the About the Star tab live
      in this tab's session. */
   const restored = useRef(false)
-  /* defne.io can open inside itself. A copy inside a window never restores
-     or saves the session (they share it with this tab, and restoring the
-     window that holds it would nest forever on its own). The first few
-     copies open the next one by themselves, like a Droste picture; past that
-     it goes as deep as you keep clicking. */
+  /* A copy of the desk inside a window (reached from the terminal inside it)
+     never restores or saves the session: they share it with this tab, and
+     restoring the window that holds it would nest on its own. */
   const nested = useRef(false)
-  const [depth, setDepth] = useState(0)
-  const AUTO_DEPTH = 3
-  useEffect(() => {
-    nested.current = window.self !== window.top
-    const d = Number(new URLSearchParams(location.search).get('depth') ?? 0) || 0
-    setDepth(d)
-    if (nested.current && d >= 1 && d < AUTO_DEPTH) setTimeout(() => openWeb(`/?depth=${d + 1}`, 'defne.io'), 900)
-  }, [])   // eslint-disable-line react-hooks/exhaustive-deps
-  /* first layout: only the field is open. My spiel, About me, Projects and
-     Properties wait on the desk as icons. */
+  useEffect(() => { nested.current = window.self !== window.top }, [])
+  /* first layout: the field top left, defne.io's command line under it as
+     the hero, About me on the right. The projects wait on the desk as icons. */
   useEffect(() => {
     try {
       if (window.self !== window.top) throw 0
-      const saved = JSON.parse(sessionStorage.getItem('star-session') ?? 'null')
+      const saved = JSON.parse(sessionStorage.getItem('star-session-2') ?? 'null')
       if (saved?.wins?.length && !new URLSearchParams(location.search).get('open')) {
         setWins(saved.wins); setFields(saved.fields ?? {}); fieldN.current = saved.fieldN ?? 0
         if (saved.webUrl) setWebUrl(saved.webUrl)
@@ -504,9 +495,15 @@ export default function Star() {
       return
     }
     // the desktop icons take a column on the right
-    const W = innerWidth - 150, H = innerHeight, m = 32
-    const w = Math.min(980, W - m * 2), h = Math.min(Math.round(w * 0.62), H - m * 2)
-    const first: Win[] = [{ id: 'field', x: Math.round((W - w) / 2), y: Math.max(m, Math.round((H - h) / 2) - 10), w, h, z: 2 }]
+    // the icons take 20 + 2 × 92 + 6 px on the right; the windows stop short of them
+    const W = innerWidth - 222, H = innerHeight, m = 28, g = 16
+    const leftW = Math.round((W - m * 2 - g) * 0.6), rightW = W - m * 2 - g - leftW
+    const fieldH = Math.round((H - m * 2 - g) * 0.6), siteH = H - m * 2 - g - fieldH
+    const first: Win[] = [
+      { id: 'field', x: m, y: m, w: leftW, h: fieldH, z: 2 },
+      { id: 'cli-site', x: m, y: m + fieldH + g, w: leftW, h: siteH, z: 3 },
+      { id: 'about', x: m + leftW + g, y: m, w: rightW, h: H - m * 2, z: 4 },
+    ]
     /* ?open=projects/bloom: arriving from the terminal with `open .`, the
        desktop opens on the folder you were in */
     const at = (new URLSearchParams(location.search).get('open') ?? '').split('/').filter(Boolean)
@@ -556,7 +553,7 @@ export default function Star() {
   const browse = (url: string) => (e: React.MouseEvent) => { e.preventDefault(); openWeb(url) }
   useEffect(() => {
     if (!restored.current || nested.current) return
-    try { sessionStorage.setItem('star-session', JSON.stringify({ wins, fields, fieldN: fieldN.current, webUrl, webTitle, histTab })) } catch {}
+    try { sessionStorage.setItem('star-session-2', JSON.stringify({ wins, fields, fieldN: fieldN.current, webUrl, webTitle, histTab })) } catch {}
   }, [wins, fields, webUrl, webTitle, histTab])   // eslint-disable-line react-hooks/exhaustive-deps
   const content = (w: Win) => {
     const common = { win: w, onFocus: () => focus(w.id), onMove: move(w.id), onSize: size(w.id) }
@@ -648,10 +645,17 @@ export default function Star() {
     }
 
     // the terminal: defne.io's command line, in a window on its own desk
+    // the terminal: just a shell, working, on its own
     if (w.id === 'term') return (
-      <StarWindow key={w.id} {...common} flush title="Terminal: defne.io" onClose={() => close('term')}
+      <StarWindow key={w.id} {...common} flush title="Terminal" onClose={() => close('term')}>
+        <div className="web"><iframe src="/cli?only=shell" title="Terminal" /></div>
+      </StarWindow>
+    )
+    // defne.io's command line, in a window on its own desk
+    if (w.id === 'cli-site') return (
+      <StarWindow key={w.id} {...common} flush title="defne.io" onClose={() => close('cli-site')}
         buttons={[['Full screen', () => { location.href = '/cli' }]]}>
-        <div className="web"><iframe src="/cli" title="Terminal" /></div>
+        <div className="web"><iframe src="/cli" title="defne.io, the command line" /></div>
       </StarWindow>
     )
     // a browser window: the page itself, inside the desktop
@@ -704,6 +708,8 @@ export default function Star() {
           <header><h1>About me</h1><p className="vp-sub">Defne Genç. Istanbul, Stanford, New York</p></header>
           {/* each figure sits right after the paragraph it illustrates */}
           <div className="vp-cols vp-flow">
+            {/* how to get around, in plain words, before anything else */}
+            <p className="vp-guide"><em>You can browse my projects on the right. At the bottom right of the screen you can switch to the CLI.</em></p>
             <AboutPara text={ABOUT_PARAS[0]} side="gui" />
             <AboutPara text={ABOUT_PARAS[1]} side="gui" />
             <figure className="g-star g-fig">
@@ -713,7 +719,7 @@ export default function Star() {
             <AboutPara text={ABOUT_PARAS[2]} side="gui" />
             <figure className="g-star g-fig">
               <Timeline />
-              <figcaption><em>Figure 2:</em> Where I lived, and school. The Ph.D. starts in 2027, deferred.</figcaption>
+              <figcaption><em>Figure 2:</em> Where I lived, school and work.</figcaption>
             </figure>
           </div>
         </div>
@@ -755,7 +761,7 @@ export default function Star() {
           { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
           // the terminal opens as a window on the desk: the CLI site, running inside the GUI
           { id: 'site', shape: 'tool' as Shape, label: 'Terminal', pict: DESK_ICON.site, go: () => open('term', 900, Math.min(640, innerHeight - 60)) },
-          { id: 'self', shape: 'tool' as Shape, label: 'defne.io', pict: DESK_ICON.self, go: () => openWeb(`/?depth=${depth + 1}`, 'defne.io') },
+          { id: 'self', shape: 'tool' as Shape, label: 'defne.io', pict: DESK_ICON.self, go: () => open('cli-site', 900, Math.min(560, innerHeight - 60)) },
           ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: DESK_ICON.field, go: () => open('field') }]),
         ].map(ic => (
           <StarIcon key={ic.id} shape={ic.shape} pict={ic.pict} label={ic.label} pressed={wins.some(w => w.id === ic.id)}
@@ -819,7 +825,7 @@ const CSS = `
   .vp2 figure { margin: 0; }
   .vp2 figure img { display: block; width: 100%; height: auto; border: 1.5px solid var(--ink); filter: grayscale(1) contrast(1.05); }
   .vp2 figcaption { margin-top: 5px; font-size: 13px; line-height: 1.35; }
-  .vp2-cols { margin-top: 14px; column-width: 190px; column-gap: 22px; text-align: justify; hyphens: auto; }
+  .vp2-cols { margin-top: 14px; max-width: 62ch; }
   .vp2-cols p { margin: 0 0 10px; break-inside: avoid; }
   .vp2-figs { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
   .vp2-visit { margin: 14px 0 0; }
@@ -831,6 +837,7 @@ const CSS = `
   .vp-cols { column-width: 300px; column-gap: 26px; column-rule: 1px solid var(--ink); font-family: "Times New Roman", Times, serif; font-variant-numeric: lining-nums; font-size: 15.5px; line-height: 1.5; text-align: justify; hyphens: auto; }
   /* one column, so figures can sit between paragraphs */
   .vp-cols.vp-flow { column-width: auto; column-count: 1; }
+  .vp-guide { padding: 8px 10px; border: 1.5px solid var(--ink); text-align: left !important; }
   .vp-flow .g-fig { margin: 6px 0 16px; padding-top: 0; border-top: 0; text-align: left; }
   .vp-cols.vp-one { column-width: auto; column-count: 1; font-size: 18px; text-align: left; }
   .vp-src { font-size: 13.5px; text-align: left; }

@@ -872,7 +872,8 @@ const findPic = (dir: Path, file: string) => {
 }
 // the prompt shows where you are inside the portfolio folder, which is the shell's starting point
 const showPath = (p: Path) => `~/${HOME_DIR}${p.length ? '/' + p.join('/') : ''}`
-const toGui = (p: Path) => { location.href = `/${p.length ? `?open=${p.join('/')}` : ''}` }
+// from a window on the desk, the GUI is the page around it
+const toGui = (p: Path) => { (window.top ?? window).location.href = `/${p.length ? `?open=${p.join('/')}` : ''}` }
 
 function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) => void = () => {}): React.ReactNode {
   const cmd = raw.trim().replace(/\s+/g, ' ')
@@ -969,7 +970,7 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
   }
 }
 
-function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject<((cmd: string) => void) | null> }) {
+function Shell({ api, runRef, standalone = false }: { api: ShellApi; runRef?: React.MutableRefObject<((cmd: string) => void) | null>; standalone?: boolean }) {
   const [text, setText] = useState('')
   const [out, setOut] = useState<React.ReactNode>('type help · press tab to see options')
   const [cwd, setCwd] = useState<Path>([])
@@ -989,7 +990,8 @@ function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject
   const session = api.log !== null
   const prompt = `${showPath(cwd)} %`
   const start = () => { if (!session) api.setLog([]) }
-  const end = () => { api.setLog(null); setText(''); setOut('type help · press tab to see options') }
+  // a standalone terminal has nowhere to go back to: ctrl+c just clears the line
+  const end = () => { if (standalone) { setText(''); return } api.setLog(null); setText(''); setOut('type help · press tab to see options') }
   const submit = (cmd = text) => {
     if (cmd.trim()) { hist.current.push(cmd); at.current = hist.current.length }
     const c = cmd.trim()
@@ -1030,7 +1032,7 @@ function Shell({ api, runRef }: { api: ShellApi; runRef?: React.MutableRefObject
       {/* one line of output sits above the prompt; anything longer opens in a
           box over the page, so the layout never moves. Esc closes it. */}
       {session
-        ? <div className="shell-out">ctrl+c to exit</div>
+        ? <div className="shell-out">{standalone ? 'type help · press tab to see options' : 'ctrl+c to exit'}</div>
         : out && (typeof out === 'string' && out.length < 110
         ? <div className="shell-out">{out}</div>
         : <div className="shell-out shell-pop" onClick={e => e.stopPropagation()}>
@@ -1177,7 +1179,7 @@ const TermGlyph = () => (
 function SiteToggle() {
   const style = useContext(ToggleCtx)
   const [going, setGoing] = useState(false)
-  const go = (e: React.MouseEvent) => { e.preventDefault(); setGoing(true); setTimeout(() => { window.location.href = '/' }, 260) }
+  const go = (e: React.MouseEvent) => { e.preventDefault(); setGoing(true); setTimeout(() => { (window.top ?? window).location.href = '/' }, 260) }
   const gui = { href: '/', onClick: go, title: 'An ode to early interfaces' }
   if (style === 'radio') return (
     <span className="tg-sheet tg-mono tg-radio2">
@@ -1243,6 +1245,8 @@ export default function Home() {
   const [arrange, setArrange] = useState<Arrange>('fold')
   const [openMode, setOpenMode] = useState<OpenMode>('trunk')
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
+  const [shellOnly, setShellOnly] = useState(false)
+  useEffect(() => { if (new URLSearchParams(window.location.search).get('only') === 'shell') setShellOnly(true) }, [])
   const [entry, setEntry] = useState<Entry>('open')
   const [phone, setPhone] = useState<Phone>('commands')
   const [toggle, setToggle] = useState<ToggleStyle>('sheet')
@@ -1569,24 +1573,7 @@ export default function Home() {
     if (award) window.localStorage.setItem('accent', award)
   }, [award])
 
-  return (
-    <UrlCtx.Provider value={openUrl}>
-    <EntryCtx.Provider value={entry}>
-    <PhoneCtx.Provider value={{ phone, stacked }}>
-    <ToggleCtx.Provider value={toggle}>
-    <div
-      data-theme={theme}
-      data-open={open > 0.15 ? 1 : 0}
-      data-full={full ? 1 : 0}
-      data-centred={centred ? 1 : 0}
-      data-phone={phone}
-      className="root-frame"
-      style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
-        ...({ '--wall': `${centred ? 1.75 : 1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
-        ...(phoneH ? ({ '--phone-field': `${phoneH}px` } as React.CSSProperties) : {}),
-        ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}
-    >
-      <style>{FIGURE_CSS}</style>
+  const pageStyle = (
       <style>{`
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
         @keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
@@ -2077,6 +2064,42 @@ export default function Home() {
         .g-cmds .ar-cmd[data-on="1"] > span { color: var(--bg); }
         .g-term { --g-bg: var(--bg); --g-ink: var(--ink); --g-accent: var(--award); margin-top: 1rem; max-width: 980px; }
       `}</style>
+  )
+
+  /* ?only=shell: the GUI's Terminal window. Just the shell, working, with
+     its scrollback; nothing else of the site. */
+  if (shellOnly) return (
+    <UrlCtx.Provider value={openUrl}>
+    <div data-theme={theme} className="root-frame term-only" style={{ background: 'var(--bg)', color: 'var(--ink)',
+      ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}>
+      {pageStyle}
+      <style>{`.term-only { height: 100vh; overflow-y: auto !important; padding: 1rem 1.2rem; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; }
+        .term-only .term-log { padding-bottom: 0.4rem; }`}</style>
+      {termLog && <TermLog entries={termLog} />}
+      <Shell api={shellApi} standalone />
+    </div>
+    </UrlCtx.Provider>
+  )
+
+  return (
+    <UrlCtx.Provider value={openUrl}>
+    <EntryCtx.Provider value={entry}>
+    <PhoneCtx.Provider value={{ phone, stacked }}>
+    <ToggleCtx.Provider value={toggle}>
+    <div
+      data-theme={theme}
+      data-open={open > 0.15 ? 1 : 0}
+      data-full={full ? 1 : 0}
+      data-centred={centred ? 1 : 0}
+      data-phone={phone}
+      className="root-frame"
+      style={{ display: 'flex', flexDirection: 'column', width: '100vw', overflow: 'hidden', background: 'var(--bg)', color: 'var(--ink)',
+        ...({ '--wall': `${centred ? 1.75 : 1.75 * (1 - open)}rem`, '--open': open } as React.CSSProperties),
+        ...(phoneH ? ({ '--phone-field': `${phoneH}px` } as React.CSSProperties) : {}),
+        ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}
+    >
+      <style>{FIGURE_CSS}</style>
+      {pageStyle}
 
       {/* ── NAME STRIP ── */}
       {!centred && (
