@@ -371,7 +371,7 @@ function AboutBody() {
    project until cd .. */
 type OpenMode = 'tree' | 'after' | 'side' | 'focus' | 'row' | 'ls' | 'cd'
 const OPEN_MODES: { key: OpenMode; label: string }[] = [
-  { key: 'tree', label: 'Tree' }, { key: 'after', label: 'After' }, { key: 'side', label: 'Side' }, { key: 'focus', label: 'Focus' },
+  { key: 'after', label: 'After' }, { key: 'tree', label: 'Tree' }, { key: 'side', label: 'Side' }, { key: 'focus', label: 'Focus' },
 ]
 const itemOf = (slug: string) => [...PROJECTS, ...TIDBITS].find(p => slugOf(p.href) === slug) as Item | undefined
 // a project's files: its folder, or for a tidbit the one link it is
@@ -1224,7 +1224,7 @@ export default function Home() {
   const [icons, setIcons] = useState<'line' | 'classic'>('line')
   const [names, setNames] = useState<NameStyle>('comment')
   const [arrange, setArrange] = useState<Arrange>('fold')
-  const [openMode, setOpenMode] = useState<OpenMode>('tree')
+  const [openMode, setOpenMode] = useState<OpenMode>('after')
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
   const [entry, setEntry] = useState<Entry>('open')
   const [phone, setPhone] = useState<Phone>('commands')
@@ -1388,7 +1388,7 @@ export default function Home() {
   const pickOpen = (v: OpenMode) => {
     setOpenMode(v)
     const u = new URL(window.location.href)
-    if (v === 'tree') u.searchParams.delete('o'); else u.searchParams.set('o', v)
+    if (v === 'after') u.searchParams.delete('o'); else u.searchParams.set('o', v)
     window.history.replaceState(null, '', u)
   }
   const pickToggle = (v: ToggleStyle) => { setToggle(v); saveToggle(v) }
