@@ -460,7 +460,6 @@ export default function Star() {
   useEffect(() => { try { setIconAt(JSON.parse(localStorage.getItem('star-icons') ?? '{}')) } catch {} iconsLoaded.current = true }, [])
   useEffect(() => { if (iconsLoaded.current) localStorage.setItem('star-icons', JSON.stringify(iconAt)) }, [iconAt])
   // About the Star: the history, or the clickable diagram
-  const [histTab, setHistTab] = useState<'history' | 'diagram'>('history')
   /* Going to the terminal and back keeps the desk as you left it: the open
      windows, extra fields, the browser page and the About the Star tab live
      in this tab's session. */
@@ -470,8 +469,8 @@ export default function Star() {
      restoring the window that holds it would nest on its own. */
   const nested = useRef(false)
   useEffect(() => { nested.current = window.self !== window.top }, [])
-  /* first layout: the field top left, defne.io's command line under it as
-     the hero, About me on the right. The projects wait on the desk as icons. */
+  /* first layout: the field top left, my spiel under it, About me on the
+     right. The projects wait on the desk as icons. */
   useEffect(() => {
     try {
       if (window.self !== window.top) throw 0
@@ -479,7 +478,6 @@ export default function Star() {
       if (saved?.wins?.length && !new URLSearchParams(location.search).get('open')) {
         setWins(saved.wins.filter((w: Win) => w.id !== 'web')); setFields(saved.fields ?? {}); fieldN.current = saved.fieldN ?? 0
         setWebTitles(saved.webTitles ?? {})
-        if (saved.histTab) setHistTab(saved.histTab)
         z.current = Math.max(3, ...saved.wins.map((w: Win) => w.z)) + 1
         restored.current = true
         return
@@ -500,7 +498,7 @@ export default function Star() {
     const fieldH = Math.round((H - m * 2 - g) * 0.6), siteH = H - m * 2 - g - fieldH
     const first: Win[] = [
       { id: 'field', x: m, y: m, w: leftW, h: fieldH, z: 2 },
-      { id: 'cli-site', x: m, y: m + fieldH + g, w: leftW, h: siteH, z: 3 },
+      { id: 'main', x: m, y: m + fieldH + g, w: leftW, h: siteH, z: 3 },
       { id: 'about', x: m + leftW + g, y: m, w: rightW, h: H - m * 2, z: 4 },
     ]
     /* ?open=projects/bloom: arriving from the terminal with `open .`, the
@@ -553,8 +551,8 @@ export default function Star() {
   const browse = (url: string) => (e: React.MouseEvent) => { e.preventDefault(); openWeb(url) }
   useEffect(() => {
     if (!restored.current || nested.current) return
-    try { sessionStorage.setItem('star-session-2', JSON.stringify({ wins, fields, fieldN: fieldN.current, webTitles, histTab })) } catch {}
-  }, [wins, fields, webTitles, histTab])   // eslint-disable-line react-hooks/exhaustive-deps
+    try { sessionStorage.setItem('star-session-2', JSON.stringify({ wins, fields, fieldN: fieldN.current, webTitles })) } catch {}
+  }, [wins, fields, webTitles])   // eslint-disable-line react-hooks/exhaustive-deps
   const content = (w: Win) => {
     const common = { win: w, onFocus: () => focus(w.id), onMove: move(w.id), onSize: size(w.id) }
     /* Every field window works the same way: Close, Properties (its hour,
@@ -673,37 +671,31 @@ export default function Star() {
       )
     }
     // the three documents, set like ViewPoint pages
+    // my spiel: a terminal that types cat my-spiel itself, then waits for you
     if (w.id === 'main') return (
-      <StarWindow key={w.id} {...common} title="My spiel" onClose={() => close('main')}
-        buttons={[['Mail', () => { location.href = 'mailto:defneg@stanford.edu' }], ['LinkedIn', () => window.open('https://linkedin.com/in/-defne', '_blank')]]}>
-        <div className="vp">
-          <header><h1>Defne Genç</h1><p className="vp-sub">My spiel</p></header>
-          <div className="vp-cols vp-one"><p>{SPIEL}</p></div>
-        </div>
+      <StarWindow key={w.id} {...common} flush title="My spiel" onClose={() => close('main')}>
+        <div className="web"><iframe src="/cli?only=shell&boot=spiel" title="My spiel, in a terminal" /></div>
       </StarWindow>
     )
     if (w.id === 'history') return (
       <StarWindow key={w.id} {...common} title="About the Star" onClose={() => close('history')}>
-        {/* a property sheet's Display row picks what the window shows */}
-        <div className="hist-tabs">
-          <span className="sheet-k">Display</span>
-          <div className="seg">{(['history', 'diagram'] as const).map(t => <button key={t} aria-pressed={histTab === t} onClick={() => setHistTab(t)}>{t.toUpperCase()}</button>)}</div>
-        </div>
-        {histTab === 'diagram' ? <div className="vp"><StarDiagram /></div> : <div className="vp">
+        <div className="vp">
           <header><h1>Xerox</h1><p className="vp-sub">8010 Star Information System</p></header>
           <div className="vp-cols">
             <p><em>{STAR_INTRO[0]}</em></p>
             <p>{STAR_INTRO[1]}</p>
-            {STAR_HISTORY.map(sec => <Fragment key={sec.h}>
+            {STAR_HISTORY.map((sec, si) => <Fragment key={sec.h}>
               <h2>{sec.h}</h2>
               {sec.paras.map(t => <p key={t}>{t.split(/\{(\d)\}/).map((part, k) => (k % 2
                 ? <sup key={k}><a href={SOURCES[+part - 1].url} onClick={browse(SOURCES[+part - 1].url)} title={SOURCES[+part - 1].title}>[{part}]</a></sup>
                 : part))}</p>)}
+              {/* the machine's own diagram, right after the machine is described */}
+              {si === 0 && <figure className="dg-fig"><StarDiagram /><figcaption><em>Figure 1:</em> The Star’s user interface. Click a part to see it described.</figcaption></figure>}
             </Fragment>)}
             <h2>Sources</h2>
             {SOURCES.map((x, i) => <p key={x.url} className="vp-src">[{i + 1}] <a href={x.url} onClick={browse(x.url)}>{x.title}</a>. {x.by}.</p>)}
           </div>
-        </div>}
+        </div>
       </StarWindow>
     )
     if (w.id === 'about') return (
@@ -762,7 +754,7 @@ export default function Star() {
             // the tidbits open themselves, in a browser window on the desk
             go: () => (DIRECT[it.id] ? openWeb(DIRECT[it.id], CARDS[it.id].title) : open(it.kind === 'folder' ? `folder:${it.id}` : it.id, it.kind === 'folder' ? 520 : 560, 260)),
           })),
-          { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
+          { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 900, Math.min(720, innerHeight - 60)) },
           // the terminal opens as a window on the desk: the CLI site, running inside the GUI
           { id: 'site', shape: 'tool' as Shape, label: 'Terminal', pict: DESK_ICON.site, go: () => open('term', 900, Math.min(640, innerHeight - 60)) },
           { id: 'self', shape: 'tool' as Shape, label: 'defne.io', pict: DESK_ICON.self, go: () => open('cli-site', 900, Math.min(560, innerHeight - 60)) },
@@ -926,6 +918,9 @@ const CSS = `
   .g-star { --g-bg: var(--paper); --g-ink: var(--ink); --g-accent: var(--ink); }
   .g-fig { margin: 18px 0 4px; padding-top: 14px; border-top: 1.5px solid var(--ink); }
   .g-fig figcaption { margin-top: 6px; font-family: "Times New Roman", Times, serif; font-size: 13px; }
+  .dg-fig { margin: 4px 0 14px; break-inside: avoid; }
+  .dg-fig .dg-sheet p { text-align: left; }
+  .dg-fig figcaption { margin-top: 5px; font-size: 13px; line-height: 1.35; text-align: left; }
   .hist-tabs { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1.5px solid var(--ink); background: var(--paper); flex-shrink: 0; }
   .dg { max-width: 760px; }
   .dg-svg { width: 100%; height: auto; display: block; color: var(--ink); }

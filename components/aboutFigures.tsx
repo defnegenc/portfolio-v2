@@ -2,72 +2,79 @@
    materials: plain outlined shapes, dot-pattern fills, labels in Helvetica.
    The wrapper sets --g-bg, --g-ink and --g-accent. Dates are from the résumé. */
 
-const X0 = 2018, X1 = 2029.4
+/* The axis stops at 2027. Anything still going runs to the edge and fades
+   out, so the figure doesn't say when it ends. */
+const X0 = 2018, X1 = 2028.3
 const x = (yr: number) => 70 + ((yr - X0) / (X1 - X0)) * 660
 const NOW = 2026.84
 
-type Bar = { from: number; to: number; t: string; open?: boolean; planned?: boolean }
+type Bar = { from: number; to: number; t: string; open?: boolean; planned?: boolean; lane?: number; label?: 'left' }
 const PLACES: Bar[] = [
   { from: X0, to: 2020.7, t: 'Istanbul' },
   { from: 2020.7, to: 2025.6, t: 'Stanford' },
   { from: 2025.6, to: X1, t: 'New York', open: true },
 ]
+// B.S. and the Ph.D. share a lane (they don't meet); the M.S. sits below, where it overlaps the B.S.
 const SCHOOL: Bar[] = [
-  { from: 2020.7, to: 2024.5, t: 'B.S. Symbolic Systems' },
-  { from: 2023.7, to: 2025.5, t: 'M.S. CS (HCI)' },
-  { from: 2027.7, to: X1, t: 'Ph.D.', planned: true },
+  { from: 2020.7, to: 2024.5, t: 'B.S. Symbolic Systems', lane: 0 },
+  { from: 2023.7, to: 2025.5, t: 'M.S. CS (HCI)', lane: 1 },
+  { from: 2027.7, to: X1, t: 'CS Ph.D.', planned: true, open: true, lane: 0 },
 ]
-
-const WORK: (Bar & { lane: number; outside?: boolean })[] = [
+const WORK: Bar[] = [
   { from: 2023.42, to: 2024.42, t: 'BrewBird', lane: 0 },
-  { from: 2024.42, to: 2024.67, t: 'Coinbase, intern', lane: 1, outside: true },
   { from: 2025.6, to: X1, t: 'Coinbase, PM', lane: 0, open: true },
+  { from: 2024.42, to: 2024.67, t: 'Coinbase, intern', lane: 1, label: 'left' },
+  { from: 2024.67, to: X1, t: 'Graduate researcher, Stanford HCI', lane: 2, open: true },
+  { from: 2024.67, to: X1, t: 'Teaching, Stanford CS', lane: 3, open: true },
 ]
 
 /* Where I lived along the top, then school and work on their own lanes, so
-   the B.S. and M.S. overlap where they did. */
+   overlaps show where they happened. */
 export function Timeline() {
-  // B.S. and the Ph.D. share a lane (they don't meet); the M.S. sits below, where it overlaps the B.S.
-  const schoolY = (i: number) => (i === 1 ? 154 : 114)
-  const lane = (b: Bar, y: number, h: number, fill: string, key: string) => (
-    <g key={key}>
-      <rect x={x(b.from)} y={y} width={x(b.to) - x(b.from)} height={h} fill={fill}
-        stroke="var(--g-ink)" strokeWidth="1.5" strokeDasharray={b.planned ? '4 3' : undefined} />
-      {/* a dotted bar keeps its label on a patch of paper */}
-      {fill !== 'var(--g-bg)' && <rect x={x(b.from) + 4} y={y + 6} width={Math.min(b.t.length * 7.2 + 8, x(b.to) - x(b.from) - 8)} height={h - 12} fill="var(--g-bg)" />}
-      <text x={x(b.from) + 8} y={y + h / 2} className="tl-label" dominantBaseline="middle">{b.t}</text>
-      {b.open && <path d={`M${x(b.to) - 2},${y - 4} L${x(b.to) + 10},${y + h / 2} L${x(b.to) - 2},${y + h + 4}`} fill="var(--g-bg)" stroke="var(--g-ink)" strokeWidth="1.5" />}
-    </g>
-  )
-  const years = Array.from({ length: 12 }, (_, i) => X0 + i)
+  const ROW = 38, H = 28
+  const bar = (b: Bar, y: number, fill: string, key: string) => {
+    const x1 = x(b.from), x2 = x(b.to), w = x2 - x1
+    const fade = b.open ? `url(#tl-fade-${key})` : undefined
+    return (
+      <g key={key}>
+        {b.open && <defs><linearGradient id={`tl-fade-${key}`} x1={x1} x2={x2} y1="0" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset={Math.max(0, 1 - 80 / w)} stopColor="white" /><stop offset="1" stopColor="black" />
+        </linearGradient><mask id={`m-${key}`}><rect x={x1 - 2} y={y - 2} width={w + 4} height={H + 4} fill={fade} /></mask></defs>}
+        <g mask={b.open ? `url(#m-${key})` : undefined}>
+          <rect x={x1} y={y} width={w} height={H} fill={fill} stroke="var(--g-ink)" strokeWidth="1.5"
+            strokeDasharray={b.planned ? '4 3' : undefined} />
+        </g>
+        {b.label === 'left'
+          ? <text x={x1 - 8} y={y + H / 2} textAnchor="end" className="tl-label" dominantBaseline="middle">{b.t}</text>
+          : <>
+              {fill !== 'var(--g-bg)' && <rect x={x1 + 4} y={y + 5} width={b.t.length * 7.2 + 8} height={H - 10} fill="var(--g-bg)" />}
+              <text x={x1 + 8} y={y + H / 2} className="tl-label" dominantBaseline="middle">{b.t}</text>
+            </>}
+      </g>
+    )
+  }
+  const placesY = 36, schoolY = 112, workY = schoolY + 2 * ROW + 40
+  const axisY = workY + 4 * ROW + 18
+  const years = Array.from({ length: 10 }, (_, i) => X0 + i)
   return (
-    <svg className="tl-svg" viewBox="0 0 760 380" role="img" aria-label="Timeline: Istanbul until 2020, Stanford 2020 to 2025, New York since 2025. B.S. 2020 to 2024 and M.S. 2023 to 2025, overlapping, then a Ph.D. from 2027, deferred. Work: BrewBird 2023 to 2024, Coinbase intern in 2024, Coinbase product manager since 2025.">
+    <svg className="tl-svg" viewBox={`0 0 760 ${axisY + 28}`} role="img" aria-label="Timeline: Istanbul until 2020, Stanford 2020 to 2025, New York since 2025. B.S. 2020 to 2024 and M.S. 2023 to 2025, overlapping, then a CS Ph.D. from 2027. Work: BrewBird 2023 to 2024, Coinbase intern in 2024, graduate researcher at Stanford HCI and teaching at Stanford CS since 2024, Coinbase product manager since 2025.">
       <defs>
         <pattern id="tl-dots" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1.3" height="1.3" fill="var(--g-ink)" /></pattern>
       </defs>
-      <text x="70" y="26" className="tl-head">WHERE I LIVED</text>
-      {PLACES.map((b, i) => lane(b, 36, 34, 'var(--g-bg)', 'p' + i))}
-      <text x="70" y="104" className="tl-head">SCHOOL</text>
-      {SCHOOL.map((b, i) => lane(b, schoolY(i), 30, b.planned ? 'var(--g-bg)' : 'url(#tl-dots)', 's' + i))}
-      <text x="70" y="214" className="tl-head">WORK</text>
-      {WORK.map((b, i) => {
-        const y = 224 + b.lane * 40
-        // a bar too short for its name carries the name beside it
-        return b.outside
-          ? <g key={'w' + i}>
-              <rect x={x(b.from)} y={y} width={x(b.to) - x(b.from)} height={30} fill="url(#tl-dots)" stroke="var(--g-ink)" strokeWidth="1.5" />
-              <text x={x(b.to) + 8} y={y + 15} className="tl-label" dominantBaseline="middle">{b.t}</text>
-            </g>
-          : lane(b, y, 30, 'url(#tl-dots)', 'w' + i)
-      })}
+      <text x="70" y={placesY - 10} className="tl-head">WHERE I LIVED</text>
+      {PLACES.map((b, i) => bar(b, placesY, 'var(--g-bg)', 'p' + i))}
+      <text x="70" y={schoolY - 10} className="tl-head">SCHOOL</text>
+      {SCHOOL.map((b, i) => bar(b, schoolY + (b.lane ?? 0) * ROW, b.planned ? 'var(--g-bg)' : 'url(#tl-dots)', 's' + i))}
+      <text x="70" y={workY - 10} className="tl-head">WORK</text>
+      {WORK.map((b, i) => bar(b, workY + (b.lane ?? 0) * ROW, 'url(#tl-dots)', 'w' + i))}
       {/* today */}
-      <line x1={x(NOW)} x2={x(NOW)} y1="30" y2="322" stroke="var(--g-accent)" strokeWidth="1.5" strokeDasharray="3 3" />
-      <text x={x(NOW)} y="336" textAnchor="middle" className="tl-now">now</text>
-      {/* the years */}
-      <line x1={x(X0)} x2={x(X1)} y1="350" y2="350" stroke="var(--g-ink)" strokeWidth="1.5" />
+      <line x1={x(NOW)} x2={x(NOW)} y1={placesY - 6} y2={axisY - 18} stroke="var(--g-accent)" strokeWidth="1.5" strokeDasharray="3 3" />
+      <text x={x(NOW)} y={axisY - 6} textAnchor="middle" className="tl-now">now</text>
+      {/* the years, stopping at 2027 */}
+      <line x1={x(X0)} x2={x(2027.4)} y1={axisY} y2={axisY} stroke="var(--g-ink)" strokeWidth="1.5" />
       {years.map(y => <g key={y}>
-        <line x1={x(y)} x2={x(y)} y1="346" y2="354" stroke="var(--g-ink)" strokeWidth="1.2" />
-        <text x={x(y)} y="370" textAnchor="middle" className="tl-year">{y}</text>
+        <line x1={x(y)} x2={x(y)} y1={axisY - 4} y2={axisY + 4} stroke="var(--g-ink)" strokeWidth="1.2" />
+        <text x={x(y)} y={axisY + 20} textAnchor="middle" className="tl-year">{y}</text>
       </g>)}
     </svg>
   )

@@ -789,7 +789,7 @@ function wttr(w: ShellApi['weather']) {
 }
 
 // what Tab can complete, by command
-const COMMANDS = ['cat', 'cd', 'ls', 'open', 'imgcat', 'startx', 'caffeinate', 'pmset', 'curl', 'mail', 'clear', 'help', 'whoami', 'date', 'echo', 'pwd']
+const COMMANDS = ['cat', 'cd', 'ls', 'tree', 'open', 'imgcat', 'startx', 'caffeinate', 'pmset', 'curl', 'weather', 'mail', 'clear', 'help', 'history', 'whoami', 'date', 'echo', 'pwd', 'git', 'ps', 'neofetch', 'uname', 'uptime', 'hostname', 'which', 'ssh', 'sudo', 'exit']
 const ITEM_NAMES = [...PROJECTS, ...TIDBITS].map(p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, ''))
 const ARGS: Record<string, string[]> = {
   cat: ['about-me', 'my-spiel'], cd: ['..'], ls: ['projects', 'tidbits', '-a'], open: ITEM_NAMES,
@@ -827,6 +827,10 @@ const HELP: [string, string][] = [
   ['curl wttr.in', 'the weather the field is drawing'],
   ['weather --pick', 'pick the weather the field draws'],
   ['weather rain night', 'set it straight from here'],
+  ['tree', 'everything under this folder'],
+  ['git log', 'the history, as commits'],
+  ['neofetch', 'about this machine'],
+  ['history', 'what you typed'],
   ['tab', 'see options, or finish a command'],
   ['mail', 'write to me'],
   ['clear', 'clear this'],
@@ -966,11 +970,57 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
     case 'date': return new Date().toString().slice(0, 24)
     case 'sudo': return 'defne is not in the sudoers file. This incident will be reported.'
     case 'echo': return args.join(' ')
+    case 'hostname': return 'defne.io'
+    case 'uname': return arg === '-a' ? 'Darwin defne.io 25.6.0 Darwin Kernel: Bikini Bottom Edition arm64' : 'Darwin'
+    case 'uptime': return `${new Date().toTimeString().slice(0, 5)}  up since Istanbul, 1 user, load averages: 3 degrees 1 job 2 projects`
+    case 'which': return arg ? `/usr/local/bin/${arg}` : 'which: usage: which name'
+    case 'tree': {
+      // the folder and everything under it
+      const p = arg ? resolve(cwd, arg) : cwd
+      if (!p || !listing(p)) return `tree: ${arg}: No such directory`
+      const lines: string[] = [p.length ? p[p.length - 1] : '.']
+      const walk = (q: Path, pad: string) => {
+        const l = listing(q) ?? []
+        l.forEach((n, i) => {
+          const last = i === l.length - 1
+          lines.push(`${pad}${last ? '└── ' : '├── '}${n}`)
+          if (n.endsWith('/')) walk([...q, n.slice(0, -1)], pad + (last ? '    ' : '│   '))
+        })
+      }
+      walk(p, '')
+      return <pre className="term-pre">{lines.join('\n')}</pre>
+    }
+    case 'git':
+      if (args[0] === 'log') return <pre className="term-pre">{[
+        ['a1c3f09', '2026', 'learning et al: a research digest I actually read'],
+        ['7d20b4e', '2026', 'catching my drift: messy word dumps, mapped'],
+        ['3e9f512', '2026', 'bloom: CHI 2026 Best Paper'],
+        ['c48d1aa', '2025', 'coinbase: product manager, AI platform'],
+        ['91be6c2', '2024', 'dishcovery: cook anything from a photo'],
+        ['0f00b1e', '2020', 'stanford: hello'],
+        ['1a2b3c4', '2002', 'istanbul: initial commit'],
+      ].map(([h, y, m]) => `${h}  ${y}  ${m}`).join('\n')}</pre>
+      if (args[0] === 'status') return 'On branch main\nnothing to commit, working tree clean'
+      return 'usage: git log | git status'
+    case 'ps': case 'top': return <pre className="term-pre">{['  PID  %CPU  COMMAND', '  101  38.0  coinbase', '  202  21.5  learning-et-al', '  303  19.0  catching-my-drift', '  404  12.5  bloom', '  505   9.0  thinking-about-interfaces'].join('\n')}</pre>
+    case 'neofetch': case 'fastfetch': return <pre className="term-pre">{[
+      'defne@defne.io', '--------------',
+      'OS: Istanbul → Stanford → New York', 'Host: Coinbase, product manager',
+      'Kernel: HCI, Stanford (B.S., M.S., Ph.D. pending)', 'Uptime: since 2002',
+      'Shell: zsh, and a GUI at open .', 'Packages: 4 projects, 2 tidbits',
+      'Theme: bone and ink', 'Awards: CHI 2026 Best Paper',
+    ].join('\n')}</pre>
+    case 'rm': case 'rmdir': case 'mkdir': case 'touch': case 'mv': case 'cp': case 'chmod':
+      return `${name}: ${arg || '.'}: Read-only file system`
+    case 'vim': case 'vi': case 'nano': case 'emacs': case 'code':
+      return `${name}: this portfolio is read-only. Try cat ${arg || 'about-me'}`
+    case 'ssh': return arg ? `ssh: connect to host ${arg}: you're already here` : 'usage: ssh host'
+    case 'exit': case 'logout': return 'logout'
     default: return `zsh: command not found: ${name}`
   }
 }
 
-function Shell({ api, runRef, standalone = false }: { api: ShellApi; runRef?: React.MutableRefObject<((cmd: string) => void) | null>; standalone?: boolean }) {
+function Shell({ api, runRef, standalone = false, boot }: { api: ShellApi; runRef?: React.MutableRefObject<((cmd: string) => void) | null>; standalone?: boolean; boot?: string }) {
   const [text, setText] = useState('')
   const [out, setOut] = useState<React.ReactNode>('type help · press tab to see options')
   const [cwd, setCwd] = useState<Path>([])
@@ -995,16 +1045,32 @@ function Shell({ api, runRef, standalone = false }: { api: ShellApi; runRef?: Re
   const submit = (cmd = text) => {
     if (cmd.trim()) { hist.current.push(cmd); at.current = hist.current.length }
     const c = cmd.trim()
-    if (c === 'exit') { end(); return }
+    if (c === 'exit' && !standalone) { end(); return }
     // in the session, the about files print here instead of switching views
-    const r = c === 'cat about-me' || c === 'cat about'
+    const r = c === 'history' ? <pre className="term-pre">{hist.current.map((h, i) => `${String(i + 1).padStart(4)}  ${h}`).join('\n')}</pre>
+      : c === 'cat about-me' || c === 'cat about'
       ? <div className="term-doc">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} />)}</div>
-      : c === 'cat my-spiel' || c === 'cat spiel' ? BIO
+      // on the desk, the spiel points at the icons
+      : c === 'cat my-spiel' || c === 'cat spiel' ? (boot ? `${BIO}\n\nYou can browse my projects on the right.` : BIO)
       : runCommand(cmd, api, cwd, setCwd)
     if (c === 'clear') api.setLog([])
     else api.setLog(l => [...(l ?? []), { at: prompt, cmd, out: r }])
     setText('')
   }
+  /* boot: the terminal types its first command itself, a key at a time,
+     then runs it, as if someone just sat down at it */
+  const booted = useRef(false)
+  useEffect(() => {
+    if (!boot || booted.current) return
+    let i = 0, t = 0
+    const step = () => {
+      i += 1; setText(boot.slice(0, i))
+      if (i < boot.length) { t = window.setTimeout(step, 55 + Math.random() * 45); return }
+      t = window.setTimeout(() => { booted.current = true; submit(boot) }, 260)
+    }
+    t = window.setTimeout(step, 700)
+    return () => window.clearTimeout(t)
+  }, [boot])   // eslint-disable-line react-hooks/exhaustive-deps
   // lets a click type a command here, a key at a time, then run it
   const apiRef = useRef(api)
   apiRef.current = api
@@ -1031,8 +1097,8 @@ function Shell({ api, runRef, standalone = false }: { api: ShellApi; runRef?: Re
     <div className="shell" onClick={() => input.current?.focus()}>
       {/* one line of output sits above the prompt; anything longer opens in a
           box over the page, so the layout never moves. Esc closes it. */}
-      {session
-        ? <div className="shell-out">{standalone ? 'type help · press tab to see options' : 'ctrl+c to exit'}</div>
+      {standalone ? null : session
+        ? <div className="shell-out">ctrl+c to exit</div>
         : out && (typeof out === 'string' && out.length < 110
         ? <div className="shell-out">{out}</div>
         : <div className="shell-out shell-pop" onClick={e => e.stopPropagation()}>
@@ -1041,7 +1107,7 @@ function Shell({ api, runRef, standalone = false }: { api: ShellApi; runRef?: Re
             </button>
             {out}
           </div>)}
-      {!session && (!out || typeof out !== 'string' || out.length >= 110) && <div className="shell-out" aria-hidden>&nbsp;</div>}
+      {!standalone && !session && (!out || typeof out !== 'string' || out.length >= 110) && <div className="shell-out" aria-hidden>&nbsp;</div>}
       <label className="bio-prompt shell-line">
         <span>{prompt}</span> {text}<span className="bio-block shell-caret" />
         <input ref={input} className="shell-input" value={text} aria-label="Type a command" spellCheck={false} autoCapitalize="off" autoComplete="off"
@@ -1246,7 +1312,13 @@ export default function Home() {
   const [openMode, setOpenMode] = useState<OpenMode>('trunk')
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
   const [shellOnly, setShellOnly] = useState(false)
-  useEffect(() => { if (new URLSearchParams(window.location.search).get('only') === 'shell') setShellOnly(true) }, [])
+  const [boot, setBoot] = useState<string | null>(null)
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    if (q.get('only') === 'shell') { setShellOnly(true); setTermLog([]) }
+    // ?boot=spiel types cat my-spiel on its own first
+    if (q.get('boot') === 'spiel') setBoot('cat my-spiel')
+  }, [])
   const [entry, setEntry] = useState<Entry>('open')
   const [phone, setPhone] = useState<Phone>('commands')
   const [toggle, setToggle] = useState<ToggleStyle>('sheet')
@@ -1720,6 +1792,7 @@ export default function Home() {
         .term-log { display: flex; flex-direction: column; gap: 0.7rem; padding-bottom: 0.5rem; }
         .term-entry .bio-prompt { margin-bottom: 0.2rem; white-space: normal; }
         .term-out { margin: 0; }
+        .term-pre { margin: 0; font-family: var(--font-mono); font-size: inherit; line-height: 1.45; white-space: pre; }
         /* about-me printed in the session reads like the rest of the output: mono, same size and spacing */
         .term-doc p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
         /* project names */
@@ -2073,10 +2146,22 @@ export default function Home() {
     <div data-theme={theme} className="root-frame term-only" style={{ background: 'var(--bg)', color: 'var(--ink)',
       ...(award ? ({ '--award': isLight ? forLight(award) : award } as React.CSSProperties) : {}) }}>
       {pageStyle}
-      <style>{`.term-only { height: 100vh; overflow-y: auto !important; padding: 1rem 1.2rem; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; }
-        .term-only .term-log { padding-bottom: 0.4rem; }`}</style>
+      {/* a real terminal: lines run on with no gaps, output under its command,
+         the prompt last; the one hint sits in the top right corner */}
+      <style>{`.term-only { height: 100vh; overflow-y: auto !important; padding: 0.7rem 1rem; box-sizing: border-box; font-family: var(--font-mono); }
+        .term-only .term-log { gap: 0; padding: 0; }
+        .term-only .term-entry .bio-prompt, .term-only .shell-line { margin: 0; line-height: 1.45; }
+        .term-only .bio-prompt { color: var(--ink); }
+        .term-only .bio-prompt > span { color: var(--ink); }
+        .term-only .term-out, .term-only .shell-out { margin: 0; line-height: 1.45; }
+        .term-only .term-out p, .term-only .term-doc p { margin: 0 0 0.45em; line-height: 1.45; }
+        .term-only .help { gap: 0 2ch; }
+        .term-hint { position: fixed; top: 0.6rem; right: 1rem; color: var(--award); }
+        .term-login { line-height: 1.45; }`}</style>
+      <div className="term-hint">type help · tab for options</div>
+      <div className="term-login shell-out">Last login: {new Date().toString().slice(0, 16)}on ttys001</div>
       {termLog && <TermLog entries={termLog} />}
-      <Shell api={shellApi} standalone />
+      <Shell api={shellApi} standalone boot={boot ?? undefined} />
     </div>
     </UrlCtx.Provider>
   )
