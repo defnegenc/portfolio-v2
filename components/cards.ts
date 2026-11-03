@@ -25,7 +25,7 @@ export const CARDS: Record<string, Card> = {
     title: 'Learning Et Al.', accent: 'var(--ink)', image: '/learningetal-digest.png',
     text: 'A daily research digest built around one provocative question, from the papers and news that match your interests.',
     points: ['Sources are ranked by keyword search and embeddings together.', 'Interests fade over time, so the digest follows what you care about now.', 'A solo project, from the ranking to the design.'],
-    link: { href: 'https://learningetal.com', label: 'learningetal.com' },
+    link: { href: 'https://www.learningetal.com', label: 'learningetal.com' },
   },
   dishcovery: {
     title: 'Dishcovery', accent: '#FF6B35', image: '/dishcovery-hero.png',

@@ -200,10 +200,10 @@ const metaOf = (slug: string) => {
 }
 
 /* Links open as browser windows over the page, with Open in new tab in the
-   corner. Sites that refuse to be shown inside another site (LinkedIn,
-   learningetal.com) skip the window and open in a new tab. */
+   corner. Sites that refuse to be shown inside another site (LinkedIn) skip
+   the window and open in a new tab. */
 const UrlCtx = createContext<((href: string, title: string) => void) | null>(null)
-const NO_FRAME = ['linkedin.com', 'learningetal.com']
+const NO_FRAME = ['linkedin.com']
 // arXiv's abstract page refuses frames; its PDF doesn't
 // PDFs open without the viewer's thumbnail sidebar, fitted to the window's width
 const embedOf = (href: string) => {

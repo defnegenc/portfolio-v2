@@ -89,9 +89,9 @@ const STAR_HISTORY: { h: string; paras: string[] }[] = [
 // the Stanford Libraries page on the Apple visits
 const PARC_SOURCE = 'https://web.stanford.edu/dept/SUL/sites/mac/parc.html'
 /* Links open in a browser window on the desk. Sites that refuse to be shown
-   inside another site (LinkedIn, learningetal.com) open in a new tab. arXiv's
+   inside another site (LinkedIn) open in a new tab. arXiv's
    abstract page refuses frames, its PDF doesn't. */
-const NO_FRAME = ['linkedin.com', 'learningetal.com']
+const NO_FRAME = ['linkedin.com']
 const framable = (url: string) => !NO_FRAME.some(d => url.includes(d))
 // PDFs open without the viewer's thumbnail sidebar, fitted to the window's width
 const embedOf = (url: string) => {
@@ -429,8 +429,8 @@ function GuiToggle() {
   return <span className="cg"><span className="cg-k">Interface</span><span className="cg-seg"><a {...cli}>CLI</a><b>GUI</b></span></span>
 }
 
-// tidbits that open as themselves instead of a description
-const DIRECT: Record<string, string> = { sponge: '/sponge/index.html?embed=1', kilim: '/kilim/index.html' }
+// projects that open as themselves instead of a folder or description
+const DIRECT: Record<string, string> = { sponge: '/sponge/index.html?embed=1', kilim: '/kilim/index.html', bloom: 'https://stanfordhci.github.io/Bloom/' }
 
 export default function Star() {
   const [theme, setTheme] = useTheme('light')
@@ -477,9 +477,8 @@ export default function Star() {
       if (window.self !== window.top) throw 0
       const saved = JSON.parse(sessionStorage.getItem('star-session-2') ?? 'null')
       if (saved?.wins?.length && !new URLSearchParams(location.search).get('open')) {
-        setWins(saved.wins); setFields(saved.fields ?? {}); fieldN.current = saved.fieldN ?? 0
-        if (saved.webUrl) setWebUrl(saved.webUrl)
-        setWebTitle(saved.webTitle ?? null)
+        setWins(saved.wins.filter((w: Win) => w.id !== 'web')); setFields(saved.fields ?? {}); fieldN.current = saved.fieldN ?? 0
+        setWebTitles(saved.webTitles ?? {})
         if (saved.histTab) setHistTab(saved.histTab)
         z.current = Math.max(3, ...saved.wins.map((w: Win) => w.z)) + 1
         restored.current = true
@@ -544,17 +543,18 @@ export default function Star() {
   }, [])
 
 
-  const [webUrl, setWebUrl] = useState(PARC_SOURCE)
-  const [webTitle, setWebTitle] = useState<string | null>(null)
+  // every page opens in its own browser window, keyed by its address
+  const [webTitles, setWebTitles] = useState<Record<string, string>>({})
   const openWeb = (url: string, title?: string) => {
     if (!framable(url)) { window.open(url, '_blank'); return }
-    setWebUrl(url); setWebTitle(title ?? null); open('web', 820, Math.min(700, innerHeight - 60))
+    if (title) setWebTitles(t => ({ ...t, [url]: title }))
+    open('web:' + url, 820, Math.min(700, innerHeight - 60))
   }
   const browse = (url: string) => (e: React.MouseEvent) => { e.preventDefault(); openWeb(url) }
   useEffect(() => {
     if (!restored.current || nested.current) return
-    try { sessionStorage.setItem('star-session-2', JSON.stringify({ wins, fields, fieldN: fieldN.current, webUrl, webTitle, histTab })) } catch {}
-  }, [wins, fields, webUrl, webTitle, histTab])   // eslint-disable-line react-hooks/exhaustive-deps
+    try { sessionStorage.setItem('star-session-2', JSON.stringify({ wins, fields, fieldN: fieldN.current, webTitles, histTab })) } catch {}
+  }, [wins, fields, webTitles, histTab])   // eslint-disable-line react-hooks/exhaustive-deps
   const content = (w: Win) => {
     const common = { win: w, onFocus: () => focus(w.id), onMove: move(w.id), onSize: size(w.id) }
     /* Every field window works the same way: Close, Properties (its hour,
@@ -659,15 +659,19 @@ export default function Star() {
       </StarWindow>
     )
     // a browser window: the page itself, inside the desktop
-    if (w.id === 'web') return (
-      <StarWindow key={w.id} {...common} flush title={webTitle ?? SOURCES.find(x => x.url === webUrl)?.title ?? 'Browser'} onClose={() => close('web')}
-        buttons={[['Open in new tab', () => window.open(webUrl, '_blank')]]}>
-        <div className="web">
-          <div className="web-url">{webUrl}</div>
-          <iframe key={webUrl} src={embedOf(webUrl)} title={webTitle ?? SOURCES.find(x => x.url === webUrl)?.title ?? 'Browser'} />
-        </div>
-      </StarWindow>
-    )
+    if (w.id.startsWith('web:')) {
+      const url = w.id.slice(4)
+      const title = webTitles[url] ?? SOURCES.find(x => x.url === url)?.title ?? 'Browser'
+      return (
+        <StarWindow key={w.id} {...common} flush title={title} onClose={() => close(w.id)}
+          buttons={[['Open in new tab', () => window.open(url, '_blank')]]}>
+          <div className="web">
+            <div className="web-url">{url}</div>
+            <iframe src={embedOf(url)} title={title} />
+          </div>
+        </StarWindow>
+      )
+    }
     // the three documents, set like ViewPoint pages
     if (w.id === 'main') return (
       <StarWindow key={w.id} {...common} title="My spiel" onClose={() => close('main')}
