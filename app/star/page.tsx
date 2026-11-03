@@ -671,13 +671,10 @@ export default function Star() {
       )
     }
     // the three documents, set like ViewPoint pages
+    // my spiel: a terminal that types cat my-spiel itself, then waits for you
     if (w.id === 'main') return (
-      <StarWindow key={w.id} {...common} title="My spiel" onClose={() => close('main')}
-        buttons={[['Mail', () => { location.href = 'mailto:defneg@stanford.edu' }], ['LinkedIn', () => window.open('https://linkedin.com/in/-defne', '_blank')]]}>
-        <div className="vp">
-          <header><h1>Defne Genç</h1><p className="vp-sub">My spiel</p></header>
-          <div className="vp-cols vp-one"><p>{SPIEL}</p><p><em>You can browse my projects on the right.</em></p></div>
-        </div>
+      <StarWindow key={w.id} {...common} flush title="My spiel" onClose={() => close('main')}>
+        <div className="web"><iframe src="/cli?only=shell&boot=spiel" title="My spiel, in a terminal" /></div>
       </StarWindow>
     )
     if (w.id === 'history') return (
