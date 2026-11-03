@@ -139,6 +139,8 @@ const DESK_ICON: Record<string, React.ReactNode> = {
   // the Star itself: a workstation with text on its screen
   history: <svg viewBox="0 0 44 44" {...OB}><rect x="5" y="3" width="34" height="25" rx="1" className="ob" /><text x="22" y="14" textAnchor="middle" fontSize="6.5" fontWeight="700" {...TX}>XEROX</text><path d="M10 19h24M10 23h16" /><path d="M16 28v4h12v-4" /><rect x="3" y="34" width="38" height="7" rx="1" className="ob" /><path d="M7 37.5h30" /></svg>,
   // a terminal window: back to the command line
+  // defne.io itself: a screen showing this desk
+  self: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="5" width="38" height="26" rx="1" className="ob" /><path d="M16 39h12M22 31v8" /><rect x="7" y="9" width="18" height="14" /><path d="M7 11.5h18" /><rect x="29" y="9" width="5" height="5" /><rect x="29" y="17" width="5" height="5" /></svg>,
   site: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="7" width="38" height="30" rx="1" className="ob" /><path d="M3 13h38" /><text x="8" y="25" fontSize="9" {...TX} fontFamily="Menlo, monospace">%</text><path d="M15 25.5h6" /></svg>,
   // the field: a screen of squares
   field: <svg viewBox="0 0 44 44" {...OB}><rect x="3" y="5" width="38" height="28" rx="1" className="ob" /><path d="M16 39h12M22 33v6" /><path d="M8 10h4v4H8zM16 10h4v4h-4zM24 14h4v4h-4zM32 10h4v4h-4zM8 20h4v4H8zM20 22h4v4h-4zM28 22h4v4h-4z" fill="currentColor" stroke="none" /></svg>,
@@ -463,10 +465,25 @@ export default function Star() {
      windows, extra fields, the browser page and the About the Star tab live
      in this tab's session. */
   const restored = useRef(false)
+  /* defne.io can open inside itself. A copy inside a window never restores
+     or saves the session (they share it with this tab, and restoring the
+     window that holds it would nest forever on its own). The first few
+     copies open the next one by themselves, like a Droste picture; past that
+     it goes as deep as you keep clicking. */
+  const nested = useRef(false)
+  const [depth, setDepth] = useState(0)
+  const AUTO_DEPTH = 3
+  useEffect(() => {
+    nested.current = window.self !== window.top
+    const d = Number(new URLSearchParams(location.search).get('depth') ?? 0) || 0
+    setDepth(d)
+    if (nested.current && d >= 1 && d < AUTO_DEPTH) setTimeout(() => openWeb(`/?depth=${d + 1}`, 'defne.io'), 900)
+  }, [])   // eslint-disable-line react-hooks/exhaustive-deps
   /* first layout: only the field is open. My spiel, About me, Projects and
      Properties wait on the desk as icons. */
   useEffect(() => {
     try {
+      if (window.self !== window.top) throw 0
       const saved = JSON.parse(sessionStorage.getItem('star-session') ?? 'null')
       if (saved?.wins?.length && !new URLSearchParams(location.search).get('open')) {
         setWins(saved.wins); setFields(saved.fields ?? {}); fieldN.current = saved.fieldN ?? 0
@@ -538,7 +555,7 @@ export default function Star() {
   }
   const browse = (url: string) => (e: React.MouseEvent) => { e.preventDefault(); openWeb(url) }
   useEffect(() => {
-    if (!restored.current) return
+    if (!restored.current || nested.current) return
     try { sessionStorage.setItem('star-session', JSON.stringify({ wins, fields, fieldN: fieldN.current, webUrl, webTitle, histTab })) } catch {}
   }, [wins, fields, webUrl, webTitle, histTab])   // eslint-disable-line react-hooks/exhaustive-deps
   const content = (w: Win) => {
@@ -734,6 +751,7 @@ export default function Star() {
           { id: 'history', shape: 'doc' as Shape, label: 'About the Star', pict: DESK_ICON.history, go: () => open('history', 680, 400) },
           // the terminal opens as a window on the desk: the CLI site, running inside the GUI
           { id: 'site', shape: 'tool' as Shape, label: 'Terminal', pict: DESK_ICON.site, go: () => open('term', 900, Math.min(640, innerHeight - 60)) },
+          { id: 'self', shape: 'tool' as Shape, label: 'defne.io', pict: DESK_ICON.self, go: () => openWeb(`/?depth=${depth + 1}`, 'defne.io') },
           ...(wins.some(w => w.id === 'field' || w.id.startsWith('field-')) ? [] : [{ id: 'field', shape: 'tool' as Shape, label: 'Field', pict: DESK_ICON.field, go: () => open('field') }]),
         ].map(ic => (
           <StarIcon key={ic.id} shape={ic.shape} pict={ic.pict} label={ic.label} pressed={wins.some(w => w.id === ic.id)}
