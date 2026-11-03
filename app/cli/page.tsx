@@ -892,11 +892,20 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
       const slash = arg.lastIndexOf('/')
       const dir = slash >= 0 ? resolve(cwd, arg.slice(0, slash) || '/') : cwd
       const file = arg.slice(slash + 1)
+      if (!arg) return 'usage: cat file'
       if (!dir) return `cat: ${arg}: No such file or directory`
       const at = dir.length === 0
-      if (at && (file === 'about-me' || file === 'about')) { api.goTo('about'); return '' }
-      if (at && (file === 'my-spiel' || file === 'spiel')) { api.goTo('home'); return '' }
+      // in a terminal session the files print here; on the page they switch the view
+      const inShell = api.log !== null
+      if (at && (file === 'about-me' || file === 'about')) { if (inShell) return <div className="term-doc">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} />)}</div>; api.goTo('about'); return '' }
+      if (at && (file === 'my-spiel' || file === 'spiel')) { if (inShell) return BIO; api.goTo('home'); return '' }
       if (at && file === 'weather.txt') { api.openWeather(); return '' }
+      if (at && file === '.secret') return 'my software goes hard'
+      // a folder isn't a file
+      if (listing([...dir, file]) || (file.endsWith('/') && listing([...dir, file.slice(0, -1)]))) return `cat: ${arg}: Is a directory`
+      // tidbits are plain files: their description
+      const tid = dir.length === 1 && dir[0] === 'tidbits' ? TIDS.find(x => x.file === file) : undefined
+      if (tid) return catDesc(tid.id)
       const id = dir[0] === 'projects' && dir[1] ? idOfDir(dir[1]) : undefined
       const e = id && FOLDERS[id].find(x => x.file === file)
       if (e && id && e.kind === 'doc') return catDesc(id)
@@ -915,10 +924,15 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
       cd(p); return ''
     }
     case 'ls': {
-      if (arg === '-a') return ['.', '..', ...(cwd.length ? [] : ['.secret']), ...(listing(cwd) ?? [])].join('  ')
-      const p = arg ? resolve(cwd, arg) : cwd
+      // flags: -a shows dotfiles, -l a long listing, in any order (-la, -al, -a -l)
+      const flags = args.filter(a => a.startsWith('-')).join('').replace(/-/g, '')
+      const target = args.find(a => !a.startsWith('-')) ?? ''
+      const p = target ? resolve(cwd, target) : cwd
       const l = p && listing(p)
-      return l ? l.join('  ') : `ls: ${arg}: No such file or directory`
+      if (!l) return `ls: ${target}: No such file or directory`
+      const all = flags.includes('a') ? ['.', '..', ...(p!.length ? [] : ['.secret']), ...l] : l
+      if (!flags.includes('l')) return all.join('  ')
+      return <pre className="term-pre">{all.map(n => `${n.endsWith('/') || n === '.' || n === '..' ? 'drwxr-xr-x' : '-rw-r--r--'}  defne  staff  ${n}`).join('\n')}</pre>
     }
     case 'imgcat': {
       const slash = arg.lastIndexOf('/')
