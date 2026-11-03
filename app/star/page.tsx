@@ -15,7 +15,7 @@ import AboutPara from '@/components/AboutPara'
 import { useTheme } from '@/components/useTheme'
 import { CLASSIC_ICON } from '@/components/weatherIcons'
 import { readToggle, type ToggleStyle } from '@/components/siteToggle'
-import { AboutGraph, GRAPH_CSS } from '@/components/aboutGraph'
+import { Timeline, CliGui, FIGURE_CSS } from '@/components/aboutFigures'
 
 const SPIEL = 'I think about how modern interfaces should (and fail to) meet our needs with exponentially growing agentic capabilities. BS, MS, and a deferred PhD admission from Stanford University, where I specialized in human-AI interaction. Now AI @ Coinbase, where I own the agent creation experience.'
 // what the Projects folder holds, listed like a Star folder window
@@ -683,10 +683,14 @@ export default function Star() {
         <div className="vp">
           <header><h1>About me</h1><p className="vp-sub">Defne Genç. Istanbul, Stanford, New York</p></header>
           <div className="vp-cols">{ABOUT_PARAS.map((t, i) => <AboutPara key={i} text={t} side="gui" />)}</div>
-          {/* the same story as a Star-style family tree, set in the page like a figure */}
+          {/* figures, set in the page like the Star's own documents */}
           <figure className="g-star g-fig">
-            <AboutGraph view="short" />
-            <figcaption><em>Figure 1:</em> Life, research, work and projects, drawn like the Star’s genealogy chart.</figcaption>
+            <Timeline />
+            <figcaption><em>Figure 1:</em> Where I lived, and school. The Ph.D. starts in 2027, deferred.</figcaption>
+          </figure>
+          <figure className="g-star g-fig">
+            <CliGui here="gui" />
+            <figcaption><em>Figure 2:</em> This site, as a CLI and as a GUI. Click the CLI to switch.</figcaption>
           </figure>
         </div>
       </StarWindow>
@@ -709,7 +713,7 @@ export default function Star() {
 
   return (
     <div className="desk-root" data-theme={theme}>
-      <style>{CSS + GRAPH_CSS}</style>
+      <style>{CSS + FIGURE_CSS}</style>
       {wins.map(content)}
       {/* the switch back: this one is the GUI */}
       {/* the same switch as the CLI side: a Star property sheet choice */}
