@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, createContext, useContext } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, createContext, useContext, isValidElement } from 'react'
 import AsciiCanvas from '@/components/AsciiCanvas'
 import ThemeToggle from '@/components/ThemeToggle'
 import NavMenu from '@/components/NavMenu'
@@ -792,7 +792,7 @@ function wttr(w: ShellApi['weather']) {
 }
 
 // what Tab can complete, by command
-const COMMANDS = ['cat', 'cd', 'ls', 'tree', 'vim', 'fortune', 'cowsay', 'cal', 'who', 'resume', 'open', 'imgcat', 'startx', 'caffeinate', 'pmset', 'curl', 'weather', 'mail', 'clear', 'help', 'history', 'whoami', 'date', 'echo', 'pwd', 'git', 'ps', 'neofetch', 'uname', 'uptime', 'hostname', 'which', 'ssh', 'sudo', 'exit']
+const COMMANDS = ['cat', 'cd', 'ls', 'tree', 'vim', 'fortune', 'cowsay', 'cal', 'who', 'resume', 'open', 'imgcat', 'startx', 'caffeinate', 'pmset', 'curl', 'weather', 'mail', 'clear', 'help', 'history', 'whoami', 'date', 'echo', 'pwd', 'git', 'ps', 'neofetch', 'uname', 'uptime', 'hostname', 'which', 'ssh', 'sudo', 'say', 'ping', 'lolcat', 'finger', 'env', 'exit']
 const ITEM_NAMES = [...PROJECTS, ...TIDBITS].map(p => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, ''))
 const ARGS: Record<string, string[]> = {
   cat: ['about-me', 'my-spiel'], cd: ['..'], ls: ['projects', 'tidbits', '-a'], open: ITEM_NAMES,
@@ -881,8 +881,121 @@ const findPic = (dir: Path, file: string) => {
 }
 // the prompt shows where you are inside the portfolio folder, which is the shell's starting point
 const showPath = (p: Path) => `~/${HOME_DIR}${p.length ? '/' + p.join('/') : ''}`
-// from a window on the desk, the GUI is the page around it
-const toGui = (p: Path) => { (window.top ?? window).location.href = `/${p.length ? `?open=${p.join('/')}` : ''}` }
+/* the GUI opens where the terminal is: from a window on the desk, that's a
+   desk inside the window, with its own terminal, and so on down. Each level
+   gets its own address, since browsers won't nest a page in itself twice. */
+const toGui = (p: Path) => {
+  let depth = 0
+  for (let w: Window = window; w !== w.parent; w = w.parent) depth += 1
+  const q = new URLSearchParams()
+  if (p.length) q.set('open', p.join('/'))
+  if (depth) q.set('desk', String(depth))
+  window.location.href = `/${q.size ? `?${q}` : ''}`
+}
+
+// what a command printed, as plain text, so it can go down a pipe
+const textOf = (n: React.ReactNode): string => {
+  if (n == null || typeof n === 'boolean') return ''
+  if (typeof n === 'string' || typeof n === 'number') return String(n)
+  if (Array.isArray(n)) return n.map(textOf).join('')
+  if (!isValidElement(n)) return ''
+  const t = textOf((n.props as { children?: React.ReactNode }).children)
+  return n.type === 'p' || n.type === 'div' ? t + '\n' : n.type === 'span' ? t + '  ' : t
+}
+const ENV: Record<string, string> = { USER: 'defne', HOME: '/Users/defne', SHELL: '/bin/zsh', EDITOR: 'vim', TERM: 'xterm-256color', LANG: 'en_US.UTF-8', HOSTNAME: 'defne.io', PATH: '/usr/local/bin:/usr/bin:/bin' }
+// arithmetic, only when the text is nothing but numbers and operators
+const calc = (e: string) => {
+  if (!/^[\d\s+\-*/%().]+$/.test(e) || !/\d/.test(e)) return null
+  try { const r = Function(`return (${e})`)(); return typeof r === 'number' && Number.isFinite(r) ? String(r) : null } catch { return null }
+}
+const COW = ['        \\   ^__^', '         \\  (oo)\\_______', '            (__)\\       )\\/\\', '                ||----w |', '                ||     ||']
+function cowsay(t: string) {
+  // wrap at 40 columns, the way cowsay does
+  const lines = t.split('\n').flatMap(l => {
+    const out: string[] = []
+    let cur = ''
+    for (const w of l.split(' ')) { if (cur && (cur + ' ' + w).length > 40) { out.push(cur); cur = w } else cur = cur ? cur + ' ' + w : w }
+    return [...out, cur]
+  })
+  const w = Math.max(...lines.map(l => l.length))
+  const body = lines.length === 1 ? [`< ${lines[0]} >`]
+    : lines.map((l, i) => { const [a, b] = i === 0 ? ['/', '\\'] : i === lines.length - 1 ? ['\\', '/'] : ['|', '|']; return `${a} ${l.padEnd(w)} ${b}` })
+  return [' ' + '_'.repeat(w + 2), ...body, ' ' + '-'.repeat(w + 2), ...COW].join('\n')
+}
+// lolcat: a rainbow running diagonally through the text
+const lolcat = (t: string) => <pre className="term-pre">{t.split('\n').map((l, y) => <span key={y}>{y ? '\n' : ''}{[...l].map((c, x) => <span key={x} style={{ color: `oklch(0.66 0.16 ${(x * 9 + y * 18) % 360})` }}>{c}</span>)}</span>)}</pre>
+const say = (t: string) => { try { speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(t)) } catch {} }
+const TRAIN = [
+  '      (@@) (  ) (@)  ( )  @@',
+  '     ||',
+  '   __||____      ______________',
+  '  |  ___   |    |              |',
+  '  | |   |  |____|   defne.io   |',
+  ' _|_|___|__|____|______________|',
+  '   (O)  (O)  =    (O)      (O)',
+]
+// sl, for when you type ls too fast: the train goes by and leaves nothing behind
+function Train() {
+  const [gone, setGone] = useState(false)
+  return gone ? null : <div className="sl" aria-label="A train goes by"><pre className="term-pre" onAnimationEnd={() => setGone(true)}>{TRAIN.join('\n')}</pre></div>
+}
+// cmatrix: code rain for a few seconds, then it drains off the bottom
+function Rain() {
+  const [rows, setRows] = useState<string[]>([])
+  useEffect(() => {
+    const ch = 'abcdefghijklmnopqrstuvwxyz0123456789$+-*/=%#&_<>[]{}'
+    const W = 56, H = 9
+    let n = 0
+    const id = window.setInterval(() => {
+      n += 1
+      const row = n > 45 ? '' : Array.from({ length: W }, () => (Math.random() < 0.28 ? ch[Math.floor(Math.random() * ch.length)] : ' ')).join('')
+      setRows(r => [row, ...r].slice(0, H))
+      if (n > 45 + H) { window.clearInterval(id); setRows([]) }
+    }, 70)
+    return () => window.clearInterval(id)
+  }, [])
+  return rows.length ? <pre className="term-pre rain" aria-hidden>{rows.join('\n')}</pre> : null
+}
+// rm -rf on any of these is someone testing the walls
+const BOOM = ['/', '/*', '~', '~/', '~/*', '*', '.', './', './*', '..', '--no-preserve-root']
+// the text of one command, sent through the rest of a pipeline
+function pipe(cmd: string, api: ShellApi, cwd: Path, cd: (p: Path) => void): React.ReactNode {
+  const [first, ...rest] = cmd.split('|').map(s => s.trim()).filter(Boolean)
+  const out = runCommand(first, api, cwd, cd)
+  // ls prints one name per line when its output goes to another command
+  let text = (first.split(' ')[0] === 'ls' && typeof out === 'string' ? out.split('  ').join('\n') : textOf(out)).split('\n').map(l => l.trimEnd()).join('\n').replace(/\n+$/, '')
+  let last = ''
+  for (const stage of rest) {
+    const [name, ...args] = stage.split(' ')
+    const words = args.filter(a => !a.startsWith('-'))
+    // head and tail take -n 3 or -3
+    const ni = args.indexOf('-n'), dn = args.find(a => /^-\d+$/.test(a))
+    const n = dn ? Number(dn.slice(1)) : ni >= 0 ? Number(args[ni + 1]) || 10 : 10
+    const lines = text ? text.split('\n') : []
+    last = name
+    if (name === 'grep') {
+      if (!words.length) return 'usage: grep pattern'
+      const q = words.join(' ').replace(/^["']|["']$/g, '')
+      text = lines.filter(l => (args.includes('-i') ? l.toLowerCase().includes(q.toLowerCase()) : l.includes(q))).join('\n')
+    }
+    else if (name === 'wc') {
+      const c = [lines.length, text.split(/\s+/).filter(Boolean).length, text.length]
+      text = args.includes('-l') ? String(c[0]) : args.includes('-w') ? String(c[1]) : args.includes('-c') ? String(c[2]) : c.map(x => String(x).padStart(8)).join('')
+    }
+    else if (name === 'head') text = lines.slice(0, n).join('\n')
+    else if (name === 'tail') text = lines.slice(-n).join('\n')
+    else if (name === 'sort') text = [...lines].sort().join('\n')
+    else if (name === 'uniq') text = lines.filter((l, i) => l !== lines[i - 1]).join('\n')
+    else if (name === 'rev') text = lines.map(l => [...l].reverse().join('')).join('\n')
+    else if (name === 'tr' && args[0] === 'a-z' && args[1] === 'A-Z') text = text.toUpperCase()
+    else if (name === 'cowsay') text = cowsay(text || 'moo')
+    else if (name === 'say') { say(text); text = '' }
+    else if (['sh', 'bash', 'zsh'].includes(name)) return 'nice try'
+    else if (!['cat', 'less', 'more', 'lolcat', 'tee'].includes(name)) return `zsh: command not found: ${name}`
+  }
+  if (last === 'lolcat') return lolcat(text)
+  return text.includes('\n') ? <pre className="term-pre">{text}</pre> : text
+}
 
 /* When a command fails in a way that's easy to fix (a typo, a file that's
    really a folder, a project you have to cd into first), say what was meant
@@ -962,6 +1075,15 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
   const [name, ...args] = cmd.split(' ')
   const arg = args.join(' ').toLowerCase()
   const find = (q: string) => [...PROJECTS, ...TIDBITS].find(p => p.name.toLowerCase().replace(/[^a-z]/g, '').startsWith(q.replace(/[^a-z]/g, '')))
+  // a fork bomb, and curl piped into a shell: the two classic ways to wreck a machine
+  if (cmd.includes(':|:') || /^(curl|wget)\b.*\|\s*(sudo )?(ba|z)?sh$/.test(cmd)) return 'nice try'
+  if (cmd.includes('|')) return pipe(cmd, api, cwd, cd)
+  // writing to a file, with > or >>
+  const into = cmd.match(/>>?\s*(\S+)$/)
+  if (into && !cmd.includes('$((')) return `zsh: read-only file system: ${into[1]}`
+  // a sum typed as a command still gets its answer
+  const sum = /[+\-*/%]/.test(cmd) ? calc(cmd) : null
+  if (sum !== null) return `zsh: command not found: ${cmd}. it’s ${sum}, though`
   // things people type that aren't commands: greetings, manners, vim panic
   const said = cmd.toLowerCase().replace(/[!?.,]+$/g, '')
   const SAID: Record<string, string> = {
@@ -984,6 +1106,15 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
     love: '<3', '<3': '<3',
     'hire me': 'you want to hire defne? try mail, or resume', 'hire defne': 'good idea. try mail',
     'who are you': 'defne. cat about-me for the long version', 'what is this': 'defne.io, as a terminal. type help', 'what': 'defne.io, as a terminal. type help',
+    'i love you': '<3', 'hello world': 'hello, world',
+    xyzzy: 'Nothing happens.', '42': 'that\u2019s the answer. what was the question?', 'meaning of life': '42', 'the meaning of life': '42',
+    'make me a sandwich': 'what? make it yourself.', 'sudo make me a sandwich': 'okay.',
+    quit: 'try exit', q: 'try exit',
+    'exit vim': 'you were never in vim. you are free', 'how do i exit vim': ':q. but you were never in vim',
+    'open sesame': 'try ls -a',
+    fuck: 'language.',
+    cls: 'this is a mac. try clear', dir: 'this is a mac. try ls', ipconfig: 'this is a mac. try ifconfig',
+    'apt-get': 'this is a mac. try brew', apt: 'this is a mac. try brew', yum: 'this is a mac. try brew',
   }
   if (SAID[said]) return SAID[said]
   switch (name) {
@@ -1022,6 +1153,7 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
       if ((!target || target === '..' || target === '~') && cwd.length === 0) { if (api.view === 'about') api.goTo('home'); return '' }
       if (!target || target === '~' || target === '/') { cd([]); return '' }
       const p = resolve(cwd, target)
+      if (!p && (listing(cwd)?.includes(target) || target === '.secret')) return `cd: not a directory: ${target}`
       if (!p) return `cd: no such file or directory: ${target}`
       cd(p); return ''
     }
@@ -1032,6 +1164,7 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
       const p = target ? resolve(cwd, target) : cwd
       const l = p && listing(p)
       if (!l) return `ls: ${target}: No such file or directory`
+      if (flags.includes('R')) return runCommand(`tree ${target}`, api, cwd, cd)
       const all = flags.includes('a') ? ['.', '..', ...(p!.length ? [] : ['.secret']), ...l] : l
       if (!flags.includes('l')) return all.join('  ')
       return <pre className="term-pre">{all.map(n => `${n.endsWith('/') || n === '.' || n === '..' ? 'drwxr-xr-x' : '-rw-r--r--'}  defne  staff  ${n}`).join('\n')}</pre>
@@ -1077,22 +1210,32 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
       api.setWeather({ p: p ?? cur?.period ?? periodOf(), s: s ?? cur?.sky ?? 'clear' })
       return ''
     }
-    case 'curl':
+    case 'curl': case 'wget':
       if (arg.startsWith('wttr.in')) return wttr(api.weather)
-      return arg ? `curl: (6) Could not resolve host: ${arg}` : 'curl: try \u2018curl wttr.in\u2019'
+      if (/^(https?:\/\/)?(www\.)?defne\.io/.test(arg)) return 'you\u2019re already here'
+      return arg ? `${name}: (6) Could not resolve host: ${arg}` : `${name}: try \u2018curl wttr.in\u2019`
     case 'mail': case 'email': api.openContact(); return ''
     case 'whoami': return 'defne'
     case 'pwd': return `/Users/defne/${HOME_DIR}${cwd.length ? '/' + cwd.join('/') : ''}`
     case 'date': return new Date().toString().slice(0, 24)
-    case 'sudo': return 'defne is not in the sudoers file. This incident will be reported.'
+    case 'sudo':
+      if (args[0] === 'rm' && runCommand(args.join(' '), api, cwd, cd) === 'nice try') return 'nice try'
+      return 'defne is not in the sudoers file. This incident will be reported.'
+    case 'su': return 'su: Sorry'
+    case 'id': return 'uid=501(defne) gid=20(staff) groups=20(staff)'
+    case 'finger': return <pre className="term-pre">{[
+      'Login: defne                    Name: Defne Gen\u00e7',
+      'Directory: /Users/defne         Shell: /bin/zsh',
+      `On since ${new Date().toString().slice(0, 16)}on ttys001`,
+      'Plan:', 'cat about-me',
+    ].join('\n')}</pre>
     case 'who': return 'defne    ttys001    ' + new Date().toString().slice(4, 21)
     case 'fortune': {
       const lines = ['my software goes hard', 'third time\u2019s the charm', 'the chat interface is to LLMs what the CLI was to personal computers', 'we need to make the leap to find AI\u2019s GUI', 'I\u2019m all and none of those things']
       return lines[Math.floor(Math.random() * lines.length)]
     }
     case 'cowsay': {
-      const t = args.join(' ') || 'moo'
-      return <pre className="term-pre">{[' ' + '_'.repeat(t.length + 2), `< ${t} >`, ' ' + '-'.repeat(t.length + 2), '        \\   ^__^', '         \\  (oo)\\_______', '            (__)\\       )\\/\\', '                ||----w |', '                ||     ||'].join('\n')}</pre>
+      return <pre className="term-pre">{cowsay(args.join(' ') || 'moo')}</pre>
     }
     case 'cal': {
       const d = new Date(), y = d.getFullYear(), m = d.getMonth()
@@ -1104,7 +1247,10 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
       return <pre className="term-pre">{[title.padStart(10 + Math.ceil(title.length / 2)), 'Su Mo Tu We Th Fr Sa', ...rows].join('\n')}</pre>
     }
     case 'resume': case 'cv': api.openResume?.(); return ''
-    case 'echo': return args.join(' ')
+    case 'echo': return args.join(' ').replace(/^(["'])(.*)\1$/, '$2')
+      .replace(/\$\(\((.+?)\)\)/g, (_, e) => calc(e) ?? '0')
+      .replace(/\$\{?(\w+)\}?/g, (_, k) => (k === 'PWD' ? `/Users/defne/${HOME_DIR}${cwd.length ? '/' + cwd.join('/') : ''}` : ENV[k] ?? ''))
+    case 'env': case 'printenv': return <pre className="term-pre">{Object.entries(ENV).map(([k, v]) => `${k}=${v}`).join('\n')}</pre>
     case 'hostname': return 'defne.io'
     case 'uname': return arg === '-a' ? 'Darwin defne.io 25.6.0 Darwin Kernel: Bikini Bottom Edition arm64' : 'Darwin'
     case 'uptime': return `${new Date().toTimeString().slice(0, 5)}  up since Istanbul, 1 user, load averages: 3 degrees 1 job 2 projects`
@@ -1135,7 +1281,12 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
         ['0f00b1e', '2020', 'stanford: hello'],
         ['1a2b3c4', '2002', 'istanbul: initial commit'],
       ].map(([h, y, m]) => `${h}  ${y}  ${m}`).join('\n')}</pre>
-      if (args[0] === 'status') return 'On branch main\nnothing to commit, working tree clean'
+      if (args[0] === 'status' || args[0] === 'commit') return 'On branch main\nnothing to commit, working tree clean'
+      if (args[0] === 'push') return args.includes('--force') || args.includes('-f') ? 'nice try' : 'Everything up-to-date'
+      if (args[0] === 'pull') return 'Already up to date.'
+      if (args[0] === 'branch') return '* main'
+      if (args[0] === 'blame') return 'every line: defne'
+      if (args[0] === 'clone') return 'it\u2019s public: git clone https://github.com/defnegenc/portfolio-v2'
       return 'usage: git log | git status'
     case 'ps': case 'top': return <pre className="term-pre">{['  PID  %CPU  COMMAND', '  101  38.0  coinbase', '  202  21.5  learning-et-al', '  303  19.0  catching-my-drift', '  404  12.5  bloom', '  505   9.0  thinking-about-interfaces'].join('\n')}</pre>
     case 'neofetch': case 'fastfetch': return <pre className="term-pre">{[
@@ -1145,8 +1296,30 @@ function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path)
       'Shell: zsh, and a GUI at open .', 'Packages: 4 projects, 2 tidbits',
       'Theme: bone and ink', 'Awards: CHI 2026 Best Paper',
     ].join('\n')}</pre>
-    case 'rm': case 'rmdir': case 'mkdir': case 'touch': case 'mv': case 'cp': case 'chmod':
+    case 'rm': case 'rmdir': case 'mkdir': case 'touch': case 'mv': case 'cp': case 'chmod': case 'chown':
+      if (name === 'rm' && args.some(a => BOOM.includes(a))) return 'nice try'
       return `${name}: ${arg || '.'}: Read-only file system`
+    case 'kill': case 'killall': case 'pkill': return `${name}: ${arg || '?'}: Operation not permitted`
+    case 'sl': return <Train />
+    case 'cmatrix': case 'matrix': return <Rain />
+    case 'yes': return <pre className="term-pre">{[...Array(16).fill(args.join(' ') || 'y'), '^C'].join('\n')}</pre>
+    case 'lolcat': return lolcat(args.join(' ') || 'meow')
+    case 'say': say(args.join(' ')); return ''
+    case 'make': return 'make: *** No targets specified and no makefile found.  Stop.'
+    case 'ping': {
+      const host = args[0] ?? 'defne.io'
+      const home = ['defne.io', 'localhost', '127.0.0.1'].includes(host)
+      return <pre className="term-pre">{[`PING ${host}: 56 data bytes`, ...[0, 1, 2].map(i => `64 bytes from ${host}: icmp_seq=${i} ttl=64 time=${home ? '0.001' : (8 + Math.random() * 20).toFixed(3)} ms`), '', `--- ${host} ping statistics ---`, '3 packets transmitted, 3 packets received, 0.0% packet loss'].join('\n')}</pre>
+    }
+    case 'ifconfig': case 'ip': return <pre className="term-pre">{['lo0: flags=8049<UP,LOOPBACK,RUNNING> mtu 16384', '\tinet 127.0.0.1 netmask 0xff000000', '', 'there\u2019s no place like 127.0.0.1'].join('\n')}</pre>
+    case 'bash': case 'zsh': case 'sh': return 'you\u2019re already in zsh'
+    case 'fish': return 'the fish stay in Bikini Bottom'
+    case 'python': case 'python3': case 'node': case 'irb': case 'ghci':
+      return `${name}: this terminal only runs the portfolio. try ls`
+    case 'npm': case 'pnpm': case 'yarn': case 'bun':
+      return args[0] ? 'up to date, audited 1 package in 412ms\n\nfound 0 vulnerabilities' : `usage: ${name} install`
+    case 'pip': case 'pip3': return args[1] ? `Requirement already satisfied: ${args[1]}` : `usage: ${name} install package`
+    case 'brew': return args[1] ? `Warning: ${args[1]} is already installed and up-to-date.` : 'usage: brew install formula'
     case 'vim': case 'vi': case 'nano': case 'emacs': case 'code': {
       // opens the file the way vim draws it: the text, empty lines as ~, a status line
       if (!arg) return `${name}: this portfolio is read-only. Try ${name} .secret`
@@ -1184,6 +1357,8 @@ function Shell({ api, runRef, standalone = false, boot }: { api: ShellApi; runRe
   const [cwd, setCwd] = useState<Path>([])
   const hist = useRef<string[]>([])
   const at = useRef(0)
+  // the last ten keys, to catch the Konami code
+  const keys = useRef<string[]>([])
   const input = useRef<HTMLInputElement>(null)
   // typing anywhere on the page lands here, unless another field has focus
   useEffect(() => {
@@ -1203,7 +1378,10 @@ function Shell({ api, runRef, standalone = false, boot }: { api: ShellApi; runRe
   // a suggestion's click types it in and runs it
   api = { ...api, run: (c: string) => submitRef.current?.(c) }
   const submitRef = useRef<((c: string) => void) | null>(null)
-  const submit = (cmd = text) => {
+  const submit = (typed = text) => {
+    // !! is the last command again, so sudo !! works the way it does in zsh
+    const prev = hist.current[hist.current.length - 1] ?? ''
+    const cmd = typed.includes('!!') ? typed.replace(/!!/g, prev) : typed
     if (cmd.trim()) { hist.current.push(cmd); at.current = hist.current.length }
     const c = cmd.trim()
     if (c === 'exit' && !standalone) { end(); return }
@@ -1276,6 +1454,13 @@ function Shell({ api, runRef, standalone = false, boot }: { api: ShellApi; runRe
           onChange={e => { if (e.target.value) start(); setText(e.target.value) }}
           onKeyDown={e => {
             if (e.ctrlKey && e.key.toLowerCase() === 'c') { e.preventDefault(); end(); input.current?.blur(); return }
+            if (e.ctrlKey && e.key.toLowerCase() === 'l') { e.preventDefault(); if (session) api.setLog([]); return }
+            keys.current = [...keys.current, e.key.toLowerCase()].slice(-10)
+            if (keys.current.join(' ') === 'arrowup arrowup arrowdown arrowdown arrowleft arrowright arrowleft arrowright b a') {
+              e.preventDefault(); keys.current = []; setText(''); start()
+              api.setLog(l => [...(l ?? []), { at: prompt, cmd: '\u2191\u2191\u2193\u2193\u2190\u2192\u2190\u2192BA', out: '+30 lives' }])
+              return
+            }
             if (e.key === 'Enter') { start(); submit() }
             else if (e.key === 'Tab') {
               e.preventDefault()
@@ -1407,7 +1592,7 @@ const TermGlyph = () => (
 function SiteToggle() {
   const style = useContext(ToggleCtx)
   const [going, setGoing] = useState(false)
-  const go = (e: React.MouseEvent) => { e.preventDefault(); setGoing(true); setTimeout(() => { (window.top ?? window).location.href = '/' }, 260) }
+  const go = (e: React.MouseEvent) => { e.preventDefault(); setGoing(true); setTimeout(() => toGui([]), 260) }
   const gui = { href: '/', onClick: go, title: 'An ode to early interfaces' }
   if (style === 'radio') return (
     <span className="tg-sheet tg-mono tg-radio2">
@@ -1475,6 +1660,9 @@ export default function Home() {
   const [termLog, setTermLog] = useState<LogEntry[] | null>(null)
   const [shellOnly, setShellOnly] = useState(false)
   const [boot, setBoot] = useState<string | null>(null)
+  // in a window on the desk, the window's title bar carries the hint
+  const [framed, setFramed] = useState(true)
+  useEffect(() => { setFramed(window.self !== window.top) }, [])
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     if (q.get('only') === 'shell') { setShellOnly(true); setTermLog([]) }
@@ -1961,7 +2149,13 @@ export default function Home() {
         .vim-tilde { color: var(--award); }
         .vim-status { display: flex; justify-content: space-between; background: var(--ink); color: var(--bg); padding: 0 0.5ch; }
         .term-meant { background: none; border: 0; padding: 0; font: inherit; color: var(--award); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
-        .term-pre { margin: 0; font-family: var(--font-mono); font-size: inherit; line-height: 1.45; white-space: pre; }
+        .term-pre { margin: 0; font-family: var(--font-mono); font-size: inherit; line-height: 1.45; white-space: pre; font-variant-ligatures: none; }
+        /* sl: the train crosses the terminal once, right to left */
+        .sl { position: relative; overflow: hidden; height: calc(1.45em * 7); }
+        .sl .term-pre { position: absolute; top: 0; left: 100%; animation: sl-go 4.5s linear forwards; }
+        @keyframes sl-go { to { left: 0; transform: translateX(-100%); } }
+        .rain { overflow: hidden; color: var(--award); }
+        @media (prefers-reduced-motion: reduce) { .sl .term-pre { animation: none; left: 0; } }
         /* about-me printed in the session reads like the rest of the output: mono, same size and spacing */
         .term-doc p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
         /* project names */
@@ -2325,10 +2519,9 @@ export default function Home() {
         .term-only .term-out, .term-only .shell-out { margin: 0; line-height: 1.45; }
         .term-only .term-out p, .term-only .term-doc p { margin: 0 0 0.45em; line-height: 1.45; }
         .term-only .help { gap: 0 2ch; }
-        .term-hint { position: fixed; top: 0.6rem; right: 1rem; color: var(--award); }
-        .term-login { line-height: 1.45; }`}</style>
-      <div className="term-hint">type help · tab for options</div>
-      <div className="term-login shell-out">Last login: {new Date().toString().slice(0, 16)}on ttys001</div>
+        .term-hint { color: var(--award); }
+        .term-login { line-height: 1.45; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 2ch; }`}</style>
+      <div className="term-login shell-out"><span>Last login: {new Date().toString().slice(0, 16)}on ttys001</span>{!framed && <span className="term-hint">type help · tab for options</span>}</div>
       {termLog && <TermLog entries={termLog} />}
       <Shell api={shellApi} standalone boot={boot ?? undefined} />
     </div>

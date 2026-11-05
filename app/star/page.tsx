@@ -487,6 +487,17 @@ export default function Star() {
     if (innerWidth < 700) {
       // phones: the icons take the top, the field the rest
       const top = Math.min(300, Math.round(innerHeight * 0.38))
+      /* a desk inside a window keeps my spiel open beside the field, so
+         open . in it goes one desk deeper */
+      if (window.self !== window.top) {
+        const half = Math.round((innerWidth - 24) / 2)
+        setWins([
+          { id: 'field', x: 8, y: top, w: half, h: innerHeight - top - 8, z: 2 },
+          { id: 'main', x: 16 + half, y: top, w: innerWidth - 24 - half, h: innerHeight - top - 8, z: 3 },
+        ])
+        z.current = 4
+        return
+      }
       setWins([{ id: 'field', x: 8, y: top, w: innerWidth - 16, h: innerHeight - top - 8, z: 2 }])
       z.current = 3
       return
@@ -644,8 +655,10 @@ export default function Star() {
 
     // the terminal: defne.io's command line, in a window on its own desk
     // the terminal: just a shell, working, on its own
+    // a terminal's title bar says how to start, on the right, while there's room
+    const termHint = w.w >= 440 ? <span className="head-hint">type help · tab for options</span> : undefined
     if (w.id === 'term') return (
-      <StarWindow key={w.id} {...common} flush title="Terminal" onClose={() => close('term')}>
+      <StarWindow key={w.id} {...common} flush title="Terminal" onClose={() => close('term')} end={termHint}>
         <div className="web"><iframe src="/cli?only=shell" title="Terminal" /></div>
       </StarWindow>
     )
@@ -673,7 +686,7 @@ export default function Star() {
     // the three documents, set like ViewPoint pages
     // my spiel: a terminal that types cat my-spiel itself, then waits for you
     if (w.id === 'main') return (
-      <StarWindow key={w.id} {...common} flush title="My spiel" onClose={() => close('main')}>
+      <StarWindow key={w.id} {...common} flush title="My spiel" onClose={() => close('main')} end={termHint}>
         <div className="web"><iframe src="/cli?only=shell&boot=spiel" title="My spiel, in a terminal" /></div>
       </StarWindow>
     )
@@ -913,6 +926,7 @@ const CSS = `
   /* property sheet */
   /* a black command button at the right end of a title bar */
   .head-end { margin-left: auto; display: flex; }
+  .head-hint { padding: 0 8px; background: var(--paper); font-size: 13px; line-height: 20px; white-space: nowrap; }
   .cmd.cmd-black { display: flex; align-items: center; justify-content: center; gap: 5px; background: var(--ink); color: var(--paper) !important; border-color: var(--ink); min-width: 28px; }
   .cmd.cmd-black:hover { background: var(--paper); color: var(--ink) !important; }
   .g-star { --g-bg: var(--paper); --g-ink: var(--ink); --g-accent: var(--ink); }
