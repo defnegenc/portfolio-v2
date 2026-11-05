@@ -742,6 +742,8 @@ type ShellApi = {
   openWeather: () => void
   setWeather: (v: { p: Period; s: Sky } | null) => void
   openResume?: () => void
+  // type and run a command, as if the person had
+  run?: (cmd: string) => void
   /* the terminal session: once you start typing, the text under the field
      gives way to a scrollback of what you ran. null when it's closed. */
   log: LogEntry[] | null
@@ -882,7 +884,80 @@ const showPath = (p: Path) => `~/${HOME_DIR}${p.length ? '/' + p.join('/') : ''}
 // from a window on the desk, the GUI is the page around it
 const toGui = (p: Path) => { (window.top ?? window).location.href = `/${p.length ? `?open=${p.join('/')}` : ''}` }
 
+/* When a command fails in a way that's easy to fix (a typo, a file that's
+   really a folder, a project you have to cd into first), say what was meant
+   and let a click run it. */
+const editDist = (a: string, b: string) => {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
+  for (let j = 1; j <= b.length; j++) d[0][j] = j
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+  return d[a.length][b.length]
+}
+// every file and folder in the portfolio, as a path from the top
+const ALL_PATHS: string[] = (() => {
+  const out: string[] = []
+  const walk = (p: Path) => (listing(p) ?? []).forEach(n => {
+    const q = [...p, n.replace(/\/$/, '')]
+    out.push(q.join('/') + (n.endsWith('/') ? '/' : ''))
+    if (n.endsWith('/')) walk(q)
+  })
+  walk([])
+  return ['.secret', ...out]
+})()
+// a path written from where you are
+const rel = (target: string, cwd: Path) => {
+  const t = target.replace(/\/$/, '').split('/')
+  let i = 0
+  while (i < cwd.length && i < t.length && cwd[i] === t[i]) i++
+  const up = cwd.length - i
+  const rest = t.slice(i).join('/')
+  return up > 1 ? `~/${target.replace(/\/$/, '')}` : (up === 1 ? '../' : '') + rest
+}
+function meant(cmd: string, cwd: Path): { show: string; run: string } | null {
+  const [name, ...args] = cmd.trim().split(/\s+/)
+  const arg = args.filter(a => !a.startsWith('-')).join(' ')
+  const flags = args.filter(a => a.startsWith('-')).join(' ')
+  const known = COMMANDS.includes(name)
+  // a typo in the command itself
+  if (!known) {
+    const near = COMMANDS.map(c => [c, editDist(name.toLowerCase(), c)] as const).sort((a, b) => a[1] - b[1])[0]
+    if (!near || near[1] > 2 || name.length < 2) return null
+    const fixed = [near[0], ...args].join(' ')
+    return { show: fixed, run: fixed }
+  }
+  if (!arg) return null
+  const name0 = arg.replace(/\/$/, '').split('/').pop()!.toLowerCase()
+  /* the closest thing anywhere in the portfolio: a near-typo, or a name that
+     starts with or contains what was typed; folders and shallower paths first */
+  const best = ALL_PATHS.map(pth => {
+    const leaf = pth.replace(/\/$/, '').split('/').pop()!.toLowerCase()
+    const bare = leaf.replace(/^\./, '')
+    let score = Math.min(editDist(name0, leaf), editDist(name0, bare))
+    if (name0.length >= 3 && (leaf.startsWith(name0) || bare.startsWith(name0))) score = Math.min(score, 0.2)
+    if (name0.length >= 4 && leaf.includes(name0)) score = Math.min(score, 0.2)
+    score += (pth.endsWith('/') ? 0 : 0.05) + pth.split('/').length * 0.01
+    return [pth, score] as const
+  }).sort((a, b) => a[1] - b[1])[0]
+  if (!best || best[1] > 2.2) return null
+  const isDir = best[0].endsWith('/')
+  const where = rel(best[0], cwd)
+  // a folder wants cd or ls, a file wants cat
+  const verb = name === 'cd' ? (isDir ? 'cd' : 'cat') : name === 'cat' || name === 'vim' || name === 'vi' || name === 'nano' ? (isDir ? 'cd' : name) : name
+  // shown from where you are; a click runs it from the top, so it works from anywhere
+  return { show: [verb, flags, where].filter(Boolean).join(' '), run: [verb, flags, '~/' + best[0].replace(/\/$/, '')].filter(Boolean).join(' ') }
+}
+const FAILED = /^(zsh: command not found|cat: .*(No such file|Is a directory)|cd: no such|ls: .*No such|tree: .*No such|imgcat: .*No such|vim: |vi: |nano: |The file .* does not exist)/
+
 function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) => void = () => {}): React.ReactNode {
+  const r = runCommandRaw(raw, api, cwd, cd)
+  if (typeof r !== 'string' || !FAILED.test(r)) return r
+  const m = meant(raw, cwd)
+  if (!m || m.show.trim() === raw.trim()) return r
+  return <>{r}{'\n'}I think you mean <button className="term-meant" onClick={() => api.run?.(m.run)}>{m.show}</button></>
+}
+
+function runCommandRaw(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) => void = () => {}): React.ReactNode {
   const cmd = raw.trim().replace(/\s+/g, ' ')
   const [name, ...args] = cmd.split(' ')
   const arg = args.join(' ').toLowerCase()
@@ -1075,7 +1150,7 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
     case 'vim': case 'vi': case 'nano': case 'emacs': case 'code': {
       // opens the file the way vim draws it: the text, empty lines as ~, a status line
       if (!arg) return `${name}: this portfolio is read-only. Try ${name} .secret`
-      const body = runCommand(`cat ${arg}`, api, cwd, cd)
+      const body = runCommandRaw(`cat ${arg}`, api, cwd, cd)
       if (typeof body === 'string' && /^cat: |^usage/.test(body)) return body.replace(/^cat/, name)
       const text = typeof body === 'string' ? body : ''
       return (
@@ -1097,8 +1172,8 @@ function runCommand(raw: string, api: ShellApi, cwd: Path = [], cd: (p: Path) =>
           d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
         return d[a.length][b.length]
       }
-      const near = COMMANDS.map(c => [c, dist(name.toLowerCase(), c)] as const).sort((a, b) => a[1] - b[1])[0]
-      return near && near[1] <= 2 && name.length > 1 ? `zsh: command not found: ${name}. did you mean ${near[0]}?` : `zsh: command not found: ${name}`
+      void dist
+      return `zsh: command not found: ${name}`
     }
   }
 }
@@ -1125,6 +1200,9 @@ function Shell({ api, runRef, standalone = false, boot }: { api: ShellApi; runRe
   const start = () => { if (!session) api.setLog([]) }
   // a standalone terminal has nowhere to go back to: ctrl+c just clears the line
   const end = () => { if (standalone) { setText(''); return } api.setLog(null); setText(''); setOut('type help · press tab to see options') }
+  // a suggestion's click types it in and runs it
+  api = { ...api, run: (c: string) => submitRef.current?.(c) }
+  const submitRef = useRef<((c: string) => void) | null>(null)
   const submit = (cmd = text) => {
     if (cmd.trim()) { hist.current.push(cmd); at.current = hist.current.length }
     const c = cmd.trim()
@@ -1140,6 +1218,7 @@ function Shell({ api, runRef, standalone = false, boot }: { api: ShellApi; runRe
     else api.setLog(l => [...(l ?? []), { at: prompt, cmd, out: r }])
     setText('')
   }
+  submitRef.current = submit
   /* boot: the terminal types its first command itself, a key at a time,
      then runs it, as if someone just sat down at it */
   const booted = useRef(false)
@@ -1881,6 +1960,7 @@ export default function Home() {
         .vim-body { white-space: pre-wrap; }
         .vim-tilde { color: var(--award); }
         .vim-status { display: flex; justify-content: space-between; background: var(--ink); color: var(--bg); padding: 0 0.5ch; }
+        .term-meant { background: none; border: 0; padding: 0; font: inherit; color: var(--award); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
         .term-pre { margin: 0; font-family: var(--font-mono); font-size: inherit; line-height: 1.45; white-space: pre; }
         /* about-me printed in the session reads like the rest of the output: mono, same size and spacing */
         .term-doc p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; margin: 0 0 0.75rem; max-width: 80ch; white-space: normal; }
